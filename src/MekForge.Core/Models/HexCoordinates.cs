@@ -1,4 +1,4 @@
-﻿namespace Sanet.MekForge.Core.Models;
+namespace Sanet.MekForge.Core.Models;
 
 /// <summary>
 /// Represents coordinates in a hexagonal grid using axial coordinate system
@@ -48,5 +48,22 @@ public readonly record struct HexCoordinates
         var dR = Math.Abs(R - other.R);
         var dS = Math.Abs(S - other.S);
         return Math.Max(Math.Max(dQ, dR), dS);
+    }
+
+    /// <summary>
+    /// Returns all hex coordinates within the specified range (inclusive)
+    /// </summary>
+    public IEnumerable<HexCoordinates> GetCoordinatesInRange(int range)
+    {
+        for (var q = -range; q <= range; q++)
+        {
+            var r1 = Math.Max(-range, -q - range);
+            var r2 = Math.Min(range, -q + range);
+            
+            for (var r = r1; r <= r2; r++)
+            {
+                yield return new HexCoordinates(Q + q, R + r);
+            }
+        }
     }
 }

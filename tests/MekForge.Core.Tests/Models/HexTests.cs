@@ -102,4 +102,69 @@ public class HexTests
         // Assert
         ceiling.Should().Be(2);
     }
+
+    [Fact]
+    public void MovementCost_WithNoTerrain_Returns1()
+    {
+        // Arrange
+        var hex = new Hex(new HexCoordinates(0, 0));
+
+        // Act & Assert
+        hex.MovementCost.Should().Be(1);
+    }
+
+    [Fact]
+    public void MovementCost_WithSingleTerrain_ReturnsTerrainFactor()
+    {
+        // Arrange
+        var hex = new Hex(new HexCoordinates(0, 0));
+        hex.AddTerrain(new LightWoodsTerrain()); // TerrainFactor = 2
+
+        // Act & Assert
+        hex.MovementCost.Should().Be(2);
+    }
+
+    [Fact]
+    public void MovementCost_WithMultipleTerrains_ReturnsHighestFactor()
+    {
+        // Arrange
+        var hex = new Hex(new HexCoordinates(0, 0));
+        hex.AddTerrain(new ClearTerrain());      // TerrainFactor = 1
+        hex.AddTerrain(new LightWoodsTerrain()); // TerrainFactor = 2
+        hex.AddTerrain(new HeavyWoodsTerrain()); // TerrainFactor = 3
+
+        // Act & Assert
+        hex.MovementCost.Should().Be(3);
+    }
+
+    [Fact]
+    public void MovementCost_AfterRemovingHighestTerrain_ReturnsNextHighestFactor()
+    {
+        // Arrange
+        var hex = new Hex(new HexCoordinates(0, 0));
+        hex.AddTerrain(new LightWoodsTerrain()); // TerrainFactor = 2
+        hex.AddTerrain(new HeavyWoodsTerrain()); // TerrainFactor = 3
+
+        // Act
+        hex.RemoveTerrain("HeavyWoods");
+
+        // Assert
+        hex.MovementCost.Should().Be(2);
+    }
+
+    [Fact]
+    public void MovementCost_AfterRemovingAllTerrain_Returns1()
+    {
+        // Arrange
+        var hex = new Hex(new HexCoordinates(0, 0));
+        hex.AddTerrain(new LightWoodsTerrain());
+        hex.AddTerrain(new HeavyWoodsTerrain());
+
+        // Act
+        hex.RemoveTerrain("LightWoods");
+        hex.RemoveTerrain("HeavyWoods");
+
+        // Assert
+        hex.MovementCost.Should().Be(1);
+    }
 }

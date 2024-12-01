@@ -67,11 +67,11 @@ public class HexCoordinatesTests
         var hex2 = new HexCoordinates(-1, 2);
 
         // Act
-        var distance1to2 = hex1.DistanceTo(hex2);
-        var distance2to1 = hex2.DistanceTo(hex1);
+        var distance1To2 = hex1.DistanceTo(hex2);
+        var distance2To1 = hex2.DistanceTo(hex1);
 
         // Assert
-        distance1to2.Should().Be(distance2to1);
+        distance1To2.Should().Be(distance2To1);
     }
 
     [Fact]
@@ -107,5 +107,28 @@ public class HexCoordinatesTests
         {
             center.DistanceTo(neighbor).Should().Be(1);
         }
+    }
+
+    [Theory]
+    [InlineData(0, 0, 1)]  // Range 1 from origin
+    [InlineData(0, 0, 2)]  // Range 2 from origin
+    [InlineData(1, -1, 1)] // Range 1 from non-origin
+    public void GetCoordinatesInRange_ReturnsCorrectHexes(int centerQ, int centerR, int range)
+    {
+        // Arrange
+        var center = new HexCoordinates(centerQ, centerR);
+
+        // Act
+        var hexesInRange = center.GetCoordinatesInRange(range).ToList();
+
+        // Assert
+        foreach (var hex in hexesInRange)
+        {
+            center.DistanceTo(hex).Should().BeLessThanOrEqualTo(range);
+        }
+
+        // Verify that all hexes at exactly range distance are included
+        var hexesAtRange = hexesInRange.Where(h => center.DistanceTo(h) == range);
+        hexesAtRange.Count().Should().Be(6 * range); // Each range adds 6 more hexes
     }
 }

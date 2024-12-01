@@ -40,4 +40,11 @@ public class Hex
             : 0;
         return Level + maxTerrainHeight;
     }
+
+    /// <summary>
+    /// Gets the movement cost for entering this hex (highest terrain factor)
+    /// </summary>
+    public int MovementCost => _terrains.Count != 0 
+        ? _terrains.Values.Max(t => t.TerrainFactor)
+        : 1; // Default cost for empty hex
 }
