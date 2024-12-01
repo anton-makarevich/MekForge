@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 
+#
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MekForge.Core", "src\MekForge.Core\MekForge.Core.csproj", "{28103209-9AB0-4456-8CD3-5FBA1FE477D6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MekForge.Avalonia", "MekForge.Avalonia", "{E9EF5D46-32F6-4656-93DB-04EF916A0619}"
@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MekForge.Avalonia.iOS", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MekForge.Avalonia.Browser", "src\MekForge.Avalonia\MekForge.Avalonia.Browser\MekForge.Avalonia.Browser.csproj", "{75CA1562-F172-48F7-8BBD-DC0D023D2C3E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{494EAB2B-4CF4-4B88-B85F-3F1E3B6E15A3}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MekForge.Tests", "MekForge.Tests", "{494EAB2B-4CF4-4B88-B85F-3F1E3B6E15A3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MekForge.Core.Tests", "tests\MekForge.Core.Tests\MekForge.Core.Tests.csproj", "{28F2DCC0-CC79-439C-8885-C96E216E24CF}"
 EndProject
