@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+    <PropertyGroup>
+        <TargetFramework>net9.0-browser</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <AssemblyName>Sanet.MekForge.Avalonia.Browser</AssemblyName>
+        <RootNamespace>Sanet.MekForge.Avalonia.Browser</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia.Browser" Version="11.2.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\MekForge.Avalonia\MekForge.Avalonia.csproj"/>
+    </ItemGroup>
+</Project>
