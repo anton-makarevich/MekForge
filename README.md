@@ -37,6 +37,8 @@ MekForge/
 - **MekForge.Core**:
 
 [![codecov](https://codecov.io/github/anton-makarevich/MekForge/graph/badge.svg?token=SAQTXWFA21)](https://codecov.io/github/anton-makarevich/MekForge)
+[![build](https://github.com/anton-makarevich/MekForge/actions/workflows/core.yml/badge.svg)](https://github.com/anton-makarevich/MekForge/actions/workflows/core.yml)
+![NuGet Version](https://img.shields.io/nuget/vpre/Sanet.MekForge.Core)
 
 
 ## Development Setup
