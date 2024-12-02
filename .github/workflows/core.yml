@@ -28,7 +28,6 @@ jobs:
         run: bash <(curl -s https://codecov.io/bash) -f "tests/MekForge.Core.Tests/coverage.opencover.xml" -t ${{ secrets.CODECOV_TOKEN }}
   
   publish-nuget:
-    needs: build-and-test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
