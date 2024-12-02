@@ -23,4 +23,4 @@ jobs:
         run: dotnet test tests/MekForge.Core.Tests/MekForge.Core.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute=GeneratedCodeAttribute /p:Include=[Sanet.MekForge.Core]*
 
       - name: Upload Core tests results
-        run: bash <(curl -s https://codecov.io/bash) -f "tests/MekForge.Core.Test/coverage.opencover.xml" -t ${{ secrets.CODECOV_TOKEN }}
+        run: bash <(curl -s https://codecov.io/bash) -f "tests/MekForge.Core.Tests/coverage.opencover.xml" -t ${{ secrets.CODECOV_TOKEN }}
