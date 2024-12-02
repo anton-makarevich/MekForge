@@ -32,6 +32,13 @@ MekForge/
 └── docs/                     # Documentation
 ```
 
+### Project Status
+
+- **MekForge.Core**:
+
+[![codecov](https://codecov.io/github/anton-makarevich/MekForge/graph/badge.svg?token=SAQTXWFA21)](https://codecov.io/github/anton-makarevich/MekForge)
+
+
 ## Development Setup
 
 ### Prerequisites

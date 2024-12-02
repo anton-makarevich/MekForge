@@ -6,7 +6,9 @@ on:
   pull_request:
 
   workflow_dispatch:
-
+env:
+  NuGetDirectory: ${{ github.workspace}}/nuget
+  
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -24,3 +26,26 @@ jobs:
 
       - name: Upload Core tests results
         run: bash <(curl -s https://codecov.io/bash) -f "tests/MekForge.Core.Tests/coverage.opencover.xml" -t ${{ secrets.CODECOV_TOKEN }}
+  
+  publish-nuget:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.x'
+
+      - name: Create nuget packages
+        run: |
+          dotnet pack src/MekForge.Core/MekForge.Core.csproj --configuration Release --output ${{ env.NuGetDirectory }}
+
+      - name: Publish NuGet package
+        run: |
+          foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
+              dotnet nuget push $file --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          }

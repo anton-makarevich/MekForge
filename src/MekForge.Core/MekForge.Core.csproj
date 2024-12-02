@@ -6,6 +6,12 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Sanet.MekForge.Core</AssemblyName>
         <RootNamespace>Sanet.MekForge.Core</RootNamespace>
+                   
+        <PackageLicenseExpression>GPL-3.0</PackageLicenseExpression>
+        <Version>0.1.0</Version>
+        <Authors>Anton Makarevich</Authors>
+        <Company>Anton Makarevich</Company>
+        <Description>Classic BattleTech game implementation</Description>
     </PropertyGroup>
 
 </Project>
