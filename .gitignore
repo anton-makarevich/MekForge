@@ -262,3 +262,6 @@ __pycache__/
 *.pyc
 *.bak
 *.old
+
+# Coverage reports
+**/coverage.opencover.xml
