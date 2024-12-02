@@ -199,10 +199,7 @@ public class BattleMapTests
         // Check if all hexes are created
         for (var r = 0; r < height; r++)
         {
-            var qStart = r % 2 == 0 ? 0 : -1;
-            var qEnd = width + (r % 2 == 0 ? 0 : -1);
-            
-            for (var q = qStart; q < qEnd; q++)
+            for (var q = 0; q < width; q++)
             {
                 var hex = map.GetHex(new HexCoordinates(q, r));
                 hex.Should().NotBeNull();
@@ -237,7 +234,7 @@ public class BattleMapTests
         }
 
         // Check odd rows have light woods
-        var qStart = -1; // Odd rows are offset
+        var qStart = 0; // Odd rows are offset
         for (var q = qStart; q < width - 1; q++)
         {
             var hex = map.GetHex(new HexCoordinates(q, 1));
