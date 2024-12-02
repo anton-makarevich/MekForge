@@ -128,4 +128,34 @@ public class HexCoordinatesTests
         var hexesAtRange = hexesInRange.Where(h => center.DistanceTo(h) == range);
         hexesAtRange.Count().Should().Be(6 * range); // Each range adds 6 more hexes
     }
+
+    [Fact]
+    public void X_CalculatesCorrectPixelPosition()
+    {
+        // Arrange & Act
+        var hex1 = new HexCoordinates(0, 0);
+        var hex2 = new HexCoordinates(1, 0);
+        var hex3 = new HexCoordinates(2, 0);
+
+        // Assert
+        hex1.X.Should().Be(0);
+        hex2.X.Should().Be(75); // 100 * 0.75
+        hex3.X.Should().Be(150); // 200 * 0.75
+    }
+
+    [Fact]
+    public void Y_CalculatesCorrectPixelPosition()
+    {
+        // Arrange & Act
+        var hex1 = new HexCoordinates(0, 0); // Even Q
+        var hex2 = new HexCoordinates(0, 1); // Even Q
+        var hex3 = new HexCoordinates(1, 0); // Odd Q
+        var hex4 = new HexCoordinates(1, 1); // Odd Q
+
+        // Assert
+        hex1.Y.Should().Be(0);
+        hex2.Y.Should().Be(100);
+        hex3.Y.Should().Be(50);  // Offset for odd Q
+        hex4.Y.Should().Be(150); // 100 + 50 offset for odd Q
+    }
 }

@@ -1,12 +1,16 @@
+using System;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
-using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
-using MekForge.Avalonia.ViewModels;
-using MekForge.Avalonia.Views;
+using Microsoft.Extensions.DependencyInjection;
+using Sanet.MekForge.Avalonia.ViewModels;
+using Sanet.MekForge.Avalonia.Views;
+using Sanet.MVVM.Core.Services;
+using Sanet.MVVM.Navigation.Avalonia.Services;
+using MainWindow = Sanet.MekForge.Avalonia.Views.MainWindow;
 
-namespace MekForge.Avalonia;
+namespace Sanet.MekForge.Avalonia;
 
 public partial class App : Application
 {
@@ -17,24 +21,50 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        if (Resources[MVVM.DI.Avalonia.Extensions.AppBuilderExtensions.ServiceCollectionResourceKey] is not IServiceCollection services)
         {
-            // Line below is needed to remove Avalonia data validation.
-            // Without this line you will get duplicate validations from both Avalonia and CT
-            BindingPlugins.DataValidators.RemoveAt(0);
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = new MainViewModel()
-            };
+            throw new Exception("Services are not initialized");
         }
-        else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
+
+        services.AddTransient<BattleMapViewModel>();
+
+        var serviceProvider = services.BuildServiceProvider();
+        INavigationService navigationService;
+
+        BattleMapViewModel? viewModel;
+        switch (ApplicationLifetime)
         {
-            singleViewPlatform.MainView = new MainView
+            case IClassicDesktopStyleApplicationLifetime desktop:
             {
-                DataContext = new MainViewModel()
-            };
+                navigationService = new NavigationService(desktop, serviceProvider);
+                RegisterViews(navigationService);
+                viewModel = navigationService.GetViewModel<BattleMapViewModel>();
+                desktop.MainWindow = new MainWindow
+                {
+                    Content = new BattleMapView
+                    {
+                        ViewModel = viewModel
+                    }
+                };
+                break;
+            }
+            case ISingleViewApplicationLifetime singleViewPlatform:
+                var mainViewWrapper = new ContentControl();
+                navigationService = new SingleViewNavigationService(singleViewPlatform, mainViewWrapper, serviceProvider);
+                RegisterViews(navigationService);
+                viewModel = navigationService.GetViewModel<BattleMapViewModel>();
+                mainViewWrapper.Content = new BattleMapView
+                {
+                    ViewModel = viewModel
+                };
+                break;
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private void RegisterViews(INavigationService navigationService)
+    {
+        navigationService.RegisterViews(typeof(BattleMapView), typeof(BattleMapViewModel));
     }
 }

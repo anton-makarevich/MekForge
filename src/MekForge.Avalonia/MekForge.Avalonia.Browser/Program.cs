@@ -2,7 +2,9 @@
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Browser;
-using MekForge.Avalonia;
+using Sanet.MekForge.Avalonia;
+using Sanet.MekForge.Avalonia.Browser.DependencyInjection;
+using Sanet.MVVM.DI.Avalonia.Extensions;
 
 [assembly: SupportedOSPlatform("browser")]
 
@@ -10,6 +12,7 @@ internal sealed partial class Program
 {
     private static Task Main(string[] args) => BuildAvaloniaApp()
         .WithInterFont()
+        .UseDependencyInjection(services=>services.RegisterBrowserServices())
         .StartBrowserAppAsync("out");
 
     public static AppBuilder BuildAvaloniaApp()

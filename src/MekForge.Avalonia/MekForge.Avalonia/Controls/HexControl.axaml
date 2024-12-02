@@ -1,0 +1,12 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="100" d:DesignHeight="100"
+             x:Class="Sanet.MekForge.Avalonia.Controls.HexControl">
+    <Polygon Name="HexPolygon"
+             Points="0,50 25,100 75,100 100,50 75,0 25,0"
+             Fill="Gray"
+             Stroke="White"
+             StrokeThickness="2"/>
+</UserControl>
