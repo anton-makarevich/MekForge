@@ -244,4 +244,20 @@ public class BattleMapTests
             hex!.HasTerrain("LightWoods").Should().BeTrue();
         }
     }
+
+    [Fact]
+    public void GetHexes_ReturnsCorrectCount()
+    {
+        // Arrange
+        var rows = 10;
+        var columns = 10;
+        var map = BattleMap.GenerateMap(rows, columns, coordinates => 
+            new Hex(coordinates));
+
+        // Act
+        var hexes = map.GetHexes();
+
+        // Assert
+        hexes.Count().Should().Be(rows * columns);
+    }
 }

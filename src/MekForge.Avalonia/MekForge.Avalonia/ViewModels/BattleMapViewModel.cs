@@ -11,7 +11,7 @@ public class BattleMapViewModel : BaseViewModel
     public BattleMapViewModel()
     {
         // For testing, let's generate a simple map
-        _battleMap = BattleMap.GenerateMap(10, 10, coordinates =>
+        _battleMap = BattleMap.GenerateMap(14, 12, coordinates =>
         {
             var hex = new Hex(coordinates);
             // Add clear terrain to even rows, light woods to odd rows
@@ -19,4 +19,6 @@ public class BattleMapViewModel : BaseViewModel
             return hex;
         });
     }
+
+    public BattleMap BattleMap => _battleMap;
 }

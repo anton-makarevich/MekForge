@@ -5,6 +5,9 @@ namespace Sanet.MekForge.Core.Models;
 /// </summary>
 public readonly record struct HexCoordinates
 {
+    private const double HexWidth = 100;
+    private const double HexHeight = 100;
+
     /// <summary>
     /// Q coordinate (column)
     /// </summary>
@@ -15,6 +18,16 @@ public readonly record struct HexCoordinates
     /// </summary>
     public int R { get; init; }
     
+    /// <summary>
+    /// Gets the X coordinate in pixels for rendering
+    /// </summary>
+    public double X => Q * HexWidth * 0.75;
+
+    /// <summary>
+    /// Gets the Y coordinate in pixels for rendering
+    /// </summary>
+    public double Y => R * HexHeight + (Q % 2 == 0 ? 0 : HexHeight * 0.5);
+
     public HexCoordinates(int q, int r)
     {
         Q = q;

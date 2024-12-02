@@ -219,13 +219,9 @@ public class BattleMap
     {
         var map = new BattleMap(width, height);
 
-        // In a hex grid, odd rows are offset by 0.5 hexes
         for (var r = 0; r < height; r++)
         {
-            var qStart = r % 2 == 0 ? 0 : -1;
-            var qEnd = width + (r % 2 == 0 ? 0 : -1);
-            
-            for (var q = qStart; q < qEnd; q++)
+            for (var q = 0; q < width; q++)
             {
                 var coordinates = new HexCoordinates(q, r);
                 var hex = hexGenerator(coordinates);
@@ -234,5 +230,10 @@ public class BattleMap
         }
 
         return map;
+    }
+
+    public IEnumerable<Hex> GetHexes()
+    {
+        return _hexes.Values;
     }
 }
