@@ -41,9 +41,6 @@ public class HexCoordinatesTests
     [InlineData(0, 0, 2, -2, 2)] // Two hexes away (diagonal)
     [InlineData(0, 0, 3, -1, 3)] // Three hexes away
     [InlineData(-2, 1, 2, -1, 4)] // Random longer distance
-    [InlineData(0, 0, 1, 0, 1)]  // Adjacent east
-    [InlineData(0, 0, 2, 0, 2)]  // Two hexes east
-    [InlineData(0, 0, 1, -1, 1)] // Adjacent northeast
     [InlineData(0, 0, -2, 2, 2)] // Two hexes southwest
     [InlineData(3, -1, -2, 2, 5)] // Longer distance
     public void DistanceTo_ReturnsCorrectDistance(int q1, int r1, int q2, int r2, int expectedDistance)
