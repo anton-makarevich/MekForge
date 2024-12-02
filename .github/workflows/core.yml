@@ -1,0 +1,26 @@
+name: MekForge Core Library
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 9.x
+
+      - name: Run Core tests
+        run: dotnet test tests/MekForge.Core.Tests/MekForge.Core.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute=GeneratedCodeAttribute /p:Include=[MekForge.Core]*
+
+      - name: Upload Core tests results
+        run: bash <(curl -s https://codecov.io/bash) -f "tests/MekForge.Core.Test/coverage.opencover.xml" -t ${{ secrets.CODECOV_TOKEN }}
