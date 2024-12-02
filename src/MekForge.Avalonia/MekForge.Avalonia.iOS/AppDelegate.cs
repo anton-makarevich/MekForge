@@ -1,11 +1,10 @@
-using Foundation;
-using UIKit;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.iOS;
-using Avalonia.Media;
+using Foundation;
+using Sanet.MekForge.Avalonia.iOS.DependencyInjection;
+using Sanet.MVVM.DI.Avalonia.Extensions;
 
-namespace MekForge.Avalonia.iOS;
+namespace Sanet.MekForge.Avalonia.iOS;
 
 // The UIApplicationDelegate for the application. This class is responsible for launching the 
 // User Interface of the application, as well as listening (and optionally responding) to 
@@ -18,6 +17,7 @@ public partial class AppDelegate : AvaloniaAppDelegate<App>
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
         return base.CustomizeAppBuilder(builder)
+            .UseDependencyInjection(services=>services.RegisterIosServices())
             .WithInterFont();
     }
 }

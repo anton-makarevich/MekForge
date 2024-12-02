@@ -1,7 +1,9 @@
 ﻿using System;
 using Avalonia;
+using Sanet.MekForge.Avalonia.Desktop.DependencyInjection;
+using Sanet.MVVM.DI.Avalonia.Extensions;
 
-namespace MekForge.Avalonia.Desktop;
+namespace Sanet.MekForge.Avalonia.Desktop;
 
 sealed class Program
 {
@@ -16,6 +18,7 @@ sealed class Program
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
+            .UseDependencyInjection(services=>services.RegisterDesktopServices())
             .WithInterFont()
             .LogToTrace();
 }
