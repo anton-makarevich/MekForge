@@ -8,11 +8,13 @@
         <RootNamespace>Sanet.MekForge.Core</RootNamespace>
                    
         <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-        <PackageReadmeFile>../../README.md</PackageReadmeFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <Version>0.1.0-alpha</Version>
         <Authors>Anton Makarevich</Authors>
         <Company>Anton Makarevich</Company>
         <Description>Classic BattleTech game implementation</Description>
     </PropertyGroup>
-
+    <ItemGroup>
+        <None Include="../../README.md" Pack="true" PackagePath="" />
+    </ItemGroup>
 </Project>
