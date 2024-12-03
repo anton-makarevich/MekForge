@@ -1,6 +1,6 @@
 using Sanet.MekForge.Avalonia.Services;
 using Sanet.MekForge.Core.Models;
-using Sanet.MekForge.Core.Models.Terrains;
+using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MVVM.Core.ViewModels;
 
 namespace Sanet.MekForge.Avalonia.ViewModels;
@@ -13,16 +13,16 @@ public class BattleMapViewModel : BaseViewModel
     public BattleMapViewModel(IImageService imageService)
     {
         _imageService = imageService;
-        // For testing, let's generate a simple map
-        _battleMap = BattleMap.GenerateMap(14, 12, coordinates =>
-        {
-            var hex = new Hex(coordinates);
-            // Add clear terrain to even rows, light woods to odd rows
-            hex.AddTerrain(coordinates.R % 2 == 0
-                ? new ClearTerrain()
-                : new LightWoodsTerrain());
-            return hex;
-        });
+        const int width = 44;
+        const int height = 32;
+        
+        // Generate a map with clear terrain and random forest patches
+        var generator = new ForestPatchesGenerator(
+            width, height,
+            forestCoverage: 0.2, // 30% forest coverage
+            lightWoodsProbability: 0.7); // 70% chance of light woods vs heavy woods
+            
+        _battleMap = BattleMap.GenerateMap(width, height, generator);
     }
 
     public BattleMap BattleMap => _battleMap;

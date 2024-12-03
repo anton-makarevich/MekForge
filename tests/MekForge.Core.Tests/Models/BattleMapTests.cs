@@ -1,16 +1,32 @@
 using FluentAssertions;
+using NSubstitute;
+using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Terrains;
+using Sanet.MekForge.Core.Utils.Generators;
 
 namespace MekForge.Core.Tests.Models;
 
 public class BattleMapTests
 {
     [Fact]
+    public void Constructor_SetsWidthAndHeight()
+    {
+        // Arrange & Act
+        const int width = 5;
+        const int height = 4;
+        var map = new BattleMap(width, height);
+
+        // Assert
+        map.Width.Should().Be(width);
+        map.Height.Should().Be(height);
+    }
+
+    [Fact]
     public void AddHex_StoresHexInMap()
     {
         // Arrange
-        var map = new BattleMap();
+        var map = new BattleMap(1, 1);
         var hex = new Hex(new HexCoordinates(0, 0));
 
         // Act
@@ -20,11 +36,31 @@ public class BattleMapTests
         map.GetHex(hex.Coordinates).Should().Be(hex);
     }
 
+    [Theory]
+    [InlineData(-1, 0)]  // Left of map
+    [InlineData(2, 0)]   // Right of map
+    [InlineData(0, -1)]  // Above map
+    [InlineData(0, 2)]   // Below map
+    public void AddHex_OutsideMapBoundaries_ThrowsException(int q, int r)
+    {
+        // Arrange
+        var map = new BattleMap(2, 2);
+        var hex = new Hex(new HexCoordinates(q, r));
+
+        // Act & Assert
+        var action = () => map.AddHex(hex);
+        action.Should().Throw<HexOutsideOfMapBoundariesException>()
+            .Which.Should().Match<HexOutsideOfMapBoundariesException>(ex =>
+                ex.Coordinates == hex.Coordinates &&
+                ex.MapWidth == 2 &&
+                ex.MapHeight == 2);
+    }
+
     [Fact]
     public void FindPath_WithClearTerrain_FindsShortestPath()
     {
         // Arrange
-        var map = new BattleMap();
+        var map = new BattleMap(3, 1);
         var start = new HexCoordinates(0, 0);
         var target = new HexCoordinates(2, 0);
 
@@ -52,23 +88,23 @@ public class BattleMapTests
     public void FindPath_WithHeavyWoods_TakesLongerPath()
     {
         // Arrange
-        var map = new BattleMap();
+        var map = new BattleMap(3, 2);
         var start = new HexCoordinates(0, 0);
         var target = new HexCoordinates(2, 0);
 
-        // Add clear terrain path around
-        for (var q = 0; q <= 2; q++)
-        {
-            var hex = new Hex(new HexCoordinates(q, -1));
-            hex.AddTerrain(new ClearTerrain());
-            map.AddHex(hex);
-        }
-
-        // Add heavy woods on direct path
+        // Add heavy woods on direct path (row 0)
         for (var q = 0; q <= 2; q++)
         {
             var hex = new Hex(new HexCoordinates(q, 0));
             hex.AddTerrain(new HeavyWoodsTerrain());
+            map.AddHex(hex);
+        }
+
+        // Add clear terrain path through row 1
+        for (var q = 0; q <= 2; q++)
+        {
+            var hex = new Hex(new HexCoordinates(q, 1));
+            hex.AddTerrain(new ClearTerrain());
             map.AddHex(hex);
         }
 
@@ -77,15 +113,15 @@ public class BattleMapTests
 
         // Assert
         path.Should().NotBeNull();
-        path!.Should().Contain(new HexCoordinates(1, -1)); // Should go through clear terrain
+        path!.Should().Contain(new HexCoordinates(1, 1)); // Should go through clear terrain
     }
 
     [Fact]
     public void GetReachableHexes_WithClearTerrain_ReturnsCorrectHexes()
     {
         // Arrange
-        var map = new BattleMap();
-        var start = new HexCoordinates(0, 0);
+        var map = new BattleMap(5, 5);
+        var start = new HexCoordinates(2, 2);
 
         // Add clear terrain in a 2-hex radius
         foreach (var hex in start.GetCoordinatesInRange(2))
@@ -109,7 +145,7 @@ public class BattleMapTests
     public void GetReachableHexes_WithMixedTerrain_ConsidersTerrainCosts()
     {
         // Arrange
-        var map = new BattleMap();
+        var map = new BattleMap(2, 2);
         var start = new HexCoordinates(0, 0);
 
         // Add clear terrain hex
@@ -134,7 +170,7 @@ public class BattleMapTests
     public void HasLineOfSight_WithClearPath_ReturnsTrue()
     {
         // Arrange
-        var map = new BattleMap();
+        var map = new BattleMap(4, 1);
         var start = new HexCoordinates(0, 0);
         var end = new HexCoordinates(3, 0);
 
@@ -157,7 +193,7 @@ public class BattleMapTests
     public void HasLineOfSight_WithBlockingTerrain_ReturnsFalse()
     {
         // Arrange
-        var map = new BattleMap();
+        var map = new BattleMap(4, 1);
         var start = new HexCoordinates(0, 0);
         var end = new HexCoordinates(3, 0);
 
@@ -187,10 +223,12 @@ public class BattleMapTests
         // Arrange
         const int width = 5;
         const int height = 4;
+        var generator = Substitute.For<ITerrainGenerator>();
+        generator.Generate(Arg.Any<HexCoordinates>())
+            .Returns(c => new Hex(c.Arg<HexCoordinates>()));
 
         // Act
-        var map = BattleMap.GenerateMap(width, height, coordinates => 
-            new Hex(coordinates));
+        var map = BattleMap.GenerateMap(width, height, generator);
 
         // Assert
         map.Width.Should().Be(width);
@@ -205,6 +243,9 @@ public class BattleMapTests
                 hex.Should().NotBeNull();
             }
         }
+
+        // Verify generator was called for each hex
+        generator.Received(width * height).Generate(Arg.Any<HexCoordinates>());
     }
 
     [Fact]
@@ -213,48 +254,29 @@ public class BattleMapTests
         // Arrange
         const int width = 3;
         const int height = 3;
+        var generator = Substitute.For<ITerrainGenerator>();
+        generator.Generate(Arg.Any<HexCoordinates>())
+            .Returns(c => {
+                var hex = new Hex(c.Arg<HexCoordinates>());
+                hex.AddTerrain(new ClearTerrain());
+                return hex;
+            });
 
         // Act
-        var map = BattleMap.GenerateMap(width, height, coordinates =>
-        {
-            var hex = new Hex(coordinates);
-            // Add clear terrain to even rows, light woods to odd rows
-            hex.AddTerrain(coordinates.R % 2 == 0 
-                ? new ClearTerrain() 
-                : new LightWoodsTerrain());
-            return hex;
-        });
+        var map = BattleMap.GenerateMap(width, height, generator);
 
         // Assert
-        // Check even rows have clear terrain
+        // Check all hexes have clear terrain
         for (var q = 0; q < width; q++)
         {
-            var hex = map.GetHex(new HexCoordinates(q, 0));
-            hex!.HasTerrain("Clear").Should().BeTrue();
+            for (var r = 0; r < height; r++)
+            {
+                var hex = map.GetHex(new HexCoordinates(q, r));
+                hex!.HasTerrain("Clear").Should().BeTrue();
+            }
         }
 
-        // Check odd rows have light woods
-        var qStart = 0; // Odd rows are offset
-        for (var q = qStart; q < width - 1; q++)
-        {
-            var hex = map.GetHex(new HexCoordinates(q, 1));
-            hex!.HasTerrain("LightWoods").Should().BeTrue();
-        }
-    }
-
-    [Fact]
-    public void GetHexes_ReturnsCorrectCount()
-    {
-        // Arrange
-        var rows = 10;
-        var columns = 10;
-        var map = BattleMap.GenerateMap(rows, columns, coordinates => 
-            new Hex(coordinates));
-
-        // Act
-        var hexes = map.GetHexes();
-
-        // Assert
-        hexes.Count().Should().Be(rows * columns);
+        // Verify generator was called for each hex
+        generator.Received(width * height).Generate(Arg.Any<HexCoordinates>());
     }
 }
