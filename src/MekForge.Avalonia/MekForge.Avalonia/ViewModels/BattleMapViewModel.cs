@@ -13,13 +13,13 @@ public class BattleMapViewModel : BaseViewModel
     public BattleMapViewModel(IImageService imageService)
     {
         _imageService = imageService;
-        const int width = 44;
-        const int height = 32;
+        const int width = 17;
+        const int height = 16;
         
         // Generate a map with clear terrain and random forest patches
         var generator = new ForestPatchesGenerator(
             width, height,
-            forestCoverage: 0.2, // 30% forest coverage
+            forestCoverage: 0.2, // 20% forest coverage
             lightWoodsProbability: 0.7); // 70% chance of light woods vs heavy woods
             
         _battleMap = BattleMap.GenerateMap(width, height, generator);

@@ -1,15 +1,18 @@
 # MekForge
 
-A modern, cross-platform implementation of tactical turn-based mech combat game, inspired by MegaMek. Built with .NET 9 and AvaloniaUI.
+A cross-platform implementation of tactical turn-based mech combat game, inspired by MegaMek. Built with .NET 9 and AvaloniaUI.
 
 ## Overview (Planned)
 
 MekForge is an open-source tactical combat game featuring giant walking war machines. The game focuses on strategic combat, unit customization, and both single-player and multiplayer experiences.
 
-## Features (Planned)
+## Features
+### Implemented
+- Hex map generator with the simplest terrain types (clear, light and heavy wood) (MegaMek assets)  
+- Cross-platform support (Windows, Linux, macOS, Web, Android, iOS)
+- Responsive UI built with AvaloniaUI
 
-- Cross-platform support (Windows, Linux, macOS)
-- Modern, responsive UI built with AvaloniaUI
+### Planned
 - Single-player combat against AI opponents
 - Multiplayer support (LAN and Internet)
 - Unit customization and management
@@ -65,7 +68,7 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 ## Acknowledgments
 
 - Inspired by MegaMek (https://megamek.org/)
-- Thanks to the BattleTech community for their continued passion for tactical mech combat games
+- Thanks to the BattleTech community for their continued passion.
 
 ## Disclaimer
 
