@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
+using Sanet.MekForge.Avalonia.DI;
 using Sanet.MekForge.Avalonia.ViewModels;
 using Sanet.MekForge.Avalonia.Views;
 using Sanet.MVVM.Core.Services;
@@ -25,6 +26,9 @@ public partial class App : Application
         {
             throw new Exception("Services are not initialized");
         }
+
+        services.RegisterServices();
+        services.RegisterViewModels();
 
         services.AddTransient<BattleMapViewModel>();
 

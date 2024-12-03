@@ -1,3 +1,6 @@
+using Sanet.MekForge.Core.Exceptions;
+using Sanet.MekForge.Core.Utils.Generators;
+
 namespace Sanet.MekForge.Core.Models;
 
 /// <summary>
@@ -10,17 +13,23 @@ public class BattleMap
     public int Width { get; }
     public int Height { get; }
 
-    /// <summary>
-    /// Creates an empty battle map
-    /// </summary>
-    public BattleMap(int width = 0, int height = 0)
+    public BattleMap(int width, int height)
     {
         Width = width;
         Height = height;
     }
 
+    /// <summary>
+    /// Adds a hex to the map. Throws HexOutsideOfMapBoundariesException if hex coordinates are outside map boundaries
+    /// </summary>
     public void AddHex(Hex hex)
     {
+        if (hex.Coordinates.Q < 0 || hex.Coordinates.Q >= Width ||
+            hex.Coordinates.R < 0 || hex.Coordinates.R >= Height)
+        {
+            throw new HexOutsideOfMapBoundariesException(hex.Coordinates, Width, Height);
+        }
+        
         _hexes[hex.Coordinates] = hex;
     }
 
@@ -119,9 +128,8 @@ public class BattleMap
                 if (totalCost > maxMovementPoints) // Exceeds movement points
                     continue;
 
-                if (!visited.ContainsKey(neighbor))
+                if (visited.TryAdd(neighbor, totalCost))
                 {
-                    visited[neighbor] = totalCost;
                     toVisit.Enqueue(neighbor);
                 }
                 else if (totalCost < visited[neighbor])
@@ -180,7 +188,7 @@ public class BattleMap
     {
         var distance = from.DistanceTo(to);
         if (distance == 0)
-            return new[] { from };
+            return [from];
 
         var results = new List<HexCoordinates> { from };
         
@@ -215,17 +223,17 @@ public class BattleMap
     /// <summary>
     /// Generate a rectangular map with the specified terrain generator
     /// </summary>
-    public static BattleMap GenerateMap(int width, int height, Func<HexCoordinates, Hex> hexGenerator)
+    public static BattleMap GenerateMap(int width, int height, ITerrainGenerator generator)
     {
         var map = new BattleMap(width, height);
 
-        for (var r = 0; r < height; r++)
+        for (var q = 0; q < width; q++)
         {
-            for (var q = 0; q < width; q++)
+            for (var r = 0; r < height; r++)
             {
                 var coordinates = new HexCoordinates(q, r);
-                var hex = hexGenerator(coordinates);
-                map.AddHex(hex);
+                var hex = generator.Generate(coordinates);
+                map._hexes[coordinates] = hex;
             }
         }
 
