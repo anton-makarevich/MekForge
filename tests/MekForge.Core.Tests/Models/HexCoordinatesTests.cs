@@ -154,8 +154,8 @@ public class HexCoordinatesTests
 
         // Assert
         hex1.Y.Should().Be(0);
-        hex2.Y.Should().Be(100);
-        hex3.Y.Should().Be(50);  // Offset for odd Q
-        hex4.Y.Should().Be(150); // 100 + 50 offset for odd Q
+        hex2.Y.Should().Be(HexCoordinates.HexHeight);
+        hex3.Y.Should().Be(HexCoordinates.HexHeight*0.5);  // Offset for odd Q
+        hex4.Y.Should().Be(HexCoordinates.HexHeight*1.5);  // Height + 0.5*Height offset for odd Q
     }
 }

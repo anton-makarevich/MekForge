@@ -5,8 +5,9 @@ namespace Sanet.MekForge.Core.Models;
 /// </summary>
 public readonly record struct HexCoordinates
 {
-    private const double HexWidth = 100;
-    private const double HexHeight = 100;
+    public const double HexWidth = 100;
+    public const double HexHeight = 86.6;
+    public const double HexHorizontalSpacing = HexWidth * 0.75;
 
     /// <summary>
     /// Q coordinate (column)
@@ -21,7 +22,7 @@ public readonly record struct HexCoordinates
     /// <summary>
     /// Gets the X coordinate in pixels for rendering
     /// </summary>
-    public double X => Q * HexWidth * 0.75;
+    public double X => Q * HexHorizontalSpacing;
 
     /// <summary>
     /// Gets the Y coordinate in pixels for rendering
@@ -44,12 +45,12 @@ public readonly record struct HexCoordinates
     /// </summary>
     public IEnumerable<HexCoordinates> GetAdjacentCoordinates()
     {
-        yield return this with { Q = Q + 1, R = R };     // East
-        yield return this with { Q = Q + 1, R = R - 1 }; // Northeast
-        yield return this with { Q = Q, R = R - 1 };     // Northwest
-        yield return this with { Q = Q - 1, R = R };     // West
-        yield return this with { Q = Q - 1, R = R + 1 }; // Southwest
-        yield return this with { Q = Q, R = R + 1 };     // Southeast
+        yield return new HexCoordinates { Q = Q + 1, R = R };     // East
+        yield return new HexCoordinates { Q = Q + 1, R = R - 1 }; // Northeast
+        yield return new HexCoordinates { Q = Q, R = R - 1 };     // Northwest
+        yield return new HexCoordinates { Q = Q - 1, R = R };     // West
+        yield return new HexCoordinates { Q = Q - 1, R = R + 1 }; // Southwest
+        yield return new HexCoordinates { Q = Q, R = R + 1 };     // Southeast
     }
 
     /// <summary>
