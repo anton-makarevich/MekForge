@@ -1,6 +1,4 @@
-using Avalonia.Media.Imaging;
-
-namespace Sanet.MekForge.Avalonia.Services;
+namespace Sanet.MekForge.Core.Services;
 
 /// <summary>
 /// Service for loading and caching images
@@ -13,5 +11,10 @@ public interface IImageService
     /// <param name="assetType">Type of asset (e.g., "terrain", "unit")</param>
     /// <param name="assetName">Name of the asset (e.g., "clear", "woods")</param>
     /// <returns>Image object (platform specific)</returns>
-    Bitmap? GetImage(string assetType, string assetName);
+    object? GetImage(string assetType, string assetName);
+}
+
+public interface IImageService<T>:IImageService
+{
+    new T? GetImage(string assetType, string assetName);
 }

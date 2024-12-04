@@ -4,8 +4,9 @@ using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Media;
-using Sanet.MekForge.Avalonia.Services;
+using Avalonia.Media.Imaging;
 using Sanet.MekForge.Core.Models;
+using Sanet.MekForge.Core.Services;
 
 namespace Sanet.MekForge.Avalonia.Controls;
 
@@ -13,7 +14,7 @@ public class HexControl : Canvas
 {
     private readonly Polygon _hexPolygon;
     private readonly Image _terrainImage;
-    private readonly IImageService _imageService;
+    private readonly IImageService<Bitmap> _imageService;
     private readonly Hex? _hex;
 
     private static readonly IBrush DefaultStroke = Brushes.White;
@@ -40,7 +41,7 @@ public class HexControl : Canvas
         });
     }
 
-    public HexControl(Hex hex, IImageService imageService)
+    public HexControl(Hex hex, IImageService<Bitmap> imageService)
     {
         _hex = hex;
         _imageService = imageService;

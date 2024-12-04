@@ -2,10 +2,11 @@ using System;
 using System.Collections.Concurrent;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Sanet.MekForge.Core.Services;
 
 namespace Sanet.MekForge.Avalonia.Services;
 
-public class AvaloniaAssetImageService : IImageService
+public class AvaloniaAssetImageService : IImageService<Bitmap>
 {
     private readonly ConcurrentDictionary<string, Bitmap?> _cache = new();
     private const string AssetsBasePath = "avares://Sanet.MekForge.Avalonia/Assets";
@@ -14,12 +15,6 @@ public class AvaloniaAssetImageService : IImageService
     {
         var path = $"{AssetsBasePath}/{assetType.ToLower()}/{assetName.ToLower()}.gif";
         return _cache.GetOrAdd(path, LoadImage);
-    }
-
-    public void PreloadImages()
-    {
-        // TODO: Implement preloading by scanning the Assets directory
-        // For now, we'll use lazy loading
     }
 
     private static Bitmap? LoadImage(string path)
@@ -34,5 +29,10 @@ public class AvaloniaAssetImageService : IImageService
         {
             return null;
         }
+    }
+
+    object? IImageService.GetImage(string assetType, string assetName)
+    {
+        return GetImage(assetType, assetName);
     }
 }

@@ -1,10 +1,11 @@
 using Avalonia;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Sanet.MekForge.Avalonia.Controls;
-using Sanet.MekForge.Avalonia.Services;
-using Sanet.MekForge.Avalonia.ViewModels;
 using Sanet.MekForge.Core.Models;
+using Sanet.MekForge.Core.Services;
+using Sanet.MekForge.Core.ViewModels;
 using Sanet.MVVM.Views.Avalonia;
 
 namespace Sanet.MekForge.Avalonia.Views;
@@ -36,7 +37,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
         MapCanvas.AddHandler(Gestures.PinchEvent, OnPinchChanged);
     }
 
-    private void RenderMap(BattleMap battleMap, IImageService imageService)
+    private void RenderMap(BattleMap battleMap, IImageService<Bitmap> imageService)
     {
         MapCanvas.Children.Clear();
 
@@ -87,9 +88,9 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
     protected override void OnViewModelSet()
     {
         base.OnViewModelSet();
-        if (ViewModel != null)
+        if (ViewModel != null && ViewModel.BattleMap != null)
         {
-            RenderMap(ViewModel.BattleMap, ViewModel.ImageService);
+                RenderMap(ViewModel.BattleMap, (IImageService<Bitmap>)ViewModel.ImageService);
         }
     }
 }
