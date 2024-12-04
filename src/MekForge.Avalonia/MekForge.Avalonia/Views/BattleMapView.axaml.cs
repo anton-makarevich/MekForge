@@ -1,10 +1,11 @@
 using Avalonia;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Sanet.MekForge.Avalonia.Controls;
-using Sanet.MekForge.Avalonia.Services;
-using Sanet.MekForge.Avalonia.ViewModels;
 using Sanet.MekForge.Core.Models;
+using Sanet.MekForge.Core.Services;
+using Sanet.MekForge.Core.ViewModels;
 using Sanet.MVVM.Views.Avalonia;
 
 namespace Sanet.MekForge.Avalonia.Views;
@@ -12,18 +13,31 @@ namespace Sanet.MekForge.Avalonia.Views;
 public partial class BattleMapView : BaseView<BattleMapViewModel>
 {
     private Point _lastPointerPosition;
-    private readonly TranslateTransform _mapTransform = new();
+    private readonly TranslateTransform _mapTranslateTransform = new();
+    private readonly ScaleTransform _mapScaleTransform = new() { ScaleX = 1, ScaleY = 1 };
+    private const double MinScale = 0.5;
+    private const double MaxScale = 2.0;
+    private const double ScaleStep = 0.1;
 
     public BattleMapView()
     {
         InitializeComponent();
-        MapCanvas.RenderTransform = _mapTransform;
+        
+        var transformGroup = new TransformGroup();
+        transformGroup.Children.Add(_mapScaleTransform);
+        transformGroup.Children.Add(_mapTranslateTransform);
+        MapCanvas.RenderTransform = transformGroup;
+        
         this.PointerPressed += OnPointerPressed;
         this.PointerMoved += OnPointerMoved;
+        this.PointerWheelChanged += OnPointerWheelChanged;
         
+        var pinchGestureRecognizer = new PinchGestureRecognizer();
+        MapCanvas.GestureRecognizers.Add(pinchGestureRecognizer);
+        MapCanvas.AddHandler(Gestures.PinchEvent, OnPinchChanged);
     }
 
-    private void RenderMap(BattleMap battleMap, IImageService imageService)
+    private void RenderMap(BattleMap battleMap, IImageService<Bitmap> imageService)
     {
         MapCanvas.Children.Clear();
 
@@ -36,11 +50,6 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (MapCanvas.Children.Count == 0)
-        {
-            if (ViewModel != null) RenderMap(ViewModel.BattleMap, ViewModel.ImageService);
-            return;
-        }
         _lastPointerPosition = e.GetPosition(this);
     }
 
@@ -51,7 +60,37 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
         var delta = position - _lastPointerPosition;
         _lastPointerPosition = position;
 
-        _mapTransform.X += delta.X;
-        _mapTransform.Y += delta.Y;
+        _mapTranslateTransform.X += delta.X;
+        _mapTranslateTransform.Y += delta.Y;
+    }
+    
+    private void OnPointerWheelChanged(object? sender, PointerWheelEventArgs e)
+    {
+        var delta = e.Delta.Y * ScaleStep;
+        var newScale = _mapScaleTransform.ScaleX + delta;
+        
+        if (newScale >= MinScale && newScale <= MaxScale)
+        {
+            _mapScaleTransform.ScaleX = newScale;
+            _mapScaleTransform.ScaleY = newScale;
+        }
+    }
+    
+    private void OnPinchChanged(object? sender, PinchEventArgs e)
+    {
+        var newScale = _mapScaleTransform.ScaleX * e.Scale;
+
+        if (!(newScale >= MinScale) || !(newScale <= MaxScale)) return;
+        _mapScaleTransform.ScaleX = newScale;
+        _mapScaleTransform.ScaleY = newScale;
+    }
+
+    protected override void OnViewModelSet()
+    {
+        base.OnViewModelSet();
+        if (ViewModel != null && ViewModel.BattleMap != null)
+        {
+                RenderMap(ViewModel.BattleMap, (IImageService<Bitmap>)ViewModel.ImageService);
+        }
     }
 }

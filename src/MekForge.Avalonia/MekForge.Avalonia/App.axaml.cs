@@ -5,8 +5,8 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using Sanet.MekForge.Avalonia.DI;
-using Sanet.MekForge.Avalonia.ViewModels;
 using Sanet.MekForge.Avalonia.Views;
+using Sanet.MekForge.Core.ViewModels;
 using Sanet.MVVM.Core.Services;
 using Sanet.MVVM.Navigation.Avalonia.Services;
 using MainWindow = Sanet.MekForge.Avalonia.Views.MainWindow;
@@ -30,34 +30,31 @@ public partial class App : Application
         services.RegisterServices();
         services.RegisterViewModels();
 
-        services.AddTransient<BattleMapViewModel>();
-
         var serviceProvider = services.BuildServiceProvider();
         INavigationService navigationService;
 
-        BattleMapViewModel? viewModel;
+        NewGameViewModel? viewModel;
         switch (ApplicationLifetime)
         {
             case IClassicDesktopStyleApplicationLifetime desktop:
-            {
                 navigationService = new NavigationService(desktop, serviceProvider);
                 RegisterViews(navigationService);
-                viewModel = navigationService.GetViewModel<BattleMapViewModel>();
+                viewModel = navigationService.GetViewModel<NewGameViewModel>();
                 desktop.MainWindow = new MainWindow
                 {
-                    Content = new BattleMapView
+                    Content = new NewGameView()
                     {
                         ViewModel = viewModel
                     }
                 };
+     
                 break;
-            }
             case ISingleViewApplicationLifetime singleViewPlatform:
                 var mainViewWrapper = new ContentControl();
                 navigationService = new SingleViewNavigationService(singleViewPlatform, mainViewWrapper, serviceProvider);
                 RegisterViews(navigationService);
-                viewModel = navigationService.GetViewModel<BattleMapViewModel>();
-                mainViewWrapper.Content = new BattleMapView
+                viewModel = navigationService.GetViewModel<NewGameViewModel>();
+                mainViewWrapper.Content = new NewGameView()
                 {
                     ViewModel = viewModel
                 };
@@ -69,6 +66,7 @@ public partial class App : Application
 
     private void RegisterViews(INavigationService navigationService)
     {
+        navigationService.RegisterViews(typeof(NewGameView), typeof(NewGameViewModel));
         navigationService.RegisterViews(typeof(BattleMapView), typeof(BattleMapViewModel));
     }
 }
