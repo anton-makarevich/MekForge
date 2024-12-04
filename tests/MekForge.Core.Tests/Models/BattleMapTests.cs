@@ -5,7 +5,7 @@ using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Terrains;
 using Sanet.MekForge.Core.Utils.Generators;
 
-namespace MekForge.Core.Tests.Models;
+namespace Sanet.MekForge.Core.Tests.Models;
 
 public class BattleMapTests
 {

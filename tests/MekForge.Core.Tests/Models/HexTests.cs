@@ -2,7 +2,7 @@ using FluentAssertions;
 using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Terrains;
 
-namespace MekForge.Core.Tests.Models;
+namespace Sanet.MekForge.Core.Tests.Models;
 
 public class HexTests
 {

@@ -29,7 +29,7 @@ public class Hex
     public bool HasTerrain(string terrainId) => _terrains.ContainsKey(terrainId);
 
     public Terrain? GetTerrain(string terrainId) =>
-        _terrains.TryGetValue(terrainId, out var terrain) ? terrain : null;
+        _terrains.GetValueOrDefault(terrainId);
 
     public IEnumerable<Terrain> GetTerrains() => _terrains.Values;
 

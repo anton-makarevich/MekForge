@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Terrains;
+using Sanet.MekForge.Core.Exceptions;
 
 namespace Sanet.MekForge.Core.Utils.Generators;
 
@@ -31,6 +32,12 @@ public class ForestPatchesGenerator : ITerrainGenerator
         // Calculate patch sizes based on map dimensions
         var totalHexes = width * height;
         var targetForestHexes = (int)(totalHexes * forestCoverage);
+
+        if (targetForestHexes == 0)
+        {
+            // No need to generate patches if forest coverage is 0
+            return;
+        }
         
         minPatchSize ??= Math.Max(2, Math.Min(5, width / 5));
         maxPatchSize ??= Math.Max(minPatchSize.Value + 2, Math.Min(9, width / 3));
@@ -38,6 +45,19 @@ public class ForestPatchesGenerator : ITerrainGenerator
         // Calculate number of patches
         var avgPatchSize = (minPatchSize.Value + maxPatchSize.Value) / 2;
         var forestPatchCount = Math.Max(1, targetForestHexes / avgPatchSize);
+
+        if (forestCoverage >= 1.0)
+        {
+            // For full coverage, add all hexes to forest
+            for (var q = 0; q < width; q++)
+            {
+                for (var r = 0; r < height; r++)
+                {
+                    _forestHexes.Add(new HexCoordinates(q, r));
+                }
+            }
+            return;
+        }
 
         GenerateForestPatches(forestPatchCount, minPatchSize.Value, maxPatchSize.Value);
     }
@@ -94,7 +114,7 @@ public class ForestPatchesGenerator : ITerrainGenerator
         if (coordinates.Q < 0 || coordinates.Q >= _width ||
             coordinates.R < 0 || coordinates.R >= _height)
         {
-            return new Hex(coordinates);
+            throw new HexOutsideOfMapBoundariesException(coordinates, _width, _height);
         }
 
         return new Hex(coordinates).WithTerrain(

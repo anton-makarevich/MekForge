@@ -1,12 +1,12 @@
 using AsyncAwaitBestPractices.MVVM;
 using FluentAssertions;
-using Sanet.MekForge.Core.Models.Terrains;
-using Sanet.MVVM.Core.Services;
 using NSubstitute;
+using Sanet.MekForge.Core.Models.Terrains;
 using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.ViewModels;
+using Sanet.MVVM.Core.Services;
 
-namespace MekForge.Core.Tests.ViewModels;
+namespace Sanet.MekForge.Core.Tests.ViewModels;
 
 public class NewGameViewModelTests
 {
