@@ -8,8 +8,8 @@
              x:CompileBindings="True">
     <Grid>
         <!-- We'll add the hex grid canvas here -->
-        <Canvas x:Name="MapCanvas" Background="Black">
-            
+        <Canvas x:Name="MapCanvas" 
+                Background="Transparent">
         </Canvas>
     </Grid>
 </UserControl>
