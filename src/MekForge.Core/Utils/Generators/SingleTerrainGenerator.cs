@@ -1,13 +1,14 @@
 using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Terrains;
+using Sanet.MekForge.Core.Exceptions;
 
 namespace Sanet.MekForge.Core.Utils.Generators;
 
 public class SingleTerrainGenerator : ITerrainGenerator
 {
-    private readonly Terrain _terrain;
     private readonly int _width;
     private readonly int _height;
+    private readonly Terrain _terrain;
 
     public SingleTerrainGenerator(int width, int height, Terrain terrain)
     {
@@ -21,7 +22,7 @@ public class SingleTerrainGenerator : ITerrainGenerator
         if (coordinates.Q < 0 || coordinates.Q >= _width ||
             coordinates.R < 0 || coordinates.R >= _height)
         {
-            return new Hex(coordinates);
+            throw new HexOutsideOfMapBoundariesException(coordinates, _width, _height);
         }
         
         return new Hex(coordinates).WithTerrain(_terrain);

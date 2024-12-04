@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <AssemblyName>Sanet.MekForge.Core.Tests</AssemblyName>
+    <RootNamespace>Sanet.MekForge.Core.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

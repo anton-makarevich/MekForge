@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Sanet.MekForge.Core.Models.Terrains;
 
-namespace MekForge.Core.Tests.Models.Terrains;
+namespace Sanet.MekForge.Core.Tests.Models.Terrains;
 
 public class ClearTerrainTests
 {
