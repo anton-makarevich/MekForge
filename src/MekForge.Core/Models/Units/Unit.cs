@@ -1,22 +1,22 @@
-// Unit.cs
-using System.Collections.Generic;
-using System.Linq;
 using Sanet.MekForge.Core.Models.Units.Components;
 
 namespace Sanet.MekForge.Core.Models.Units;
 
 public abstract class Unit
 {
-    private Dictionary<MovementType, int>? _cachedMovement;
-
-    protected Unit(string name, int tonnage, int walkMP)
+    protected Unit(string chassis, string model, int tonnage, int walkMp,
+        IReadOnlyDictionary<PartLocation, UnitPartData> partsData)
     {
-        Name = name;
+        Chassis = chassis;
+        Model = model;
+        Name = $"{chassis} {model}";
         Tonnage = tonnage;
-        BaseMovement = walkMP;
-        Parts = new List<UnitPart>();
+        BaseMovement = walkMp;
+        InitializeParts(partsData);
     }
 
+    public string Chassis { get; }
+    public string Model { get; }
     public string Name { get; }
     public int Tonnage { get; }
     
@@ -24,31 +24,18 @@ public abstract class Unit
     protected int BaseMovement { get; }
     
     // Movement capabilities
-    public Dictionary<MovementType, int> Movement
+    public virtual int GetMovementPoints(MovementType type)
     {
-        get
+        return type switch
         {
-            // Cache the movement values until next turn or equipment state changes
-            if (_cachedMovement != null)
-                return _cachedMovement;
-
-            _cachedMovement = new Dictionary<MovementType, int>
-            {
-                { MovementType.Walk, BaseMovement },
-                { MovementType.Run, CalculateRunMP() },
-                { MovementType.Sprint, CalculateSprintMP() },
-                { MovementType.Jump, CalculateJumpMP() },
-                { MovementType.Masc, CalculateMascMP() }
-            };
-
-            return _cachedMovement;
-        }
+            MovementType.Walk => BaseMovement,
+            MovementType.Run => (int)Math.Ceiling(BaseMovement * 1.5),
+            MovementType.Jump => GetAllComponents<JumpJets>().Sum(j => j.JumpMp),
+            MovementType.Sprint => BaseMovement * 2,
+            MovementType.Masc => HasActiveComponent<Masc>() ? BaseMovement * 2 : (int)(BaseMovement * 1.5),
+            _ => 0
+        };
     }
-
-    protected virtual int CalculateRunMP() => BaseMovement * 3 / 2;  // 1.5x walking
-    protected virtual int CalculateSprintMP() => BaseMovement * 2;   // 2x walking
-    protected virtual int CalculateJumpMP() => GetAllComponents<JumpJets>().Sum(j => j.JumpMP);
-    protected virtual int CalculateMascMP() => HasActiveComponent<Masc>() ? BaseMovement * 2 : CalculateRunMP();
 
     // Location and facing
     public HexCoordinates Position { get; set; }
@@ -56,11 +43,30 @@ public abstract class Unit
 
     // Heat management
     public int CurrentHeat { get; protected set; }
+    public virtual void ApplyHeat(int heat) { } // Default no-op for units that don't use heat
     
     // Parts management
-    public List<UnitPart> Parts { get; }
+    public List<UnitPart> Parts { get; } = [];
 
-    public void InvalidateMovementCache() => _cachedMovement = null;
+    private void InitializeParts(IReadOnlyDictionary<PartLocation, UnitPartData> partsData)
+    {
+        foreach (var (location, data) in partsData)
+        {
+            var part = new UnitPart(
+                name: data.Name,
+                location: location,
+                maxArmor: data.MaxArmor,
+                maxStructure: data.MaxStructure,
+                slots: data.Slots);
+
+            foreach (var component in data.Components)
+            {
+                part.TryAddComponent(component);
+            }
+
+            Parts.Add(part);
+        }
+    }
 
     // Methods
     public abstract int CalculateBattleValue();
@@ -87,12 +93,12 @@ public abstract class Unit
     // Different unit types will have different damage transfer patterns
     protected abstract PartLocation? GetTransferLocation(PartLocation location);
 
-    protected IEnumerable<T> GetAllComponents<T>() where T : UnitComponent
+    protected IEnumerable<T> GetAllComponents<T>() where T : Component
     {
         return Parts.SelectMany(p => p.GetComponents<T>());
     }
 
-    protected bool HasActiveComponent<T>() where T : UnitComponent
+    protected bool HasActiveComponent<T>() where T : Component
     {
         return GetAllComponents<T>().Any(c => c.IsActive && !c.IsDestroyed);
     }
