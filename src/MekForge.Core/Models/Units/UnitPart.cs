@@ -1,16 +1,18 @@
 using System.Collections.Generic;
+using System.Linq;
 using Sanet.MekForge.Core.Models.Units.Components;
 
 namespace Sanet.MekForge.Core.Models.Units;
 
 public class UnitPart
 {
-    public UnitPart(string name, PartLocation location, int maxArmor, int maxStructure)
+    public UnitPart(string name, PartLocation location, int maxArmor, int maxStructure, int slots)
     {
         Name = name;
         Location = location;
         CurrentArmor = MaxArmor = maxArmor;
         CurrentStructure = MaxStructure = maxStructure;
+        TotalSlots = slots;
         Components = new List<UnitComponent>();
     }
 
@@ -23,8 +25,28 @@ public class UnitPart
     public int MaxStructure { get; }
     public int CurrentStructure { get; private set; }
     
+    // Slots management
+    public int TotalSlots { get; }
+    public int UsedSlots => Components.Sum(c => c.Slots);
+    public int AvailableSlots => TotalSlots - UsedSlots;
+    public bool IsDestroyed => CurrentStructure <= 0;
+    
     // Components installed in this part
     public List<UnitComponent> Components { get; }
+
+    public bool CanAddComponent(UnitComponent component)
+    {
+        return component.Slots <= AvailableSlots;
+    }
+
+    public bool TryAddComponent(UnitComponent component)
+    {
+        if (!CanAddComponent(component))
+            return false;
+
+        Components.Add(component);
+        return true;
+    }
 
     public int ApplyDamage(int damage)
     {
