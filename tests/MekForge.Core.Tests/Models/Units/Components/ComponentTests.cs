@@ -7,7 +7,7 @@ public class ComponentTests
 {
     private class TestComponent : Component
     {
-        public TestComponent(string name, int slots) : base(name, slots)
+        public TestComponent(string name, int[] slots) : base(name, slots)
         {
         }
     }
@@ -16,41 +16,37 @@ public class ComponentTests
     public void Constructor_InitializesCorrectly()
     {
         // Arrange & Act
-        var component = new TestComponent("Test Component", 2);
+        var component = new TestComponent("Test Component", new[] { 0, 1 });
 
         // Assert
         component.Name.Should().Be("Test Component");
-        component.Slots.Should().Be(2);
+        component.RequiredSlots.Should().BeEquivalentTo(new[] { 0, 1 });
         component.IsDestroyed.Should().BeFalse();
         component.IsActive.Should().BeTrue();
-        component.FirstOccupiedSlot.Should().Be(-1);
-        component.LastOccupiedSlot.Should().Be(-1);
         component.IsMounted.Should().BeFalse();
     }
 
     [Fact]
-    public void Mount_SetsCorrectSlotPositions()
+    public void Mount_SetsIsMountedToTrue()
     {
         // Arrange
-        var component = new TestComponent("Test Component", 3);
+        var component = new TestComponent("Test Component", new[] { 2, 3, 4 });
 
         // Act
-        component.Mount(2);
+        component.Mount();
 
         // Assert
-        component.FirstOccupiedSlot.Should().Be(2);
-        component.LastOccupiedSlot.Should().Be(4); // 2 + 3 - 1
         component.IsMounted.Should().BeTrue();
     }
 
     [Fact]
-    public void ApplyDamage_SetsIsDestroyedToTrue()
+    public void Hit_SetsIsDestroyedToTrue()
     {
         // Arrange
-        var component = new TestComponent("Test Component", 2);
+        var component = new TestComponent("Test Component", new[] { 0, 1 });
 
         // Act
-        component.ApplyDamage();
+        component.Hit();
 
         // Assert
         component.IsDestroyed.Should().BeTrue();
@@ -60,7 +56,7 @@ public class ComponentTests
     public void Activate_DeactivateTogglesIsActive()
     {
         // Arrange
-        var component = new TestComponent("Test Component", 2);
+        var component = new TestComponent("Test Component", new[] { 0, 1 });
         
         // Act & Assert
         component.IsActive.Should().BeTrue(); // Default state

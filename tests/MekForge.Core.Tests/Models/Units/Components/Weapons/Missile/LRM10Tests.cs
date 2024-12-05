@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Missile;
 using Xunit;
 
@@ -18,6 +19,7 @@ public class LRM10Tests
         lrm10.Heat.Should().Be(4);
         lrm10.Damage.Should().Be(10); // Total damage for all missiles
         lrm10.BattleValue.Should().Be(90);
+        lrm10.AmmoType.Should().Be(AmmoType.LRM10);
         lrm10.IsDestroyed.Should().BeFalse();
     }
 

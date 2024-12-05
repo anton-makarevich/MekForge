@@ -2,15 +2,10 @@ namespace Sanet.MekForge.Core.Models.Units.Components;
 
 public class HeatSink : Component
 {
-    public HeatSink(int dissipation = 1, string name = "Heat Sink") : base(name, 1)
+    public HeatSink() : base("Heat Sink", new[] { 0 })
     {
-        HeatDissipation = dissipation;
+        HeatDissipation = 1;
     }
 
     public int HeatDissipation { get; }
-
-    public override void ApplyDamage()
-    {
-        IsDestroyed = true;
-    }
 }
