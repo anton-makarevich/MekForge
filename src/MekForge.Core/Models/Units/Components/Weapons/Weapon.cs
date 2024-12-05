@@ -1,6 +1,6 @@
 namespace Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
-public abstract class Weapon : UnitComponent
+public abstract class Weapon : Component
 {
     protected Weapon(string name, int slots, int damage, int heat, int minimumRange, int shortRange, 
         int mediumRange, int longRange, WeaponType type, int battleValue) 

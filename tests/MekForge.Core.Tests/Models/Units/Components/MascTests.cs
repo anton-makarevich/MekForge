@@ -1,5 +1,4 @@
 using Sanet.MekForge.Core.Models.Units.Components;
-using Xunit;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Components;
 

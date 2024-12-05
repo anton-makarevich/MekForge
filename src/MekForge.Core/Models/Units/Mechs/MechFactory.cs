@@ -14,56 +14,56 @@ public static class MechFactory
                 MaxArmor: 9,
                 MaxStructure: 3,
                 Slots: 6,
-                Components: new List<UnitComponent>()),
+                Components: new List<Component>()),
 
             [PartLocation.CenterTorso] = new(
                 Name: "Center Torso",
                 MaxArmor: 10,
                 MaxStructure: 31,
                 Slots: 12,
-                Components: new List<UnitComponent> { new HeatSink() }),
+                Components: new List<Component> { new HeatSink() }),
 
             [PartLocation.LeftTorso] = new(
                 Name: "Left Torso",
                 MaxArmor: 8,
                 MaxStructure: 21,
                 Slots: 12,
-                Components: new List<UnitComponent> { new MediumLaser() }),
+                Components: new List<Component> { new MediumLaser() }),
 
             [PartLocation.RightTorso] = new(
                 Name: "Right Torso",
                 MaxArmor: 8,
                 MaxStructure: 21,
                 Slots: 12,
-                Components: new List<UnitComponent> { new MediumLaser() }),
+                Components: new List<Component> { new MediumLaser() }),
 
             [PartLocation.LeftArm] = new(
                 Name: "Left Arm",
                 MaxArmor: 6,
                 MaxStructure: 17,
                 Slots: 12,
-                Components: new List<UnitComponent>()),
+                Components: new List<Component>()),
 
             [PartLocation.RightArm] = new(
                 Name: "Right Arm",
                 MaxArmor: 6,
                 MaxStructure: 17,
                 Slots: 12,
-                Components: new List<UnitComponent>()),
+                Components: new List<Component>()),
 
             [PartLocation.LeftLeg] = new(
                 Name: "Left Leg",
                 MaxArmor: 8,
                 MaxStructure: 25,
                 Slots: 6,
-                Components: new List<UnitComponent>()),
+                Components: new List<Component>()),
 
             [PartLocation.RightLeg] = new(
                 Name: "Right Leg",
                 MaxArmor: 8,
                 MaxStructure: 25,
                 Slots: 6,
-                Components: new List<UnitComponent>())
+                Components: new List<Component>())
         };
 
         return new Mech(

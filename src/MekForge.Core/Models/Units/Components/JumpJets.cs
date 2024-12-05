@@ -1,11 +1,15 @@
 namespace Sanet.MekForge.Core.Models.Units.Components;
 
-public abstract class JumpJets : UnitComponent
+public class JumpJets : Component
 {
-    protected JumpJets(string name, int slots, int jumpMP) : base(name, slots)
+    public JumpJets(int jumpMp =1) : base("Jump Jets", 1)
     {
-        JumpMP = jumpMP;
+        JumpMp = jumpMp;
     }
 
-    public int JumpMP { get; }
+    public int JumpMp { get; }
+    public override void ApplyDamage()
+    {
+        IsDestroyed = true;
+    }
 }

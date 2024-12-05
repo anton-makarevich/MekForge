@@ -13,7 +13,7 @@ public class UnitPart
         CurrentArmor = MaxArmor = maxArmor;
         CurrentStructure = MaxStructure = maxStructure;
         TotalSlots = slots;
-        Components = new List<UnitComponent>();
+        Components = new List<Component>();
     }
 
     public string Name { get; }
@@ -32,14 +32,14 @@ public class UnitPart
     public bool IsDestroyed => CurrentStructure <= 0;
     
     // Components installed in this part
-    public List<UnitComponent> Components { get; }
+    public List<Component> Components { get; }
 
-    public bool CanAddComponent(UnitComponent component)
+    public bool CanAddComponent(Component component)
     {
         return component.Slots <= AvailableSlots;
     }
 
-    public bool TryAddComponent(UnitComponent component)
+    public bool TryAddComponent(Component component)
     {
         if (!CanAddComponent(component))
             return false;
@@ -79,12 +79,12 @@ public class UnitPart
         return 0;
     }
 
-    public T? GetComponent<T>() where T : UnitComponent
+    public T? GetComponent<T>() where T : Component
     {
         return Components.Find(c => c is T) as T;
     }
 
-    public IEnumerable<T> GetComponents<T>() where T : UnitComponent
+    public IEnumerable<T> GetComponents<T>() where T : Component
     {
         return Components.OfType<T>();
     }

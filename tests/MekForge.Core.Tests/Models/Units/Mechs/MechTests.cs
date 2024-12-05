@@ -3,7 +3,6 @@ using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Energy;
 using Sanet.MekForge.Core.Models.Units.Mechs;
-using Xunit;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Mechs;
 
@@ -13,14 +12,14 @@ public class MechTests
     {
         return new Dictionary<PartLocation, UnitPartData>
         {
-            [PartLocation.Head] = new("Head", 9, 3, 6,[]),
-            [PartLocation.CenterTorso] = new("Center Torso", 31, 10, 6,[]),
-            [PartLocation.LeftTorso] = new("Left Torso", 25, 8, 6,[]),
-            [PartLocation.RightTorso] = new("Right Torso", 25, 8, 6,[]),
-            [PartLocation.LeftArm] = new("Left Arm", 17, 6, 6,[]),
-            [PartLocation.RightArm] = new("Right Arm", 17, 6, 6,[]),
-            [PartLocation.LeftLeg] = new("Left Leg", 25, 8, 6,[]),
-            [PartLocation.RightLeg] = new("Right Leg", 25, 8, 6,[])
+            [PartLocation.Head] = new("Head", 9, 3, 6, []),
+            [PartLocation.CenterTorso] = new("Center Torso", 31, 10, 6, []),
+            [PartLocation.LeftTorso] = new("Left Torso", 25, 8, 6, []),
+            [PartLocation.RightTorso] = new("Right Torso", 25, 8, 6, []),
+            [PartLocation.LeftArm] = new("Left Arm", 17, 6, 6, []),
+            [PartLocation.RightArm] = new("Right Arm", 17, 6, 6, []),
+            [PartLocation.LeftLeg] = new("Left Leg", 25, 8, 6, []),
+            [PartLocation.RightLeg] = new("Right Leg", 25, 8, 6, [])
         };
     }
 
@@ -67,8 +66,8 @@ public class MechTests
     {
         // Arrange
         var partsData = CreateBasicPartsData();
-        partsData[PartLocation.CenterTorso] = partsData[PartLocation.CenterTorso] with 
-        { 
+        partsData[PartLocation.CenterTorso] = partsData[PartLocation.CenterTorso] with
+        {
             Components = [new HeatSink(), new HeatSink()]
         };
         var mech = new Mech("Test", "TST-1A", 50, 4, partsData);
@@ -85,8 +84,8 @@ public class MechTests
     {
         // Arrange
         var partsData = CreateBasicPartsData();
-        partsData[PartLocation.RightArm] = partsData[PartLocation.RightArm] with 
-        { 
+        partsData[PartLocation.RightArm] = partsData[PartLocation.RightArm] with
+        {
             Components = [new MediumLaser()]
         };
         var mech = new Mech("Test", "TST-1A", 50, 4, partsData);
@@ -161,6 +160,39 @@ public class MechTests
         // Assert
         (mech.Status & MechStatus.Prone).Should().NotBe(MechStatus.Prone);
     }
+
+    [Theory]
+    [InlineData(5, 8, 2)] // Standard mech without jump jets
+    [InlineData(4, 6, 0)] // Fast mech with jump jets
+    [InlineData(3, 5, 2)] // Slow mech with lots of jump jets
+    public void GetMovement_ReturnsCorrectMPs(int walkMP, int expectedRunMP, int jumpMP)
+    {
+        // Arrange
+        var partsData = CreateBasicPartsData();
+        if (jumpMP > 0)
+        {
+            partsData[PartLocation.LeftLeg] = partsData[PartLocation.LeftLeg] with
+            {
+                Components = [new JumpJets()]
+            };
+            partsData[PartLocation.RightLeg] = partsData[PartLocation.RightLeg] with
+            {
+                Components = [new JumpJets()]
+            };
+        }
+
+        var mech = new Mech("Test", "TST-1A", 50, walkMP, partsData);
+
+        // Act
+        var walkingMP = mech.GetMovementPoints(MovementType.Walk);
+        var runningMP = mech.GetMovementPoints(MovementType.Run);
+        var jumpingMP = mech.GetMovementPoints(MovementType.Jump);
+
+        // Assert
+        walkingMP.Should().Be(walkMP, "walking MP should match the base movement");
+        runningMP.Should().Be(expectedRunMP, "running MP should be 1.5x walking");
+        jumpingMP.Should().Be(jumpMP, "jumping MP should match the number of jump jets");
+    }
 }
 
 // Helper extension for testing protected methods
@@ -168,8 +200,9 @@ public static class MechTestExtensions
 {
     public static PartLocation? TestGetTransferLocation(this Mech mech, PartLocation location)
     {
-        var method = typeof(Mech).GetMethod("GetTransferLocation", 
+        var method = typeof(Mech).GetMethod("GetTransferLocation",
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         return (PartLocation?)method?.Invoke(mech, new object[] { location });
     }
 }
+
