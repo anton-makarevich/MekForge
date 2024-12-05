@@ -7,12 +7,23 @@ public abstract class Component:IManufacturedItem
         Name = name;
         Slots = slots;
         Manufacturer = manufacturer;
+        FirstOccupiedSlot = -1; // -1 means not mounted yet
     }
 
     public string Name { get; }
     public int Slots { get; }
     public bool IsDestroyed { get; protected set; }
     public bool IsActive { get; protected set; } = true;
+
+    // Slot positioning
+    public int FirstOccupiedSlot { get; private set; }
+    public int LastOccupiedSlot => FirstOccupiedSlot >= 0 ? FirstOccupiedSlot + Slots - 1 : -1;
+    public bool IsMounted => FirstOccupiedSlot >= 0;
+
+    public void Mount(int startingSlot)
+    {
+        FirstOccupiedSlot = startingSlot;
+    }
 
     public virtual void ApplyDamage()
     {
