@@ -34,18 +34,68 @@ public class UnitPart
     // Components installed in this part
     public List<Component> Components { get; }
 
-    public bool CanAddComponent(Component component)
+    public bool CanAddComponent(Component component, int startingSlot = -1)
     {
-        return component.Slots <= AvailableSlots;
-    }
-
-    public bool TryAddComponent(Component component)
-    {
-        if (!CanAddComponent(component))
+        if (component.Slots > AvailableSlots)
             return false;
 
+        // If no specific slot requested, check if we have enough consecutive slots anywhere
+        if (startingSlot == -1)
+            return FindFirstAvailableSlot(component.Slots) != -1;
+
+        // Check if requested slots are available
+        var endSlot = startingSlot + component.Slots - 1;
+        if (endSlot >= TotalSlots)
+            return false;
+
+        return !Components.Any(c => 
+            c.IsMounted && // Only check mounted components
+            !(endSlot < c.FirstOccupiedSlot || startingSlot > c.LastOccupiedSlot)); // Check for overlap
+    }
+
+    public bool TryAddComponent(Component component, int startingSlot = -1)
+    {
+        if (!CanAddComponent(component, startingSlot))
+            return false;
+
+        if (startingSlot == -1)
+            startingSlot = FindFirstAvailableSlot(component.Slots);
+
+        component.Mount(startingSlot);
         Components.Add(component);
         return true;
+    }
+
+    private int FindFirstAvailableSlot(int requiredSlots)
+    {
+        if (requiredSlots > AvailableSlots)
+            return -1;
+
+        // If no components yet, start at 0
+        if (!Components.Any(c => c.IsMounted))
+            return 0;
+
+        // Try each possible starting position
+        for (int startSlot = 0; startSlot <= TotalSlots - requiredSlots; startSlot++)
+        {
+            var endSlot = startSlot + requiredSlots - 1;
+            if (!Components.Any(c => 
+                c.IsMounted && 
+                !(endSlot < c.FirstOccupiedSlot || startSlot > c.LastOccupiedSlot)))
+            {
+                return startSlot;
+            }
+        }
+
+        return -1;
+    }
+
+    public Component? GetComponentAtSlot(int slot)
+    {
+        return Components.FirstOrDefault(c => 
+            c.IsMounted && 
+            slot >= c.FirstOccupiedSlot && 
+            slot <= c.LastOccupiedSlot);
     }
 
     public int ApplyDamage(int damage)

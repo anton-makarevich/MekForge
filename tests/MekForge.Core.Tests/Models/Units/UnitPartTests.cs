@@ -132,4 +132,99 @@ public class UnitPartTests
         part.CanAddComponent(largeComponent).Should().BeFalse();
         part.CanAddComponent(new Masc("Tiny MASC", 1)).Should().BeTrue();
     }
+
+    [Fact]
+    public void TryAddComponent_WithSpecificSlot_AddsComponentToCorrectPosition()
+    {
+        // Arrange
+        var part = new UnitPart("Test Part", PartLocation.LeftArm, 10, 5, 6);
+        var component1 = new Masc("MASC 1", 2);
+        var component2 = new Masc("MASC 2", 2);
+
+        // Act
+        var result1 = part.TryAddComponent(component1, 0); // Add to start
+        var result2 = part.TryAddComponent(component2, 4); // Add near end
+
+        // Assert
+        result1.Should().BeTrue();
+        result2.Should().BeTrue();
+        
+        component1.FirstOccupiedSlot.Should().Be(0);
+        component1.LastOccupiedSlot.Should().Be(1);
+        component2.FirstOccupiedSlot.Should().Be(4);
+        component2.LastOccupiedSlot.Should().Be(5);
+    }
+
+    [Fact]
+    public void TryAddComponent_WithOverlappingSlots_ReturnsFalse()
+    {
+        // Arrange
+        var part = new UnitPart("Test Part", PartLocation.LeftArm, 10, 5, 6);
+        var component1 = new Masc("MASC 1", 2);
+        var component2 = new Masc("MASC 2", 2);
+
+        // Act
+        part.TryAddComponent(component1, 1);
+        var result = part.TryAddComponent(component2, 0); // Would overlap with component1
+
+        // Assert
+        result.Should().BeFalse();
+        component2.IsMounted.Should().BeFalse();
+        part.Components.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public void GetComponentAtSlot_ReturnsCorrectComponent()
+    {
+        // Arrange
+        var part = new UnitPart("Test Part", PartLocation.LeftArm, 10, 5, 6);
+        var component1 = new Masc("MASC 1", 2);
+        var component2 = new Masc("MASC 2", 3);
+        
+        part.TryAddComponent(component1, 0);
+        part.TryAddComponent(component2, 3);
+
+        // Act & Assert
+        part.GetComponentAtSlot(0).Should().Be(component1);
+        part.GetComponentAtSlot(1).Should().Be(component1);
+        part.GetComponentAtSlot(2).Should().BeNull();
+        part.GetComponentAtSlot(3).Should().Be(component2);
+        part.GetComponentAtSlot(4).Should().Be(component2);
+        part.GetComponentAtSlot(5).Should().Be(component2);
+    }
+
+    [Fact]
+    public void FindFirstAvailableSlot_ReturnsCorrectPosition()
+    {
+        // Arrange
+        var part = new UnitPart("Test Part", PartLocation.LeftArm, 10, 5, 6);
+        var component1 = new Masc("MASC 1", 2);
+        var component2 = new Masc("MASC 2", 2);
+        
+        // Act & Assert - Empty part starts at 0
+        part.TryAddComponent(component1).Should().BeTrue();
+        component1.FirstOccupiedSlot.Should().Be(0);
+
+        // Act & Assert - Next component should find first gap
+        part.TryAddComponent(component2).Should().BeTrue();
+        component2.FirstOccupiedSlot.Should().Be(2);
+    }
+
+    [Fact]
+    public void CanAddComponent_ChecksSlotPositioning()
+    {
+        // Arrange
+        var part = new UnitPart("Test Part", PartLocation.LeftArm, 10, 5, 6);
+        var component1 = new Masc("MASC 1", 2);
+        var component2 = new Masc("MASC 2", 2);
+        
+        // Act & Assert - Check specific positions
+        part.CanAddComponent(component1, 0).Should().BeTrue();
+        part.CanAddComponent(component1, 5).Should().BeFalse(); // Not enough slots at end
+        
+        // Add component and check overlapping
+        part.TryAddComponent(component1, 2);
+        part.CanAddComponent(component2, 1).Should().BeFalse(); // Would overlap
+        part.CanAddComponent(component2, 4).Should().BeTrue(); // Valid position
+    }
 }
