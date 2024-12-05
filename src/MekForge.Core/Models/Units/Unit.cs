@@ -1,6 +1,3 @@
-// Unit.cs
-using System.Collections.Generic;
-using System.Linq;
 using Sanet.MekForge.Core.Models.Units.Components;
 
 namespace Sanet.MekForge.Core.Models.Units;
@@ -9,14 +6,19 @@ public abstract class Unit
 {
     private Dictionary<MovementType, int>? _cachedMovement;
 
-    protected Unit(string name, int tonnage, int walkMP)
+    protected Unit(string chassis, string model, int tonnage, int walkMp,
+        IReadOnlyDictionary<PartLocation, UnitPartData> partsData)
     {
-        Name = name;
+        Chassis = chassis;
+        Model = model;
+        Name = $"{chassis} {model}";
         Tonnage = tonnage;
-        BaseMovement = walkMP;
-        Parts = new List<UnitPart>();
+        BaseMovement = walkMp;
+        InitializeParts(partsData);
     }
 
+    public string Chassis { get; }
+    public string Model { get; }
     public string Name { get; }
     public int Tonnage { get; }
     
@@ -56,9 +58,30 @@ public abstract class Unit
 
     // Heat management
     public int CurrentHeat { get; protected set; }
+    public virtual void ApplyHeat(int heat) { } // Default no-op for units that don't use heat
     
     // Parts management
-    public List<UnitPart> Parts { get; }
+    public List<UnitPart> Parts { get; } = [];
+
+    private void InitializeParts(IReadOnlyDictionary<PartLocation, UnitPartData> partsData)
+    {
+        foreach (var (location, data) in partsData)
+        {
+            var part = new UnitPart(
+                name: data.Name,
+                location: location,
+                maxArmor: data.MaxArmor,
+                maxStructure: data.MaxStructure,
+                slots: data.Slots);
+
+            foreach (var component in data.Components)
+            {
+                part.TryAddComponent(component);
+            }
+
+            Parts.Add(part);
+        }
+    }
 
     public void InvalidateMovementCache() => _cachedMovement = null;
 
