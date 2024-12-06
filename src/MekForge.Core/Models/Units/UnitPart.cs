@@ -54,7 +54,7 @@ public class UnitPart
         if (!CanAddComponent(component))
             return false;
 
-        component.Mount([0]);
+        component.Mount(component.MountedAtSlots);
         Components.Add(component);
         return true;
     }
