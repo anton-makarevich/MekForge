@@ -1,9 +1,9 @@
 namespace Sanet.MekForge.Core.Models.Units.Components.Internal.Actuators;
 
-public class LowerLeg : Component
+public class LowerLegActuator : Component
 {
     private static readonly int[] LowerLegSlots = { 2 };
-    public LowerLeg() : base("Lower Leg", LowerLegSlots)
+    public LowerLegActuator() : base("Lower Leg", LowerLegSlots)
     {
     }
 }

@@ -56,9 +56,9 @@ public static class MechFactory
                 MaxStructure: 6,
                 Slots: 12,
                 Components: [
-                    new ShoulderActuator(),
+                    new Shoulder(),
                     new UpperArmActuator(),
-                    new LowerArm(),
+                    new LowerArmActuator(),
                     new HandActuator(),
                     new MachineGun()
                 ]),
@@ -69,9 +69,9 @@ public static class MechFactory
                 MaxStructure: 6,
                 Slots: 12,
                 Components: [
-                    new ShoulderActuator(),
+                    new Shoulder(),
                     new UpperArmActuator(),
-                    new LowerArm(),
+                    new LowerArmActuator(),
                     new HandActuator(),
                     new MachineGun()
                 ]),
@@ -83,8 +83,8 @@ public static class MechFactory
                 Slots: 12,
                 Components: [
                     new Hip(),
-                    new UpperLeg(),
-                    new LowerLeg(),
+                    new UpperLegActuator(),
+                    new LowerLegActuator(),
                     new FootActuator()
                 ]),
 
@@ -95,8 +95,8 @@ public static class MechFactory
                 Slots: 12,
                 Components: [
                     new Hip(),
-                    new UpperLeg(),
-                    new LowerLeg(),
+                    new UpperLegActuator(),
+                    new LowerLegActuator(),
                     new FootActuator()
                 ])
         };
