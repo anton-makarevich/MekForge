@@ -2,9 +2,17 @@ namespace Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
 public abstract class Weapon : Component
 {
-    protected Weapon(string name, int slots, int damage, int heat, int minimumRange, int shortRange, 
-        int mediumRange, int longRange, WeaponType type, int battleValue) 
-        : base(name, slots)
+    protected Weapon(string name,
+        int damage,
+        int heat,
+        int minimumRange,
+        int shortRange,
+        int mediumRange,
+        int longRange,
+        WeaponType type,
+        int battleValue,
+        AmmoType ammoType = AmmoType.None) 
+        : base(name, [])
     {
         Damage = damage;
         Heat = heat;
@@ -14,6 +22,7 @@ public abstract class Weapon : Component
         LongRange = longRange;
         Type = type;
         BattleValue = battleValue;
+        AmmoType = ammoType;
     }
 
     public int Damage { get; }
@@ -24,10 +33,5 @@ public abstract class Weapon : Component
     public int LongRange { get; }
     public WeaponType Type { get; }
     public int BattleValue { get; }
-
-    public override void ApplyDamage()
-    {
-        IsDestroyed = true;
-        Deactivate();
-    }
+    public AmmoType AmmoType { get; }
 }

@@ -2,14 +2,14 @@ namespace Sanet.MekForge.Core.Models.Units.Components;
 
 public class Masc : Component
 {
-    public Masc(string name, int slots) : base(name, slots)
+    public Masc(string name) : base(name, [])
     {
-        IsActive = false; // MASC starts inactive
+        Deactivate(); // MASC starts deactivated
     }
 
-    public override void ApplyDamage()
+    public override void Hit()
     {
-        IsDestroyed = true;
+        base.Hit();
         Deactivate();
     }
 }

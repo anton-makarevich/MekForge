@@ -1,36 +1,53 @@
+using Sanet.MekForge.Core.Exceptions;
+
 namespace Sanet.MekForge.Core.Models.Units.Components;
 
-public abstract class Component:IManufacturedItem
+public abstract class Component : IManufacturedItem
 {
-    protected Component(string name, int slots, string manufacturer = "Unknown")
+    protected Component(string name, int[] slots, string manufacturer = "Unknown")
     {
         Name = name;
-        Slots = slots;
+        MountedAtSlots = slots;
+        IsFixed = slots.Length > 0;
         Manufacturer = manufacturer;
-        FirstOccupiedSlot = -1; // -1 means not mounted yet
     }
 
     public string Name { get; }
-    public int Slots { get; }
-    public bool IsDestroyed { get; protected set; }
+    public int[] MountedAtSlots { get; private set; }
+    public bool IsDestroyed { get; private set; }
     public bool IsActive { get; protected set; } = true;
+    public string Manufacturer { get; }
+    public bool IsFixed { get; }
 
     // Slot positioning
-    public int FirstOccupiedSlot { get; private set; }
-    public int LastOccupiedSlot => FirstOccupiedSlot >= 0 ? FirstOccupiedSlot + Slots - 1 : -1;
-    public bool IsMounted => FirstOccupiedSlot >= 0;
+    public int[] OccupiedSlots => MountedAtSlots;
+    public bool IsMounted => MountedAtSlots.Length > 0;
+    public bool HasMountingSlots => MountedAtSlots.Length > 0;
+    public int SlotsCount => MountedAtSlots.Length;
 
-    public void Mount(int startingSlot)
+    public void Mount(int[] slots)
     {
-        FirstOccupiedSlot = startingSlot;
+        if (IsMounted) return;
+        
+        MountedAtSlots = slots;
     }
 
-    public virtual void ApplyDamage()
+    public void UnMount()
+    {
+        if (IsFixed)
+        {
+            throw new ComponentException("Fixed components cannot be unmounted.");
+        }
+        if (!IsMounted) return;
+        
+        MountedAtSlots = [];
+    }
+
+    public virtual void Hit()
     {
         IsDestroyed = true;
     }
     
     public virtual void Activate() => IsActive = true;
     public virtual void Deactivate() => IsActive = false;
-    public string Manufacturer { get; }
 }

@@ -1,11 +1,15 @@
-using Sanet.MekForge.Core.Models.Units.Components;
+using Sanet.MekForge.Core.Models.Units.Components.Engines;
+using Sanet.MekForge.Core.Models.Units.Components.Internal;
+using Sanet.MekForge.Core.Models.Units.Components.Internal.Actuators;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons.Ballistic;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Energy;
 
 namespace Sanet.MekForge.Core.Models.Units.Mechs;
 
 public static class MechFactory
 {
-    public static Mech CreateLocustLct1V()
+    public static Mech CreateLocustLCT1V()
     {
         var partsData = new Dictionary<PartLocation, UnitPartData>
         {
@@ -13,64 +17,90 @@ public static class MechFactory
                 Name: "Head",
                 MaxArmor: 9,
                 MaxStructure: 3,
-                Slots: 6,
-                Components: new List<Component>()),
+                Slots: 12,
+                Components: [
+                    new LifeSupport(),
+                    new Sensors(),
+                    new Cockpit()
+                ]),
 
             [PartLocation.CenterTorso] = new(
                 Name: "Center Torso",
-                MaxArmor: 10,
-                MaxStructure: 31,
+                MaxArmor: 31,
+                MaxStructure: 10,
                 Slots: 12,
-                Components: new List<Component> { new HeatSink() }),
+                Components: [
+                    new Engine("Fusion Engine 160",  160),
+                    new Gyro(),
+                    new MediumLaser(),
+                    new Ammo(AmmoType.MachineGun)
+                ]),
 
             [PartLocation.LeftTorso] = new(
                 Name: "Left Torso",
-                MaxArmor: 8,
-                MaxStructure: 21,
+                MaxArmor: 21,
+                MaxStructure: 7,
                 Slots: 12,
-                Components: new List<Component> { new MediumLaser() }),
+                Components: []),
 
             [PartLocation.RightTorso] = new(
                 Name: "Right Torso",
-                MaxArmor: 8,
-                MaxStructure: 21,
+                MaxArmor: 21,
+                MaxStructure: 7,
                 Slots: 12,
-                Components: new List<Component> { new MediumLaser() }),
+                Components: []),
 
             [PartLocation.LeftArm] = new(
                 Name: "Left Arm",
-                MaxArmor: 6,
-                MaxStructure: 17,
+                MaxArmor: 16,
+                MaxStructure: 6,
                 Slots: 12,
-                Components: new List<Component>()),
+                Components: [
+                    new Shoulder(),
+                    new UpperArmActuator(),
+                    new LowerArmActuator(),
+                    new HandActuator(),
+                    new MachineGun()
+                ]),
 
             [PartLocation.RightArm] = new(
                 Name: "Right Arm",
-                MaxArmor: 6,
-                MaxStructure: 17,
+                MaxArmor: 16,
+                MaxStructure: 6,
                 Slots: 12,
-                Components: new List<Component>()),
+                Components: [
+                    new Shoulder(),
+                    new UpperArmActuator(),
+                    new LowerArmActuator(),
+                    new HandActuator(),
+                    new MachineGun()
+                ]),
 
             [PartLocation.LeftLeg] = new(
                 Name: "Left Leg",
-                MaxArmor: 8,
-                MaxStructure: 25,
-                Slots: 6,
-                Components: new List<Component>()),
+                MaxArmor: 21,
+                MaxStructure: 7,
+                Slots: 12,
+                Components: [
+                    new Hip(),
+                    new UpperLegActuator(),
+                    new LowerLegActuator(),
+                    new FootActuator()
+                ]),
 
             [PartLocation.RightLeg] = new(
                 Name: "Right Leg",
-                MaxArmor: 8,
-                MaxStructure: 25,
-                Slots: 6,
-                Components: new List<Component>())
+                MaxArmor: 21,
+                MaxStructure: 7,
+                Slots: 12,
+                Components: [
+                    new Hip(),
+                    new UpperLegActuator(),
+                    new LowerLegActuator(),
+                    new FootActuator()
+                ])
         };
 
-        return new Mech(
-            chassis: "Locust",
-            model: "LCT-1V",
-            tonnage: 20,
-            walkMp: 8,
-            partsData: partsData);
+        return new Mech("Locust", "LCT-1V", 20, 8, partsData);
     }
 }
