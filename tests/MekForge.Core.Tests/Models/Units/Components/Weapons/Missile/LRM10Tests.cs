@@ -1,11 +1,10 @@
 using FluentAssertions;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Missile;
-using Xunit;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Components.Weapons.Missile;
 
-public class LRM10Tests
+public class Lrm10Tests
 {
     [Fact]
     public void Constructor_InitializesCorrectly()
@@ -15,7 +14,7 @@ public class LRM10Tests
 
         // Assert
         lrm10.Name.Should().Be("LRM-10");
-        lrm10.RequiredSlots.Length.Should().Be(2);
+        lrm10.SlotsCount.Should().Be(0);
         lrm10.Heat.Should().Be(4);
         lrm10.Damage.Should().Be(10); // Total damage for all missiles
         lrm10.BattleValue.Should().Be(90);

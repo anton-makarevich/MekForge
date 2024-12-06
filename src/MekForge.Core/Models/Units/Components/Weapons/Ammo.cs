@@ -9,7 +9,7 @@ public class Ammo : Component
     {
     }
 
-    public Ammo(AmmoType type, int initialShots) : base($"{type} Ammo", new[] { 0 })
+    public Ammo(AmmoType type, int initialShots) : base($"{type} Ammo", [])
     {
         Type = type;
         _remainingShots = initialShots;

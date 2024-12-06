@@ -30,7 +30,7 @@ public static class MechFactory
                 MaxStructure: 10,
                 Slots: 12,
                 Components: [
-                    new Engine("Fusion Engine 160", new[] { 0, 1, 2, 7, 8, 9 }, 160),
+                    new Engine("Fusion Engine 160",  160),
                     new Gyro(),
                     new MediumLaser(),
                     new Ammo(AmmoType.MachineGun)

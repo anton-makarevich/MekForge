@@ -1,7 +1,6 @@
 using FluentAssertions;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Energy;
-using Xunit;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Components.Weapons.Energy;
 
@@ -15,7 +14,7 @@ public class MediumLaserTests
 
         // Assert
         laser.Name.Should().Be("Medium Laser");
-        laser.RequiredSlots.Length.Should().Be(1);
+        laser.SlotsCount.Should().Be(0);
         laser.Heat.Should().Be(3);
         laser.Damage.Should().Be(5);
         laser.BattleValue.Should().Be(46);

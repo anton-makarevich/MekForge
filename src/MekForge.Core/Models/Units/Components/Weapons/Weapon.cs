@@ -2,9 +2,7 @@ namespace Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
 public abstract class Weapon : Component
 {
-    protected Weapon(
-        string name,
-        int[] slots,
+    protected Weapon(string name,
         int damage,
         int heat,
         int minimumRange,
@@ -14,7 +12,7 @@ public abstract class Weapon : Component
         WeaponType type,
         int battleValue,
         AmmoType ammoType = AmmoType.None) 
-        : base(name, slots)
+        : base(name, [])
     {
         Damage = damage;
         Heat = heat;
@@ -36,9 +34,4 @@ public abstract class Weapon : Component
     public WeaponType Type { get; }
     public int BattleValue { get; }
     public AmmoType AmmoType { get; }
-
-    public void ApplyDamage()
-    {
-        IsDestroyed = true;
-    }
 }

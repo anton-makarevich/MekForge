@@ -1,11 +1,10 @@
 using FluentAssertions;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Ballistic;
-using Xunit;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Components.Weapons.Ballistic;
 
-public class AC5Tests
+public class Ac5Tests
 {
     [Fact]
     public void Constructor_InitializesCorrectly()
@@ -15,7 +14,7 @@ public class AC5Tests
 
         // Assert
         ac5.Name.Should().Be("AC/5");
-        ac5.RequiredSlots.Length.Should().Be(4);
+        ac5.SlotsCount.Should().Be(0);
         ac5.Heat.Should().Be(1);
         ac5.Damage.Should().Be(5);
         ac5.BattleValue.Should().Be(123);

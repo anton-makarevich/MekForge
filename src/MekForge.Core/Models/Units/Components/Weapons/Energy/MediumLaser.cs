@@ -2,11 +2,8 @@ namespace Sanet.MekForge.Core.Models.Units.Components.Weapons.Energy;
 
 public class MediumLaser : Weapon
 {
-    private static readonly int[] MediumLaserSlots = { 0 };
-
     public MediumLaser() : base(
         name: "Medium Laser",
-        slots: MediumLaserSlots,
         damage: 5,
         heat: 3,
         minimumRange: 0,

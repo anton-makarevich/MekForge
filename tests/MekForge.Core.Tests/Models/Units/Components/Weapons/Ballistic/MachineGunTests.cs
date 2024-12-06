@@ -15,7 +15,7 @@ public class MachineGunTests
 
         // Assert
         machineGun.Name.Should().Be("Machine Gun");
-        machineGun.RequiredSlots.Length.Should().Be(1);
+        machineGun.SlotsCount.Should().Be(0);
         machineGun.Damage.Should().Be(2);
         machineGun.Heat.Should().Be(0);
         machineGun.MinimumRange.Should().Be(0);

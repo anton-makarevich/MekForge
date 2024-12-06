@@ -10,11 +10,11 @@ public class MascTests
     public void Constructor_InitializesCorrectly()
     {
         // Arrange & Act
-        var masc = new Masc("MASC", 2);
+        var masc = new Masc("MASC");
 
         // Assert
         masc.Name.Should().Be("MASC");
-        masc.RequiredSlots.Length.Should().Be(2);
+        masc.SlotsCount.Should().Be(0);
         masc.IsDestroyed.Should().BeFalse();
         masc.IsActive.Should().BeFalse(); // MASC starts deactivated
     }
@@ -23,7 +23,7 @@ public class MascTests
     public void Hit_DestroysAndDeactivatesComponent()
     {
         // Arrange
-        var masc = new Masc("MASC", 2);
+        var masc = new Masc("MASC");
         masc.Activate();
 
         // Act

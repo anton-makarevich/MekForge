@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Sanet.MekForge.Core.Models.Units.Components;
 
 namespace Sanet.MekForge.Core.Models.Units;
@@ -40,7 +38,7 @@ public class UnitPart
             return false;
 
         // Check if any required slots would be out of bounds
-        if (component.RequiredSlots.Any(s => s >= TotalSlots))
+        if (component.MountedAtSlots.Any(s => s >= TotalSlots))
             return false;
 
         // Check if any of the required slots are already occupied
@@ -48,7 +46,7 @@ public class UnitPart
                                     .SelectMany(c => c.OccupiedSlots)
                                     .ToHashSet();
         
-        return !component.RequiredSlots.Intersect(occupiedSlots).Any();
+        return !component.MountedAtSlots.Intersect(occupiedSlots).Any();
     }
 
     public bool TryAddComponent(Component component)
@@ -56,7 +54,7 @@ public class UnitPart
         if (!CanAddComponent(component))
             return false;
 
-        component.Mount();
+        component.Mount([0]);
         Components.Add(component);
         return true;
     }

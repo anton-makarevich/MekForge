@@ -2,11 +2,8 @@ namespace Sanet.MekForge.Core.Models.Units.Components.Weapons.Ballistic;
 
 public class MachineGun : Weapon
 {
-    private static readonly int[] MachineGunSlots = { 0 };
-
     public MachineGun() : base(
         name: "Machine Gun",
-        slots: MachineGunSlots,
         damage: 2,
         heat: 0,
         minimumRange: 0,

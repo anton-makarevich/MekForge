@@ -15,8 +15,8 @@ public class AmmoTests
         ammo.Name.Should().Be("MachineGun Ammo");
         ammo.Type.Should().Be(AmmoType.MachineGun);
         ammo.RemainingShots.Should().Be(200);
-        ammo.RequiredSlots.Should().BeEquivalentTo(new[] { 0 });
-        ammo.SlotsCount.Should().Be(1);
+        ammo.MountedAtSlots.Should().HaveCount(0);
+        ammo.SlotsCount.Should().Be(0);
     }
 
     [Fact]
