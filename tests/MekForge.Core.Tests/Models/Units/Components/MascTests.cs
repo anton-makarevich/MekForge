@@ -1,33 +1,36 @@
+using FluentAssertions;
 using Sanet.MekForge.Core.Models.Units.Components;
+using Xunit;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Components;
 
 public class MascTests
 {
     [Fact]
-    public void Constructor_SetsNameAndSlots()
+    public void Constructor_InitializesCorrectly()
     {
         // Arrange & Act
-        var masc = new Masc("Test MASC", 2);
+        var masc = new Masc("MASC", 2);
 
         // Assert
-        Assert.Equal("Test MASC", masc.Name);
-        Assert.Equal(2, masc.Slots);
-        Assert.False(masc.IsDestroyed);
-        Assert.False(masc.IsActive);
+        masc.Name.Should().Be("MASC");
+        masc.RequiredSlots.Length.Should().Be(2);
+        masc.IsDestroyed.Should().BeFalse();
+        masc.IsActive.Should().BeFalse(); // MASC starts deactivated
     }
 
     [Fact]
-    public void ApplyDamage_DestroysAndDeactivatesComponent()
+    public void Hit_DestroysAndDeactivatesComponent()
     {
         // Arrange
-        var masc = new Masc("Test MASC", 2);
+        var masc = new Masc("MASC", 2);
+        masc.Activate();
 
         // Act
-        masc.ApplyDamage();
+        masc.Hit();
 
         // Assert
-        Assert.True(masc.IsDestroyed);
-        Assert.False(masc.IsActive);
+        masc.IsDestroyed.Should().BeTrue();
+        masc.IsActive.Should().BeFalse();
     }
 }

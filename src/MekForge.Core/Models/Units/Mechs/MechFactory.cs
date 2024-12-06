@@ -52,24 +52,26 @@ public static class MechFactory
 
             [PartLocation.LeftArm] = new(
                 Name: "Left Arm",
+                MaxArmor: 16,
                 MaxStructure: 6,
                 Slots: 12,
                 Components: [
                     new ShoulderActuator(),
                     new UpperArmActuator(),
-                    new LowerArmActuator(),
+                    new LowerArm(),
                     new HandActuator(),
                     new MachineGun()
                 ]),
 
             [PartLocation.RightArm] = new(
                 Name: "Right Arm",
+                MaxArmor: 16,
                 MaxStructure: 6,
                 Slots: 12,
                 Components: [
                     new ShoulderActuator(),
                     new UpperArmActuator(),
-                    new LowerArmActuator(),
+                    new LowerArm(),
                     new HandActuator(),
                     new MachineGun()
                 ]),
@@ -80,9 +82,9 @@ public static class MechFactory
                 MaxStructure: 7,
                 Slots: 12,
                 Components: [
-                    new HipActuator(),
-                    new UpperLegActuator(),
-                    new LowerLegActuator(),
+                    new Hip(),
+                    new UpperLeg(),
+                    new LowerLeg(),
                     new FootActuator()
                 ]),
 
@@ -92,9 +94,9 @@ public static class MechFactory
                 MaxStructure: 7,
                 Slots: 12,
                 Components: [
-                    new HipActuator(),
-                    new UpperLegActuator(),
-                    new LowerLegActuator(),
+                    new Hip(),
+                    new UpperLeg(),
+                    new LowerLeg(),
                     new FootActuator()
                 ])
         };

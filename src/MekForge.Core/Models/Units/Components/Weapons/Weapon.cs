@@ -36,4 +36,9 @@ public abstract class Weapon : Component
     public WeaponType Type { get; }
     public int BattleValue { get; }
     public AmmoType AmmoType { get; }
+
+    public void ApplyDamage()
+    {
+        IsDestroyed = true;
+    }
 }

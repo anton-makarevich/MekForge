@@ -33,13 +33,13 @@ public class HeatSinkTests
     }
 
     [Fact]
-    public void ApplyDamage_DestroysHeatSink()
+    public void Hit_DestroysHeatSink()
     {
         // Arrange
         var heatSink = new HeatSink();
 
         // Act
-        heatSink.ApplyDamage();
+        heatSink.Hit();
 
         // Assert
         heatSink.IsDestroyed.Should().BeTrue();

@@ -15,7 +15,7 @@ public class LRM10Tests
 
         // Assert
         lrm10.Name.Should().Be("LRM-10");
-        lrm10.Slots.Should().Be(2);
+        lrm10.RequiredSlots.Length.Should().Be(2);
         lrm10.Heat.Should().Be(4);
         lrm10.Damage.Should().Be(10); // Total damage for all missiles
         lrm10.BattleValue.Should().Be(90);
@@ -24,13 +24,13 @@ public class LRM10Tests
     }
 
     [Fact]
-    public void ApplyDamage_DestroysLRM10()
+    public void Hit_DestroysLRM10()
     {
         // Arrange
         var lrm10 = new LRM10();
 
         // Act
-        lrm10.ApplyDamage();
+        lrm10.Hit();
 
         // Assert
         lrm10.IsDestroyed.Should().BeTrue();

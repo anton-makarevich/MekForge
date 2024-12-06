@@ -12,6 +12,7 @@ public abstract class Component : IManufacturedItem
 
     public string Name { get; }
     public int[] RequiredSlots { get; }
+    public int Slots => RequiredSlots.Length;
     public bool IsDestroyed { get; protected set; }
     public bool IsActive { get; protected set; } = true;
     public string Manufacturer { get; }

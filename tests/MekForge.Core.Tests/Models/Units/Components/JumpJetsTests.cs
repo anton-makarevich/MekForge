@@ -32,13 +32,13 @@ public class JumpJetsFacts
     }
 
     [Fact]
-    public void ApplyDamage_SetsIsDestroyedToTrue()
+    public void Hit_SetsIsDestroyedToTrue()
     {
         // Arrange
         var jumpJets = new JumpJets();
 
         // Act
-        jumpJets.ApplyDamage();
+        jumpJets.Hit();
 
         // Assert
         jumpJets.IsDestroyed.Should().BeTrue();

@@ -15,7 +15,7 @@ public class AC5Tests
 
         // Assert
         ac5.Name.Should().Be("AC/5");
-        ac5.Slots.Should().Be(4);
+        ac5.RequiredSlots.Length.Should().Be(4);
         ac5.Heat.Should().Be(1);
         ac5.Damage.Should().Be(5);
         ac5.BattleValue.Should().Be(123);
@@ -24,13 +24,13 @@ public class AC5Tests
     }
 
     [Fact]
-    public void ApplyDamage_DestroysAC5()
+    public void Hit_DestroysAC5()
     {
         // Arrange
         var ac5 = new AC5();
 
         // Act
-        ac5.ApplyDamage();
+        ac5.Hit();
 
         // Assert
         ac5.IsDestroyed.Should().BeTrue();

@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Ballistic;
+using Xunit;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Components.Weapons.Ballistic;
 
@@ -14,7 +15,7 @@ public class MachineGunTests
 
         // Assert
         machineGun.Name.Should().Be("Machine Gun");
-        machineGun.Slots.Should().Be(1);
+        machineGun.RequiredSlots.Length.Should().Be(1);
         machineGun.Damage.Should().Be(2);
         machineGun.Heat.Should().Be(0);
         machineGun.MinimumRange.Should().Be(0);
@@ -29,13 +30,13 @@ public class MachineGunTests
     }
 
     [Fact]
-    public void ApplyDamage_SetsIsDestroyedToTrue()
+    public void Hit_SetsIsDestroyedToTrue()
     {
         // Arrange
         var machineGun = new MachineGun();
 
         // Act
-        machineGun.ApplyDamage();
+        machineGun.Hit();
 
         // Assert
         machineGun.IsDestroyed.Should().BeTrue();
