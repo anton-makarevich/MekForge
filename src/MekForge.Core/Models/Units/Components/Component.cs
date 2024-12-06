@@ -10,25 +10,25 @@ public abstract class Component : IManufacturedItem
         MountedAtSlots = slots;
         IsFixed = slots.Length > 0;
         Manufacturer = manufacturer;
-        _mountedSlots = null; // null means not mounted yet
     }
 
     public string Name { get; }
     public int[] MountedAtSlots { get; private set; }
-    public bool IsDestroyed { get; protected set; }
+    public bool IsDestroyed { get; private set; }
     public bool IsActive { get; protected set; } = true;
     public string Manufacturer { get; }
     public bool IsFixed { get; }
 
     // Slot positioning
-    private int[]? _mountedSlots;
-    public int[] OccupiedSlots => _mountedSlots ?? Array.Empty<int>();
-    public bool IsMounted => _mountedSlots != null;
+    public int[] OccupiedSlots => MountedAtSlots;
+    public bool IsMounted => MountedAtSlots.Length > 0;
+    public bool HasMountingSlots => MountedAtSlots.Length > 0;
     public int SlotsCount => MountedAtSlots.Length;
 
     public void Mount(int[] slots)
     {
-        _mountedSlots = slots;
+        if (IsMounted) return;
+        
         MountedAtSlots = slots;
     }
 
@@ -38,8 +38,9 @@ public abstract class Component : IManufacturedItem
         {
             throw new ComponentException("Fixed components cannot be unmounted.");
         }
-        _mountedSlots = null; // Reset for non-fixed components
-        MountedAtSlots = new int[0];
+        if (!IsMounted) return;
+        
+        MountedAtSlots = [];
     }
 
     public virtual void Hit()

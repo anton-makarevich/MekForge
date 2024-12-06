@@ -92,4 +92,46 @@ public class ComponentTests
         component.Activate();
         component.IsActive.Should().BeTrue();
     }
+
+    [Fact]
+    public void IsMounted_ReturnsTrueWhenMountedAtSlotsNotEmpty()
+    {
+        // Arrange
+        var component = new TestComponent("Test Component", []);
+        
+        // Act & Assert
+        component.IsMounted.Should().BeFalse(); // Initially not mounted
+        
+        component.Mount([0, 1]);
+        component.IsMounted.Should().BeTrue(); // Mounted with slots
+        
+        component.UnMount();
+        component.IsMounted.Should().BeFalse(); // Unmounted
+    }
+
+    [Fact]
+    public void Mount_IgnoresIfAlreadyMounted()
+    {
+        // Arrange
+        var component = new TestComponent("Test Component", []);
+        component.Mount([0, 1]);
+        var initialSlots = component.MountedAtSlots;
+
+        // Act
+        component.Mount([2, 3]); // Try to mount again with different slots
+
+        // Assert
+        component.MountedAtSlots.Should().BeEquivalentTo(initialSlots); // Should keep original slots
+    }
+
+    [Fact]
+    public void UnMount_IgnoresIfNotMounted()
+    {
+        // Arrange
+        var component = new TestComponent("Test Component", []);
+
+        // Act & Assert - should not throw
+        component.UnMount();
+        component.IsMounted.Should().BeFalse();
+    }
 }
