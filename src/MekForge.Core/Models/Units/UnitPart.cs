@@ -139,12 +139,4 @@ public abstract class UnitPart
     {
         return _components.OfType<T>();
     }
-
-    private int _damageOverflow;
-    public int GetOverflow()
-    {
-        var overflow = _damageOverflow;
-        _damageOverflow = 0;
-        return overflow;
-    }
 }
