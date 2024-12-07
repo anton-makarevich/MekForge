@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
 using Sanet.MekForge.Core.Models.Units;
 
-namespace Sanet.MekForge.Core.Utils;
+namespace Sanet.MekForge.Core.Utils.Community;
 
 public class MtfParser
 {
@@ -9,12 +9,12 @@ public class MtfParser
     private readonly Dictionary<PartLocation, List<string>> _locationEquipment = new();
     private readonly Dictionary<PartLocation, ArmorValues> _armorValues = new();
 
-    public MechData Parse(IEnumerable<string> lines)
+    public MechData.MechData Parse(IEnumerable<string> lines)
     {
         ParseBasicData(lines);
         ParseLocationData(lines);
         
-        return new MechData
+        return new MechData.MechData
         {
             Chassis = _mechData["chassis"],
             Model = _mechData["model"],
@@ -148,14 +148,4 @@ public class ArmorValues
 {
     public int FrontArmor { get; set; }
     public int RearArmor { get; set; }
-}
-
-public class MechData
-{
-    public required string Chassis { get; init; }
-    public required string Model { get; init; }
-    public required int Mass { get; init; }
-    public required int WalkMp { get; init; }
-    public required Dictionary<PartLocation, ArmorValues> ArmorValues { get; init; }
-    public required Dictionary<PartLocation, List<string>> LocationEquipment { get; init; }
 }

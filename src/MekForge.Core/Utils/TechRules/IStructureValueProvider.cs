@@ -1,6 +1,6 @@
 ﻿using Sanet.MekForge.Core.Models.Units;
 
-namespace Sanet.MekForge.Core.Utils;
+namespace Sanet.MekForge.Core.Utils.TechRules;
 
 public interface IStructureValueProvider
 {
