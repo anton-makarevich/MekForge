@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 
@@ -74,6 +74,33 @@ public class TorsoTests
                     torso.CurrentStructure.Should().Be(0);
                 }
             }
+        }
+    }
+
+    [Theory]
+    [InlineData(5, 10, 5, 5, 0)] // Damage does not exceed rear armor
+    [InlineData(15, 10, 5, 5,5)] // Damage exceeds rear armor
+    [InlineData(8, 10, 5, 5,0)] // Damage exceeds rear armor but structure remains
+    public void ApplyDamage_HandlesRearArmor(int damage, int maxArmor, int maxRearArmor, int maxStructure, int expectedExcess)
+    {
+        // Arrange
+        var torso = new TestTorso("Test Torso", PartLocation.CenterTorso, maxArmor, maxRearArmor, maxStructure);
+
+        // Act
+        var excessDamage = torso.ApplyDamage(damage, HitDirection.Rear);
+
+        // Assert
+        excessDamage.Should().Be(expectedExcess);
+
+        if (damage <= maxRearArmor)
+        {
+            torso.CurrentRearArmor.Should().Be(maxRearArmor - damage);
+            torso.CurrentStructure.Should().Be(maxStructure);
+        }
+        else if (damage < maxArmor + maxStructure)
+        {
+            torso.CurrentRearArmor.Should().Be(0);
+            torso.CurrentStructure.Should().Be(maxStructure - (damage - maxRearArmor));
         }
     }
 }
