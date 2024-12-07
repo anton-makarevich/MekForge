@@ -1,25 +1,37 @@
+using NSubstitute;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;
-using Sanet.MekForge.Core.Models.Units.Components.Internal.Actuators;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Mechs;
+using Sanet.MekForge.Core.Utils;
 
-namespace MekForge.Core.Tests.Models.Units.Mechs;
+namespace Sanet.MekForge.Core.Tests.Models.Units.Mechs;
 
 public class MechFactoryTests
 {
     private readonly string[] _locustMtfData;
-
+    private readonly IStructureValueProvider _structureValueProvider = Substitute.For<IStructureValueProvider>();
     public MechFactoryTests()
     {
         _locustMtfData = File.ReadAllLines("Resources/Locust LCT-1V.mtf");
+        _structureValueProvider.GetStructureValues(20).Returns(new Dictionary<PartLocation, int>
+        {
+            { PartLocation.Head, 8 },
+            { PartLocation.CenterTorso, 10 },
+            { PartLocation.LeftTorso, 8 },
+            { PartLocation.RightTorso, 8 },
+            { PartLocation.LeftArm, 4 },
+            { PartLocation.RightArm, 4 },
+            { PartLocation.LeftLeg, 8 },
+            { PartLocation.RightLeg, 8 }
+        });
     }
 
     [Fact]
     public void CreateFromMtfData_LocustMtf_CreatesCorrectMech()
     {
         // Act
-        var mech = MechFactory.CreateFromMtfData(_locustMtfData);
+        var mech = MechFactory.CreateFromMtfData(_locustMtfData, _structureValueProvider);
 
         // Assert
         Assert.Equal("Locust", mech.Chassis);
@@ -32,7 +44,7 @@ public class MechFactoryTests
     public void CreateFromMtfData_LocustMtf_HasCorrectArmor()
     {
         // Act
-        var mech = MechFactory.CreateFromMtfData(_locustMtfData);
+        var mech = MechFactory.CreateFromMtfData(_locustMtfData, _structureValueProvider);
 
         // Assert
         Assert.Equal(4, mech.Parts.First(p => p.Location == PartLocation.LeftArm).CurrentArmor);
@@ -49,7 +61,7 @@ public class MechFactoryTests
     public void CreateFromMtfData_LocustMtf_HasCorrectWeapons()
     {
         // Act
-        var mech = MechFactory.CreateFromMtfData(_locustMtfData);
+        var mech = MechFactory.CreateFromMtfData(_locustMtfData, _structureValueProvider);
 
         // Assert
         // Left Arm
@@ -68,8 +80,9 @@ public class MechFactoryTests
     [Fact]
     public void CreateFromMtfData_LocustMtf_HasCorrectActuators()
     {
+
         // Act
-        var mech = MechFactory.CreateFromMtfData(_locustMtfData);
+        var mech = MechFactory.CreateFromMtfData(_locustMtfData, _structureValueProvider);
 
         // Assert
         var leftArm = mech.Parts.First(p => p.Location == PartLocation.LeftArm);
@@ -85,7 +98,7 @@ public class MechFactoryTests
     public async Task CreateFromMtfFileAsync_LocustMtf_CreatesCorrectMech()
     {
         // Act
-        var mech = await MechFactory.CreateFromMtfFileAsync("Resources/Locust LCT-1V.mtf");
+        var mech = await MechFactory.CreateFromMtfFileAsync("Resources/Locust LCT-1V.mtf", _structureValueProvider);
 
         // Assert
         Assert.Equal("Locust", mech.Chassis);
