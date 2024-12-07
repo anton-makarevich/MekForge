@@ -8,9 +8,9 @@ public class Leg : UnitPart
         : base($"{location} Leg", location, maxArmor, maxStructure, 12)
     {
         // Add default components
-        Components.Add(new Hip());
-        Components.Add(new UpperLegActuator());
-        Components.Add(new LowerLegActuator());
-        Components.Add(new FootActuator());
+        TryAddComponent(new Hip());
+        TryAddComponent(new UpperLegActuator());
+        TryAddComponent(new LowerLegActuator());
+        TryAddComponent(new FootActuator());
     }
 }

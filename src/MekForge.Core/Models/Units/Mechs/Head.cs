@@ -1,4 +1,4 @@
-﻿using Sanet.MekForge.Core.Models.Units.Components.Internal;
+using Sanet.MekForge.Core.Models.Units.Components.Internal;
 
 namespace Sanet.MekForge.Core.Models.Units.Mechs;
 
@@ -8,8 +8,8 @@ public class Head : UnitPart
         : base("Head", PartLocation.Head, maxArmor, maxStructure, 12)
     {
         // Add default components
-        Components.Add(new LifeSupport());
-        Components.Add(new Sensors());
-        Components.Add(new Cockpit());
+        TryAddComponent(new LifeSupport());
+        TryAddComponent(new Sensors());
+        TryAddComponent(new Cockpit());
     }
 }

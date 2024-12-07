@@ -11,7 +11,7 @@ public abstract class UnitPart
         CurrentArmor = MaxArmor = maxArmor;
         CurrentStructure = MaxStructure = maxStructure;
         TotalSlots = slots;
-        Components = new List<Component>();
+        _components = new List<Component>();
     }
 
     public string Name { get; }
@@ -25,12 +25,13 @@ public abstract class UnitPart
     
     // Slots management
     public int TotalSlots { get; }
-    public int UsedSlots => Components.Sum(c => c.SlotsCount);
+    public int UsedSlots => _components.Sum(c => c.SlotsCount);
     public int AvailableSlots => TotalSlots - UsedSlots;
     public bool IsDestroyed => CurrentStructure <= 0;
     
     // Components installed in this part
-    public List<Component> Components { get; }
+    private readonly List<Component> _components;
+    public IReadOnlyList<Component> Components => _components;
 
     public bool CanAddComponent(Component component)
     {
@@ -42,7 +43,7 @@ public abstract class UnitPart
             return false;
 
         // Check if any of the required slots are already occupied
-        var occupiedSlots = Components.Where(c => c.IsMounted)
+        var occupiedSlots = _components.Where(c => c.IsMounted)
                                     .SelectMany(c => c.OccupiedSlots)
                                     .ToHashSet();
         
@@ -55,13 +56,13 @@ public abstract class UnitPart
             return false;
 
         component.Mount(component.MountedAtSlots);
-        Components.Add(component);
+        _components.Add(component);
         return true;
     }
 
     public Component? GetComponentAtSlot(int slot)
     {
-        return Components.FirstOrDefault(c => c.IsMounted && c.OccupiedSlots.Contains(slot));
+        return _components.FirstOrDefault(c => c.IsMounted && c.OccupiedSlots.Contains(slot));
     }
 
     public virtual int ApplyDamage(int damage, HitDirection direction = HitDirection.Front)
@@ -101,12 +102,12 @@ public abstract class UnitPart
 
     public T? GetComponent<T>() where T : Component
     {
-        return Components.OfType<T>().FirstOrDefault();
+        return _components.OfType<T>().FirstOrDefault();
     }
 
     public IEnumerable<T> GetComponents<T>() where T : Component
     {
-        return Components.OfType<T>();
+        return _components.OfType<T>();
     }
 
     private int _damageOverflow;
