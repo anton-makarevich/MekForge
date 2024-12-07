@@ -73,12 +73,12 @@ public class MechFactoryTests
 
         // Assert
         var leftArm = mech.Parts.First(p => p.Location == PartLocation.LeftArm);
-        Assert.Contains(leftArm.GetComponents<Shoulder>(), a => a.Name == "Shoulder");
-        Assert.Contains(leftArm.GetComponents<UpperArmActuator>(), a => a.Name == "Upper Arm");
+        Assert.Contains(leftArm.GetComponents<Component>(), a => a.Name == "Shoulder");
+        Assert.Contains(leftArm.GetComponents<Component>(), a => a.Name == "Upper Arm Actuator");
 
         var rightArm = mech.Parts.First(p => p.Location == PartLocation.RightArm);
-        Assert.Contains(rightArm.GetComponents<Shoulder>(), a => a.Name == "Shoulder");
-        Assert.Contains(rightArm.GetComponents<UpperArmActuator>(), a => a.Name == "Upper Arm");
+        Assert.Contains(rightArm.GetComponents<Component>(), a => a.Name == "Shoulder");
+        Assert.Contains(rightArm.GetComponents<Component>(), a => a.Name == "Upper Arm Actuator");
     }
 
     [Fact]

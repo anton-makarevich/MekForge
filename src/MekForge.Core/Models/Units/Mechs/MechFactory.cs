@@ -2,6 +2,9 @@ using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Energy;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Ballistic;
+using Sanet.MekForge.Core.Models.Units.Components.Internal;
+using Sanet.MekForge.Core.Models.Units.Components.Internal.Actuators;
+using Sanet.MekForge.Core.Models.Units.Components.Engines;
 using Sanet.MekForge.Core.Utils;
 
 namespace Sanet.MekForge.Core.Models.Units.Mechs;
@@ -41,7 +44,16 @@ public static class MechFactory
         var parts = new List<UnitPart>();
         foreach (var (location, armor) in armorValues)
         {
-            parts.Add(new BasicUnitPart(location, armor.FrontArmor, armor.RearArmor));
+            UnitPart part = location switch
+            {
+                PartLocation.LeftArm or PartLocation.RightArm => new Arm(location, armor.FrontArmor, 6),
+                PartLocation.LeftTorso or PartLocation.RightTorso => new SideTorso(location, armor.FrontArmor, armor.RearArmor, 8),
+                PartLocation.CenterTorso => new CenterTorso(armor.FrontArmor, armor.RearArmor, 10),
+                PartLocation.Head => new Head(armor.FrontArmor, 3),
+                PartLocation.LeftLeg or PartLocation.RightLeg => new Leg(location, armor.FrontArmor, 4),
+                _ => throw new ArgumentException($"Unknown location: {location}")
+            };
+            parts.Add(part);
         }
         return parts;
     }
@@ -65,31 +77,9 @@ public static class MechFactory
         "Machine Gun" => new MachineGun(),
         "Medium Laser" => new MediumLaser(),
         "Heat Sink" => new HeatSink(),
-        "Shoulder" => new MechActuator("Shoulder"),
-        "Upper Arm Actuator" => new MechActuator("Upper Arm"),
-        "Fusion Engine" => new MechEngine("Fusion Engine"),
+        "Shoulder" => new Shoulder(),
+        "Upper Arm Actuator" => new UpperArmActuator(),
+        "Fusion Engine" => new Engine("Fusion Engine", 160),
         _ => null
     };
-}
-
-public class BasicUnitPart : UnitPart
-{
-    public BasicUnitPart(PartLocation location, int frontArmor, int rearArmor = 0) 
-        : base($"Basic {location}", location, frontArmor, 6, 12)
-    {
-    }
-}
-
-public class MechActuator : Component
-{
-    public MechActuator(string name) : base(name, Array.Empty<int>())
-    {
-    }
-}
-
-public class MechEngine : Component
-{
-    public MechEngine(string name) : base(name, Array.Empty<int>())
-    {
-    }
 }
