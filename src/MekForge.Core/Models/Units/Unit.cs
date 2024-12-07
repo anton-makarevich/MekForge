@@ -1,12 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Sanet.MekForge.Core.Models.Units.Components;
 
 namespace Sanet.MekForge.Core.Models.Units;
 
 public abstract class Unit
 {
+    private readonly List<UnitPart> _parts; 
     protected Unit(string chassis, string model, int tonnage, int walkMp,
         IEnumerable<UnitPart> parts)
     {
@@ -15,7 +13,7 @@ public abstract class Unit
         Name = $"{chassis} {model}";
         Tonnage = tonnage;
         BaseMovement = walkMp;
-        Parts = parts.ToList();
+        _parts = parts.ToList();
     }
 
     public string Chassis { get; }
@@ -49,7 +47,7 @@ public abstract class Unit
     public virtual void ApplyHeat(int heat) { } // Default no-op for units that don't use heat
     
     // Parts management
-    public List<UnitPart> Parts { get; } = [];
+    public IReadOnlyList<UnitPart> Parts =>_parts;
 
     // Methods
     public abstract int CalculateBattleValue();
@@ -64,7 +62,7 @@ public abstract class Unit
             var transferLocation = GetTransferLocation(targetPart.Location);
             if (transferLocation.HasValue)
             {
-                var transferPart = Parts.Find(p => p.Location == transferLocation.Value);
+                var transferPart = _parts.Find(p => p.Location == transferLocation.Value);
                 if (transferPart != null)
                 {
                     ApplyDamage(remainingDamage, transferPart);
