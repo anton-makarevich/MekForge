@@ -2,9 +2,9 @@ using Sanet.MekForge.Core.Models.Units.Components;
 
 namespace Sanet.MekForge.Core.Models.Units;
 
-public class UnitPart
+public abstract class UnitPart
 {
-    public UnitPart(string name, PartLocation location, int maxArmor, int maxStructure, int slots)
+    protected UnitPart(string name, PartLocation location, int maxArmor, int maxStructure, int slots)
     {
         Name = name;
         Location = location;
@@ -19,9 +19,9 @@ public class UnitPart
     
     // Armor and Structure
     public int MaxArmor { get; }
-    public int CurrentArmor { get; private set; }
+    public int CurrentArmor { get; protected set; }
     public int MaxStructure { get; }
-    public int CurrentStructure { get; private set; }
+    public int CurrentStructure { get; protected set; }
     
     // Slots management
     public int TotalSlots { get; }
@@ -64,20 +64,10 @@ public class UnitPart
         return Components.FirstOrDefault(c => c.IsMounted && c.OccupiedSlots.Contains(slot));
     }
 
-    public int ApplyDamage(int damage)
+    public virtual int ApplyDamage(int damage, HitDirection direction = HitDirection.Front)
     {
         // First reduce armor
-        var remainingDamage = damage;
-        if (CurrentArmor > 0)
-        {
-            if (CurrentArmor >= remainingDamage)
-            {
-                CurrentArmor -= remainingDamage;
-                return 0;
-            }
-            remainingDamage -= CurrentArmor;
-            CurrentArmor = 0;
-        }
+        var remainingDamage =  ReduceArmor(damage,direction);
 
         // Then apply to structure if armor is depleted
         if (remainingDamage > 0)
@@ -93,6 +83,20 @@ public class UnitPart
         }
 
         return 0;
+    }
+
+    protected virtual int ReduceArmor(int damage, HitDirection direction)
+    {
+        if (CurrentArmor <= 0) return damage;
+        if (CurrentArmor >= damage)
+        {
+            CurrentArmor -= damage;
+            return 0;
+        }
+        damage -= CurrentArmor;
+        CurrentArmor = 0;
+
+        return damage;
     }
 
     public T? GetComponent<T>() where T : Component
