@@ -30,4 +30,10 @@
     <ProjectReference Include="..\..\src\MekForge.Core\MekForge.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Resources\Locust LCT-1V.mtf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
