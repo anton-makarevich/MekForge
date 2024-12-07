@@ -18,12 +18,12 @@ public class TorsoTests
     [InlineData(5, 10, 3, 5, 0)] // Front damage less than armor
     [InlineData(3, 10, 3, 5, 0)] // Rear damage less than rear armor
     [InlineData(14, 10, 3, 5, 0)] // Front damage depletes armor and some structure
-    [InlineData(4, 10, 3, 5, 1)] // Rear damage exceeds rear armor
+    [InlineData(9, 10, 3, 5, 1)] // Rear damage exceeds rear armor and depletes structure
     public void ApplyDamage_HandlesVariousDamageScenarios(int damage, int maxArmor, int maxRearArmor, int maxStructure, int expectedExcess)
     {
         // Arrange
-        var torso = new TestTorso("Test Torso", PartLocation.LeftSide, maxArmor, maxRearArmor, maxStructure);
-        var direction = damage == 3 || damage == 4 ? HitDirection.Rear : HitDirection.Front;
+        var torso = new TestTorso("Test Torso", PartLocation.LeftTorso, maxArmor, maxRearArmor, maxStructure);
+        var direction = damage == 3 || damage == 9 ? HitDirection.Rear : HitDirection.Front;
 
         // Act
         var excessDamage = torso.ApplyDamage(damage, direction);

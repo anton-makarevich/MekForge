@@ -4,8 +4,8 @@ namespace Sanet.MekForge.Core.Models.Units.Mechs;
 
 public class Head : UnitPart
 {
-    public Head(PartLocation location, int maxArmor, int maxStructure) 
-        : base("Head", location, maxArmor, maxStructure, 12)
+    public Head(int maxArmor, int maxStructure) 
+        : base("Head", PartLocation.Head, maxArmor, maxStructure, 12)
     {
         // Add default components
         Components.Add(new LifeSupport());

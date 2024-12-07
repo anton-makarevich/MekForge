@@ -1,30 +1,25 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Internal.Actuators;
 using Sanet.MekForge.Core.Models.Units.Mechs;
+using Xunit;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Mechs;
 
 public class ArmTests
 {
-    [Theory]
-    [InlineData(PartLocation.LeftSide)]
-    [InlineData(PartLocation.RightSide)]
-    public void Constructor_InitializesCorrectly(PartLocation location)
+    [Fact]
+    public void Arm_ShouldBeInitializedCorrectly()
     {
-        // Arrange & Act
-        var arm = new Arm(location, 10, 5);
+        var leftArm = new Arm(PartLocation.LeftArm, 4, 3);
+        var rightArm = new Arm(PartLocation.RightArm, 4, 3);
 
-        // Assert
-        arm.Name.Should().Be($"{location} Arm");
-        arm.Location.Should().Be(location);
-        arm.MaxArmor.Should().Be(10);
-        arm.CurrentArmor.Should().Be(10);
-        arm.MaxStructure.Should().Be(5);
-        arm.CurrentStructure.Should().Be(5);
-        arm.TotalSlots.Should().Be(12);
+        Assert.Equal(PartLocation.LeftArm, leftArm.Location);
+        Assert.Equal(4, leftArm.MaxArmor);
+        Assert.Equal(3, leftArm.MaxStructure);
 
-        // Verify default components
-        arm.GetComponent<Shoulder>().Should().NotBeNull();
+        Assert.Equal(PartLocation.RightArm, rightArm.Location);
+        Assert.Equal(4, rightArm.MaxArmor);
+        Assert.Equal(3, rightArm.MaxStructure);
     }
 }

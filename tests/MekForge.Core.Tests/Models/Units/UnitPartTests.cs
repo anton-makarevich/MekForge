@@ -9,8 +9,8 @@ public class UnitPartTests
 {
     private class TestUnitPart : UnitPart
     {
-        public TestUnitPart(string name, PartLocation location, int maxArmor, int maxStructure, int slots) 
-            : base(name, location, maxArmor, maxStructure, slots)
+        public TestUnitPart(PartLocation location, int maxArmor, int maxStructure, int slots) 
+            : base("Test",location, maxArmor, maxStructure, slots)
         {
         }
     }
@@ -19,11 +19,10 @@ public class UnitPartTests
     public void Constructor_InitializesCorrectly()
     {
         // Arrange & Act
-        var part = new TestUnitPart("Left Arm", PartLocation.LeftSide, 10, 5, 12);
+        var part = new TestUnitPart(PartLocation.LeftArm, 10, 5, 12);
 
         // Assert
-        part.Name.Should().Be("Left Arm");
-        part.Location.Should().Be(PartLocation.LeftSide);
+        part.Location.Should().Be(PartLocation.LeftArm);
         part.MaxArmor.Should().Be(10);
         part.CurrentArmor.Should().Be(10);
         part.MaxStructure.Should().Be(5);
@@ -43,7 +42,7 @@ public class UnitPartTests
     public void ApplyDamage_HandlesVariousDamageScenarios(int damage, int maxArmor, int maxStructure, int expectedExcess)
     {
         // Arrange
-        var part = new TestUnitPart("Test Part", PartLocation.LeftSide, maxArmor, maxStructure, 12);
+        var part = new TestUnitPart(PartLocation.LeftArm, maxArmor, maxStructure, 12);
 
         // Act
         var excessDamage = part.ApplyDamage(damage);
@@ -75,7 +74,7 @@ public class UnitPartTests
     public void ApplyDamage_DoesNotDestroyComponentsWhenStructureIsDestroyed()
     {
         // Arrange
-        var part = new TestUnitPart("Test Part", PartLocation.LeftSide, 0, 5, 12);
+        var part = new TestUnitPart(PartLocation.LeftArm, 0, 5, 12);
         var masc = new TestComponent("Test MASC", new[] { 0, 1 });
         part.TryAddComponent(masc);
 
@@ -92,7 +91,7 @@ public class UnitPartTests
     public void GetComponents_ReturnsCorrectComponentTypes()
     {
         // Arrange
-        var part = new TestUnitPart("Test Part", PartLocation.LeftSide, 10, 5, 12);
+        var part = new TestUnitPart(PartLocation.LeftArm, 10, 5, 12);
         var testComponent = new TestComponent("Test Component", new[] { 0, 1 });
         part.TryAddComponent(testComponent);
 
@@ -110,7 +109,7 @@ public class UnitPartTests
     public void TryAddComponent_RespectsSlotLimits()
     {
         // Arrange
-        var part = new TestUnitPart("Test Part", PartLocation.LeftSide, 10, 5, 3);
+        var part = new TestUnitPart(PartLocation.LeftArm, 10, 5, 3);
         var smallComponent = new TestComponent("Small Component", new[] { 0, 1 });
         var largeComponent = new TestComponent("Large Component", new[] { 0, 1, 2, 3 });
 
@@ -128,7 +127,7 @@ public class UnitPartTests
     public void CanAddComponent_ChecksSlotAvailability()
     {
         // Arrange
-        var part = new TestUnitPart("Test Part", PartLocation.LeftSide, 10, 5, 3);
+        var part = new TestUnitPart(PartLocation.LeftArm, 10, 5, 3);
         var smallComponent = new TestComponent("Small Component", new[] { 0, 1 });
         var largeComponent = new TestComponent("Large Component", new[] { 0, 1, 2, 3 });
 
@@ -145,7 +144,7 @@ public class UnitPartTests
     public void GetComponentAtSlot_ReturnsCorrectComponent()
     {
         // Arrange
-        var part = new TestUnitPart("Test Part", PartLocation.LeftSide, 10, 5, 6);
+        var part = new TestUnitPart(PartLocation.LeftArm, 10, 5, 6);
         var component1 = new TestComponent("Component 1", new[] { 0, 1 });
         var component2 = new TestComponent("Component 2", new[] { 3, 4, 5 });
         
