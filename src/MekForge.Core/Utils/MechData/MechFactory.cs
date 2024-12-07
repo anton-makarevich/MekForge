@@ -10,32 +10,33 @@ using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Utils.MechData;
 
-public static class MechFactory
+public class MechFactory
 {
-    public static async Task<Mech> CreateFromMtfFileAsync(string filePath, IStructureValueProvider structureValueProvider)
+    private readonly MechData _mechData;
+    private readonly IStructureValueProvider _structureValueProvider;
+
+    public MechFactory(MechData mechData, IStructureValueProvider structureValueProvider)
     {
-        var lines = await File.ReadAllLinesAsync(filePath);
-        return CreateFromMtfData(lines, structureValueProvider);
+        _mechData = mechData;
+        _structureValueProvider = structureValueProvider;
     }
 
-    public static Mech CreateFromMtfData(IEnumerable<string> mtfData, IStructureValueProvider structureValueProvider)
+    public Mech CreateFromMtfData()
     {
-        var parser = new MtfParser();
-        var mechData = parser.Parse(mtfData);
         
         // Create parts with appropriate armor and structure
-        var parts = CreateParts(mechData.ArmorValues, structureValueProvider, mechData.Mass);
+        var parts = CreateParts(_mechData.ArmorValues, _structureValueProvider, _mechData.Mass);
         
         // Create the mech
         var mech = new Mech(
-            mechData.Chassis,
-            mechData.Model,
-            mechData.Mass,
-            mechData.WalkMp,
+            _mechData.Chassis,
+            _mechData.Model,
+            _mechData.Mass,
+            _mechData.WalkMp,
             parts);
 
         // Add equipment to parts
-        AddEquipmentToParts(mech, mechData.LocationEquipment);
+        AddEquipmentToParts(mech, _mechData.LocationEquipment);
 
         return mech;
     }
