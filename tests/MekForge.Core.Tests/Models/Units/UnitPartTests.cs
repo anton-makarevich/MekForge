@@ -118,20 +118,40 @@ public class UnitPartTests
     }
 
     [Fact]
+    public void CanAddFixedComponent_WhenSlotsAreAvailable()
+    {
+        // Arrange
+        var part = new TestUnitPart(PartLocation.LeftArm, 10, 5, 3);
+        var smallComponent = new TestComponent("Small Component", [0, 1]);
+
+        // Act & Assert
+        part.TryAddComponent(smallComponent).Should().BeTrue();
+    }
+    
+    [Fact]
+    public void CannnotAddFixedComponent_WhenSlotsAreNotAvailable()
+    {
+        // Arrange
+        var part = new TestUnitPart(PartLocation.LeftArm, 10, 5, 3);
+        var largeComponent = new TestComponent("Large Component", [0, 1, 2, 3]);
+
+        // Act & Assert
+        part.TryAddComponent(largeComponent).Should().BeFalse();
+    }
+    
+    [Fact]
     public void CanAddComponent_ChecksSlotAvailability()
     {
         // Arrange
         var part = new TestUnitPart(PartLocation.LeftArm, 10, 5, 3);
-        var smallComponent = new TestComponent("Small Component", new[] { 0, 1 });
-        var largeComponent = new TestComponent("Large Component", new[] { 0, 1, 2, 3 });
+        var smallComponent = new TestComponent("Small Component", [0, 1]);
+        var largeComponent = new TestComponent("Large Component", [0, 1, 2, 3]);
 
         // Act & Assert
-        part.CanAddComponent(smallComponent).Should().BeTrue();
-        part.CanAddComponent(largeComponent).Should().BeFalse();
-
         part.TryAddComponent(smallComponent);
-        part.CanAddComponent(largeComponent).Should().BeFalse();
-        part.CanAddComponent(new TestComponent("Tiny Component", new[] { 2 })).Should().BeTrue();
+        part.TryAddComponent(largeComponent).Should().BeFalse();
+        part.TryAddComponent(new TestComponent("Not fixed Component", [])).Should().BeTrue();
+        part.TryAddComponent(new TestComponent("Not fixed Component 2", [])).Should().BeFalse();
     }
 
     [Fact]

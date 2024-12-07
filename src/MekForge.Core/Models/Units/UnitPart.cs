@@ -33,7 +33,23 @@ public abstract class UnitPart
     private readonly List<Component> _components;
     public IReadOnlyList<Component> Components => _components;
 
-    public bool CanAddComponent(Component component)
+    private int FindMountLocation()
+    {
+        // Check if any of the required slots are already occupied
+        var occupiedSlots = _components.Where(c => c.IsMounted)
+                                    .SelectMany(c => c.MountedAtSlots)
+                                    .ToHashSet();
+
+        // Here find the first available slot
+        for (var i = 0; i < TotalSlots; i++)
+        {
+            if (!occupiedSlots.Contains(i))
+                return i;
+        }
+        return -1;
+    }
+    
+    private bool CanAddComponent(Component component)
     {
         if (component.SlotsCount > AvailableSlots)
             return false;
@@ -44,25 +60,39 @@ public abstract class UnitPart
 
         // Check if any of the required slots are already occupied
         var occupiedSlots = _components.Where(c => c.IsMounted)
-                                    .SelectMany(c => c.OccupiedSlots)
-                                    .ToHashSet();
+            .SelectMany(c => c.MountedAtSlots)
+            .ToHashSet();
         
         return !component.MountedAtSlots.Intersect(occupiedSlots).Any();
     }
 
     public bool TryAddComponent(Component component)
     {
-        if (!CanAddComponent(component))
-            return false;
+        if (component.IsFixed)
+        {
+            if (!CanAddComponent(component))
+            {
+                return false;
+            }
 
-        component.Mount(component.MountedAtSlots);
+            _components.Add(component);
+            return true;
+        }
+
+        var slotToMount = FindMountLocation();
+        if (slotToMount == -1)
+        {
+            return false;
+        }
+
+        component.Mount([slotToMount]);
         _components.Add(component);
         return true;
     }
 
     public Component? GetComponentAtSlot(int slot)
     {
-        return _components.FirstOrDefault(c => c.IsMounted && c.OccupiedSlots.Contains(slot));
+        return _components.FirstOrDefault(c => c.IsMounted && c.MountedAtSlots.Contains(slot));
     }
 
     public virtual int ApplyDamage(int damage, HitDirection direction = HitDirection.Front)
