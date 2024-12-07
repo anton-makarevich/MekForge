@@ -11,96 +11,39 @@ public static class MechFactory
 {
     public static Mech CreateLocustLCT1V()
     {
-        var partsData = new Dictionary<PartLocation, UnitPartData>
+        var head = new Head(PartLocation.Head, 8, 3);
+
+        var centerTorso = new CenterTorso(10, 2, 6);
+        centerTorso.TryAddComponent(new Engine("Fusion Engine 160", 160));
+        centerTorso.TryAddComponent(new MediumLaser());
+        centerTorso.TryAddComponent(new Ammo(AmmoType.MachineGun));
+
+        var leftTorso = new SideTorso(PartLocation.LeftTorso, 8, 2, 5);
+        var rightTorso = new SideTorso(PartLocation.RightTorso, 8, 2, 5);
+
+        var leftArm = new Arm(PartLocation.LeftArm, 4, 3);
+        leftArm.TryAddComponent(new UpperArmActuator());
+        leftArm.TryAddComponent(new MachineGun());
+
+        var rightArm = new Arm(PartLocation.RightArm, 4, 3);
+        rightArm.TryAddComponent(new UpperArmActuator());
+        rightArm.TryAddComponent(new MachineGun());
+
+        var leftLeg = new Leg(PartLocation.LeftLeg, 8, 4);
+        var rightLeg = new Leg(PartLocation.RightLeg, 8, 4);
+
+        var parts = new Dictionary<PartLocation, UnitPart>
         {
-            [PartLocation.Head] = new(
-                Name: "Head",
-                MaxArmor: 9,
-                MaxStructure: 3,
-                Slots: 12,
-                Components: [
-                    new LifeSupport(),
-                    new Sensors(),
-                    new Cockpit()
-                ]),
-
-            [PartLocation.CenterTorso] = new(
-                Name: "Center Torso",
-                MaxArmor: 31,
-                MaxStructure: 10,
-                Slots: 12,
-                Components: [
-                    new Engine("Fusion Engine 160",  160),
-                    new Gyro(),
-                    new MediumLaser(),
-                    new Ammo(AmmoType.MachineGun)
-                ]),
-
-            [PartLocation.LeftTorso] = new(
-                Name: "Left Torso",
-                MaxArmor: 21,
-                MaxStructure: 7,
-                Slots: 12,
-                Components: []),
-
-            [PartLocation.RightTorso] = new(
-                Name: "Right Torso",
-                MaxArmor: 21,
-                MaxStructure: 7,
-                Slots: 12,
-                Components: []),
-
-            [PartLocation.LeftArm] = new(
-                Name: "Left Arm",
-                MaxArmor: 16,
-                MaxStructure: 6,
-                Slots: 12,
-                Components: [
-                    new Shoulder(),
-                    new UpperArmActuator(),
-                    new LowerArmActuator(),
-                    new HandActuator(),
-                    new MachineGun()
-                ]),
-
-            [PartLocation.RightArm] = new(
-                Name: "Right Arm",
-                MaxArmor: 16,
-                MaxStructure: 6,
-                Slots: 12,
-                Components: [
-                    new Shoulder(),
-                    new UpperArmActuator(),
-                    new LowerArmActuator(),
-                    new HandActuator(),
-                    new MachineGun()
-                ]),
-
-            [PartLocation.LeftLeg] = new(
-                Name: "Left Leg",
-                MaxArmor: 21,
-                MaxStructure: 7,
-                Slots: 12,
-                Components: [
-                    new Hip(),
-                    new UpperLegActuator(),
-                    new LowerLegActuator(),
-                    new FootActuator()
-                ]),
-
-            [PartLocation.RightLeg] = new(
-                Name: "Right Leg",
-                MaxArmor: 21,
-                MaxStructure: 7,
-                Slots: 12,
-                Components: [
-                    new Hip(),
-                    new UpperLegActuator(),
-                    new LowerLegActuator(),
-                    new FootActuator()
-                ])
+            [PartLocation.Head] = head,
+            [PartLocation.CenterTorso] = centerTorso,
+            [PartLocation.LeftTorso] = leftTorso,
+            [PartLocation.RightTorso] = rightTorso,
+            [PartLocation.LeftArm] = leftArm,
+            [PartLocation.RightArm] = rightArm,
+            [PartLocation.LeftLeg] = leftLeg,
+            [PartLocation.RightLeg] = rightLeg
         };
 
-        return new Mech("Locust", "LCT-1V", 20, 8, partsData);
+        return new Mech("Locust LCT-1V", 20, 8, parts);
     }
 }

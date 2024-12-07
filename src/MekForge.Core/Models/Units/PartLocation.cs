@@ -2,7 +2,12 @@ namespace Sanet.MekForge.Core.Models.Units;
 
 public enum PartLocation
 {
-    Center,
-    LeftSide,
-    RightSide
+    Head,
+    CenterTorso,
+    LeftTorso,
+    RightTorso,
+    LeftArm,
+    RightArm,
+    LeftLeg,
+    RightLeg
 }

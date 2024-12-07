@@ -18,6 +18,7 @@ public abstract class Component : IManufacturedItem
     public bool IsActive { get; protected set; } = true;
     public string Manufacturer { get; }
     public bool IsFixed { get; }
+    public int BattleValue { get; protected set; }
 
     // Slot positioning
     public int[] OccupiedSlots => MountedAtSlots;
