@@ -32,6 +32,5 @@ public abstract class Weapon : Component
     public int MediumRange { get; }
     public int LongRange { get; }
     public WeaponType Type { get; }
-    public int BattleValue { get; }
     public AmmoType AmmoType { get; }
 }

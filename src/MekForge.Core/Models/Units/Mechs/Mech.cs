@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
@@ -12,8 +10,8 @@ public class Mech : Unit
         string model, 
         int tonnage, 
         int walkMp,
-        IReadOnlyDictionary<PartLocation, UnitPartData> partsData) 
-        : base(chassis, model, tonnage, walkMp, partsData)
+        IEnumerable<UnitPart> parts) 
+        : base(chassis, model, tonnage, walkMp, parts)
     {
         Status = MechStatus.Active;
     }
@@ -26,7 +24,6 @@ public class Mech : Unit
         PartLocation.RightArm => PartLocation.RightTorso,
         PartLocation.LeftLeg => PartLocation.LeftTorso,
         PartLocation.RightLeg => PartLocation.RightTorso,
-        PartLocation.Head => PartLocation.CenterTorso,
         PartLocation.LeftTorso => PartLocation.CenterTorso,
         PartLocation.RightTorso => PartLocation.CenterTorso,
         _ => null
@@ -37,7 +34,7 @@ public class Mech : Unit
     
     public override void ApplyHeat(int heat)
     {
-        CurrentHeat = System.Math.Max(0, CurrentHeat + heat - HeatDissipation);
+        CurrentHeat = Math.Max(0, CurrentHeat + heat - HeatDissipation);
         ApplyHeatEffects();
     }
 

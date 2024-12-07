@@ -2,16 +2,16 @@ using Sanet.MekForge.Core.Models.Units.Components;
 
 namespace Sanet.MekForge.Core.Models.Units;
 
-public class UnitPart
+public abstract class UnitPart
 {
-    public UnitPart(string name, PartLocation location, int maxArmor, int maxStructure, int slots)
+    protected UnitPart(string name, PartLocation location, int maxArmor, int maxStructure, int slots)
     {
         Name = name;
         Location = location;
         CurrentArmor = MaxArmor = maxArmor;
         CurrentStructure = MaxStructure = maxStructure;
         TotalSlots = slots;
-        Components = new List<Component>();
+        _components = new List<Component>();
     }
 
     public string Name { get; }
@@ -19,20 +19,37 @@ public class UnitPart
     
     // Armor and Structure
     public int MaxArmor { get; }
-    public int CurrentArmor { get; private set; }
+    public int CurrentArmor { get; protected set; }
     public int MaxStructure { get; }
-    public int CurrentStructure { get; private set; }
+    public int CurrentStructure { get; protected set; }
     
     // Slots management
     public int TotalSlots { get; }
-    public int UsedSlots => Components.Sum(c => c.SlotsCount);
+    public int UsedSlots => _components.Sum(c => c.SlotsCount);
     public int AvailableSlots => TotalSlots - UsedSlots;
     public bool IsDestroyed => CurrentStructure <= 0;
     
     // Components installed in this part
-    public List<Component> Components { get; }
+    private readonly List<Component> _components;
+    public IReadOnlyList<Component> Components => _components;
 
-    public bool CanAddComponent(Component component)
+    private int FindMountLocation()
+    {
+        // Check if any of the required slots are already occupied
+        var occupiedSlots = _components.Where(c => c.IsMounted)
+                                    .SelectMany(c => c.MountedAtSlots)
+                                    .ToHashSet();
+
+        // Here find the first available slot
+        for (var i = 0; i < TotalSlots; i++)
+        {
+            if (!occupiedSlots.Contains(i))
+                return i;
+        }
+        return -1;
+    }
+    
+    private bool CanAddComponent(Component component)
     {
         if (component.SlotsCount > AvailableSlots)
             return false;
@@ -42,42 +59,46 @@ public class UnitPart
             return false;
 
         // Check if any of the required slots are already occupied
-        var occupiedSlots = Components.Where(c => c.IsMounted)
-                                    .SelectMany(c => c.OccupiedSlots)
-                                    .ToHashSet();
+        var occupiedSlots = _components.Where(c => c.IsMounted)
+            .SelectMany(c => c.MountedAtSlots)
+            .ToHashSet();
         
         return !component.MountedAtSlots.Intersect(occupiedSlots).Any();
     }
 
     public bool TryAddComponent(Component component)
     {
-        if (!CanAddComponent(component))
-            return false;
+        if (component.IsFixed)
+        {
+            if (!CanAddComponent(component))
+            {
+                return false;
+            }
 
-        component.Mount(component.MountedAtSlots);
-        Components.Add(component);
+            _components.Add(component);
+            return true;
+        }
+
+        var slotToMount = FindMountLocation();
+        if (slotToMount == -1)
+        {
+            return false;
+        }
+
+        component.Mount([slotToMount]);
+        _components.Add(component);
         return true;
     }
 
     public Component? GetComponentAtSlot(int slot)
     {
-        return Components.FirstOrDefault(c => c.IsMounted && c.OccupiedSlots.Contains(slot));
+        return _components.FirstOrDefault(c => c.IsMounted && c.MountedAtSlots.Contains(slot));
     }
 
-    public int ApplyDamage(int damage)
+    public virtual int ApplyDamage(int damage, HitDirection direction = HitDirection.Front)
     {
         // First reduce armor
-        var remainingDamage = damage;
-        if (CurrentArmor > 0)
-        {
-            if (CurrentArmor >= remainingDamage)
-            {
-                CurrentArmor -= remainingDamage;
-                return 0;
-            }
-            remainingDamage -= CurrentArmor;
-            CurrentArmor = 0;
-        }
+        var remainingDamage =  ReduceArmor(damage,direction);
 
         // Then apply to structure if armor is depleted
         if (remainingDamage > 0)
@@ -95,13 +116,27 @@ public class UnitPart
         return 0;
     }
 
+    protected virtual int ReduceArmor(int damage, HitDirection direction)
+    {
+        if (CurrentArmor <= 0) return damage;
+        if (CurrentArmor >= damage)
+        {
+            CurrentArmor -= damage;
+            return 0;
+        }
+        damage -= CurrentArmor;
+        CurrentArmor = 0;
+
+        return damage;
+    }
+
     public T? GetComponent<T>() where T : Component
     {
-        return Components.OfType<T>().FirstOrDefault();
+        return _components.OfType<T>().FirstOrDefault();
     }
 
     public IEnumerable<T> GetComponents<T>() where T : Component
     {
-        return Components.OfType<T>();
+        return _components.OfType<T>();
     }
 }

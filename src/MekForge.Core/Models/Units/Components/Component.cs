@@ -18,11 +18,10 @@ public abstract class Component : IManufacturedItem
     public bool IsActive { get; protected set; } = true;
     public string Manufacturer { get; }
     public bool IsFixed { get; }
+    public int BattleValue { get; protected set; }
 
     // Slot positioning
-    public int[] OccupiedSlots => MountedAtSlots;
     public bool IsMounted => MountedAtSlots.Length > 0;
-    public bool HasMountingSlots => MountedAtSlots.Length > 0;
     public int SlotsCount => MountedAtSlots.Length;
 
     public void Mount(int[] slots)

@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Sanet.MekForge.Core.Models.Units.Components;
 
 namespace Sanet.MekForge.Core.Models.Units;
@@ -5,14 +8,14 @@ namespace Sanet.MekForge.Core.Models.Units;
 public abstract class Unit
 {
     protected Unit(string chassis, string model, int tonnage, int walkMp,
-        IReadOnlyDictionary<PartLocation, UnitPartData> partsData)
+        IEnumerable<UnitPart> parts)
     {
         Chassis = chassis;
         Model = model;
         Name = $"{chassis} {model}";
         Tonnage = tonnage;
         BaseMovement = walkMp;
-        InitializeParts(partsData);
+        Parts = parts.ToList();
     }
 
     public string Chassis { get; }
@@ -47,26 +50,6 @@ public abstract class Unit
     
     // Parts management
     public List<UnitPart> Parts { get; } = [];
-
-    private void InitializeParts(IReadOnlyDictionary<PartLocation, UnitPartData> partsData)
-    {
-        foreach (var (location, data) in partsData)
-        {
-            var part = new UnitPart(
-                name: data.Name,
-                location: location,
-                maxArmor: data.MaxArmor,
-                maxStructure: data.MaxStructure,
-                slots: data.Slots);
-
-            foreach (var component in data.Components)
-            {
-                part.TryAddComponent(component);
-            }
-
-            Parts.Add(part);
-        }
-    }
 
     // Methods
     public abstract int CalculateBattleValue();

@@ -8,18 +8,18 @@ namespace Sanet.MekForge.Core.Tests.Models.Units.Mechs;
 
 public class MechTests
 {
-    private static Dictionary<PartLocation, UnitPartData> CreateBasicPartsData()
+    private static List<UnitPart> CreateBasicPartsData()
     {
-        return new Dictionary<PartLocation, UnitPartData>
+        return new List<UnitPart>
         {
-            [PartLocation.Head] = new("Head", 9, 3, 6, []),
-            [PartLocation.CenterTorso] = new("Center Torso", 31, 10, 6, []),
-            [PartLocation.LeftTorso] = new("Left Torso", 25, 8, 6, []),
-            [PartLocation.RightTorso] = new("Right Torso", 25, 8, 6, []),
-            [PartLocation.LeftArm] = new("Left Arm", 17, 6, 6, []),
-            [PartLocation.RightArm] = new("Right Arm", 17, 6, 6, []),
-            [PartLocation.LeftLeg] = new("Left Leg", 25, 8, 6, []),
-            [PartLocation.RightLeg] = new("Right Leg", 25, 8, 6, [])
+            new Head( 9, 3),
+            new CenterTorso( 31, 10, 6),
+            new SideTorso(PartLocation.LeftTorso, 25, 8, 6),
+            new SideTorso(PartLocation.RightTorso, 25, 8, 6),
+            new Arm(PartLocation.RightArm, 17, 6),
+            new Arm(PartLocation.LeftArm, 17, 6),
+            new Leg(PartLocation.RightLeg, 25, 8),
+            new Leg(PartLocation.LeftLeg, 25, 8)
         };
     }
 
@@ -46,7 +46,6 @@ public class MechTests
     [InlineData(PartLocation.RightArm, PartLocation.RightTorso)]
     [InlineData(PartLocation.LeftLeg, PartLocation.LeftTorso)]
     [InlineData(PartLocation.RightLeg, PartLocation.RightTorso)]
-    [InlineData(PartLocation.Head, PartLocation.CenterTorso)]
     [InlineData(PartLocation.LeftTorso, PartLocation.CenterTorso)]
     [InlineData(PartLocation.RightTorso, PartLocation.CenterTorso)]
     public void GetTransferLocation_ReturnsCorrectLocation(PartLocation from, PartLocation expected)
@@ -65,12 +64,11 @@ public class MechTests
     public void ApplyHeat_DissipatesHeatBasedOnHeatSinks()
     {
         // Arrange
-        var partsData = CreateBasicPartsData();
-        partsData[PartLocation.CenterTorso] = partsData[PartLocation.CenterTorso] with
-        {
-            Components = [new HeatSink(), new HeatSink()]
-        };
-        var mech = new Mech("Test", "TST-1A", 50, 4, partsData);
+        var parts = CreateBasicPartsData();
+        var centerTorso = parts.Single(p => p.Location == PartLocation.CenterTorso);
+        centerTorso.TryAddComponent(new HeatSink());
+        centerTorso.TryAddComponent(new HeatSink());
+        var mech = new Mech("Test", "TST-1A", 50, 4, parts);
 
         // Act
         mech.ApplyHeat(5); // Apply 5 heat with 2 heat sinks
@@ -83,12 +81,10 @@ public class MechTests
     public void CalculateBattleValue_IncludesWeapons()
     {
         // Arrange
-        var partsData = CreateBasicPartsData();
-        partsData[PartLocation.RightArm] = partsData[PartLocation.RightArm] with
-        {
-            Components = [new MediumLaser()]
-        };
-        var mech = new Mech("Test", "TST-1A", 50, 4, partsData);
+        var parts = CreateBasicPartsData();
+        var centerTorso = parts.Single(p => p.Location == PartLocation.CenterTorso);
+        centerTorso.TryAddComponent(new MediumLaser());
+        var mech = new Mech("Test", "TST-1A", 50, 4, parts);
 
         // Act
         var bv = mech.CalculateBattleValue();
@@ -165,33 +161,28 @@ public class MechTests
     [InlineData(5, 8, 2)] // Standard mech without jump jets
     [InlineData(4, 6, 0)] // Fast mech with jump jets
     [InlineData(3, 5, 2)] // Slow mech with lots of jump jets
-    public void GetMovement_ReturnsCorrectMPs(int walkMP, int expectedRunMP, int jumpMP)
+    public void GetMovement_ReturnsCorrectMPs(int walkMp, int runMp, int jumpMp)
     {
         // Arrange
-        var partsData = CreateBasicPartsData();
-        if (jumpMP > 0)
+        var parts = CreateBasicPartsData();
+        if (jumpMp > 0)
         {
-            partsData[PartLocation.LeftLeg] = partsData[PartLocation.LeftLeg] with
-            {
-                Components = [new JumpJets()]
-            };
-            partsData[PartLocation.RightLeg] = partsData[PartLocation.RightLeg] with
-            {
-                Components = [new JumpJets()]
-            };
+            var centerTorso = parts.Single(p => p.Location == PartLocation.CenterTorso);
+            centerTorso.TryAddComponent(new JumpJets());
+            centerTorso.TryAddComponent(new JumpJets());
         }
 
-        var mech = new Mech("Test", "TST-1A", 50, walkMP, partsData);
+        var mech = new Mech("Test", "TST-1A", 50, walkMp, parts);
 
         // Act
-        var walkingMP = mech.GetMovementPoints(MovementType.Walk);
-        var runningMP = mech.GetMovementPoints(MovementType.Run);
-        var jumpingMP = mech.GetMovementPoints(MovementType.Jump);
+        var walkingMp = mech.GetMovementPoints(MovementType.Walk);
+        var runningMp = mech.GetMovementPoints(MovementType.Run);
+        var jumpingMp = mech.GetMovementPoints(MovementType.Jump);
 
         // Assert
-        walkingMP.Should().Be(walkMP, "walking MP should match the base movement");
-        runningMP.Should().Be(expectedRunMP, "running MP should be 1.5x walking");
-        jumpingMP.Should().Be(jumpMP, "jumping MP should match the number of jump jets");
+        walkingMp.Should().Be(walkMp, "walking MP should match the base movement");
+        runningMp.Should().Be(runMp, "running MP should be 1.5x walking");
+        jumpingMp.Should().Be(jumpMp, "jumping MP should match the number of jump jets");
     }
 }
 
