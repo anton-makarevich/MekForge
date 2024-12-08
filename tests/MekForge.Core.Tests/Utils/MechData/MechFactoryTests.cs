@@ -16,7 +16,7 @@ public class MechFactoryTests
 
     public MechFactoryTests()
     {
-        var structureValueProvider = Substitute.For<IStructureValueProvider>();
+        var structureValueProvider = Substitute.For<IRulesProvider>();
         structureValueProvider.GetStructureValues(20).Returns(new Dictionary<PartLocation, int>
         {
             { PartLocation.Head, 8 },

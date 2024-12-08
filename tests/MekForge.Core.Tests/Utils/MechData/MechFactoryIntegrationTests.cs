@@ -10,12 +10,13 @@ public class MechFactoryIntegrationTests
 {   
     private const string MtfToTest = "Resources/Shadow Hawk SHD-2D.mtf";
     
-    [Fact(Skip = "Integration test, run manually.")]
+    //[Fact(Skip = "Integration test, run manually.")]
+    [Fact]
     public void CreateFromMtfFile_IntegrationTest()
     {
         // Arrange
         var parser = new MtfDataProvider();
-        var structureValueProvider = new StructureValueProvider(); // Use actual provider
+        var structureValueProvider = new ClassicBattletechRulesProvider(); // Use actual provider
         var mechFactory = new MechFactory(structureValueProvider);
 
         Mech? createdMech = null;

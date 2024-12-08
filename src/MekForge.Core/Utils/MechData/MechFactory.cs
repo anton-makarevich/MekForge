@@ -11,18 +11,18 @@ namespace Sanet.MekForge.Core.Utils.MechData;
 
 public class MechFactory
 {
-    private readonly IStructureValueProvider _structureValueProvider;
+    private readonly IRulesProvider _rulesProvider;
 
-    public MechFactory( IStructureValueProvider structureValueProvider)
+    public MechFactory( IRulesProvider rulesProvider)
     {
-        _structureValueProvider = structureValueProvider;
+        _rulesProvider = rulesProvider;
     }
 
     public Mech Create(MechData mechData)
     {
         
         // Create parts with appropriate armor and structure
-        var parts = CreateParts(mechData.ArmorValues, _structureValueProvider, mechData.Mass);
+        var parts = CreateParts(mechData.ArmorValues, _rulesProvider, mechData.Mass);
         
         // Create the mech
         var mech = new Mech(
@@ -38,9 +38,9 @@ public class MechFactory
         return mech;
     }
 
-    private static List<UnitPart> CreateParts(Dictionary<PartLocation, ArmorLocation> armorValues, IStructureValueProvider structureValueProvider, int tonnage)
+    private static List<UnitPart> CreateParts(Dictionary<PartLocation, ArmorLocation> armorValues, IRulesProvider rulesProvider, int tonnage)
     {
-        var structureValues = structureValueProvider.GetStructureValues(tonnage);
+        var structureValues = rulesProvider.GetStructureValues(tonnage);
         var parts = new List<UnitPart>();
         foreach (var (location, armor) in armorValues)
         {

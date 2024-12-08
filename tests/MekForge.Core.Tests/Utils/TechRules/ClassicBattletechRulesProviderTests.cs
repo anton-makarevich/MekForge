@@ -4,13 +4,13 @@ using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace MekForge.Core.Tests.Utils
 {
-    public class StructureValueProviderTests
+    public class ClassicBattletechRulesProviderTests
     {
-        private readonly IStructureValueProvider _provider;
+        private readonly IRulesProvider _provider;
 
-        public StructureValueProviderTests()
+        public ClassicBattletechRulesProviderTests()
         {
-            _provider = new StructureValueProvider();
+            _provider = new ClassicBattletechRulesProvider();
         }
 
         [Theory]
