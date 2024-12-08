@@ -85,7 +85,7 @@ public abstract class UnitPart
             return false;
         }
 
-        component.Mount([slotToMount]);
+        component.Mount(Enumerable.Range(slotToMount, component.Size).ToArray());
         _components.Add(component);
         return true;
     }

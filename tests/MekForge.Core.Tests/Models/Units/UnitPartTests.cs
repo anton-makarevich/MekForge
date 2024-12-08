@@ -86,7 +86,7 @@ public class UnitPartTests
     {
         // Arrange
         var part = new TestUnitPart(PartLocation.LeftArm, 10, 5, 12);
-        var testComponent = new TestComponent("Test Component", new[] { 0, 1 });
+        var testComponent = new TestComponent("Test Component", [0, 1]);
         part.TryAddComponent(testComponent);
 
         // Act
@@ -104,8 +104,8 @@ public class UnitPartTests
     {
         // Arrange
         var part = new TestUnitPart(PartLocation.LeftArm, 10, 5, 3);
-        var smallComponent = new TestComponent("Small Component", new[] { 0, 1 });
-        var largeComponent = new TestComponent("Large Component", new[] { 0, 1, 2, 3 });
+        var smallComponent = new TestComponent("Small Component", [0, 1]);
+        var largeComponent = new TestComponent("Large Component", [0, 1, 2, 3]);
 
         // Act & Assert
         part.TryAddComponent(smallComponent).Should().BeTrue();
@@ -159,8 +159,8 @@ public class UnitPartTests
     {
         // Arrange
         var part = new TestUnitPart(PartLocation.LeftArm, 10, 5, 6);
-        var component1 = new TestComponent("Component 1", new[] { 0, 1 });
-        var component2 = new TestComponent("Component 2", new[] { 3, 4, 5 });
+        var component1 = new TestComponent("Component 1", [0, 1]);
+        var component2 = new TestComponent("Component 2", [3, 4, 5]);
         
         part.TryAddComponent(component1);
         part.TryAddComponent(component2);
@@ -174,9 +174,22 @@ public class UnitPartTests
         part.GetComponentAtSlot(5).Should().Be(component2);
     }
 
+    [Fact]
+    public void FindMountLocation_ReturnsCorrectSlotForComponentSize()
+    {
+        // Arrange
+        var part = new TestUnitPart(PartLocation.LeftArm, 10, 5, 8);
+        var fixedComponent = new TestComponent("Fixed Component", [2,3,4,5]);
+        var component = new TestComponent("TestComponent", [], 4);
+
+        // Act & Assert
+        part.TryAddComponent(fixedComponent).Should().BeTrue();
+        part.TryAddComponent(component).Should().BeFalse();
+    }
+
     private class TestComponent : Component
     {
-        public TestComponent(string name, int[] slots) : base(name, slots)
+        public TestComponent(string name, int[] slots, int size=1) : base(name, slots,size)
         {
         }
     }
