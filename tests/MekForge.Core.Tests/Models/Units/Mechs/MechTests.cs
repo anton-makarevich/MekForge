@@ -186,6 +186,7 @@ public class MechTests
     }
 
     [Theory]
+    [InlineData(105, WeightClass.Unknown)]
     [InlineData(20, WeightClass.Light)]
     [InlineData(25, WeightClass.Light)]
     [InlineData(30, WeightClass.Light)]

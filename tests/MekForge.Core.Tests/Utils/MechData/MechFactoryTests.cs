@@ -1,8 +1,8 @@
+using FluentAssertions;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
-using Sanet.MekForge.Core.Utils.Community;
 using Sanet.MekForge.Core.Utils.MechData;
 using Sanet.MekForge.Core.Utils.TechRules;
 
@@ -52,22 +52,24 @@ public class MechFactoryTests
             LocationEquipment = new Dictionary<PartLocation, List<string>>
             {
                 { PartLocation.LeftArm, ["Machine Gun"] },
-                { PartLocation.RightArm, ["Upper Arm Actuator","Medium Laser"] }
+                { PartLocation.RightArm, ["Upper Arm Actuator", "Medium Laser"] }
             }
         };
     }
 
-        [Fact]
+    [Fact]
     public void CreateFromMtfData_LocustMtf_CreatesCorrectMech()
     {
         // Act
         var mech = _mechFactory.Create();
 
         // Assert
-        Assert.Equal("Locust", mech.Chassis);
-        Assert.Equal("LCT-1V", mech.Model);
-        Assert.Equal(20, mech.Tonnage);
-        Assert.Equal(8, mech.GetMovementPoints(MovementType.Walk));
+        mech.Chassis.Should().Be("Locust");
+        mech.Model.Should().Be("LCT-1V");
+        mech.Name.Should().Be("Locust LCT-1V");
+        mech.Tonnage.Should().Be(20);
+        mech.Class.Should().Be(WeightClass.Light);
+        mech.GetMovementPoints(MovementType.Walk).Should().Be(8);
     }
 
     [Fact]
@@ -77,14 +79,14 @@ public class MechFactoryTests
         var mech = _mechFactory.Create();
 
         // Assert
-        Assert.Equal(4, mech.Parts.First(p => p.Location == PartLocation.LeftArm).CurrentArmor);
-        Assert.Equal(4, mech.Parts.First(p => p.Location == PartLocation.RightArm).CurrentArmor);
-        Assert.Equal(8, mech.Parts.First(p => p.Location == PartLocation.LeftTorso).CurrentArmor);
-        Assert.Equal(8, mech.Parts.First(p => p.Location == PartLocation.RightTorso).CurrentArmor);
-        Assert.Equal(10, mech.Parts.First(p => p.Location == PartLocation.CenterTorso).CurrentArmor);
-        Assert.Equal(8, mech.Parts.First(p => p.Location == PartLocation.Head).CurrentArmor);
-        Assert.Equal(8, mech.Parts.First(p => p.Location == PartLocation.LeftLeg).CurrentArmor);
-        Assert.Equal(8, mech.Parts.First(p => p.Location == PartLocation.RightLeg).CurrentArmor);
+        mech.Parts.First(p => p.Location == PartLocation.LeftArm).CurrentArmor.Should().Be(4);
+        mech.Parts.First(p => p.Location == PartLocation.RightArm).CurrentArmor.Should().Be(4);
+        mech.Parts.First(p => p.Location == PartLocation.LeftTorso).CurrentArmor.Should().Be(8);
+        mech.Parts.First(p => p.Location == PartLocation.RightTorso).CurrentArmor.Should().Be(8);
+        mech.Parts.First(p => p.Location == PartLocation.CenterTorso).CurrentArmor.Should().Be(10);
+        mech.Parts.First(p => p.Location == PartLocation.Head).CurrentArmor.Should().Be(8);
+        mech.Parts.First(p => p.Location == PartLocation.LeftLeg).CurrentArmor.Should().Be(8);
+        mech.Parts.First(p => p.Location == PartLocation.RightLeg).CurrentArmor.Should().Be(8);
     }
 
     [Fact]
@@ -96,11 +98,11 @@ public class MechFactoryTests
         // Assert
         // Left Arm
         var leftArm = mech.Parts.First(p => p.Location == PartLocation.LeftArm);
-        Assert.Contains(leftArm.GetComponents<Weapon>(), w => w.Name == "Machine Gun");
+        leftArm.GetComponents<Weapon>().Should().Contain(w => w.Name == "Machine Gun");
 
         // Right Arm
         var rightArm = mech.Parts.First(p => p.Location == PartLocation.RightArm);
-        Assert.Contains(rightArm.GetComponents<Weapon>(), w => w.Name == "Medium Laser");
+        rightArm.GetComponents<Weapon>().Should().Contain(w => w.Name == "Medium Laser");
     }
 
     [Fact]
@@ -112,11 +114,10 @@ public class MechFactoryTests
 
         // Assert
         var leftArm = mech.Parts.First(p => p.Location == PartLocation.LeftArm);
-        var c = leftArm.GetComponents<Component>();
-        Assert.Contains(leftArm.GetComponents<Component>(), a => a.Name == "Shoulder");
+        leftArm.GetComponents<Component>().Should().Contain(a => a.Name == "Shoulder");
 
         var rightArm = mech.Parts.First(p => p.Location == PartLocation.RightArm);
-        Assert.Contains(rightArm.GetComponents<Component>(), a => a.Name == "Shoulder");
-        Assert.Contains(rightArm.GetComponents<Component>(), a => a.Name == "Upper Arm Actuator");
+        rightArm.GetComponents<Component>().Should().Contain(a => a.Name == "Shoulder");
+        rightArm.GetComponents<Component>().Should().Contain(a => a.Name == "Upper Arm Actuator");
     }
 }
