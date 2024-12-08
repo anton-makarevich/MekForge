@@ -52,9 +52,12 @@ public abstract class Component : IManufacturedItem
 
     public virtual void Hit()
     {
+        Hits++;
         IsDestroyed = true;
     }
-    
+
+    public int Hits { get; private set; }
+
     public virtual void Activate() => IsActive = true;
     public virtual void Deactivate() => IsActive = false;
 }

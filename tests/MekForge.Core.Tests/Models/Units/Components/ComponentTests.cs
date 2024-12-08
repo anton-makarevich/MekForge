@@ -76,6 +76,7 @@ public class ComponentTests
 
         // Assert
         component.IsDestroyed.Should().BeTrue();
+        component.Hits.Should().Be(1);
     }
 
     [Fact]
