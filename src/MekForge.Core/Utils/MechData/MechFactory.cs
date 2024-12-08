@@ -2,6 +2,7 @@ using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Engines;
 using Sanet.MekForge.Core.Models.Units.Components.Internal.Actuators;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Ballistic;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Energy;
 using Sanet.MekForge.Core.Models.Units.Mechs;
@@ -58,7 +59,7 @@ public class MechFactory
         return parts;
     }
 
-    private static void AddEquipmentToParts(Mech mech, Dictionary<PartLocation, List<string>> locationEquipment)
+    private void AddEquipmentToParts(Mech mech, Dictionary<PartLocation, List<string>> locationEquipment)
     {
         foreach (var (location, equipment) in locationEquipment)
         {
@@ -78,15 +79,22 @@ public class MechFactory
         }
     }
 
-    private static Component? CreateComponent(string itemName) => itemName switch
+    private Component? CreateComponent(string itemName)
     {
-        "Machine Gun" => new MachineGun(),
-        "Medium Laser" => new MediumLaser(),
-        "Autocannon/5" => new AC5(),
-        "Heat Sink" => new HeatSink(),
-        "Shoulder" => new Shoulder(),
-        "Upper Arm Actuator" => new UpperArmActuator(),
-        "Fusion Engine" => new Engine("Fusion Engine", 160),
-        _ => null
-    };
+        return itemName switch
+        {
+            "IS Ammo AC/5" => new Ammo(AmmoType.AC5, _rulesProvider.GetAmmoRounds(AmmoType.AC5)),
+            "IS Ammo SRM-2" => new Ammo(AmmoType.SRM2, _rulesProvider.GetAmmoRounds(AmmoType.SRM2)),
+            "IS Ammo MG - Full" => new Ammo(AmmoType.MachineGun, _rulesProvider.GetAmmoRounds(AmmoType.MachineGun)),
+            "IS Ammo LRM-5" => new Ammo(AmmoType.LRM5, _rulesProvider.GetAmmoRounds(AmmoType.LRM5)), 
+            "Machine Gun" => new MachineGun(),
+            "Medium Laser" => new MediumLaser(),
+            "Autocannon/5" => new AC5(),
+            "Heat Sink" => new HeatSink(),
+            "Shoulder" => new Shoulder(),
+            "Upper Arm Actuator" => new UpperArmActuator(),
+            "Fusion Engine" => new Engine("Fusion Engine", 160),
+            _ => null
+        };
+    }
 }
