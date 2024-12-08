@@ -20,7 +20,16 @@ public abstract class Unit
     public string Model { get; }
     public string Name { get; }
     public int Tonnage { get; }
-    
+
+    public WeightClass Class => Tonnage switch
+    {
+        <= 35 => WeightClass.Light,
+        <= 55 => WeightClass.Medium,
+        <= 75 => WeightClass.Heavy,
+        <= 100 => WeightClass.Assault,
+        _ => WeightClass.Unknown
+    };
+
     // Base movement (walking)
     protected int BaseMovement { get; }
     
