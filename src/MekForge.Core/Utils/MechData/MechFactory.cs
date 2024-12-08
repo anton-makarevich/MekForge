@@ -41,7 +41,7 @@ public class MechFactory
         return mech;
     }
 
-    private static List<UnitPart> CreateParts(Dictionary<PartLocation, ArmorValues> armorValues, IStructureValueProvider structureValueProvider, int tonnage)
+    private static List<UnitPart> CreateParts(Dictionary<PartLocation, ArmorLocation> armorValues, IStructureValueProvider structureValueProvider, int tonnage)
     {
         var structureValues = structureValueProvider.GetStructureValues(tonnage);
         var parts = new List<UnitPart>();

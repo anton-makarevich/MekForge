@@ -38,16 +38,16 @@ public class MechFactoryTests
             Model = "LCT-1V",
             Mass = 20,
             WalkMp = 8,
-            ArmorValues = new Dictionary<PartLocation, ArmorValues>
+            ArmorValues = new Dictionary<PartLocation, ArmorLocation>
             {
-                { PartLocation.Head, new ArmorValues { FrontArmor = 8 } },
-                { PartLocation.CenterTorso, new ArmorValues { FrontArmor = 10, RearArmor = 5 } },
-                { PartLocation.LeftTorso, new ArmorValues { FrontArmor = 8, RearArmor = 4 } },
-                { PartLocation.RightTorso, new ArmorValues { FrontArmor = 8, RearArmor = 4 } },
-                { PartLocation.LeftArm, new ArmorValues { FrontArmor = 4 } },
-                { PartLocation.RightArm, new ArmorValues { FrontArmor = 4 } },
-                { PartLocation.LeftLeg, new ArmorValues { FrontArmor = 8 } },
-                { PartLocation.RightLeg, new ArmorValues { FrontArmor = 8 } }
+                { PartLocation.Head, new ArmorLocation { FrontArmor = 8 } },
+                { PartLocation.CenterTorso, new ArmorLocation { FrontArmor = 10, RearArmor = 5 } },
+                { PartLocation.LeftTorso, new ArmorLocation { FrontArmor = 8, RearArmor = 4 } },
+                { PartLocation.RightTorso, new ArmorLocation { FrontArmor = 8, RearArmor = 4 } },
+                { PartLocation.LeftArm, new ArmorLocation { FrontArmor = 4 } },
+                { PartLocation.RightArm, new ArmorLocation { FrontArmor = 4 } },
+                { PartLocation.LeftLeg, new ArmorLocation { FrontArmor = 8 } },
+                { PartLocation.RightLeg, new ArmorLocation { FrontArmor = 8 } }
             },
             LocationEquipment = new Dictionary<PartLocation, List<string>>
             {
