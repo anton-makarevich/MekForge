@@ -19,6 +19,7 @@ public class Lrm10Tests
         lrm10.Damage.Should().Be(10); // Total damage for all missiles
         lrm10.BattleValue.Should().Be(90);
         lrm10.AmmoType.Should().Be(AmmoType.LRM10);
+        lrm10.Clusters.Should().Be(2);
         lrm10.IsDestroyed.Should().BeFalse();
     }
 
