@@ -1,21 +1,21 @@
 using System.Text.RegularExpressions;
 using Sanet.MekForge.Core.Models.Units;
-using Sanet.MekForge.Core.Utils.MechData;
 
-namespace Sanet.MekForge.Core.Utils.Community;
+namespace Sanet.MekForge.Core.Utils.MechData.Community;
 
-public class MtfParser
+public class MtfDataProvider:IMechDataProvider
 {
     private readonly Dictionary<string, string> _mechData = new();
     private readonly Dictionary<PartLocation, List<string>> _locationEquipment = new();
     private readonly Dictionary<PartLocation, ArmorLocation> _armorValues = new();
 
-    public MechData.MechData Parse(IEnumerable<string> lines)
+    public MechData LoadMechFromTextData(IEnumerable<string> lines)
     {
-        ParseBasicData(lines);
-        ParseLocationData(lines);
+        var listLines = lines.ToList();
+        ParseBasicData(listLines);
+        ParseLocationData(listLines);
         
-        return new MechData.MechData
+        return new MechData
         {
             Chassis = _mechData["chassis"],
             Model = _mechData["model"],
@@ -34,19 +34,17 @@ public class MtfParser
                 continue;
 
             var colonIndex = line.IndexOf(':');
-            if (colonIndex > 0)
-            {
-                var key = line[..colonIndex].Trim();
-                var value = line[(colonIndex + 1)..].Trim();
-                _mechData[key] = value;
-            }
+            if (colonIndex <= 0) continue;
+            var key = line[..colonIndex].Trim();
+            var value = line[(colonIndex + 1)..].Trim();
+            _mechData[key] = value;
         }
     }
 
     private void ParseLocationData(IEnumerable<string> lines)
     {
         PartLocation? currentLocation = null;
-        bool parsingArmor = false;
+        var parsingArmor = false;
 
         foreach (var line in lines)
         {

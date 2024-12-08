@@ -11,6 +11,7 @@ namespace Sanet.MekForge.Core.Tests.Utils.MechData;
 public class MechFactoryTests
 {
     private readonly MechFactory _mechFactory;
+    private readonly Core.Utils.MechData.MechData _mechData;
 
     public MechFactoryTests()
     {
@@ -26,8 +27,8 @@ public class MechFactoryTests
             { PartLocation.LeftLeg, 8 },
             { PartLocation.RightLeg, 8 }
         });
-
-        _mechFactory = new MechFactory(CreateDummyMechData(), structureValueProvider);
+        _mechData = CreateDummyMechData();
+        _mechFactory = new MechFactory(structureValueProvider);
     }
 
     private Core.Utils.MechData.MechData CreateDummyMechData()
@@ -61,7 +62,7 @@ public class MechFactoryTests
     public void CreateFromMtfData_LocustMtf_CreatesCorrectMech()
     {
         // Act
-        var mech = _mechFactory.Create();
+        var mech = _mechFactory.Create(_mechData);
 
         // Assert
         mech.Chassis.Should().Be("Locust");
@@ -76,7 +77,7 @@ public class MechFactoryTests
     public void CreateFromMtfData_LocustMtf_HasCorrectArmor()
     {
         // Act
-        var mech = _mechFactory.Create();
+        var mech = _mechFactory.Create(_mechData);
 
         // Assert
         mech.Parts.First(p => p.Location == PartLocation.LeftArm).CurrentArmor.Should().Be(4);
@@ -93,7 +94,7 @@ public class MechFactoryTests
     public void CreateFromMtfData_LocustMtf_HasCorrectWeapons()
     {
         // Act
-        var mech = _mechFactory.Create();
+        var mech = _mechFactory.Create(_mechData);
 
         // Assert
         // Left Arm
@@ -110,7 +111,7 @@ public class MechFactoryTests
     {
 
         // Act
-        var mech = _mechFactory.Create();
+        var mech = _mechFactory.Create(_mechData);
 
         // Assert
         var leftArm = mech.Parts.First(p => p.Location == PartLocation.LeftArm);

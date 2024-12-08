@@ -5,38 +5,35 @@ using Sanet.MekForge.Core.Models.Units.Components.Internal.Actuators;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Ballistic;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Energy;
 using Sanet.MekForge.Core.Models.Units.Mechs;
-using Sanet.MekForge.Core.Utils.Community;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Utils.MechData;
 
 public class MechFactory
 {
-    private readonly MechData _mechData;
     private readonly IStructureValueProvider _structureValueProvider;
 
-    public MechFactory(MechData mechData, IStructureValueProvider structureValueProvider)
+    public MechFactory( IStructureValueProvider structureValueProvider)
     {
-        _mechData = mechData;
         _structureValueProvider = structureValueProvider;
     }
 
-    public Mech Create()
+    public Mech Create(MechData mechData)
     {
         
         // Create parts with appropriate armor and structure
-        var parts = CreateParts(_mechData.ArmorValues, _structureValueProvider, _mechData.Mass);
+        var parts = CreateParts(mechData.ArmorValues, _structureValueProvider, mechData.Mass);
         
         // Create the mech
         var mech = new Mech(
-            _mechData.Chassis,
-            _mechData.Model,
-            _mechData.Mass,
-            _mechData.WalkMp,
+            mechData.Chassis,
+            mechData.Model,
+            mechData.Mass,
+            mechData.WalkMp,
             parts);
 
         // Add equipment to parts
-        AddEquipmentToParts(mech, _mechData.LocationEquipment);
+        AddEquipmentToParts(mech, mechData.LocationEquipment);
 
         return mech;
     }

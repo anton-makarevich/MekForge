@@ -1,10 +1,10 @@
 using FluentAssertions;
 using Sanet.MekForge.Core.Models.Units;
-using Sanet.MekForge.Core.Utils.Community;
+using Sanet.MekForge.Core.Utils.MechData.Community;
 
 namespace Sanet.MekForge.Core.Tests.Utils.Community;
 
-public class MtfParserTests
+public class MtfDataProviderTests
 {
     private readonly string[] _locustMtfData = File.ReadAllLines("Resources/Locust LCT-1V.mtf");
 
@@ -12,10 +12,10 @@ public class MtfParserTests
     public void Parse_LocustMtf_ReturnsCorrectBasicData()
     {
         // Arrange
-        var parser = new MtfParser();
+        var parser = new MtfDataProvider();
 
         // Act
-        var mechData = parser.Parse(_locustMtfData);
+        var mechData = parser.LoadMechFromTextData(_locustMtfData);
 
         // Assert
         mechData.Chassis.Should().Be("Locust");
@@ -28,10 +28,10 @@ public class MtfParserTests
     public void Parse_LocustMtf_ReturnsCorrectArmorValues()
     {
         // Arrange
-        var parser = new MtfParser();
+        var parser = new MtfDataProvider();
 
         // Act
-        var mechData = parser.Parse(_locustMtfData);
+        var mechData = parser.LoadMechFromTextData(_locustMtfData);
 
         // Assert
         mechData.ArmorValues[PartLocation.LeftArm].FrontArmor.Should().Be(4);
@@ -48,10 +48,10 @@ public class MtfParserTests
     public void Parse_LocustMtf_ReturnsCorrectEquipment()
     {
         // Arrange
-        var parser = new MtfParser();
+        var parser = new MtfDataProvider();
 
         // Act
-        var mechData = parser.Parse(_locustMtfData);
+        var mechData = parser.LoadMechFromTextData(_locustMtfData);
 
         // Assert
         // Left Arm

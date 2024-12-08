@@ -1,5 +1,4 @@
 ﻿using Sanet.MekForge.Core.Models.Units;
-using Sanet.MekForge.Core.Utils.Community;
 
 namespace Sanet.MekForge.Core.Utils.MechData;
 
