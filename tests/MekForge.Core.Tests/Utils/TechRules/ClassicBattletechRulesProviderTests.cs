@@ -1,8 +1,9 @@
 using FluentAssertions;
 using Sanet.MekForge.Core.Models.Units;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Utils.TechRules;
 
-namespace MekForge.Core.Tests.Utils
+namespace Sanet.MekForge.Core.Tests.Utils.TechRules
 {
     public class ClassicBattletechRulesProviderTests
     {
@@ -55,6 +56,29 @@ namespace MekForge.Core.Tests.Utils
 
             // Assert
             act.Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [Theory]
+        [InlineData(AmmoType.None, 0)]
+        [InlineData(AmmoType.MachineGun, 200)]
+        [InlineData(AmmoType.AC2, 45)]
+        [InlineData(AmmoType.AC5, 20)]
+        [InlineData(AmmoType.AC10, 10)]
+        [InlineData(AmmoType.AC20, 5)]
+        [InlineData(AmmoType.LRM5, 24)]
+        [InlineData(AmmoType.LRM10, 12)]
+        [InlineData(AmmoType.LRM15, 8)]
+        [InlineData(AmmoType.LRM20, 6)]
+        [InlineData(AmmoType.SRM2, 50)]
+        [InlineData(AmmoType.SRM4, 25)]
+        [InlineData(AmmoType.SRM6, 15)]
+        public void GetAmmoRounds_ReturnsCorrectValues(AmmoType ammoType, int expectedRounds)
+        {
+            // Act
+            var result = _provider.GetAmmoRounds(ammoType);
+
+            // Assert
+            result.Should().Be(expectedRounds);
         }
     }
 }
