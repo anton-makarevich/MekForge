@@ -2,7 +2,7 @@ using FluentAssertions;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Utils.MechData.Community;
 
-namespace Sanet.MekForge.Core.Tests.Utils.Community;
+namespace Sanet.MekForge.Core.Tests.Utils.MechData.Community;
 
 public class MtfDataProviderTests
 {
@@ -70,5 +70,6 @@ public class MtfDataProviderTests
         var centerTorsoEquipment = mechData.LocationEquipment[PartLocation.CenterTorso];
         centerTorsoEquipment.Should().Contain("Medium Laser");
         centerTorsoEquipment.Should().Contain("Fusion Engine");
+        
     }
 }

@@ -34,6 +34,9 @@
     <None Update="Resources\Locust LCT-1V.mtf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Shadow Hawk SHD-2D.mtf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
