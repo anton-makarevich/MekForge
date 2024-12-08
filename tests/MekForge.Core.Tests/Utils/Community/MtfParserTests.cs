@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Utils.Community;
 
@@ -17,10 +18,10 @@ public class MtfParserTests
         var mechData = parser.Parse(_locustMtfData);
 
         // Assert
-        Assert.Equal("Locust", mechData.Chassis);
-        Assert.Equal("LCT-1V", mechData.Model);
-        Assert.Equal(20, mechData.Mass);
-        Assert.Equal(8, mechData.WalkMp);
+        mechData.Chassis.Should().Be("Locust");
+        mechData.Model.Should().Be("LCT-1V");
+        mechData.Mass.Should().Be(20);
+        mechData.WalkMp.Should().Be(8);
     }
 
     [Fact]
@@ -33,14 +34,14 @@ public class MtfParserTests
         var mechData = parser.Parse(_locustMtfData);
 
         // Assert
-        Assert.Equal(4, mechData.ArmorValues[PartLocation.LeftArm].FrontArmor);
-        Assert.Equal(4, mechData.ArmorValues[PartLocation.RightArm].FrontArmor);
-        Assert.Equal(8, mechData.ArmorValues[PartLocation.LeftTorso].FrontArmor);
-        Assert.Equal(8, mechData.ArmorValues[PartLocation.RightTorso].FrontArmor);
-        Assert.Equal(10, mechData.ArmorValues[PartLocation.CenterTorso].FrontArmor);
-        Assert.Equal(8, mechData.ArmorValues[PartLocation.Head].FrontArmor);
-        Assert.Equal(8, mechData.ArmorValues[PartLocation.LeftLeg].FrontArmor);
-        Assert.Equal(8, mechData.ArmorValues[PartLocation.RightLeg].FrontArmor);
+        mechData.ArmorValues[PartLocation.LeftArm].FrontArmor.Should().Be(4);
+        mechData.ArmorValues[PartLocation.RightArm].FrontArmor.Should().Be(4);
+        mechData.ArmorValues[PartLocation.LeftTorso].FrontArmor.Should().Be(8);
+        mechData.ArmorValues[PartLocation.RightTorso].FrontArmor.Should().Be(8);
+        mechData.ArmorValues[PartLocation.CenterTorso].FrontArmor.Should().Be(10);
+        mechData.ArmorValues[PartLocation.Head].FrontArmor.Should().Be(8);
+        mechData.ArmorValues[PartLocation.LeftLeg].FrontArmor.Should().Be(8);
+        mechData.ArmorValues[PartLocation.RightLeg].FrontArmor.Should().Be(8);
     }
 
     [Fact]
@@ -55,19 +56,19 @@ public class MtfParserTests
         // Assert
         // Left Arm
         var leftArmEquipment = mechData.LocationEquipment[PartLocation.LeftArm];
-        Assert.Contains("Shoulder", leftArmEquipment);
-        Assert.Contains("Upper Arm Actuator", leftArmEquipment);
-        Assert.Contains("Machine Gun", leftArmEquipment);
+        leftArmEquipment.Should().Contain("Shoulder");
+        leftArmEquipment.Should().Contain("Upper Arm Actuator");
+        leftArmEquipment.Should().Contain("Machine Gun");
 
         // Right Arm
         var rightArmEquipment = mechData.LocationEquipment[PartLocation.RightArm];
-        Assert.Contains("Shoulder", rightArmEquipment);
-        Assert.Contains("Upper Arm Actuator", rightArmEquipment);
-        Assert.Contains("Machine Gun", rightArmEquipment);
+        rightArmEquipment.Should().Contain("Shoulder");
+        rightArmEquipment.Should().Contain("Upper Arm Actuator");
+        rightArmEquipment.Should().Contain("Machine Gun");
 
         // Center Torso
         var centerTorsoEquipment = mechData.LocationEquipment[PartLocation.CenterTorso];
-        Assert.Contains("Medium Laser", centerTorsoEquipment);
-        Assert.Contains("Fusion Engine", centerTorsoEquipment);
+        centerTorsoEquipment.Should().Contain("Medium Laser");
+        centerTorsoEquipment.Should().Contain("Fusion Engine");
     }
 }
