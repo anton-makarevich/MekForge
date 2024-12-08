@@ -3,6 +3,7 @@ using NSubstitute;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons.Ballistic;
 using Sanet.MekForge.Core.Utils.MechData;
 using Sanet.MekForge.Core.Utils.TechRules;
 
@@ -31,9 +32,9 @@ public class MechFactoryTests
         _mechFactory = new MechFactory(structureValueProvider);
     }
 
-    private Core.Utils.MechData.MechData CreateDummyMechData()
+    private Core.Utils.MechData.MechData CreateDummyMechData(Tuple<PartLocation, List<string>>? locationEquipment = null)
     {
-        return new Core.Utils.MechData.MechData
+        var data = new Core.Utils.MechData.MechData
         {
             Chassis = "Locust",
             Model = "LCT-1V",
@@ -56,6 +57,11 @@ public class MechFactoryTests
                 { PartLocation.RightArm, ["Upper Arm Actuator", "Medium Laser"] }
             }
         };
+        if (locationEquipment != null)
+        {
+            data.LocationEquipment[locationEquipment.Item1] = locationEquipment.Item2;
+        }
+        return data;
     }
 
     [Fact]
@@ -120,5 +126,27 @@ public class MechFactoryTests
         var rightArm = mech.Parts.First(p => p.Location == PartLocation.RightArm);
         rightArm.GetComponents<Component>().Should().Contain(a => a.Name == "Shoulder");
         rightArm.GetComponents<Component>().Should().Contain(a => a.Name == "Upper Arm Actuator");
+    }
+    
+    [Fact]
+    public void CreateFromMtfData_CorrectlyAddsComponentsThatOccupySeveralSlots()
+    {
+        // Arrange
+        var locationEquipment = Tuple.Create(PartLocation.LeftTorso, new List<string> 
+        { 
+            "Autocannon/5",
+            "Autocannon/5",
+            "Autocannon/5",
+            "Autocannon/5" 
+        });
+        var mechData = CreateDummyMechData(locationEquipment);
+
+        // Act
+        var mech = _mechFactory.Create(mechData);
+
+        // Assert
+        var leftTorso = mech.Parts.First(p => p.Location == PartLocation.LeftTorso);
+        var weapon = leftTorso.GetComponents<AC5>();
+        weapon.Count().Should().Be(1); 
     }
 }

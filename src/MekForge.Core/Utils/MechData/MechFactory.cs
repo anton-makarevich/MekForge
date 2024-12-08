@@ -76,6 +76,7 @@ public class MechFactory
     {
         "Machine Gun" => new MachineGun(),
         "Medium Laser" => new MediumLaser(),
+        "Autocannon/5" => new AC5(),
         "Heat Sink" => new HeatSink(),
         "Shoulder" => new Shoulder(),
         "Upper Arm Actuator" => new UpperArmActuator(),
