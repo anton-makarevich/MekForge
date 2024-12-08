@@ -14,7 +14,7 @@ public class MediumLaserTests
 
         // Assert
         laser.Name.Should().Be("Medium Laser");
-        laser.SlotsCount.Should().Be(0);
+        laser.Size.Should().Be(1);
         laser.Heat.Should().Be(3);
         laser.Damage.Should().Be(5);
         laser.BattleValue.Should().Be(46);

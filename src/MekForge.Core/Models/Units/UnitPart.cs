@@ -25,7 +25,7 @@ public abstract class UnitPart
     
     // Slots management
     public int TotalSlots { get; }
-    public int UsedSlots => _components.Sum(c => c.SlotsCount);
+    public int UsedSlots => _components.Sum(c => c.Size);
     public int AvailableSlots => TotalSlots - UsedSlots;
     public bool IsDestroyed => CurrentStructure <= 0;
     
@@ -51,7 +51,7 @@ public abstract class UnitPart
     
     private bool CanAddComponent(Component component)
     {
-        if (component.SlotsCount > AvailableSlots)
+        if (component.Size > AvailableSlots)
             return false;
 
         // Check if any required slots would be out of bounds
