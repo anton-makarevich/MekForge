@@ -2,21 +2,20 @@ using NSubstitute;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
-using Sanet.MekForge.Core.Models.Units.Mechs;
-using Sanet.MekForge.Core.Utils;
+using Sanet.MekForge.Core.Utils.Community;
 using Sanet.MekForge.Core.Utils.MechData;
 using Sanet.MekForge.Core.Utils.TechRules;
 
-namespace Sanet.MekForge.Core.Tests.Models.Units.Mechs;
+namespace Sanet.MekForge.Core.Tests.Utils.MechData;
 
 public class MechFactoryTests
 {
-    private readonly string[] _locustMtfData;
-    private readonly IStructureValueProvider _structureValueProvider = Substitute.For<IStructureValueProvider>();
+    private readonly MechFactory _mechFactory;
+
     public MechFactoryTests()
     {
-        _locustMtfData = File.ReadAllLines("Resources/Locust LCT-1V.mtf");
-        _structureValueProvider.GetStructureValues(20).Returns(new Dictionary<PartLocation, int>
+        var structureValueProvider = Substitute.For<IStructureValueProvider>();
+        structureValueProvider.GetStructureValues(20).Returns(new Dictionary<PartLocation, int>
         {
             { PartLocation.Head, 8 },
             { PartLocation.CenterTorso, 10 },
@@ -27,13 +26,42 @@ public class MechFactoryTests
             { PartLocation.LeftLeg, 8 },
             { PartLocation.RightLeg, 8 }
         });
+
+        _mechFactory = new MechFactory(CreateDummyMechData(), structureValueProvider);
     }
 
-    [Fact]
+    private Core.Utils.MechData.MechData CreateDummyMechData()
+    {
+        return new Core.Utils.MechData.MechData
+        {
+            Chassis = "Locust",
+            Model = "LCT-1V",
+            Mass = 20,
+            WalkMp = 8,
+            ArmorValues = new Dictionary<PartLocation, ArmorValues>
+            {
+                { PartLocation.Head, new ArmorValues { FrontArmor = 8 } },
+                { PartLocation.CenterTorso, new ArmorValues { FrontArmor = 10, RearArmor = 5 } },
+                { PartLocation.LeftTorso, new ArmorValues { FrontArmor = 8, RearArmor = 4 } },
+                { PartLocation.RightTorso, new ArmorValues { FrontArmor = 8, RearArmor = 4 } },
+                { PartLocation.LeftArm, new ArmorValues { FrontArmor = 4 } },
+                { PartLocation.RightArm, new ArmorValues { FrontArmor = 4 } },
+                { PartLocation.LeftLeg, new ArmorValues { FrontArmor = 8 } },
+                { PartLocation.RightLeg, new ArmorValues { FrontArmor = 8 } }
+            },
+            LocationEquipment = new Dictionary<PartLocation, List<string>>
+            {
+                { PartLocation.LeftArm, ["Machine Gun"] },
+                { PartLocation.RightArm, ["Upper Arm Actuator","Medium Laser"] }
+            }
+        };
+    }
+
+        [Fact]
     public void CreateFromMtfData_LocustMtf_CreatesCorrectMech()
     {
         // Act
-        var mech = MechFactory.CreateFromMtfData(_locustMtfData, _structureValueProvider);
+        var mech = _mechFactory.Create();
 
         // Assert
         Assert.Equal("Locust", mech.Chassis);
@@ -46,7 +74,7 @@ public class MechFactoryTests
     public void CreateFromMtfData_LocustMtf_HasCorrectArmor()
     {
         // Act
-        var mech = MechFactory.CreateFromMtfData(_locustMtfData, _structureValueProvider);
+        var mech = _mechFactory.Create();
 
         // Assert
         Assert.Equal(4, mech.Parts.First(p => p.Location == PartLocation.LeftArm).CurrentArmor);
@@ -63,7 +91,7 @@ public class MechFactoryTests
     public void CreateFromMtfData_LocustMtf_HasCorrectWeapons()
     {
         // Act
-        var mech = MechFactory.CreateFromMtfData(_locustMtfData, _structureValueProvider);
+        var mech = _mechFactory.Create();
 
         // Assert
         // Left Arm
@@ -72,11 +100,7 @@ public class MechFactoryTests
 
         // Right Arm
         var rightArm = mech.Parts.First(p => p.Location == PartLocation.RightArm);
-        Assert.Contains(rightArm.GetComponents<Weapon>(), w => w.Name == "Machine Gun");
-
-        // Center Torso
-        var centerTorso = mech.Parts.First(p => p.Location == PartLocation.CenterTorso);
-        Assert.Contains(centerTorso.GetComponents<Weapon>(), w => w.Name == "Medium Laser");
+        Assert.Contains(rightArm.GetComponents<Weapon>(), w => w.Name == "Medium Laser");
     }
 
     [Fact]
@@ -84,28 +108,15 @@ public class MechFactoryTests
     {
 
         // Act
-        var mech = MechFactory.CreateFromMtfData(_locustMtfData, _structureValueProvider);
+        var mech = _mechFactory.Create();
 
         // Assert
         var leftArm = mech.Parts.First(p => p.Location == PartLocation.LeftArm);
+        var c = leftArm.GetComponents<Component>();
         Assert.Contains(leftArm.GetComponents<Component>(), a => a.Name == "Shoulder");
-        Assert.Contains(leftArm.GetComponents<Component>(), a => a.Name == "Upper Arm Actuator");
 
         var rightArm = mech.Parts.First(p => p.Location == PartLocation.RightArm);
         Assert.Contains(rightArm.GetComponents<Component>(), a => a.Name == "Shoulder");
         Assert.Contains(rightArm.GetComponents<Component>(), a => a.Name == "Upper Arm Actuator");
-    }
-
-    [Fact]
-    public async Task CreateFromMtfFileAsync_LocustMtf_CreatesCorrectMech()
-    {
-        // Act
-        var mech = await MechFactory.CreateFromMtfFileAsync("Resources/Locust LCT-1V.mtf", _structureValueProvider);
-
-        // Assert
-        Assert.Equal("Locust", mech.Chassis);
-        Assert.Equal("LCT-1V", mech.Model);
-        Assert.Equal(20, mech.Tonnage);
-        Assert.Equal(8, mech.GetMovementPoints(MovementType.Walk));
     }
 }

@@ -21,7 +21,7 @@ public class MechFactory
         _structureValueProvider = structureValueProvider;
     }
 
-    public Mech CreateFromMtfData()
+    public Mech Create()
     {
         
         // Create parts with appropriate armor and structure
