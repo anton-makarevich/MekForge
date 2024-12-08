@@ -11,8 +11,9 @@ public abstract class Weapon : Component
         int longRange,
         WeaponType type,
         int battleValue,
+        int size = 1,
         AmmoType ammoType = AmmoType.None) 
-        : base(name, [])
+        : base(name, [],size)
     {
         Damage = damage;
         Heat = heat;
