@@ -129,7 +129,7 @@ public class MechFactoryTests
     }
     
     [Fact]
-    public void CreateFromMtfData_CorrectlyAddsComponentsThatOccupySeveralSlots()
+    public void CreateFromMtfData_CorrectlyAddsOneComponentThatOccupiesSeveralSlots()
     {
         // Arrange
         var locationEquipment = Tuple.Create(PartLocation.LeftTorso, new List<string> 
@@ -148,5 +148,30 @@ public class MechFactoryTests
         var leftTorso = mech.Parts.First(p => p.Location == PartLocation.LeftTorso);
         var weapon = leftTorso.GetComponents<AC5>();
         weapon.Count().Should().Be(1); 
+    }
+    [Fact]
+    public void CreateFromMtfData_CorrectlyAddsTwoComponentsThatOccupySeveralSlots()
+    {
+        // Arrange
+        var locationEquipment = Tuple.Create(PartLocation.LeftTorso, new List<string> 
+        { 
+            "Autocannon/5",
+            "Autocannon/5",
+            "Autocannon/5",
+            "Autocannon/5",
+            "Autocannon/5",
+            "Autocannon/5",
+            "Autocannon/5",
+            "Autocannon/5" 
+        });
+        var mechData = CreateDummyMechData(locationEquipment);
+
+        // Act
+        var mech = _mechFactory.Create(mechData);
+
+        // Assert
+        var leftTorso = mech.Parts.First(p => p.Location == PartLocation.LeftTorso);
+        var weapon = leftTorso.GetComponents<AC5>();
+        weapon.Count().Should().Be(2); 
     }
 }

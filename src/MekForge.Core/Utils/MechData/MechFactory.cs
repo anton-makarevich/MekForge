@@ -63,11 +63,17 @@ public class MechFactory
         foreach (var (location, equipment) in locationEquipment)
         {
             var part = mech.Parts.First(p => p.Location == location);
+            var componentCounts = new Dictionary<string, int>(); // Track component counts
+
             foreach (var item in equipment)
             {
+                componentCounts.TryAdd(item, 0);
+                componentCounts[item]++;
+
                 var component = CreateComponent(item);
-                if (component != null)
-                    part.TryAddComponent(component);
+                if (component == null || componentCounts[item] < component.Size) continue;
+                part.TryAddComponent(component);
+                componentCounts[item] = 0; // Reset count after adding
             }
         }
     }
