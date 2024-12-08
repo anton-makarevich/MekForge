@@ -1,20 +1,21 @@
 using System.Text.RegularExpressions;
 using Sanet.MekForge.Core.Models.Units;
+using Sanet.MekForge.Core.Utils.MechData;
 
-namespace Sanet.MekForge.Core.Utils;
+namespace Sanet.MekForge.Core.Utils.Community;
 
 public class MtfParser
 {
     private readonly Dictionary<string, string> _mechData = new();
     private readonly Dictionary<PartLocation, List<string>> _locationEquipment = new();
-    private readonly Dictionary<PartLocation, ArmorValues> _armorValues = new();
+    private readonly Dictionary<PartLocation, ArmorLocation> _armorValues = new();
 
-    public MechData Parse(IEnumerable<string> lines)
+    public MechData.MechData Parse(IEnumerable<string> lines)
     {
         ParseBasicData(lines);
         ParseLocationData(lines);
         
-        return new MechData
+        return new MechData.MechData
         {
             Chassis = _mechData["chassis"],
             Model = _mechData["model"],
@@ -73,14 +74,14 @@ public class MtfParser
                 {
                     var value = int.Parse(match.Groups[2].Value);
                     if (!_armorValues.ContainsKey(location))
-                        _armorValues[location] = new ArmorValues();
+                        _armorValues[location] = new ArmorLocation();
 
                     // Handle rear armor values
                     if (IsRearArmor(match.Groups[1].Value))
                     {
                         var mainLocation = GetMainLocationForRear(match.Groups[1].Value);
                         if (!_armorValues.ContainsKey(mainLocation))
-                            _armorValues[mainLocation] = new ArmorValues();
+                            _armorValues[mainLocation] = new ArmorLocation();
                         _armorValues[mainLocation].RearArmor = value;
                     }
                     else
@@ -142,20 +143,4 @@ public class MtfParser
         "RTC" => PartLocation.CenterTorso,
         _ => throw new ArgumentException($"Invalid rear location: {rearLocationText}")
     };
-}
-
-public class ArmorValues
-{
-    public int FrontArmor { get; set; }
-    public int RearArmor { get; set; }
-}
-
-public class MechData
-{
-    public required string Chassis { get; init; }
-    public required string Model { get; init; }
-    public required int Mass { get; init; }
-    public required int WalkMp { get; init; }
-    public required Dictionary<PartLocation, ArmorValues> ArmorValues { get; init; }
-    public required Dictionary<PartLocation, List<string>> LocationEquipment { get; init; }
 }

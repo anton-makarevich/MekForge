@@ -1,17 +1,11 @@
 using Sanet.MekForge.Core.Models.Units;
-using Sanet.MekForge.Core.Utils;
-using System.IO;
+using Sanet.MekForge.Core.Utils.Community;
 
-namespace MekForge.Core.Tests.Utils;
+namespace Sanet.MekForge.Core.Tests.Utils.Community;
 
 public class MtfParserTests
 {
-    private readonly string[] _locustMtfData;
-
-    public MtfParserTests()
-    {
-        _locustMtfData = File.ReadAllLines("Resources/Locust LCT-1V.mtf");
-    }
+    private readonly string[] _locustMtfData = File.ReadAllLines("Resources/Locust LCT-1V.mtf");
 
     [Fact]
     public void Parse_LocustMtf_ReturnsCorrectBasicData()
