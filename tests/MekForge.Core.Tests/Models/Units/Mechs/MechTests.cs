@@ -184,6 +184,37 @@ public class MechTests
         runningMp.Should().Be(runMp, "running MP should be 1.5x walking");
         jumpingMp.Should().Be(jumpMp, "jumping MP should match the number of jump jets");
     }
+
+    [Theory]
+    [InlineData(105, WeightClass.Unknown)]
+    [InlineData(20, WeightClass.Light)]
+    [InlineData(25, WeightClass.Light)]
+    [InlineData(30, WeightClass.Light)]
+    [InlineData(35, WeightClass.Light)]
+    [InlineData(40, WeightClass.Medium)]
+    [InlineData(45, WeightClass.Medium)]
+    [InlineData(50, WeightClass.Medium)]
+    [InlineData(55, WeightClass.Medium)]
+    [InlineData(60, WeightClass.Heavy)]
+    [InlineData(65, WeightClass.Heavy)]
+    [InlineData(70, WeightClass.Heavy)]
+    [InlineData(75, WeightClass.Heavy)]
+    [InlineData(80, WeightClass.Assault)]
+    [InlineData(85, WeightClass.Assault)]
+    [InlineData(90, WeightClass.Assault)]
+    [InlineData(95, WeightClass.Assault)]
+    [InlineData(100, WeightClass.Assault)]
+    public void WeightClass_Calculation_ReturnsCorrectClass(int tonnage, WeightClass expectedClass)
+    {
+        // Arrange
+        var mech = new Mech("Test", "TST-1A", tonnage, 4, CreateBasicPartsData());
+
+        // Act
+        var weightClass = mech.Class;
+
+        // Assert
+        weightClass.Should().Be(expectedClass);
+    }
 }
 
 // Helper extension for testing protected methods
@@ -196,4 +227,3 @@ public static class MechTestExtensions
         return (PartLocation?)method?.Invoke(mech, new object[] { location });
     }
 }
-
