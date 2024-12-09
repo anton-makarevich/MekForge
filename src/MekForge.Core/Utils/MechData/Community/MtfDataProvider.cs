@@ -1,6 +1,5 @@
 using System.Text.RegularExpressions;
 using Sanet.MekForge.Core.Models.Units;
-using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
 namespace Sanet.MekForge.Core.Utils.MechData.Community;
 
@@ -22,6 +21,8 @@ public class MtfDataProvider:IMechDataProvider
             Model = _mechData["model"],
             Mass = int.Parse(_mechData["Mass"]),
             WalkMp = int.Parse(Regex.Match(_mechData["Walk MP"], @"\d+").Value),
+            EngineRating = int.Parse(_mechData["EngineRating"]),
+            EngineType = _mechData["EngineType"],
             ArmorValues = _armorValues,
             LocationEquipment = _locationEquipment,
             Quirks = _mechData.Where(pair => pair.Key.StartsWith("quirk")).ToDictionary(),
@@ -42,15 +43,28 @@ public class MtfDataProvider:IMechDataProvider
             if (colonIndex <= 0) continue;
             var key = line[..colonIndex].Trim();
             var value = line[(colonIndex + 1)..].Trim();
-            if (key.StartsWith("quirk"))
+
+            if (key == "Engine")
             {
-                key = $"{key}{++quirksCount}";
+                var engineData = value.Split(' ');
+                if (engineData.Length >= 2)
+                {
+                    _mechData["EngineRating"] = engineData[0];
+                    _mechData["EngineType"] = engineData[1];
+                }
             }
-            if (key.StartsWith("system"))
+            else
             {
-                key = $"{key}{++systemsCount}";
+                if (key.StartsWith("quirk"))
+                {
+                    key = $"{key}{++quirksCount}";
+                }
+                if (key.StartsWith("system"))
+                {
+                    key = $"{key}{++systemsCount}";
+                }
+                _mechData[key] = value;
             }
-            _mechData[key] = value;
         }
     }
 
