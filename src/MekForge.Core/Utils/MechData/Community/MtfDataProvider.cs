@@ -164,7 +164,7 @@ public class MtfDataProvider:IMechDataProvider
             "Lower Arm Actuator" => MekForgeComponent.LowerArmActuator,
             "Hand Actuator" => MekForgeComponent.HandActuator,
             "Jump Jet" => MekForgeComponent.JumpJet,
-            "Fusion Engine" => MekForgeComponent.FusionEngine,
+            "Fusion Engine" => MekForgeComponent.Engine,
             "Gyro" => MekForgeComponent.Gyro,
             "Life Support" => MekForgeComponent.LifeSupport,
             "Sensors" => MekForgeComponent.Sensors,

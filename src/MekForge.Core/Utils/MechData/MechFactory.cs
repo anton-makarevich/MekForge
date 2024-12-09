@@ -35,7 +35,7 @@ public class MechFactory
             parts);
 
         // Add equipment to parts
-        AddEquipmentToParts(mech, mechData.LocationEquipment);
+        AddEquipmentToParts(mech, mechData);
 
         return mech;
     }
@@ -60,9 +60,9 @@ public class MechFactory
         return parts;
     }
 
-    private void AddEquipmentToParts(Mech mech, Dictionary<PartLocation, List<MekForgeComponent>> locationEquipment)
+    private void AddEquipmentToParts(Mech mech, MechData mechData)
     {
-        foreach (var (location, equipment) in locationEquipment)
+        foreach (var (location, equipment) in mechData.LocationEquipment)
         {
             var part = mech.Parts.First(p => p.Location == location);
             var componentCounts = new Dictionary<MekForgeComponent, int>(); // Track component counts
@@ -72,18 +72,19 @@ public class MechFactory
                 componentCounts.TryAdd(item, 0);
                 componentCounts[item]++;
 
-                var component = CreateComponent(item);
-                if (component == null || componentCounts[item] < component.Size) continue;
+                var component = CreateComponent(item, mechData);
+                if (component == null || (componentCounts[item] < component.Size && component is not Engine)) continue;
                 part.TryAddComponent(component);
                 componentCounts[item] = 0; // Reset count after adding
             }
         }
     }
 
-    private Component? CreateComponent(MekForgeComponent itemName)
+    private Component? CreateComponent(MekForgeComponent itemName, MechData mechData)
     {
         return itemName switch
         {
+            MekForgeComponent.Engine => new Engine(mechData.EngineRating, MapEngineType(mechData.EngineType)),
             MekForgeComponent.ISAmmoAC5 => new Ammo(AmmoType.AC5, _rulesProvider.GetAmmoRounds(AmmoType.AC5)),
             MekForgeComponent.ISAmmoSRM2 => new Ammo(AmmoType.SRM2, _rulesProvider.GetAmmoRounds(AmmoType.SRM2)),
             MekForgeComponent.ISAmmoMG => new Ammo(AmmoType.MachineGun, _rulesProvider.GetAmmoRounds(AmmoType.MachineGun)),
@@ -99,7 +100,6 @@ public class MechFactory
             MekForgeComponent.LowerArmActuator => new LowerArmActuator(),
             MekForgeComponent.HandActuator => new HandActuator(),
             MekForgeComponent.JumpJet => new JumpJets(),
-            MekForgeComponent.FusionEngine => new Engine( 160),
             MekForgeComponent.Gyro => null,
             MekForgeComponent.LifeSupport => null,
             MekForgeComponent.Sensors => null,
@@ -109,6 +109,19 @@ public class MechFactory
             MekForgeComponent.LowerLegActuator => null,
             MekForgeComponent.FootActuator => null,
             _ => throw new NotImplementedException($"{itemName} is not implemented")
+        };
+    }
+
+    private EngineType MapEngineType(string engineType)
+    {
+        return engineType.ToLower() switch
+        {
+            "fusion" => EngineType.Fusion,
+            "xlfusion" => EngineType.XLFusion,
+            "ice" => EngineType.ICE,
+            "light" => EngineType.Light,
+            "compact" => EngineType.Compact,
+            _ => throw new NotImplementedException($"Unknown engine type: {engineType}")
         };
     }
 }

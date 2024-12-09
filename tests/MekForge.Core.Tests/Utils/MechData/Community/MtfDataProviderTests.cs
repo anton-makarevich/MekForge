@@ -24,6 +24,8 @@ public class MtfDataProviderTests
         mechData.Model.Should().Be("LCT-1V");
         mechData.Mass.Should().Be(20);
         mechData.WalkMp.Should().Be(8);
+        mechData.EngineRating.Should().Be(160);
+        mechData.EngineType.Should().Be("Fusion");
     }
 
     [Fact]
@@ -70,7 +72,7 @@ public class MtfDataProviderTests
 
         // Center Torso
         var centerTorsoEquipment = mechData.LocationEquipment[PartLocation.CenterTorso];
-        centerTorsoEquipment.Should().Contain(MekForgeComponent.FusionEngine);
+        centerTorsoEquipment.Should().Contain(MekForgeComponent.Engine);
         centerTorsoEquipment.Should().Contain(MekForgeComponent.Gyro);
         centerTorsoEquipment.Should().Contain(MekForgeComponent.MediumLaser);
     }

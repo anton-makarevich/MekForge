@@ -36,7 +36,7 @@ public enum MekForgeComponent
     LowerArmActuator,
     HandActuator,
     JumpJet,
-    FusionEngine,
+    Engine,
     Gyro,
     LifeSupport,
     Sensors,

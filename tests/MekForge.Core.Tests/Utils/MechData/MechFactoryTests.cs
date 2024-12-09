@@ -2,6 +2,7 @@ using FluentAssertions;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;
+using Sanet.MekForge.Core.Models.Units.Components.Engines;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Ballistic;
 using Sanet.MekForge.Core.Utils.MechData;
@@ -40,6 +41,8 @@ public class MechFactoryTests
             Model = "LCT-1V",
             Mass = 20,
             WalkMp = 8,
+            EngineRating = 275,
+            EngineType = "Fusion",
             ArmorValues = new Dictionary<PartLocation, ArmorLocation>
             {
                 { PartLocation.Head, new ArmorLocation { FrontArmor = 8 } },
@@ -54,6 +57,7 @@ public class MechFactoryTests
             LocationEquipment = new Dictionary<PartLocation, List<MekForgeComponent>>
             {
                 { PartLocation.LeftArm, [MekForgeComponent.MachineGun] },
+                { PartLocation.CenterTorso, [MekForgeComponent.Engine] },
                 { PartLocation.RightArm, [MekForgeComponent.UpperArmActuator, MekForgeComponent.MediumLaser] }
             },
             Quirks = new Dictionary<string, string>(),
@@ -67,7 +71,7 @@ public class MechFactoryTests
     }
 
     [Fact]
-    public void CreateFromMtfData_LocustMtf_CreatesCorrectMech()
+    public void CreateFromMtfData_CreatesCorrectMech()
     {
         // Act
         var mech = _mechFactory.Create(_mechData);
@@ -82,7 +86,7 @@ public class MechFactoryTests
     }
 
     [Fact]
-    public void CreateFromMtfData_LocustMtf_HasCorrectArmor()
+    public void CreateFromMtfData_HasCorrectArmor()
     {
         // Act
         var mech = _mechFactory.Create(_mechData);
@@ -99,7 +103,7 @@ public class MechFactoryTests
     }
 
     [Fact]
-    public void CreateFromMtfData_LocustMtf_HasCorrectWeapons()
+    public void CreateFromMtfData_HasCorrectWeapons()
     {
         // Act
         var mech = _mechFactory.Create(_mechData);
@@ -108,14 +112,22 @@ public class MechFactoryTests
         // Left Arm
         var leftArm = mech.Parts.First(p => p.Location == PartLocation.LeftArm);
         leftArm.GetComponents<Weapon>().Should().Contain(w => w.Name == "Machine Gun");
-
+        
         // Right Arm
         var rightArm = mech.Parts.First(p => p.Location == PartLocation.RightArm);
         rightArm.GetComponents<Weapon>().Should().Contain(w => w.Name == "Medium Laser");
+        
+        // Center Torso
+        var centerTorso = mech.Parts.First(p => p.Location == PartLocation.CenterTorso);
+        var engines = centerTorso.GetComponents<Engine>().ToList();
+        engines.Should().ContainSingle();
+        engines[0].Rating.Should().Be(275);
+        engines[0].Type.Should().Be(EngineType.Fusion);
+
     }
 
     [Fact]
-    public void CreateFromMtfData_LocustMtf_HasCorrectActuators()
+    public void CreateFromMtfData_HasCorrectActuators()
     {
 
         // Act
