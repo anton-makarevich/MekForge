@@ -1,12 +1,14 @@
 using FluentAssertions;
 using Sanet.MekForge.Core.Models.Units;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons;
+using Sanet.MekForge.Core.Utils.MechData;
 using Sanet.MekForge.Core.Utils.MechData.Community;
 
 namespace Sanet.MekForge.Core.Tests.Utils.MechData.Community;
 
 public class MtfDataProviderTests
 {
-    private readonly string[] _locustMtfData = File.ReadAllLines("Resources/Locust LCT-1V.mtf");
+    private readonly string[] _locustMtfData = File.ReadAllLines("Resources/Mechs/Locust LCT-1V.mtf");
 
     [Fact]
     public void Parse_LocustMtf_ReturnsCorrectBasicData()
@@ -22,6 +24,8 @@ public class MtfDataProviderTests
         mechData.Model.Should().Be("LCT-1V");
         mechData.Mass.Should().Be(20);
         mechData.WalkMp.Should().Be(8);
+        mechData.EngineRating.Should().Be(160);
+        mechData.EngineType.Should().Be("Fusion");
     }
 
     [Fact]
@@ -56,20 +60,20 @@ public class MtfDataProviderTests
         // Assert
         // Left Arm
         var leftArmEquipment = mechData.LocationEquipment[PartLocation.LeftArm];
-        leftArmEquipment.Should().Contain("Shoulder");
-        leftArmEquipment.Should().Contain("Upper Arm Actuator");
-        leftArmEquipment.Should().Contain("Machine Gun");
+        leftArmEquipment.Should().Contain(MekForgeComponent.Shoulder);
+        leftArmEquipment.Should().Contain(MekForgeComponent.UpperArmActuator);
+        leftArmEquipment.Should().Contain(MekForgeComponent.MachineGun);
 
         // Right Arm
         var rightArmEquipment = mechData.LocationEquipment[PartLocation.RightArm];
-        rightArmEquipment.Should().Contain("Shoulder");
-        rightArmEquipment.Should().Contain("Upper Arm Actuator");
-        rightArmEquipment.Should().Contain("Machine Gun");
+        rightArmEquipment.Should().Contain(MekForgeComponent.Shoulder);
+        rightArmEquipment.Should().Contain(MekForgeComponent.UpperArmActuator);
+        rightArmEquipment.Should().Contain(MekForgeComponent.MachineGun);
 
         // Center Torso
         var centerTorsoEquipment = mechData.LocationEquipment[PartLocation.CenterTorso];
-        centerTorsoEquipment.Should().Contain("Medium Laser");
-        centerTorsoEquipment.Should().Contain("Fusion Engine");
-        
+        centerTorsoEquipment.Should().Contain(MekForgeComponent.Engine);
+        centerTorsoEquipment.Should().Contain(MekForgeComponent.Gyro);
+        centerTorsoEquipment.Should().Contain(MekForgeComponent.MediumLaser);
     }
 }

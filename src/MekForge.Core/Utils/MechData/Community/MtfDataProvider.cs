@@ -6,8 +6,7 @@ namespace Sanet.MekForge.Core.Utils.MechData.Community;
 public class MtfDataProvider:IMechDataProvider
 {
     private readonly Dictionary<string, string> _mechData = new();
-    private readonly Dictionary<string, string> _additionalAttributes = new();
-    private readonly Dictionary<PartLocation, List<string>> _locationEquipment = new();
+    private readonly Dictionary<PartLocation, List<MekForgeComponent>> _locationEquipment = new();
     private readonly Dictionary<PartLocation, ArmorLocation> _armorValues = new();
 
     public MechData LoadMechFromTextData(IEnumerable<string> lines)
@@ -22,24 +21,50 @@ public class MtfDataProvider:IMechDataProvider
             Model = _mechData["model"],
             Mass = int.Parse(_mechData["Mass"]),
             WalkMp = int.Parse(Regex.Match(_mechData["Walk MP"], @"\d+").Value),
+            EngineRating = int.Parse(_mechData["EngineRating"]),
+            EngineType = _mechData["EngineType"],
             ArmorValues = _armorValues,
             LocationEquipment = _locationEquipment,
-            AdditionalAttributes = _additionalAttributes
+            Quirks = _mechData.Where(pair => pair.Key.StartsWith("quirk")).ToDictionary(),
+            AdditionalAttributes = _mechData.Where(pair => pair.Key.StartsWith("system")).ToDictionary()
         };
     }
 
     private void ParseBasicData(IEnumerable<string> lines)
     {
+        var quirksCount = 0;
+        var systemsCount = 0;
         foreach (var line in lines)
         {
-            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("Config:") || line.StartsWith("quirk:"))
+            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("Config:"))
                 continue;
 
             var colonIndex = line.IndexOf(':');
             if (colonIndex <= 0) continue;
             var key = line[..colonIndex].Trim();
             var value = line[(colonIndex + 1)..].Trim();
-            _mechData[key] = value;
+
+            if (key == "Engine")
+            {
+                var engineData = value.Split(' ');
+                if (engineData.Length >= 2)
+                {
+                    _mechData["EngineRating"] = engineData[0];
+                    _mechData["EngineType"] = engineData[1];
+                }
+            }
+            else
+            {
+                if (key.StartsWith("quirk"))
+                {
+                    key = $"{key}{++quirksCount}";
+                }
+                if (key.StartsWith("system"))
+                {
+                    key = $"{key}{++systemsCount}";
+                }
+                _mechData[key] = value;
+            }
         }
     }
 
@@ -47,7 +72,6 @@ public class MtfDataProvider:IMechDataProvider
     {
         PartLocation? currentLocation = null;
         var parsingArmor = false;
-        var parsingAttributes = false;
 
         foreach (var line in lines)
         {
@@ -55,7 +79,7 @@ public class MtfDataProvider:IMechDataProvider
             {
                 if (currentLocation == PartLocation.RightLeg)
                 {
-                    parsingAttributes = true;
+                    return;
                 }
                 continue;
             }
@@ -108,30 +132,49 @@ public class MtfDataProvider:IMechDataProvider
                 {
                     currentLocation = location;
                     if (!_locationEquipment.ContainsKey(location))
-                        _locationEquipment[location] = new List<string>();
+                        _locationEquipment[location] = new List<MekForgeComponent>();
                 }
                 continue;
             }
 
             // Add equipment to current location
-            if (currentLocation.HasValue && !line.Contains("-Empty-"))
+            if (!currentLocation.HasValue || line.Contains("-Empty-")) continue;
             {
-                if (parsingAttributes)
-                {
-                    var keyValue = line.Split(':', 2);
-                    if (keyValue.Length == 2)
-                    {
-                        var key = keyValue[0].Trim();
-                        var value = keyValue[1].Trim();
-                        _additionalAttributes[key] = value;
-                    }
-                }
-                else
-                {
-                    _locationEquipment[currentLocation.Value].Add(line.Trim());
-                }
+                _locationEquipment[currentLocation.Value].Add(MapMtfStringToComponent(line));
             }
         }
+    }
+
+    private MekForgeComponent MapMtfStringToComponent(string mtfString)
+    {
+        return mtfString switch
+        {
+            "IS Ammo AC/5" => MekForgeComponent.ISAmmoAC5,
+            "IS Ammo SRM-2" => MekForgeComponent.ISAmmoSRM2,
+            "IS Ammo MG - Full" => MekForgeComponent.ISAmmoMG,
+            "IS Ammo LRM-5" => MekForgeComponent.ISAmmoLRM5,
+            "Medium Laser" => MekForgeComponent.MediumLaser,
+            "LRM 5" => MekForgeComponent.LRM5,
+            "SRM 2" => MekForgeComponent.SRM2,
+            "Machine Gun" => MekForgeComponent.MachineGun,
+            "Autocannon/5" => MekForgeComponent.AC5,
+            "Heat Sink" => MekForgeComponent.HeatSink,
+            "Shoulder" => MekForgeComponent.Shoulder,
+            "Upper Arm Actuator" => MekForgeComponent.UpperArmActuator,
+            "Lower Arm Actuator" => MekForgeComponent.LowerArmActuator,
+            "Hand Actuator" => MekForgeComponent.HandActuator,
+            "Jump Jet" => MekForgeComponent.JumpJet,
+            "Fusion Engine" => MekForgeComponent.Engine,
+            "Gyro" => MekForgeComponent.Gyro,
+            "Life Support" => MekForgeComponent.LifeSupport,
+            "Sensors" => MekForgeComponent.Sensors,
+            "Cockpit" => MekForgeComponent.Cockpit,
+            "Hip" => MekForgeComponent.Hip,
+            "Upper Leg Actuator" => MekForgeComponent.UpperLegActuator,
+            "Lower Leg Actuator" => MekForgeComponent.LowerLegActuator,
+            "Foot Actuator" => MekForgeComponent.FootActuator,
+            _ => throw new NotImplementedException($"Unknown MTF component: {mtfString}")
+        };
     }
 
     private static bool TryParseLocation(string locationText, out PartLocation location)
