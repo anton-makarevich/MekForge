@@ -13,10 +13,8 @@ public class Mech : Unit
         IEnumerable<UnitPart> parts) 
         : base(chassis, model, tonnage, walkMp, parts)
     {
-        Status = MechStatus.Active;
+        Status = UnitStatus.Active;
     }
-
-    public MechStatus Status { get; private set; }
 
     protected override PartLocation? GetTransferLocation(PartLocation location) => location switch
     {
@@ -38,13 +36,29 @@ public class Mech : Unit
         ApplyHeatEffects();
     }
 
+    public override void ApplyDamage(int damage, UnitPart targetPart)
+    {
+        base.ApplyDamage(damage, targetPart);
+        var head = _parts.Find(p => p.Location == PartLocation.Head);
+        if (head is { IsDestroyed: true })
+        {
+            Status = UnitStatus.Destroyed;
+            return;
+        }
+        var centerTorso = _parts.Find(p => p.Location == PartLocation.CenterTorso);
+        if (centerTorso is { IsDestroyed: true })
+        {
+            Status = UnitStatus.Destroyed;
+        }
+    }
+
     private void ApplyHeatEffects()
     {
         // Apply effects based on current heat level
         if (CurrentHeat >= 30)
         {
             // Automatic shutdown
-            Status = MechStatus.Shutdown;
+            Status = UnitStatus.Shutdown;
         }
         else if (CurrentHeat >= 25)
         {
@@ -60,30 +74,13 @@ public class Mech : Unit
         return bv;
     }
 
-    // Status management
-    public void Startup()
-    {
-        if (Status == MechStatus.Shutdown || Status == MechStatus.PoweredDown)
-        {
-            Status = MechStatus.Active;
-        }
-    }
-
-    public void Shutdown()
-    {
-        if (Status == MechStatus.Active)
-        {
-            Status = MechStatus.Shutdown;
-        }
-    }
-
     public void SetProne()
     {
-        Status |= MechStatus.Prone;
+        Status |= UnitStatus.Prone;
     }
 
     public void StandUp()
     {
-        Status &= ~MechStatus.Prone;
+        Status &= ~UnitStatus.Prone;
     }
 }

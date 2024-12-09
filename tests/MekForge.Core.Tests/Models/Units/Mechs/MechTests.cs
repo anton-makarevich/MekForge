@@ -100,7 +100,7 @@ public class MechTests
         var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
 
         // Assert
-        mech.Status.Should().Be(MechStatus.Active);
+        mech.Status.Should().Be(UnitStatus.Active);
     }
 
     [Fact]
@@ -113,7 +113,7 @@ public class MechTests
         mech.Shutdown();
 
         // Assert
-        mech.Status.Should().Be(MechStatus.Shutdown);
+        mech.Status.Should().Be(UnitStatus.Shutdown);
     }
 
     [Fact]
@@ -127,7 +127,7 @@ public class MechTests
         mech.Startup();
 
         // Assert
-        mech.Status.Should().Be(MechStatus.Active);
+        mech.Status.Should().Be(UnitStatus.Active);
     }
 
     [Fact]
@@ -140,7 +140,7 @@ public class MechTests
         mech.SetProne();
 
         // Assert
-        (mech.Status & MechStatus.Prone).Should().Be(MechStatus.Prone);
+        (mech.Status & UnitStatus.Prone).Should().Be(UnitStatus.Prone);
     }
 
     [Fact]
@@ -154,7 +154,7 @@ public class MechTests
         mech.StandUp();
 
         // Assert
-        (mech.Status & MechStatus.Prone).Should().NotBe(MechStatus.Prone);
+        (mech.Status & UnitStatus.Prone).Should().NotBe(UnitStatus.Prone);
     }
 
     [Theory]
