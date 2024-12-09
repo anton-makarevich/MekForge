@@ -8,7 +8,7 @@ namespace Sanet.MekForge.Core.Tests.Utils.MechData;
 
 public class MechFactoryIntegrationTests
 {   
-    private const string MtfToTest = "Resources/Shadow Hawk SHD-2D.mtf";
+    private const string MtfToTest = "Resources/Mechs/Shadow Hawk SHD-2D.mtf";
     
     [Fact]
     public void CreateFromMtfFile_IntegrationTest()
