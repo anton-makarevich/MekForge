@@ -99,7 +99,7 @@ public class MechFactory
             MekForgeComponent.LowerArmActuator => new LowerArmActuator(),
             MekForgeComponent.HandActuator => new HandActuator(),
             MekForgeComponent.JumpJet => new JumpJets(),
-            MekForgeComponent.FusionEngine => new Engine("Fusion Engine", 160),
+            MekForgeComponent.FusionEngine => new Engine( 160),
             MekForgeComponent.Gyro => null,
             MekForgeComponent.LifeSupport => null,
             MekForgeComponent.Sensors => null,

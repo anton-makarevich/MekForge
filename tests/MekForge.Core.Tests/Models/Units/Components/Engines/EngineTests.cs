@@ -10,10 +10,10 @@ public class EngineTests
     public void Constructor_InitializesCorrectly()
     {
         // Arrange & Act
-        var engine = new Engine("Test Engine", 100);
+        var engine = new Engine(100);
 
         // Assert
-        engine.Name.Should().Be("Test Engine");
+        engine.Name.Should().Be("Fusion Engine 100");
         engine.Rating.Should().Be(100);
         engine.MountedAtSlots.Should().HaveCount(6);
         engine.MountedAtSlots.Should().ContainInOrder(0,1,2,7,8,9);
