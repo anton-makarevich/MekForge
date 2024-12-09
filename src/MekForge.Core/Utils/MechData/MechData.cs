@@ -11,4 +11,5 @@ public record struct MechData
     public required Dictionary<PartLocation, ArmorLocation> ArmorValues { get; init; }
     public required Dictionary<PartLocation, List<string>> LocationEquipment { get; init; }
     public required Dictionary<string, string> AdditionalAttributes { get; set; }
+    public required Dictionary<string,string> Quirks { get; set; }
 }

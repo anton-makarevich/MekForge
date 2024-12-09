@@ -6,7 +6,6 @@ namespace Sanet.MekForge.Core.Utils.MechData.Community;
 public class MtfDataProvider:IMechDataProvider
 {
     private readonly Dictionary<string, string> _mechData = new();
-    private readonly Dictionary<string, string> _additionalAttributes = new();
     private readonly Dictionary<PartLocation, List<string>> _locationEquipment = new();
     private readonly Dictionary<PartLocation, ArmorLocation> _armorValues = new();
 
@@ -24,21 +23,32 @@ public class MtfDataProvider:IMechDataProvider
             WalkMp = int.Parse(Regex.Match(_mechData["Walk MP"], @"\d+").Value),
             ArmorValues = _armorValues,
             LocationEquipment = _locationEquipment,
-            AdditionalAttributes = _additionalAttributes
+            Quirks = _mechData.Where(pair => pair.Key.StartsWith("quirk")).ToDictionary(),
+            AdditionalAttributes = _mechData.Where(pair => pair.Key.StartsWith("system")).ToDictionary()
         };
     }
 
     private void ParseBasicData(IEnumerable<string> lines)
     {
+        var quirksCount = 0;
+        var systemsCount = 0;
         foreach (var line in lines)
         {
-            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("Config:") || line.StartsWith("quirk:"))
+            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("Config:"))
                 continue;
 
             var colonIndex = line.IndexOf(':');
             if (colonIndex <= 0) continue;
             var key = line[..colonIndex].Trim();
             var value = line[(colonIndex + 1)..].Trim();
+            if (key.StartsWith("quirk"))
+            {
+                key = $"{key}{++quirksCount}";
+            }
+            if (key.StartsWith("system"))
+            {
+                key = $"{key}{++systemsCount}";
+            }
             _mechData[key] = value;
         }
     }
@@ -47,7 +57,6 @@ public class MtfDataProvider:IMechDataProvider
     {
         PartLocation? currentLocation = null;
         var parsingArmor = false;
-        var parsingAttributes = false;
 
         foreach (var line in lines)
         {
@@ -55,7 +64,7 @@ public class MtfDataProvider:IMechDataProvider
             {
                 if (currentLocation == PartLocation.RightLeg)
                 {
-                    parsingAttributes = true;
+                    return;
                 }
                 continue;
             }
@@ -116,20 +125,7 @@ public class MtfDataProvider:IMechDataProvider
             // Add equipment to current location
             if (currentLocation.HasValue && !line.Contains("-Empty-"))
             {
-                if (parsingAttributes)
-                {
-                    var keyValue = line.Split(':', 2);
-                    if (keyValue.Length == 2)
-                    {
-                        var key = keyValue[0].Trim();
-                        var value = keyValue[1].Trim();
-                        _additionalAttributes[key] = value;
-                    }
-                }
-                else
-                {
-                    _locationEquipment[currentLocation.Value].Add(line.Trim());
-                }
+                _locationEquipment[currentLocation.Value].Add(line.Trim());
             }
         }
     }
