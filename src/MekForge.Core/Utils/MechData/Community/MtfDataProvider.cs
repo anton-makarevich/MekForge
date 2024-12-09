@@ -1,12 +1,13 @@
 using System.Text.RegularExpressions;
 using Sanet.MekForge.Core.Models.Units;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
 namespace Sanet.MekForge.Core.Utils.MechData.Community;
 
 public class MtfDataProvider:IMechDataProvider
 {
     private readonly Dictionary<string, string> _mechData = new();
-    private readonly Dictionary<PartLocation, List<string>> _locationEquipment = new();
+    private readonly Dictionary<PartLocation, List<MechDataComponent>> _locationEquipment = new();
     private readonly Dictionary<PartLocation, ArmorLocation> _armorValues = new();
 
     public MechData LoadMechFromTextData(IEnumerable<string> lines)
@@ -117,17 +118,49 @@ public class MtfDataProvider:IMechDataProvider
                 {
                     currentLocation = location;
                     if (!_locationEquipment.ContainsKey(location))
-                        _locationEquipment[location] = new List<string>();
+                        _locationEquipment[location] = new List<MechDataComponent>();
                 }
                 continue;
             }
 
             // Add equipment to current location
-            if (currentLocation.HasValue && !line.Contains("-Empty-"))
+            if (!currentLocation.HasValue || line.Contains("-Empty-")) continue;
             {
-                _locationEquipment[currentLocation.Value].Add(line.Trim());
+                _locationEquipment[currentLocation.Value].Add(MapMtfStringToComponent(line));
             }
         }
+    }
+
+    private MechDataComponent MapMtfStringToComponent(string mtfString)
+    {
+        return mtfString switch
+        {
+            "IS Ammo AC/5" => MechDataComponent.ISAmmoAC5,
+            "IS Ammo SRM-2" => MechDataComponent.ISAmmoSRM2,
+            "IS Ammo MG - Full" => MechDataComponent.ISAmmoMG,
+            "IS Ammo LRM-5" => MechDataComponent.ISAmmoLRM5,
+            "Medium Laser" => MechDataComponent.MediumLaser,
+            "LRM 5" => MechDataComponent.LRM5,
+            "SRM 2" => MechDataComponent.SRM2,
+            "Machine Gun" => MechDataComponent.MachineGun,
+            "Autocannon/5" => MechDataComponent.AC5,
+            "Heat Sink" => MechDataComponent.HeatSink,
+            "Shoulder" => MechDataComponent.Shoulder,
+            "Upper Arm Actuator" => MechDataComponent.UpperArmActuator,
+            "Lower Arm Actuator" => MechDataComponent.LowerArmActuator,
+            "Hand Actuator" => MechDataComponent.HandActuator,
+            "Jump Jet" => MechDataComponent.JumpJet,
+            "Fusion Engine" => MechDataComponent.FusionEngine,
+            "Gyro" => MechDataComponent.Gyro,
+            "Life Support" => MechDataComponent.LifeSupport,
+            "Sensors" => MechDataComponent.Sensors,
+            "Cockpit" => MechDataComponent.Cockpit,
+            "Hip" => MechDataComponent.Hip,
+            "Upper Leg Actuator" => MechDataComponent.UpperLegActuator,
+            "Lower Leg Actuator" => MechDataComponent.LowerLegActuator,
+            "Foot Actuator" => MechDataComponent.FootActuator,
+            _ => throw new NotImplementedException($"Unknown MTF component: {mtfString}")
+        };
     }
 
     private static bool TryParseLocation(string locationText, out PartLocation location)

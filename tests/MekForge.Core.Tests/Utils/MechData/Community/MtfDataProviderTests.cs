@@ -1,5 +1,7 @@
 using FluentAssertions;
 using Sanet.MekForge.Core.Models.Units;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons;
+using Sanet.MekForge.Core.Utils.MechData;
 using Sanet.MekForge.Core.Utils.MechData.Community;
 
 namespace Sanet.MekForge.Core.Tests.Utils.MechData.Community;
@@ -56,20 +58,20 @@ public class MtfDataProviderTests
         // Assert
         // Left Arm
         var leftArmEquipment = mechData.LocationEquipment[PartLocation.LeftArm];
-        leftArmEquipment.Should().Contain("Shoulder");
-        leftArmEquipment.Should().Contain("Upper Arm Actuator");
-        leftArmEquipment.Should().Contain("Machine Gun");
+        leftArmEquipment.Should().Contain(MechDataComponent.Shoulder);
+        leftArmEquipment.Should().Contain(MechDataComponent.UpperArmActuator);
+        leftArmEquipment.Should().Contain(MechDataComponent.MachineGun);
 
         // Right Arm
         var rightArmEquipment = mechData.LocationEquipment[PartLocation.RightArm];
-        rightArmEquipment.Should().Contain("Shoulder");
-        rightArmEquipment.Should().Contain("Upper Arm Actuator");
-        rightArmEquipment.Should().Contain("Machine Gun");
+        rightArmEquipment.Should().Contain(MechDataComponent.Shoulder);
+        rightArmEquipment.Should().Contain(MechDataComponent.UpperArmActuator);
+        rightArmEquipment.Should().Contain(MechDataComponent.MachineGun);
 
         // Center Torso
         var centerTorsoEquipment = mechData.LocationEquipment[PartLocation.CenterTorso];
-        centerTorsoEquipment.Should().Contain("Medium Laser");
-        centerTorsoEquipment.Should().Contain("Fusion Engine");
-        
+        centerTorsoEquipment.Should().Contain(MechDataComponent.FusionEngine);
+        centerTorsoEquipment.Should().Contain(MechDataComponent.Gyro);
+        centerTorsoEquipment.Should().Contain(MechDataComponent.MediumLaser);
     }
 }

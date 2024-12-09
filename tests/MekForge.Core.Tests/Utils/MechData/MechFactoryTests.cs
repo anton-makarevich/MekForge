@@ -32,7 +32,7 @@ public class MechFactoryTests
         _mechFactory = new MechFactory(structureValueProvider);
     }
 
-    private Core.Utils.MechData.MechData CreateDummyMechData(Tuple<PartLocation, List<string>>? locationEquipment = null)
+    private Core.Utils.MechData.MechData CreateDummyMechData(Tuple<PartLocation, List<MechDataComponent>>? locationEquipment = null)
     {
         var data = new Core.Utils.MechData.MechData
         {
@@ -51,10 +51,10 @@ public class MechFactoryTests
                 { PartLocation.LeftLeg, new ArmorLocation { FrontArmor = 8 } },
                 { PartLocation.RightLeg, new ArmorLocation { FrontArmor = 8 } }
             },
-            LocationEquipment = new Dictionary<PartLocation, List<string>>
+            LocationEquipment = new Dictionary<PartLocation, List<MechDataComponent>>
             {
-                { PartLocation.LeftArm, ["Machine Gun"] },
-                { PartLocation.RightArm, ["Upper Arm Actuator", "Medium Laser"] }
+                { PartLocation.LeftArm, [MechDataComponent.MachineGun] },
+                { PartLocation.RightArm, [MechDataComponent.UpperArmActuator, MechDataComponent.MediumLaser] }
             },
             Quirks = new Dictionary<string, string>(),
             AdditionalAttributes = new Dictionary<string, string>()
@@ -134,12 +134,12 @@ public class MechFactoryTests
     public void CreateFromMtfData_CorrectlyAddsOneComponentThatOccupiesSeveralSlots()
     {
         // Arrange
-        var locationEquipment = Tuple.Create(PartLocation.LeftTorso, new List<string> 
+        var locationEquipment = Tuple.Create(PartLocation.LeftTorso, new List<MechDataComponent> 
         { 
-            "Autocannon/5",
-            "Autocannon/5",
-            "Autocannon/5",
-            "Autocannon/5" 
+            MechDataComponent.AC5,
+            MechDataComponent.AC5,
+            MechDataComponent.AC5,
+            MechDataComponent.AC5 
         });
         var mechData = CreateDummyMechData(locationEquipment);
 
@@ -155,16 +155,16 @@ public class MechFactoryTests
     public void CreateFromMtfData_CorrectlyAddsTwoComponentsThatOccupySeveralSlots()
     {
         // Arrange
-        var locationEquipment = Tuple.Create(PartLocation.LeftTorso, new List<string> 
+        var locationEquipment = Tuple.Create(PartLocation.LeftTorso, new List<MechDataComponent> 
         { 
-            "Autocannon/5",
-            "Autocannon/5",
-            "Autocannon/5",
-            "Autocannon/5",
-            "Autocannon/5",
-            "Autocannon/5",
-            "Autocannon/5",
-            "Autocannon/5" 
+            MechDataComponent.AC5,
+            MechDataComponent.AC5,
+            MechDataComponent.AC5,
+            MechDataComponent.AC5,
+            MechDataComponent.AC5,
+            MechDataComponent.AC5,
+            MechDataComponent.AC5,
+            MechDataComponent.AC5 
         });
         var mechData = CreateDummyMechData(locationEquipment);
 
