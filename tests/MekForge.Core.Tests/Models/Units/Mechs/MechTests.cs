@@ -215,6 +215,28 @@ public class MechTests
         // Assert
         weightClass.Should().Be(expectedClass);
     }
+
+    [Fact]
+    public void ApplyDamage_DestroysMech_WhenHeadOrCenterTorsoIsDestroyed()
+    {
+        // Arrange
+        var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
+        var headPart = mech.Parts.First(p => p.Location == PartLocation.Head);
+        
+        // Act
+        mech.ApplyDamage(100, headPart);
+        // Assert
+        mech.Status.Should().Be(UnitStatus.Destroyed);
+
+        // Reset mech for next test
+        mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
+        var centerTorsoPart = mech.Parts.First(p => p.Location == PartLocation.CenterTorso);
+
+        // Act
+        mech.ApplyDamage(100, centerTorsoPart);
+        // Assert
+        mech.Status.Should().Be(UnitStatus.Destroyed);
+    }
 }
 
 // Helper extension for testing protected methods
