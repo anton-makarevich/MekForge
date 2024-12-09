@@ -58,20 +58,20 @@ public class MtfDataProviderTests
         // Assert
         // Left Arm
         var leftArmEquipment = mechData.LocationEquipment[PartLocation.LeftArm];
-        leftArmEquipment.Should().Contain(MechDataComponent.Shoulder);
-        leftArmEquipment.Should().Contain(MechDataComponent.UpperArmActuator);
-        leftArmEquipment.Should().Contain(MechDataComponent.MachineGun);
+        leftArmEquipment.Should().Contain(MekForgeComponent.Shoulder);
+        leftArmEquipment.Should().Contain(MekForgeComponent.UpperArmActuator);
+        leftArmEquipment.Should().Contain(MekForgeComponent.MachineGun);
 
         // Right Arm
         var rightArmEquipment = mechData.LocationEquipment[PartLocation.RightArm];
-        rightArmEquipment.Should().Contain(MechDataComponent.Shoulder);
-        rightArmEquipment.Should().Contain(MechDataComponent.UpperArmActuator);
-        rightArmEquipment.Should().Contain(MechDataComponent.MachineGun);
+        rightArmEquipment.Should().Contain(MekForgeComponent.Shoulder);
+        rightArmEquipment.Should().Contain(MekForgeComponent.UpperArmActuator);
+        rightArmEquipment.Should().Contain(MekForgeComponent.MachineGun);
 
         // Center Torso
         var centerTorsoEquipment = mechData.LocationEquipment[PartLocation.CenterTorso];
-        centerTorsoEquipment.Should().Contain(MechDataComponent.FusionEngine);
-        centerTorsoEquipment.Should().Contain(MechDataComponent.Gyro);
-        centerTorsoEquipment.Should().Contain(MechDataComponent.MediumLaser);
+        centerTorsoEquipment.Should().Contain(MekForgeComponent.FusionEngine);
+        centerTorsoEquipment.Should().Contain(MekForgeComponent.Gyro);
+        centerTorsoEquipment.Should().Contain(MekForgeComponent.MediumLaser);
     }
 }

@@ -60,12 +60,12 @@ public class MechFactory
         return parts;
     }
 
-    private void AddEquipmentToParts(Mech mech, Dictionary<PartLocation, List<MechDataComponent>> locationEquipment)
+    private void AddEquipmentToParts(Mech mech, Dictionary<PartLocation, List<MekForgeComponent>> locationEquipment)
     {
         foreach (var (location, equipment) in locationEquipment)
         {
             var part = mech.Parts.First(p => p.Location == location);
-            var componentCounts = new Dictionary<MechDataComponent, int>(); // Track component counts
+            var componentCounts = new Dictionary<MekForgeComponent, int>(); // Track component counts
 
             foreach (var item in equipment)
             {
@@ -80,34 +80,34 @@ public class MechFactory
         }
     }
 
-    private Component? CreateComponent(MechDataComponent itemName)
+    private Component? CreateComponent(MekForgeComponent itemName)
     {
         return itemName switch
         {
-            MechDataComponent.ISAmmoAC5 => new Ammo(AmmoType.AC5, _rulesProvider.GetAmmoRounds(AmmoType.AC5)),
-            MechDataComponent.ISAmmoSRM2 => new Ammo(AmmoType.SRM2, _rulesProvider.GetAmmoRounds(AmmoType.SRM2)),
-            MechDataComponent.ISAmmoMG => new Ammo(AmmoType.MachineGun, _rulesProvider.GetAmmoRounds(AmmoType.MachineGun)),
-            MechDataComponent.ISAmmoLRM5 => new Ammo(AmmoType.LRM5, _rulesProvider.GetAmmoRounds(AmmoType.LRM5)),
-            MechDataComponent.MediumLaser => new MediumLaser(),
-            MechDataComponent.LRM5 => new LRM5(),
-            MechDataComponent.SRM2 => new SRM2(),
-            MechDataComponent.MachineGun => new MachineGun(),
-            MechDataComponent.AC5 => new AC5(),
-            MechDataComponent.HeatSink => new HeatSink(),
-            MechDataComponent.Shoulder => new Shoulder(),
-            MechDataComponent.UpperArmActuator => new UpperArmActuator(),
-            MechDataComponent.LowerArmActuator => new LowerArmActuator(),
-            MechDataComponent.HandActuator => new HandActuator(),
-            MechDataComponent.JumpJet => new JumpJets(),
-            MechDataComponent.FusionEngine => new Engine("Fusion Engine", 160),
-            MechDataComponent.Gyro => null,
-            MechDataComponent.LifeSupport => null,
-            MechDataComponent.Sensors => null,
-            MechDataComponent.Cockpit => null,
-            MechDataComponent.Hip => null,
-            MechDataComponent.UpperLegActuator => null,
-            MechDataComponent.LowerLegActuator => null,
-            MechDataComponent.FootActuator => null,
+            MekForgeComponent.ISAmmoAC5 => new Ammo(AmmoType.AC5, _rulesProvider.GetAmmoRounds(AmmoType.AC5)),
+            MekForgeComponent.ISAmmoSRM2 => new Ammo(AmmoType.SRM2, _rulesProvider.GetAmmoRounds(AmmoType.SRM2)),
+            MekForgeComponent.ISAmmoMG => new Ammo(AmmoType.MachineGun, _rulesProvider.GetAmmoRounds(AmmoType.MachineGun)),
+            MekForgeComponent.ISAmmoLRM5 => new Ammo(AmmoType.LRM5, _rulesProvider.GetAmmoRounds(AmmoType.LRM5)),
+            MekForgeComponent.MediumLaser => new MediumLaser(),
+            MekForgeComponent.LRM5 => new LRM5(),
+            MekForgeComponent.SRM2 => new SRM2(),
+            MekForgeComponent.MachineGun => new MachineGun(),
+            MekForgeComponent.AC5 => new AC5(),
+            MekForgeComponent.HeatSink => new HeatSink(),
+            MekForgeComponent.Shoulder => new Shoulder(),
+            MekForgeComponent.UpperArmActuator => new UpperArmActuator(),
+            MekForgeComponent.LowerArmActuator => new LowerArmActuator(),
+            MekForgeComponent.HandActuator => new HandActuator(),
+            MekForgeComponent.JumpJet => new JumpJets(),
+            MekForgeComponent.FusionEngine => new Engine("Fusion Engine", 160),
+            MekForgeComponent.Gyro => null,
+            MekForgeComponent.LifeSupport => null,
+            MekForgeComponent.Sensors => null,
+            MekForgeComponent.Cockpit => null,
+            MekForgeComponent.Hip => null,
+            MekForgeComponent.UpperLegActuator => null,
+            MekForgeComponent.LowerLegActuator => null,
+            MekForgeComponent.FootActuator => null,
             _ => throw new NotImplementedException($"{itemName} is not implemented")
         };
     }

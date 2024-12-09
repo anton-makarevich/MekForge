@@ -32,7 +32,7 @@ public class MechFactoryTests
         _mechFactory = new MechFactory(structureValueProvider);
     }
 
-    private Core.Utils.MechData.MechData CreateDummyMechData(Tuple<PartLocation, List<MechDataComponent>>? locationEquipment = null)
+    private Core.Utils.MechData.MechData CreateDummyMechData(Tuple<PartLocation, List<MekForgeComponent>>? locationEquipment = null)
     {
         var data = new Core.Utils.MechData.MechData
         {
@@ -51,10 +51,10 @@ public class MechFactoryTests
                 { PartLocation.LeftLeg, new ArmorLocation { FrontArmor = 8 } },
                 { PartLocation.RightLeg, new ArmorLocation { FrontArmor = 8 } }
             },
-            LocationEquipment = new Dictionary<PartLocation, List<MechDataComponent>>
+            LocationEquipment = new Dictionary<PartLocation, List<MekForgeComponent>>
             {
-                { PartLocation.LeftArm, [MechDataComponent.MachineGun] },
-                { PartLocation.RightArm, [MechDataComponent.UpperArmActuator, MechDataComponent.MediumLaser] }
+                { PartLocation.LeftArm, [MekForgeComponent.MachineGun] },
+                { PartLocation.RightArm, [MekForgeComponent.UpperArmActuator, MekForgeComponent.MediumLaser] }
             },
             Quirks = new Dictionary<string, string>(),
             AdditionalAttributes = new Dictionary<string, string>()
@@ -134,12 +134,12 @@ public class MechFactoryTests
     public void CreateFromMtfData_CorrectlyAddsOneComponentThatOccupiesSeveralSlots()
     {
         // Arrange
-        var locationEquipment = Tuple.Create(PartLocation.LeftTorso, new List<MechDataComponent> 
+        var locationEquipment = Tuple.Create(PartLocation.LeftTorso, new List<MekForgeComponent> 
         { 
-            MechDataComponent.AC5,
-            MechDataComponent.AC5,
-            MechDataComponent.AC5,
-            MechDataComponent.AC5 
+            MekForgeComponent.AC5,
+            MekForgeComponent.AC5,
+            MekForgeComponent.AC5,
+            MekForgeComponent.AC5 
         });
         var mechData = CreateDummyMechData(locationEquipment);
 
@@ -155,16 +155,16 @@ public class MechFactoryTests
     public void CreateFromMtfData_CorrectlyAddsTwoComponentsThatOccupySeveralSlots()
     {
         // Arrange
-        var locationEquipment = Tuple.Create(PartLocation.LeftTorso, new List<MechDataComponent> 
+        var locationEquipment = Tuple.Create(PartLocation.LeftTorso, new List<MekForgeComponent> 
         { 
-            MechDataComponent.AC5,
-            MechDataComponent.AC5,
-            MechDataComponent.AC5,
-            MechDataComponent.AC5,
-            MechDataComponent.AC5,
-            MechDataComponent.AC5,
-            MechDataComponent.AC5,
-            MechDataComponent.AC5 
+            MekForgeComponent.AC5,
+            MekForgeComponent.AC5,
+            MekForgeComponent.AC5,
+            MekForgeComponent.AC5,
+            MekForgeComponent.AC5,
+            MekForgeComponent.AC5,
+            MekForgeComponent.AC5,
+            MekForgeComponent.AC5 
         });
         var mechData = CreateDummyMechData(locationEquipment);
 

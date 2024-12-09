@@ -1,6 +1,6 @@
 namespace Sanet.MekForge.Core.Utils.MechData;
 
-public enum MechDataComponent
+public enum MekForgeComponent
 {
     ISAmmoMG,
     ISAmmoSRM2,

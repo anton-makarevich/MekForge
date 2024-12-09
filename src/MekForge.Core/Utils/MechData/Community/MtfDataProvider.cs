@@ -7,7 +7,7 @@ namespace Sanet.MekForge.Core.Utils.MechData.Community;
 public class MtfDataProvider:IMechDataProvider
 {
     private readonly Dictionary<string, string> _mechData = new();
-    private readonly Dictionary<PartLocation, List<MechDataComponent>> _locationEquipment = new();
+    private readonly Dictionary<PartLocation, List<MekForgeComponent>> _locationEquipment = new();
     private readonly Dictionary<PartLocation, ArmorLocation> _armorValues = new();
 
     public MechData LoadMechFromTextData(IEnumerable<string> lines)
@@ -118,7 +118,7 @@ public class MtfDataProvider:IMechDataProvider
                 {
                     currentLocation = location;
                     if (!_locationEquipment.ContainsKey(location))
-                        _locationEquipment[location] = new List<MechDataComponent>();
+                        _locationEquipment[location] = new List<MekForgeComponent>();
                 }
                 continue;
             }
@@ -131,34 +131,34 @@ public class MtfDataProvider:IMechDataProvider
         }
     }
 
-    private MechDataComponent MapMtfStringToComponent(string mtfString)
+    private MekForgeComponent MapMtfStringToComponent(string mtfString)
     {
         return mtfString switch
         {
-            "IS Ammo AC/5" => MechDataComponent.ISAmmoAC5,
-            "IS Ammo SRM-2" => MechDataComponent.ISAmmoSRM2,
-            "IS Ammo MG - Full" => MechDataComponent.ISAmmoMG,
-            "IS Ammo LRM-5" => MechDataComponent.ISAmmoLRM5,
-            "Medium Laser" => MechDataComponent.MediumLaser,
-            "LRM 5" => MechDataComponent.LRM5,
-            "SRM 2" => MechDataComponent.SRM2,
-            "Machine Gun" => MechDataComponent.MachineGun,
-            "Autocannon/5" => MechDataComponent.AC5,
-            "Heat Sink" => MechDataComponent.HeatSink,
-            "Shoulder" => MechDataComponent.Shoulder,
-            "Upper Arm Actuator" => MechDataComponent.UpperArmActuator,
-            "Lower Arm Actuator" => MechDataComponent.LowerArmActuator,
-            "Hand Actuator" => MechDataComponent.HandActuator,
-            "Jump Jet" => MechDataComponent.JumpJet,
-            "Fusion Engine" => MechDataComponent.FusionEngine,
-            "Gyro" => MechDataComponent.Gyro,
-            "Life Support" => MechDataComponent.LifeSupport,
-            "Sensors" => MechDataComponent.Sensors,
-            "Cockpit" => MechDataComponent.Cockpit,
-            "Hip" => MechDataComponent.Hip,
-            "Upper Leg Actuator" => MechDataComponent.UpperLegActuator,
-            "Lower Leg Actuator" => MechDataComponent.LowerLegActuator,
-            "Foot Actuator" => MechDataComponent.FootActuator,
+            "IS Ammo AC/5" => MekForgeComponent.ISAmmoAC5,
+            "IS Ammo SRM-2" => MekForgeComponent.ISAmmoSRM2,
+            "IS Ammo MG - Full" => MekForgeComponent.ISAmmoMG,
+            "IS Ammo LRM-5" => MekForgeComponent.ISAmmoLRM5,
+            "Medium Laser" => MekForgeComponent.MediumLaser,
+            "LRM 5" => MekForgeComponent.LRM5,
+            "SRM 2" => MekForgeComponent.SRM2,
+            "Machine Gun" => MekForgeComponent.MachineGun,
+            "Autocannon/5" => MekForgeComponent.AC5,
+            "Heat Sink" => MekForgeComponent.HeatSink,
+            "Shoulder" => MekForgeComponent.Shoulder,
+            "Upper Arm Actuator" => MekForgeComponent.UpperArmActuator,
+            "Lower Arm Actuator" => MekForgeComponent.LowerArmActuator,
+            "Hand Actuator" => MekForgeComponent.HandActuator,
+            "Jump Jet" => MekForgeComponent.JumpJet,
+            "Fusion Engine" => MekForgeComponent.FusionEngine,
+            "Gyro" => MekForgeComponent.Gyro,
+            "Life Support" => MekForgeComponent.LifeSupport,
+            "Sensors" => MekForgeComponent.Sensors,
+            "Cockpit" => MekForgeComponent.Cockpit,
+            "Hip" => MekForgeComponent.Hip,
+            "Upper Leg Actuator" => MekForgeComponent.UpperLegActuator,
+            "Lower Leg Actuator" => MekForgeComponent.LowerLegActuator,
+            "Foot Actuator" => MekForgeComponent.FootActuator,
             _ => throw new NotImplementedException($"Unknown MTF component: {mtfString}")
         };
     }
