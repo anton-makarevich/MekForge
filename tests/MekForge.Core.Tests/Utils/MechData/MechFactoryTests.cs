@@ -55,7 +55,8 @@ public class MechFactoryTests
             {
                 { PartLocation.LeftArm, ["Machine Gun"] },
                 { PartLocation.RightArm, ["Upper Arm Actuator", "Medium Laser"] }
-            }
+            },
+            AdditionalAttributes = new Dictionary<string, string>()
         };
         if (locationEquipment != null)
         {

@@ -6,6 +6,7 @@ namespace Sanet.MekForge.Core.Utils.MechData.Community;
 public class MtfDataProvider:IMechDataProvider
 {
     private readonly Dictionary<string, string> _mechData = new();
+    private readonly Dictionary<string, string> _additionalAttributes = new();
     private readonly Dictionary<PartLocation, List<string>> _locationEquipment = new();
     private readonly Dictionary<PartLocation, ArmorLocation> _armorValues = new();
 
@@ -22,7 +23,8 @@ public class MtfDataProvider:IMechDataProvider
             Mass = int.Parse(_mechData["Mass"]),
             WalkMp = int.Parse(Regex.Match(_mechData["Walk MP"], @"\d+").Value),
             ArmorValues = _armorValues,
-            LocationEquipment = _locationEquipment
+            LocationEquipment = _locationEquipment,
+            AdditionalAttributes = _additionalAttributes
         };
     }
 
@@ -45,10 +47,18 @@ public class MtfDataProvider:IMechDataProvider
     {
         PartLocation? currentLocation = null;
         var parsingArmor = false;
+        var parsingAttributes = false;
 
         foreach (var line in lines)
         {
-            if (string.IsNullOrWhiteSpace(line)) continue;
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                if (currentLocation == PartLocation.RightLeg)
+                {
+                    parsingAttributes = true;
+                }
+                continue;
+            }
 
             // Start of armor section
             if (line.StartsWith("Armor:"))
@@ -106,7 +116,20 @@ public class MtfDataProvider:IMechDataProvider
             // Add equipment to current location
             if (currentLocation.HasValue && !line.Contains("-Empty-"))
             {
-                _locationEquipment[currentLocation.Value].Add(line.Trim());
+                if (parsingAttributes)
+                {
+                    var keyValue = line.Split(':', 2);
+                    if (keyValue.Length == 2)
+                    {
+                        var key = keyValue[0].Trim();
+                        var value = keyValue[1].Trim();
+                        _additionalAttributes[key] = value;
+                    }
+                }
+                else
+                {
+                    _locationEquipment[currentLocation.Value].Add(line.Trim());
+                }
             }
         }
     }
