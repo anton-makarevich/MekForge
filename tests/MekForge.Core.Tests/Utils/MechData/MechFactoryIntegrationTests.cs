@@ -10,7 +10,7 @@ public class MechFactoryIntegrationTests
 {   
     private const string MtfToTest = "Resources/Shadow Hawk SHD-2D.mtf";
     
-    [Fact(Skip = "Integration test, run manually.")]
+    [Fact]
     public void CreateFromMtfFile_IntegrationTest()
     {
         // Arrange

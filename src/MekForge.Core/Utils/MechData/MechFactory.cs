@@ -5,6 +5,7 @@ using Sanet.MekForge.Core.Models.Units.Components.Internal.Actuators;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Ballistic;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Energy;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons.Missile;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.Utils.TechRules;
 
@@ -86,15 +87,28 @@ public class MechFactory
             "IS Ammo AC/5" => new Ammo(AmmoType.AC5, _rulesProvider.GetAmmoRounds(AmmoType.AC5)),
             "IS Ammo SRM-2" => new Ammo(AmmoType.SRM2, _rulesProvider.GetAmmoRounds(AmmoType.SRM2)),
             "IS Ammo MG - Full" => new Ammo(AmmoType.MachineGun, _rulesProvider.GetAmmoRounds(AmmoType.MachineGun)),
-            "IS Ammo LRM-5" => new Ammo(AmmoType.LRM5, _rulesProvider.GetAmmoRounds(AmmoType.LRM5)), 
-            "Machine Gun" => new MachineGun(),
+            "IS Ammo LRM-5" => new Ammo(AmmoType.LRM5, _rulesProvider.GetAmmoRounds(AmmoType.LRM5)),
             "Medium Laser" => new MediumLaser(),
+            "LRM 5" => new LRM5(),
+            "SRM 2" => new SRM2(),
+            "Machine Gun" => new MachineGun(),
             "Autocannon/5" => new AC5(),
             "Heat Sink" => new HeatSink(),
             "Shoulder" => new Shoulder(),
             "Upper Arm Actuator" => new UpperArmActuator(),
+            "Lower Arm Actuator" => new LowerArmActuator(),
+            "Hand Actuator" => new HandActuator(),
+            "Jump Jet" => new JumpJets(),
             "Fusion Engine" => new Engine("Fusion Engine", 160),
-            _ => null
+            "Gyro" =>null,// default components, can be skipped
+            "Life Support" => null, 
+            "Sensors" => null,
+            "Cockpit" => null,
+            "Hip"=> null,
+            "Upper Leg Actuator" => null,
+            "Lower Leg Actuator" => null,
+            "Foot Actuator" => null,
+            _ => throw new NotImplementedException($"{itemName} is not implemented")
         };
     }
 }
