@@ -14,7 +14,7 @@ public class MascTests
 
         // Assert
         masc.Name.Should().Be("MASC");
-        masc.SlotsCount.Should().Be(0);
+        masc.Size.Should().Be(1);
         masc.IsDestroyed.Should().BeFalse();
         masc.IsActive.Should().BeFalse(); // MASC starts deactivated
     }

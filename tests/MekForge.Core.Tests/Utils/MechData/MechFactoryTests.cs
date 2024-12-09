@@ -3,6 +3,7 @@ using NSubstitute;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons.Ballistic;
 using Sanet.MekForge.Core.Utils.MechData;
 using Sanet.MekForge.Core.Utils.TechRules;
 
@@ -11,10 +12,11 @@ namespace Sanet.MekForge.Core.Tests.Utils.MechData;
 public class MechFactoryTests
 {
     private readonly MechFactory _mechFactory;
+    private readonly Core.Utils.MechData.MechData _mechData;
 
     public MechFactoryTests()
     {
-        var structureValueProvider = Substitute.For<IStructureValueProvider>();
+        var structureValueProvider = Substitute.For<IRulesProvider>();
         structureValueProvider.GetStructureValues(20).Returns(new Dictionary<PartLocation, int>
         {
             { PartLocation.Head, 8 },
@@ -26,13 +28,13 @@ public class MechFactoryTests
             { PartLocation.LeftLeg, 8 },
             { PartLocation.RightLeg, 8 }
         });
-
-        _mechFactory = new MechFactory(CreateDummyMechData(), structureValueProvider);
+        _mechData = CreateDummyMechData();
+        _mechFactory = new MechFactory(structureValueProvider);
     }
 
-    private Core.Utils.MechData.MechData CreateDummyMechData()
+    private Core.Utils.MechData.MechData CreateDummyMechData(Tuple<PartLocation, List<string>>? locationEquipment = null)
     {
-        return new Core.Utils.MechData.MechData
+        var data = new Core.Utils.MechData.MechData
         {
             Chassis = "Locust",
             Model = "LCT-1V",
@@ -53,15 +55,21 @@ public class MechFactoryTests
             {
                 { PartLocation.LeftArm, ["Machine Gun"] },
                 { PartLocation.RightArm, ["Upper Arm Actuator", "Medium Laser"] }
-            }
+            },
+            AdditionalAttributes = new Dictionary<string, string>()
         };
+        if (locationEquipment != null)
+        {
+            data.LocationEquipment[locationEquipment.Item1] = locationEquipment.Item2;
+        }
+        return data;
     }
 
     [Fact]
     public void CreateFromMtfData_LocustMtf_CreatesCorrectMech()
     {
         // Act
-        var mech = _mechFactory.Create();
+        var mech = _mechFactory.Create(_mechData);
 
         // Assert
         mech.Chassis.Should().Be("Locust");
@@ -76,7 +84,7 @@ public class MechFactoryTests
     public void CreateFromMtfData_LocustMtf_HasCorrectArmor()
     {
         // Act
-        var mech = _mechFactory.Create();
+        var mech = _mechFactory.Create(_mechData);
 
         // Assert
         mech.Parts.First(p => p.Location == PartLocation.LeftArm).CurrentArmor.Should().Be(4);
@@ -93,7 +101,7 @@ public class MechFactoryTests
     public void CreateFromMtfData_LocustMtf_HasCorrectWeapons()
     {
         // Act
-        var mech = _mechFactory.Create();
+        var mech = _mechFactory.Create(_mechData);
 
         // Assert
         // Left Arm
@@ -110,7 +118,7 @@ public class MechFactoryTests
     {
 
         // Act
-        var mech = _mechFactory.Create();
+        var mech = _mechFactory.Create(_mechData);
 
         // Assert
         var leftArm = mech.Parts.First(p => p.Location == PartLocation.LeftArm);
@@ -119,5 +127,52 @@ public class MechFactoryTests
         var rightArm = mech.Parts.First(p => p.Location == PartLocation.RightArm);
         rightArm.GetComponents<Component>().Should().Contain(a => a.Name == "Shoulder");
         rightArm.GetComponents<Component>().Should().Contain(a => a.Name == "Upper Arm Actuator");
+    }
+    
+    [Fact]
+    public void CreateFromMtfData_CorrectlyAddsOneComponentThatOccupiesSeveralSlots()
+    {
+        // Arrange
+        var locationEquipment = Tuple.Create(PartLocation.LeftTorso, new List<string> 
+        { 
+            "Autocannon/5",
+            "Autocannon/5",
+            "Autocannon/5",
+            "Autocannon/5" 
+        });
+        var mechData = CreateDummyMechData(locationEquipment);
+
+        // Act
+        var mech = _mechFactory.Create(mechData);
+
+        // Assert
+        var leftTorso = mech.Parts.First(p => p.Location == PartLocation.LeftTorso);
+        var weapon = leftTorso.GetComponents<AC5>();
+        weapon.Count().Should().Be(1); 
+    }
+    [Fact]
+    public void CreateFromMtfData_CorrectlyAddsTwoComponentsThatOccupySeveralSlots()
+    {
+        // Arrange
+        var locationEquipment = Tuple.Create(PartLocation.LeftTorso, new List<string> 
+        { 
+            "Autocannon/5",
+            "Autocannon/5",
+            "Autocannon/5",
+            "Autocannon/5",
+            "Autocannon/5",
+            "Autocannon/5",
+            "Autocannon/5",
+            "Autocannon/5" 
+        });
+        var mechData = CreateDummyMechData(locationEquipment);
+
+        // Act
+        var mech = _mechFactory.Create(mechData);
+
+        // Assert
+        var leftTorso = mech.Parts.First(p => p.Location == PartLocation.LeftTorso);
+        var weapon = leftTorso.GetComponents<AC5>();
+        weapon.Count().Should().Be(2); 
     }
 }

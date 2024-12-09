@@ -1,28 +1,30 @@
 using System.Text.RegularExpressions;
 using Sanet.MekForge.Core.Models.Units;
-using Sanet.MekForge.Core.Utils.MechData;
 
-namespace Sanet.MekForge.Core.Utils.Community;
+namespace Sanet.MekForge.Core.Utils.MechData.Community;
 
-public class MtfParser
+public class MtfDataProvider:IMechDataProvider
 {
     private readonly Dictionary<string, string> _mechData = new();
+    private readonly Dictionary<string, string> _additionalAttributes = new();
     private readonly Dictionary<PartLocation, List<string>> _locationEquipment = new();
     private readonly Dictionary<PartLocation, ArmorLocation> _armorValues = new();
 
-    public MechData.MechData Parse(IEnumerable<string> lines)
+    public MechData LoadMechFromTextData(IEnumerable<string> lines)
     {
-        ParseBasicData(lines);
-        ParseLocationData(lines);
+        var listLines = lines.ToList();
+        ParseBasicData(listLines);
+        ParseLocationData(listLines);
         
-        return new MechData.MechData
+        return new MechData
         {
             Chassis = _mechData["chassis"],
             Model = _mechData["model"],
             Mass = int.Parse(_mechData["Mass"]),
             WalkMp = int.Parse(Regex.Match(_mechData["Walk MP"], @"\d+").Value),
             ArmorValues = _armorValues,
-            LocationEquipment = _locationEquipment
+            LocationEquipment = _locationEquipment,
+            AdditionalAttributes = _additionalAttributes
         };
     }
 
@@ -34,23 +36,29 @@ public class MtfParser
                 continue;
 
             var colonIndex = line.IndexOf(':');
-            if (colonIndex > 0)
-            {
-                var key = line[..colonIndex].Trim();
-                var value = line[(colonIndex + 1)..].Trim();
-                _mechData[key] = value;
-            }
+            if (colonIndex <= 0) continue;
+            var key = line[..colonIndex].Trim();
+            var value = line[(colonIndex + 1)..].Trim();
+            _mechData[key] = value;
         }
     }
 
     private void ParseLocationData(IEnumerable<string> lines)
     {
         PartLocation? currentLocation = null;
-        bool parsingArmor = false;
+        var parsingArmor = false;
+        var parsingAttributes = false;
 
         foreach (var line in lines)
         {
-            if (string.IsNullOrWhiteSpace(line)) continue;
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                if (currentLocation == PartLocation.RightLeg)
+                {
+                    parsingAttributes = true;
+                }
+                continue;
+            }
 
             // Start of armor section
             if (line.StartsWith("Armor:"))
@@ -108,7 +116,20 @@ public class MtfParser
             // Add equipment to current location
             if (currentLocation.HasValue && !line.Contains("-Empty-"))
             {
-                _locationEquipment[currentLocation.Value].Add(line.Trim());
+                if (parsingAttributes)
+                {
+                    var keyValue = line.Split(':', 2);
+                    if (keyValue.Length == 2)
+                    {
+                        var key = keyValue[0].Trim();
+                        var value = keyValue[1].Trim();
+                        _additionalAttributes[key] = value;
+                    }
+                }
+                else
+                {
+                    _locationEquipment[currentLocation.Value].Add(line.Trim());
+                }
             }
         }
     }

@@ -11,8 +11,10 @@ public abstract class Weapon : Component
         int longRange,
         WeaponType type,
         int battleValue,
+        int size = 1,
+        int clusters = 1,
         AmmoType ammoType = AmmoType.None) 
-        : base(name, [])
+        : base(name, [],size)
     {
         Damage = damage;
         Heat = heat;
@@ -23,7 +25,10 @@ public abstract class Weapon : Component
         Type = type;
         BattleValue = battleValue;
         AmmoType = ammoType;
+        Clusters = clusters;
     }
+
+    public int Clusters { get; }
 
     public int Damage { get; }
     public int Heat { get; }

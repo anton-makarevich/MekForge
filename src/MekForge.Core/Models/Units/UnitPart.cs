@@ -25,7 +25,7 @@ public abstract class UnitPart
     
     // Slots management
     public int TotalSlots { get; }
-    public int UsedSlots => _components.Sum(c => c.SlotsCount);
+    public int UsedSlots => _components.Sum(c => c.Size);
     public int AvailableSlots => TotalSlots - UsedSlots;
     public bool IsDestroyed => CurrentStructure <= 0;
     
@@ -33,25 +33,20 @@ public abstract class UnitPart
     private readonly List<Component> _components;
     public IReadOnlyList<Component> Components => _components;
 
-    private int FindMountLocation()
+    private int FindMountLocation(int size)
     {
-        // Check if any of the required slots are already occupied
-        var occupiedSlots = _components.Where(c => c.IsMounted)
-                                    .SelectMany(c => c.MountedAtSlots)
-                                    .ToHashSet();
+        var occupiedSlots = _components
+            .Where(c => c.IsMounted)
+            .SelectMany(c => c.MountedAtSlots)
+            .ToHashSet();
 
-        // Here find the first available slot
-        for (var i = 0; i < TotalSlots; i++)
-        {
-            if (!occupiedSlots.Contains(i))
-                return i;
-        }
-        return -1;
+        return Enumerable.Range(0, TotalSlots - size + 1)
+            .FirstOrDefault(i => Enumerable.Range(i, size).All(slot => !occupiedSlots.Contains(slot)), -1);
     }
     
     private bool CanAddComponent(Component component)
     {
-        if (component.SlotsCount > AvailableSlots)
+        if (component.Size > AvailableSlots)
             return false;
 
         // Check if any required slots would be out of bounds
@@ -79,13 +74,13 @@ public abstract class UnitPart
             return true;
         }
 
-        var slotToMount = FindMountLocation();
+        var slotToMount = FindMountLocation(component.Size);
         if (slotToMount == -1)
         {
             return false;
         }
 
-        component.Mount([slotToMount]);
+        component.Mount(Enumerable.Range(slotToMount, component.Size).ToArray());
         _components.Add(component);
         return true;
     }

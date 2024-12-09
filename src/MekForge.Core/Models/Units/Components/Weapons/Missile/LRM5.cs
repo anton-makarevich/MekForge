@@ -1,19 +1,18 @@
 namespace Sanet.MekForge.Core.Models.Units.Components.Weapons.Missile;
 
-public class LRM10 : Weapon
+public class LRM5 : Weapon
 {
-    public LRM10() : base(
+    public LRM5() : base(
         name: "LRM-10",
-        damage: 10, // 1 damage per missile, 10 missiles
-        heat: 4,
+        damage: 5, // 1 damage per missile, 5 missiles
+        heat: 2,
         minimumRange: 6,
         shortRange: 7,
         mediumRange: 14,
         longRange: 21,
         type: WeaponType.Missile,
-        battleValue: 90,
-        clusters:2,
-        ammoType: AmmoType.LRM10)
+        battleValue: 45,
+        ammoType: AmmoType.LRM5)
     {
     }
 }

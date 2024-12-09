@@ -16,7 +16,7 @@ public class AmmoTests
         ammo.Type.Should().Be(AmmoType.MachineGun);
         ammo.RemainingShots.Should().Be(200);
         ammo.MountedAtSlots.Should().HaveCount(0);
-        ammo.SlotsCount.Should().Be(0);
+        ammo.Size.Should().Be(1);
     }
 
     [Fact]

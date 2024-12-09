@@ -1,3 +1,4 @@
+using System.Drawing;
 using FluentAssertions;
 using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Models.Units.Components;
@@ -8,7 +9,7 @@ public class ComponentTests
 {
     private class TestComponent : Component
     {
-        public TestComponent(string name, int[] slots) : base(name, slots)
+        public TestComponent(string name, int[] slots, int size=1) : base(name, slots, size)
         {
         }
     }
@@ -75,6 +76,7 @@ public class ComponentTests
 
         // Assert
         component.IsDestroyed.Should().BeTrue();
+        component.Hits.Should().Be(1);
     }
 
     [Fact]
@@ -97,7 +99,7 @@ public class ComponentTests
     public void IsMounted_ReturnsTrueWhenMountedAtSlotsNotEmpty()
     {
         // Arrange
-        var component = new TestComponent("Test Component", []);
+        var component = new TestComponent("Test Component", [],2);
         
         // Act & Assert
         component.IsMounted.Should().BeFalse(); // Initially not mounted
@@ -113,7 +115,7 @@ public class ComponentTests
     public void Mount_IgnoresIfAlreadyMounted()
     {
         // Arrange
-        var component = new TestComponent("Test Component", []);
+        var component = new TestComponent("Test Component", [],2);
         component.Mount([0, 1]);
         var initialSlots = component.MountedAtSlots;
 
@@ -122,6 +124,18 @@ public class ComponentTests
 
         // Assert
         component.MountedAtSlots.Should().BeEquivalentTo(initialSlots); // Should keep original slots
+    }
+    
+    [Fact]
+    public void Mount_ComponentWithWrongSize_Throws()
+    {
+        // Arrange
+        var component = new TestComponent("Test Component", [],2);
+        
+        // Act & Assert
+        var exception = Assert.Throws<ComponentException>(() => component.Mount([2]));// Try to mount 
+        exception.Message.Should().Be("Component Test Component requires 2 slots.");
+        
     }
 
     [Fact]

@@ -13,7 +13,7 @@ public class JumpJetsFacts
 
         // Assert
         jumpJets.Name.Should().Be("Jump Jets");
-        jumpJets.SlotsCount.Should().Be(0);
+        jumpJets.Size.Should().Be(1);
         jumpJets.JumpMp.Should().Be(1);
         jumpJets.IsDestroyed.Should().BeFalse();
     }
@@ -26,7 +26,7 @@ public class JumpJetsFacts
 
         // Assert
         jumpJets.Name.Should().Be("Jump Jets");
-        jumpJets.SlotsCount.Should().Be(0);
+        jumpJets.Size.Should().Be(1);
         jumpJets.JumpMp.Should().Be(2);
         jumpJets.IsDestroyed.Should().BeFalse();
     }

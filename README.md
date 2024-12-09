@@ -11,6 +11,7 @@ MekForge is an open-source tactical combat game featuring giant walking war mach
 - Hex map generator with the simplest terrain types (clear, light and heavy wood) (MegaMek assets)  
 - Cross-platform support (Windows, Linux, macOS, Web, Android, iOS)
 - Responsive UI built with AvaloniaUI
+- Importing mechs defined in MTF format 
 
 ### Planned
 - Single-player combat against AI opponents

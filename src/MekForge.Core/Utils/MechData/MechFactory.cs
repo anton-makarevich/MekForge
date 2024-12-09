@@ -2,48 +2,47 @@ using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Engines;
 using Sanet.MekForge.Core.Models.Units.Components.Internal.Actuators;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Ballistic;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Energy;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons.Missile;
 using Sanet.MekForge.Core.Models.Units.Mechs;
-using Sanet.MekForge.Core.Utils.Community;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Utils.MechData;
 
 public class MechFactory
 {
-    private readonly MechData _mechData;
-    private readonly IStructureValueProvider _structureValueProvider;
+    private readonly IRulesProvider _rulesProvider;
 
-    public MechFactory(MechData mechData, IStructureValueProvider structureValueProvider)
+    public MechFactory( IRulesProvider rulesProvider)
     {
-        _mechData = mechData;
-        _structureValueProvider = structureValueProvider;
+        _rulesProvider = rulesProvider;
     }
 
-    public Mech Create()
+    public Mech Create(MechData mechData)
     {
         
         // Create parts with appropriate armor and structure
-        var parts = CreateParts(_mechData.ArmorValues, _structureValueProvider, _mechData.Mass);
+        var parts = CreateParts(mechData.ArmorValues, _rulesProvider, mechData.Mass);
         
         // Create the mech
         var mech = new Mech(
-            _mechData.Chassis,
-            _mechData.Model,
-            _mechData.Mass,
-            _mechData.WalkMp,
+            mechData.Chassis,
+            mechData.Model,
+            mechData.Mass,
+            mechData.WalkMp,
             parts);
 
         // Add equipment to parts
-        AddEquipmentToParts(mech, _mechData.LocationEquipment);
+        AddEquipmentToParts(mech, mechData.LocationEquipment);
 
         return mech;
     }
 
-    private static List<UnitPart> CreateParts(Dictionary<PartLocation, ArmorLocation> armorValues, IStructureValueProvider structureValueProvider, int tonnage)
+    private static List<UnitPart> CreateParts(Dictionary<PartLocation, ArmorLocation> armorValues, IRulesProvider rulesProvider, int tonnage)
     {
-        var structureValues = structureValueProvider.GetStructureValues(tonnage);
+        var structureValues = rulesProvider.GetStructureValues(tonnage);
         var parts = new List<UnitPart>();
         foreach (var (location, armor) in armorValues)
         {
@@ -61,28 +60,55 @@ public class MechFactory
         return parts;
     }
 
-    private static void AddEquipmentToParts(Mech mech, Dictionary<PartLocation, List<string>> locationEquipment)
+    private void AddEquipmentToParts(Mech mech, Dictionary<PartLocation, List<string>> locationEquipment)
     {
         foreach (var (location, equipment) in locationEquipment)
         {
             var part = mech.Parts.First(p => p.Location == location);
+            var componentCounts = new Dictionary<string, int>(); // Track component counts
+
             foreach (var item in equipment)
             {
+                componentCounts.TryAdd(item, 0);
+                componentCounts[item]++;
+
                 var component = CreateComponent(item);
-                if (component != null)
-                    part.TryAddComponent(component);
+                if (component == null || componentCounts[item] < component.Size) continue;
+                part.TryAddComponent(component);
+                componentCounts[item] = 0; // Reset count after adding
             }
         }
     }
 
-    private static Component? CreateComponent(string itemName) => itemName switch
+    private Component? CreateComponent(string itemName)
     {
-        "Machine Gun" => new MachineGun(),
-        "Medium Laser" => new MediumLaser(),
-        "Heat Sink" => new HeatSink(),
-        "Shoulder" => new Shoulder(),
-        "Upper Arm Actuator" => new UpperArmActuator(),
-        "Fusion Engine" => new Engine("Fusion Engine", 160),
-        _ => null
-    };
+        return itemName switch
+        {
+            "IS Ammo AC/5" => new Ammo(AmmoType.AC5, _rulesProvider.GetAmmoRounds(AmmoType.AC5)),
+            "IS Ammo SRM-2" => new Ammo(AmmoType.SRM2, _rulesProvider.GetAmmoRounds(AmmoType.SRM2)),
+            "IS Ammo MG - Full" => new Ammo(AmmoType.MachineGun, _rulesProvider.GetAmmoRounds(AmmoType.MachineGun)),
+            "IS Ammo LRM-5" => new Ammo(AmmoType.LRM5, _rulesProvider.GetAmmoRounds(AmmoType.LRM5)),
+            "Medium Laser" => new MediumLaser(),
+            "LRM 5" => new LRM5(),
+            "SRM 2" => new SRM2(),
+            "Machine Gun" => new MachineGun(),
+            "Autocannon/5" => new AC5(),
+            "Heat Sink" => new HeatSink(),
+            "Shoulder" => new Shoulder(),
+            "Upper Arm Actuator" => new UpperArmActuator(),
+            "Lower Arm Actuator" => new LowerArmActuator(),
+            "Hand Actuator" => new HandActuator(),
+            "Jump Jet" => new JumpJets(),
+            "Fusion Engine" => new Engine("Fusion Engine", 160),
+            "Gyro" =>null,// default components, can be skipped
+            "Life Support" => null, 
+            "Sensors" => null,
+            "Cockpit" => null,
+            "Hip"=> null,
+            "Upper Leg Actuator" => null,
+            "Lower Leg Actuator" => null,
+            "Foot Actuator" => null,
+            _ => throw new NotImplementedException($"{itemName} is not implemented")
+        };
+    }
 }

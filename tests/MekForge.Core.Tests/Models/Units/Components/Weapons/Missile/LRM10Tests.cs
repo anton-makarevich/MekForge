@@ -14,11 +14,12 @@ public class Lrm10Tests
 
         // Assert
         lrm10.Name.Should().Be("LRM-10");
-        lrm10.SlotsCount.Should().Be(0);
+        lrm10.Size.Should().Be(1);
         lrm10.Heat.Should().Be(4);
         lrm10.Damage.Should().Be(10); // Total damage for all missiles
         lrm10.BattleValue.Should().Be(90);
         lrm10.AmmoType.Should().Be(AmmoType.LRM10);
+        lrm10.Clusters.Should().Be(2);
         lrm10.IsDestroyed.Should().BeFalse();
     }
 

@@ -12,6 +12,7 @@ public class AC5 : Weapon
         longRange: 18,
         type: WeaponType.Ballistic,
         battleValue: 123,
+        size: 4,
         ammoType: AmmoType.AC5)
     {
     }

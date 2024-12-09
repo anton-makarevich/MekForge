@@ -2,12 +2,7 @@ namespace Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
 public class Ammo : Component
 {
-    private const int ShotsPerTon = 200;
     private int _remainingShots;
-
-    public Ammo(AmmoType type) : this(type, ShotsPerTon)
-    {
-    }
 
     public Ammo(AmmoType type, int initialShots) : base($"{type} Ammo", [])
     {
