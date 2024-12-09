@@ -40,7 +40,7 @@ public class MechFactory
         return mech;
     }
 
-    private static List<UnitPart> CreateParts(Dictionary<PartLocation, ArmorLocation> armorValues, IRulesProvider rulesProvider, int tonnage)
+    private List<UnitPart> CreateParts(Dictionary<PartLocation, ArmorLocation> armorValues, IRulesProvider rulesProvider, int tonnage)
     {
         var structureValues = rulesProvider.GetStructureValues(tonnage);
         var parts = new List<UnitPart>();
@@ -60,12 +60,12 @@ public class MechFactory
         return parts;
     }
 
-    private void AddEquipmentToParts(Mech mech, Dictionary<PartLocation, List<string>> locationEquipment)
+    private void AddEquipmentToParts(Mech mech, Dictionary<PartLocation, List<MechDataComponent>> locationEquipment)
     {
         foreach (var (location, equipment) in locationEquipment)
         {
             var part = mech.Parts.First(p => p.Location == location);
-            var componentCounts = new Dictionary<string, int>(); // Track component counts
+            var componentCounts = new Dictionary<MechDataComponent, int>(); // Track component counts
 
             foreach (var item in equipment)
             {
@@ -80,34 +80,34 @@ public class MechFactory
         }
     }
 
-    private Component? CreateComponent(string itemName)
+    private Component? CreateComponent(MechDataComponent itemName)
     {
         return itemName switch
         {
-            "IS Ammo AC/5" => new Ammo(AmmoType.AC5, _rulesProvider.GetAmmoRounds(AmmoType.AC5)),
-            "IS Ammo SRM-2" => new Ammo(AmmoType.SRM2, _rulesProvider.GetAmmoRounds(AmmoType.SRM2)),
-            "IS Ammo MG - Full" => new Ammo(AmmoType.MachineGun, _rulesProvider.GetAmmoRounds(AmmoType.MachineGun)),
-            "IS Ammo LRM-5" => new Ammo(AmmoType.LRM5, _rulesProvider.GetAmmoRounds(AmmoType.LRM5)),
-            "Medium Laser" => new MediumLaser(),
-            "LRM 5" => new LRM5(),
-            "SRM 2" => new SRM2(),
-            "Machine Gun" => new MachineGun(),
-            "Autocannon/5" => new AC5(),
-            "Heat Sink" => new HeatSink(),
-            "Shoulder" => new Shoulder(),
-            "Upper Arm Actuator" => new UpperArmActuator(),
-            "Lower Arm Actuator" => new LowerArmActuator(),
-            "Hand Actuator" => new HandActuator(),
-            "Jump Jet" => new JumpJets(),
-            "Fusion Engine" => new Engine("Fusion Engine", 160),
-            "Gyro" =>null,// default components, can be skipped
-            "Life Support" => null, 
-            "Sensors" => null,
-            "Cockpit" => null,
-            "Hip"=> null,
-            "Upper Leg Actuator" => null,
-            "Lower Leg Actuator" => null,
-            "Foot Actuator" => null,
+            MechDataComponent.IsAmmoAC5 => new Ammo(AmmoType.AC5, _rulesProvider.GetAmmoRounds(AmmoType.AC5)),
+            MechDataComponent.IsAmmoSRM2 => new Ammo(AmmoType.SRM2, _rulesProvider.GetAmmoRounds(AmmoType.SRM2)),
+            MechDataComponent.IsAmmoMG => new Ammo(AmmoType.MachineGun, _rulesProvider.GetAmmoRounds(AmmoType.MachineGun)),
+            MechDataComponent.IsAmmoLRM5 => new Ammo(AmmoType.LRM5, _rulesProvider.GetAmmoRounds(AmmoType.LRM5)),
+            MechDataComponent.MediumLaser => new MediumLaser(),
+            MechDataComponent.LRM5 => new LRM5(),
+            MechDataComponent.SRM2 => new SRM2(),
+            MechDataComponent.MachineGun => new MachineGun(),
+            MechDataComponent.AC5 => new AC5(),
+            MechDataComponent.HeatSink => new HeatSink(),
+            MechDataComponent.Shoulder => new Shoulder(),
+            MechDataComponent.UpperArmActuator => new UpperArmActuator(),
+            MechDataComponent.LowerArmActuator => new LowerArmActuator(),
+            MechDataComponent.HandActuator => new HandActuator(),
+            MechDataComponent.JumpJet => new JumpJets(),
+            MechDataComponent.FusionEngine => new Engine("Fusion Engine", 160),
+            MechDataComponent.Gyro => null,
+            MechDataComponent.LifeSupport => null,
+            MechDataComponent.Sensors => null,
+            MechDataComponent.Cockpit => null,
+            MechDataComponent.Hip => null,
+            MechDataComponent.UpperLegActuator => null,
+            MechDataComponent.LowerLegActuator => null,
+            MechDataComponent.FootActuator => null,
             _ => throw new NotImplementedException($"{itemName} is not implemented")
         };
     }
