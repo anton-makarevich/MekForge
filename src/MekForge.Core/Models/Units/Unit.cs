@@ -50,8 +50,19 @@ public abstract class Unit
     }
 
     // Location and facing
-    public HexCoordinates Position { get; set; }
+    public HexCoordinates? Position { get; private set; }
     public int Facing { get; set; } // 0-5 for hex facings
+
+    public bool IsDeployed => Position != null;
+
+    public void Deploy(HexCoordinates coordinate)
+    {
+        if (Position != null)
+        {
+            throw new InvalidOperationException($"{Name} is already deployed.");
+        }
+        Position = coordinate;
+    }
 
     // Heat management
     public int CurrentHeat { get; protected set; }
