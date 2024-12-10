@@ -54,6 +54,8 @@ public class NewGameViewModel : BaseViewModel
     }
 
     public bool IsLightWoodsEnabled => _forestCoverage>0;
+    
+    public bool CanStartGame => SelectedUnit != null;
 
     public ICommand StartGameCommand => new AsyncCommand(async () =>
     {
@@ -80,7 +82,11 @@ public class NewGameViewModel : BaseViewModel
     public Unit? SelectedUnit
     {
         get => _selectedUnit;
-        set => SetProperty(ref _selectedUnit, value);
+        set
+        {
+            SetProperty(ref _selectedUnit, value);
+            NotifyPropertyChanged(nameof(CanStartGame));
+        }
     }
 
     public void InitializeUnits(List<Unit> units)
