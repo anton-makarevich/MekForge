@@ -8,7 +8,7 @@ namespace Sanet.MekForge.Core.Tests.Utils.MechData.Community;
 
 public class MtfDataProviderTests
 {
-    private readonly string[] _locustMtfData = File.ReadAllLines("Resources/Mechs/Locust LCT-1V.mtf");
+    private readonly string[] _locustMtfData = File.ReadAllLines("Resources/Mechs/LCT-1V.mtf");
 
     [Fact]
     public void Parse_LocustMtf_ReturnsCorrectBasicData()

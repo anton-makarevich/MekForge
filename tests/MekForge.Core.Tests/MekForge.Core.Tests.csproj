@@ -31,12 +31,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Resources\Mechs\Locust LCT-1V.mtf">
+    <Content Include="..\..\src\MekForge.Avalonia\MekForge.Avalonia\Resources\Units\Mechs\LCT-1V.mtf">
+      <Link>Resources\Mechs\LCT-1V.mtf</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\Mechs\Shadow Hawk SHD-2D.mtf">
+    </Content>
+    <Content Include="..\..\src\MekForge.Avalonia\MekForge.Avalonia\Resources\Units\Mechs\SHD-2D.mtf">
+      <Link>Resources\Mechs\SHD-2D.mtf</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
   </ItemGroup>
 
 </Project>

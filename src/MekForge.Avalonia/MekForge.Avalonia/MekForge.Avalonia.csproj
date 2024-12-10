@@ -28,4 +28,13 @@
     <ItemGroup>
       <ProjectReference Include="..\..\MekForge.Core\MekForge.Core.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Resources\Units\Mechs\LCT-1V.mtf">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Units\Mechs\SHD-2D.mtf">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
 </Project>

@@ -1,7 +1,9 @@
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 using AsyncAwaitBestPractices.MVVM;
 using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Terrains;
+using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MVVM.Core.ViewModels;
 
@@ -18,6 +20,10 @@ public class NewGameViewModel : BaseViewModel
     public string MapHeightLabel => "Map Height";
     public string ForestCoverageLabel => "Forest Coverage";
     public string LightWoodsLabel => "Light Woods Percentage";
+    
+    private ObservableCollection<Unit> _availableUnits=[];
+    
+    private Unit? _selectedUnit;
 
     public int MapWidth
     {
@@ -64,4 +70,22 @@ public class NewGameViewModel : BaseViewModel
 
         await NavigationService.NavigateToViewModelAsync(battleMapViewModel);
     });
+
+    public ObservableCollection<Unit> AvailableUnits
+    {
+        get => _availableUnits;
+        set => SetProperty(ref _availableUnits, value);
+    }
+
+    public Unit? SelectedUnit
+    {
+        get => _selectedUnit;
+        set => SetProperty(ref _selectedUnit, value);
+    }
+
+    public void InitializeUnits(List<Unit> units)
+    {
+        // Logic to load available units for selection
+        AvailableUnits = new ObservableCollection<Unit>(units);
+    }
 }
