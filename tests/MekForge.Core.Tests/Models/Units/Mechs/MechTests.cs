@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Energy;
@@ -10,17 +11,17 @@ public class MechTests
 {
     private static List<UnitPart> CreateBasicPartsData()
     {
-        return new List<UnitPart>
-        {
-            new Head( 9, 3),
-            new CenterTorso( 31, 10, 6),
+        return
+        [
+            new Head(9, 3),
+            new CenterTorso(31, 10, 6),
             new SideTorso(PartLocation.LeftTorso, 25, 8, 6),
             new SideTorso(PartLocation.RightTorso, 25, 8, 6),
             new Arm(PartLocation.RightArm, 17, 6),
             new Arm(PartLocation.LeftArm, 17, 6),
             new Leg(PartLocation.RightLeg, 25, 8),
             new Leg(PartLocation.LeftLeg, 25, 8)
-        };
+        ];
     }
 
     [Fact]
@@ -237,6 +238,36 @@ public class MechTests
         // Assert
         mech.Status.Should().Be(UnitStatus.Destroyed);
     }
+
+    [Fact]
+    public void Deploy_SetsPosition_WhenNotDeployed()
+    {
+        // Arrange
+        var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
+        var coordinate = new HexCoordinates(1, 1);
+
+        // Act
+        mech.Deploy(coordinate);
+
+        // Assert
+        mech.Position.Should().Be(coordinate);
+        mech.IsDeployed.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Deploy_ThrowsException_WhenAlreadyDeployed()
+    {
+        // Arrange
+        var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
+        var coordinate = new HexCoordinates(1, 1);
+        mech.Deploy(coordinate);
+
+        // Act
+        var act = () => mech.Deploy(new HexCoordinates(2, 2));
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>().WithMessage("Test TST-1A is already deployed.");
+    }
 }
 
 // Helper extension for testing protected methods
@@ -246,6 +277,6 @@ public static class MechTestExtensions
     {
         var method = typeof(Mech).GetMethod("GetTransferLocation",
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        return (PartLocation?)method?.Invoke(mech, new object[] { location });
+        return (PartLocation?)method?.Invoke(mech, [location]);
     }
 }
