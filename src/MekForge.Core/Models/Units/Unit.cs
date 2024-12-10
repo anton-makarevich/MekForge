@@ -4,7 +4,7 @@ namespace Sanet.MekForge.Core.Models.Units;
 
 public abstract class Unit
 {
-    private readonly List<UnitPart> _parts; 
+    protected readonly List<UnitPart> _parts; 
     protected Unit(string chassis, string model, int tonnage, int walkMp,
         IEnumerable<UnitPart> parts)
     {
@@ -20,6 +20,8 @@ public abstract class Unit
     public string Model { get; }
     public string Name { get; }
     public int Tonnage { get; }
+    
+    public UnitStatus Status { get; protected set; }
 
     public WeightClass Class => Tonnage switch
     {
@@ -60,6 +62,23 @@ public abstract class Unit
 
     // Methods
     public abstract int CalculateBattleValue();
+    
+    // Status management
+    public virtual void Startup()
+    {
+        if (Status is UnitStatus.Shutdown or UnitStatus.PoweredDown)
+        {
+            Status = UnitStatus.Active;
+        }
+    }
+
+    public virtual void Shutdown()
+    {
+        if (Status == UnitStatus.Active)
+        {
+            Status = UnitStatus.Shutdown;
+        }
+    }
     
     public virtual void ApplyDamage(int damage, UnitPart targetPart)
     {
