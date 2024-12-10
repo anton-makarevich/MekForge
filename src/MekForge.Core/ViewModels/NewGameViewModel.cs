@@ -69,6 +69,7 @@ public class NewGameViewModel : BaseViewModel
 
         var battleMapViewModel = NavigationService.GetViewModel<BattleMapViewModel>();
         battleMapViewModel.BattleMap = map;
+        battleMapViewModel.Unit = SelectedUnit;
 
         await NavigationService.NavigateToViewModelAsync(battleMapViewModel);
     });

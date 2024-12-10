@@ -1,4 +1,5 @@
 using Sanet.MekForge.Core.Models;
+using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services;
 using Sanet.MVVM.Core.ViewModels;
 
@@ -8,6 +9,7 @@ public class BattleMapViewModel : BaseViewModel
 {
     private BattleMap? _battleMap;
     private readonly IImageService _imageService;
+    private static Unit? _unit;
 
     public BattleMapViewModel(IImageService imageService)
     {
@@ -21,4 +23,10 @@ public class BattleMapViewModel : BaseViewModel
     }
 
     public IImageService ImageService => _imageService;
+
+    public Unit? Unit
+    {
+        get => _unit;
+        set => SetProperty(ref _unit, value);
+    }
 }
