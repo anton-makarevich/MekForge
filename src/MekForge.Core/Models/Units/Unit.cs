@@ -122,4 +122,9 @@ public abstract class Unit
     {
         return GetAllComponents<T>().Any(c => c.IsActive && !c.IsDestroyed);
     }
+
+    public void MoveTo(HexCoordinates coordinates)
+    {
+        Position = coordinates;
+    }
 }

@@ -54,12 +54,22 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
         var hexToDeploy = battleMap.GetHexes().FirstOrDefault();
         if (hexToDeploy == null) return;
         ViewModel.Unit.Deploy(hexToDeploy.Coordinates);
-        unitControl.Update();
     }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         _lastPointerPosition = e.GetPosition(this);
+        // this is temporary for testing only
+        // Assuming BattleMap is the name of your container for hexes
+        var selectedHex = MapCanvas.Children
+            .OfType<HexControl>() // Filter to HexControl types
+            .FirstOrDefault(hex => hex.HighlightType == HexHighlightType.Selected); // Find the first selected hex
+
+        if (selectedHex != null && ViewModel!=null)
+        {
+            // Assign the hex coordinates to the ViewModel's unit position
+            ViewModel.Unit?.MoveTo(selectedHex.Hex.Coordinates);
+        }
     }
 
     private void OnPointerMoved(object? sender, PointerEventArgs e)
@@ -77,12 +87,10 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
     {
         var delta = e.Delta.Y * ScaleStep;
         var newScale = _mapScaleTransform.ScaleX + delta;
-        
-        if (newScale >= MinScale && newScale <= MaxScale)
-        {
-            _mapScaleTransform.ScaleX = newScale;
-            _mapScaleTransform.ScaleY = newScale;
-        }
+
+        if (!(newScale >= MinScale) || !(newScale <= MaxScale)) return;
+        _mapScaleTransform.ScaleX = newScale;
+        _mapScaleTransform.ScaleY = newScale;
     }
     
     private void OnPinchChanged(object? sender, PinchEventArgs e)
@@ -97,7 +105,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
     protected override void OnViewModelSet()
     {
         base.OnViewModelSet();
-        if (ViewModel != null && ViewModel.BattleMap != null)
+        if (ViewModel is { BattleMap: not null })
         {
                 RenderMap(ViewModel.BattleMap, (IImageService<Bitmap>)ViewModel.ImageService);
         }

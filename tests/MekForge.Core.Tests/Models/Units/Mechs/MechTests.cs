@@ -60,6 +60,20 @@ public class MechTests
         // Assert
         transferLocation.Should().Be(expected);
     }
+    
+    [Fact]
+    public void MoveTo_ShouldUpdatePosition()
+    {
+        // Arrange
+        var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
+        var newCoordinates = new HexCoordinates(1, 2); // Replace with actual coordinates
+
+        // Act
+        mech.MoveTo(newCoordinates);
+
+        // Assert
+        Assert.Equal(newCoordinates, mech.Position);
+    }
 
     [Fact]
     public void ApplyHeat_DissipatesHeatBasedOnHeatSinks()

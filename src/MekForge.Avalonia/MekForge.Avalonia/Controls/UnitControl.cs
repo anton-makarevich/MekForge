@@ -7,6 +7,7 @@ using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services;
 using System.Reactive.Linq;
+using System.Threading;
 
 namespace Sanet.MekForge.Avalonia.Controls
 {
@@ -36,12 +37,12 @@ namespace Sanet.MekForge.Avalonia.Controls
             Children.Add(_unitImage);
 
             // Create an observable that polls the unit's position
-            var positionChanges = Observable
+             Observable
                 .Interval(TimeSpan.FromMilliseconds(16)) // ~60fps
                 .Select(_ => _unit.Position)
-                .DistinctUntilChanged();
-
-            _subscription = positionChanges.Subscribe(_ => UpdatePosition());
+                .DistinctUntilChanged()
+                .ObserveOn(SynchronizationContext.Current) // Ensure events are processed on the UI thread
+                .Subscribe(_ => UpdatePosition());
             
             // Initial update
             UpdatePosition();
