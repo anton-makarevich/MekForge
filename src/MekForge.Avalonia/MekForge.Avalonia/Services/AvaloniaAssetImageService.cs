@@ -13,7 +13,7 @@ public class AvaloniaAssetImageService : IImageService<Bitmap>
 
     public Bitmap? GetImage(string assetType, string assetName)
     {
-        var path = $"{AssetsBasePath}/{assetType.ToLower()}/{assetName.ToLower()}.gif";
+        var path = $"{AssetsBasePath}/{assetType.ToLower()}/{assetName.ToLower()}.png";
         return _cache.GetOrAdd(path, LoadImage);
     }
 
@@ -25,8 +25,9 @@ public class AvaloniaAssetImageService : IImageService<Bitmap>
             var asset =AssetLoader.Open(uri);
             return new Bitmap(asset);
         }
-        catch
+        catch (Exception e)
         {
+            var t = e;
             return null;
         }
     }

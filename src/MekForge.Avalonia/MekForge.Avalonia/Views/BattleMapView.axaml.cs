@@ -1,3 +1,4 @@
+using System.Linq;
 using Avalonia;
 using Avalonia.Input;
 using Avalonia.Media;
@@ -46,6 +47,14 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
             var hexControl = new HexControl(hex, imageService);
             MapCanvas.Children.Add(hexControl);
         }
+
+        if (ViewModel?.Unit == null) return;
+        var unitControl = new UnitControl(ViewModel.Unit, imageService);
+        MapCanvas.Children.Add(unitControl);
+        var hexToDeploy = battleMap.GetHexes().FirstOrDefault();
+        if (hexToDeploy == null) return;
+        ViewModel.Unit.Deploy(hexToDeploy.Coordinates);
+        unitControl.Update();
     }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
