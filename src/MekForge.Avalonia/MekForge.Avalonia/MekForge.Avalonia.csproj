@@ -30,11 +30,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Resources\Units\Mechs\LCT-1V.mtf">
+      <None Remove="Resources\Units\Mechs\LCT-1V.mtf" />
+      <EmbeddedResource Include="Resources\Units\Mechs\LCT-1V.mtf">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\Units\Mechs\SHD-2D.mtf">
+      </EmbeddedResource>
+      <None Remove="Resources\Units\Mechs\SHD-2D.mtf" />
+      <EmbeddedResource Include="Resources\Units\Mechs\SHD-2D.mtf">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+      </EmbeddedResource>
     </ItemGroup>
 </Project>
