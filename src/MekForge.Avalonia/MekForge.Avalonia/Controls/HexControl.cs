@@ -10,7 +10,7 @@ using Sanet.MekForge.Core.Services;
 
 namespace Sanet.MekForge.Avalonia.Controls;
 
-public class HexControl : Canvas
+public class HexControl : Grid
 {
     private readonly Polygon _hexPolygon;
     private readonly Image _terrainImage;
@@ -69,8 +69,8 @@ public class HexControl : Canvas
         Children.Add(_hexPolygon);
         
         // Set position
-        SetValue(LeftProperty, hex.Coordinates.X);
-        SetValue(TopProperty, hex.Coordinates.Y);
+        SetValue(Canvas.LeftProperty, hex.Coordinates.X);
+        SetValue(Canvas.TopProperty, hex.Coordinates.Y);
 
         UpdateTerrainImage();
 

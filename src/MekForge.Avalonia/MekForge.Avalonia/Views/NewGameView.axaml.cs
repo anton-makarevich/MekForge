@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -21,17 +22,23 @@ public partial class NewGameView : BaseView<NewGameViewModel>
     {
         if (ViewModel == null) return;
         var mtfDataProvider = new MtfDataProvider();
-        var unitFiles = Directory.GetFiles("Resources/Units/Mechs", "*.mtf");
         var rulesProvider = new ClassicBattletechRulesProvider();
         var mechFactory = new MechFactory(rulesProvider);
 
+        var assembly = typeof(App).Assembly;
+        var resources = assembly.GetManifestResourceNames();
+
         var units = new List<Unit>();
-        foreach (var file in unitFiles)
+        foreach (var resourceName in resources)
         {
-            var lines = await File.ReadAllLinesAsync(file);
-            var mechData = mtfDataProvider.LoadMechFromTextData(lines);
+            if (!resourceName.EndsWith(".mtf", StringComparison.OrdinalIgnoreCase)) continue;
+            await using var stream = assembly.GetManifestResourceStream(resourceName);
+            if (stream == null) continue;
+            using var reader = new StreamReader(stream);
+            var lines = await reader.ReadToEndAsync();
+            var mechData = mtfDataProvider.LoadMechFromTextData(lines.Split('\n'));
             var mech = mechFactory.Create(mechData);
-            
+                
             units.Add(mech);
         }
 
