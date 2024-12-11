@@ -31,12 +31,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="..\..\src\MekForge.Avalonia\MekForge.Avalonia\Resources\Units\Mechs\LCT-1V.mtf">
+    <Content Include="..\..\src\MekForge.Avalonia\MekForge.Avalonia\Resources\Units\Mechs\LCT-1V.mtf">
       <Link>Resources\Mechs\LCT-1V.mtf</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\src\MekForge.Avalonia\MekForge.Avalonia\Resources\Units\Mechs\SHD-2D.mtf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\src\MekForge.Avalonia\MekForge.Avalonia\Resources\Units\Mechs\SHD-2D.mtf">
       <Link>Resources\Mechs\SHD-2D.mtf</Link>
-    </EmbeddedResource>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
