@@ -34,8 +34,19 @@
             <TextBlock Text="{Binding LightWoodsPercentage, StringFormat='Light Woods: {0}%'}"/>
         </StackPanel>
         
+        <ListBox
+            ItemsSource="{Binding AvailableUnits}"
+            SelectedItem="{Binding SelectedUnit}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        
         <Button Command="{Binding StartGameCommand}"
                 Content="Start Game"
+                IsEnabled="{Binding CanStartGame}"
                 HorizontalAlignment="Center"
                 Padding="20,10"/>
     </StackPanel>
