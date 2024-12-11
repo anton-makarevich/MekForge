@@ -35,8 +35,8 @@ public partial class NewGameView : BaseView<NewGameViewModel>
             await using var stream = assembly.GetManifestResourceStream(resourceName);
             if (stream == null) continue;
             using var reader = new StreamReader(stream);
-            var lines = await reader.ReadToEndAsync();
-            var mechData = mtfDataProvider.LoadMechFromTextData(lines.Split('\n'));
+            var mtfData = await reader.ReadToEndAsync();
+            var mechData = mtfDataProvider.LoadMechFromTextData(mtfData.Split('\n'));
             var mech = mechFactory.Create(mechData);
                 
             units.Add(mech);

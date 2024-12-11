@@ -30,15 +30,14 @@ public class HexControl : Grid
         const double width = HexCoordinates.HexWidth;
         const double height = HexCoordinates.HexHeight;
 
-        return new Points(new[]
-        {
+        return new Points([
             new Point(0, height * 0.5),           // Left
             new Point(width * 0.25, height),      // Bottom Left
             new Point(width * 0.75, height),      // Bottom Right
             new Point(width, height * 0.5),       // Right
             new Point(width * 0.75, 0),           // Top Right
             new Point(width * 0.25, 0)            // Top Left
-        });
+        ]);
     }
 
     public HexControl(Hex hex, IImageService<Bitmap> imageService)
