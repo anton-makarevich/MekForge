@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -5,14 +6,17 @@ using Avalonia.Media.Imaging;
 using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services;
+using System.Reactive.Linq;
+using System.Threading;
 
 namespace Sanet.MekForge.Avalonia.Controls
 {
-    public class UnitControl : Grid
+    public class UnitControl : Grid, IDisposable
     {
         private readonly Image _unitImage;
         private readonly IImageService<Bitmap> _imageService;
-        private Unit _unit;
+        private readonly Unit _unit;
+        private readonly IDisposable _subscription;
 
         public UnitControl(Unit unit, IImageService<Bitmap> imageService)
         {
@@ -24,24 +28,30 @@ namespace Sanet.MekForge.Avalonia.Controls
             
             _unitImage = new Image
             {
-                Width = Width*0.84,
-                Height = Height*.84,
+                Width = Width * 0.84,
+                Height = Height * 0.84,
                 Stretch = Stretch.Fill,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
             Children.Add(_unitImage);
-        }
-        
-        public void Update()
-        {
+
+            // Create an observable that polls the unit's position
+             Observable
+                .Interval(TimeSpan.FromMilliseconds(16)) // ~60fps
+                .Select(_ => _unit.Position)
+                .DistinctUntilChanged()
+                .ObserveOn(SynchronizationContext.Current) // Ensure events are processed on the UI thread
+                .Subscribe(_ => UpdatePosition());
+            
+            // Initial update
             UpdatePosition();
             UpdateImage();
         }
 
         private void UpdatePosition()
         {
-            if (_unit?.Position == null) return;
+            if (_unit.Position == null) return;
             var hexPosition = _unit.Position;
             SetValue(Canvas.LeftProperty, hexPosition.Value.X);
             SetValue(Canvas.TopProperty, _unit.Position.Value.Y);            
@@ -54,6 +64,11 @@ namespace Sanet.MekForge.Avalonia.Controls
             {
                 _unitImage.Source = image;
             }
+        }
+
+        public void Dispose()
+        {
+            _subscription.Dispose();
         }
     }
 }

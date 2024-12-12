@@ -23,6 +23,7 @@
         <PackageReference Include="Sanet.MVVM.DI.Avalonia" Version="1.1.1.1113" />
         <PackageReference Include="Sanet.MVVM.Navigation.Avalonia" Version="1.1.1.1113" />
         <PackageReference Include="Sanet.MVVM.Views.Avalonia" Version="1.1.1.1113" />
+        <PackageReference Include="System.Reactive" Version="6.0.1" />
     </ItemGroup>
 
     <ItemGroup>

@@ -15,7 +15,7 @@ public class HexControl : Grid
     private readonly Polygon _hexPolygon;
     private readonly Image _terrainImage;
     private readonly IImageService<Bitmap> _imageService;
-    private readonly Hex? _hex;
+    private readonly Hex _hex;
 
     private static readonly IBrush DefaultStroke = Brushes.White;
     private static readonly IBrush HighlightStroke = new SolidColorBrush(Color.Parse("#00BFFF")); // Light blue
@@ -77,18 +77,22 @@ public class HexControl : Grid
         PointerEntered += OnPointerEntered;
         PointerExited += OnPointerExited;
     }
+    public Hex Hex => _hex;
+    public HexHighlightType HighlightType { get; private set; }
 
     private void OnPointerEntered(object? sender, PointerEventArgs e)
     {
+        HighlightType = HexHighlightType.Selected;
         Highlight(HexHighlightType.Selected);
     }
 
     private void OnPointerExited(object? sender, PointerEventArgs e)
     {
+        HighlightType = HexHighlightType.None;
         Highlight(HexHighlightType.None);
     }
 
-    public void Highlight(HexHighlightType type)
+    private void Highlight(HexHighlightType type)
     {
         switch (type)
         {
@@ -108,7 +112,7 @@ public class HexControl : Grid
 
     private void UpdateTerrainImage()
     {
-        var terrain = _hex?.GetTerrains().FirstOrDefault();
+        var terrain = _hex.GetTerrains().FirstOrDefault();
         if (terrain == null) return;
 
         var image = _imageService.GetImage("terrain", terrain.Id.ToLower());
