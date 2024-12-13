@@ -158,4 +158,35 @@ public class HexCoordinatesTests
         hex3.Y.Should().Be(HexCoordinates.HexHeight*0.5);  // Offset for odd Q
         hex4.Y.Should().Be(HexCoordinates.HexHeight*1.5);  // Height + 0.5*Height offset for odd Q
     }
+    
+    [Fact]
+    public void GetHexesAlongLine_ShouldReturnHexes_WhenClearPath()
+    {
+        // Arrange
+        var start = new HexCoordinates(1, 1);
+        var end = new HexCoordinates(3, 3);
+
+        // Act
+        var hexes = HexCoordinates.GetHexesAlongLine(start, end).ToList();
+
+        // Assert
+        hexes.Should().NotBeNull();
+        hexes.Count.Should().Be(3);
+        hexes.Should().ContainInOrder(new HexCoordinates(1, 1), new HexCoordinates(2, 2), new HexCoordinates(3, 3));
+    }
+
+    [Fact]
+    public void GetHexesAlongLine_ShouldHandleSameHex()
+    {
+        // Arrange
+        var coordinates = new HexCoordinates(2, 2);
+        
+        // Act
+        var hexes = HexCoordinates.GetHexesAlongLine(coordinates, coordinates).ToList();
+
+        // Assert
+        hexes.Should().NotBeNull();
+        hexes.Count.Should().Be(1);
+        hexes.Should().ContainSingle().Which.Should().Be(coordinates);
+    }
 }

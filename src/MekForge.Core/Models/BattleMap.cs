@@ -154,7 +154,7 @@ public class BattleMap
             return false;
 
         // Get hexes along the line
-        var hexLine = GetLineOfSight(from, to);
+        var hexLine = HexCoordinates.GetHexesAlongLine(from, to);
         var distance = 1;
         var totalDistance = from.DistanceTo(to);
 
@@ -180,33 +180,7 @@ public class BattleMap
 
         return true;
     }
-
-    /// <summary>
-    /// Gets coordinates of hexes that form a line between two points
-    /// </summary>
-    public static IEnumerable<HexCoordinates> GetLineOfSight(HexCoordinates from, HexCoordinates to)
-    {
-        var distance = from.DistanceTo(to);
-        if (distance == 0)
-            return [from];
-
-        var results = new List<HexCoordinates> { from };
-        
-        for (var i = 1; i <= distance; i++)
-        {
-            var t = (double)i / distance;
-            var qLerp = from.Q + (to.Q - from.Q) * t;
-            var rLerp = from.R + (to.R - from.R) * t;
-            
-            // Round to nearest hex
-            var q = (int)Math.Round(qLerp);
-            var r = (int)Math.Round(rLerp);
-            
-            results.Add(new HexCoordinates(q, r));
-        }
-
-        return results;
-    }
+    
 
     /// <summary>
     /// Interpolate height between two points for LOS calculation
