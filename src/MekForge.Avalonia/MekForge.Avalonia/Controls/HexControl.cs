@@ -72,26 +72,10 @@ public class HexControl : Grid
         SetValue(Canvas.TopProperty, hex.Coordinates.Y);
 
         UpdateTerrainImage();
-
-        // Handle pointer events for hover effect
-        PointerEntered += OnPointerEntered;
-        PointerExited += OnPointerExited;
     }
     public Hex Hex => _hex;
     public HexHighlightType HighlightType { get; private set; }
-
-    private void OnPointerEntered(object? sender, PointerEventArgs e)
-    {
-        HighlightType = HexHighlightType.Selected;
-        Highlight(HexHighlightType.Selected);
-    }
-
-    private void OnPointerExited(object? sender, PointerEventArgs e)
-    {
-        HighlightType = HexHighlightType.None;
-        Highlight(HexHighlightType.None);
-    }
-
+    
     private void Highlight(HexHighlightType type)
     {
         switch (type)
@@ -120,5 +104,11 @@ public class HexControl : Grid
         {
             _terrainImage.Source = image;
         }
+    }
+    
+    public bool IsPointInside(Point point)
+    {
+        // Check if the point is within the bounds
+        return Bounds.Contains(point);
     }
 }

@@ -1,4 +1,6 @@
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Input;
 using Avalonia.Media;
@@ -19,6 +21,9 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
     private const double MinScale = 0.5;
     private const double MaxScale = 2.0;
     private const double ScaleStep = 0.1;
+    private const int SelectionThresholdMilliseconds = 250; // Time to distinguish selection vs pan
+    private bool _isManipulating;
+    private CancellationTokenSource _manipulationTokenSource;
 
     public BattleMapView()
     {
@@ -59,18 +64,45 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         _lastPointerPosition = e.GetPosition(this);
-        // this is temporary for testing only
-        // Assuming BattleMap is the name of your container for hexes
-        var selectedHex = MapCanvas.Children
-            .OfType<HexControl>() // Filter to HexControl types
-            .FirstOrDefault(hex => hex.HighlightType == HexHighlightType.Selected); // Find the first selected hex
+        
+        _isManipulating = false; // Reset manipulation flag
 
-        if (selectedHex != null && ViewModel!=null)
-        {
-            // Assign the hex coordinates to the ViewModel's unit position
-            ViewModel.Unit?.MoveTo(selectedHex.Hex.Coordinates);
-        }
+        // Start a timer to determine if this is a manipulation
+        _manipulationTokenSource = new CancellationTokenSource();
+        Task.Delay(SelectionThresholdMilliseconds, _manipulationTokenSource.Token)
+            .ContinueWith(t =>
+            {
+                if (!t.IsCanceled)
+                {
+                    _isManipulating = true; // Set flag if the delay completes
+                }
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+        base.OnPointerPressed(e);
     }
+
+    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    {
+        // Cancel the manipulation timer
+        _manipulationTokenSource?.Cancel();
+
+        if (!_isManipulating)
+        {
+            // Handle hex selection
+            // this is temporary for testing only
+            var position = e.GetPosition(MapCanvas);
+            var selectedHex = MapCanvas.Children
+                .OfType<HexControl>()
+                .FirstOrDefault(h => h.IsPointInside(position));
+
+            if (selectedHex != null && ViewModel!=null)
+            {
+                // Assign the hex coordinates to the ViewModel's unit position
+                ViewModel.Unit?.MoveTo(selectedHex.Hex.Coordinates);
+            }
+        }
+        base.OnPointerReleased(e);
+    }
+    
 
     private void OnPointerMoved(object? sender, PointerEventArgs e)
     {
