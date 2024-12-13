@@ -154,7 +154,7 @@ public class BattleMap
             return false;
 
         // Get hexes along the line
-        var hexLine = GetHexesAlongLine(from, to);
+        var hexLine = GetLineOfSight(from, to);
         var distance = 1;
         var totalDistance = from.DistanceTo(to);
 
@@ -184,7 +184,7 @@ public class BattleMap
     /// <summary>
     /// Gets coordinates of hexes that form a line between two points
     /// </summary>
-    private static IEnumerable<HexCoordinates> GetHexesAlongLine(HexCoordinates from, HexCoordinates to)
+    public static IEnumerable<HexCoordinates> GetLineOfSight(HexCoordinates from, HexCoordinates to)
     {
         var distance = from.DistanceTo(to);
         if (distance == 0)
