@@ -74,6 +74,27 @@ public class BattleStateTests
         // Assert
         result.Should().BeTrue();
     }
+    
+    [Fact]
+    public void HasLineOfSight_ShouldReturnFalse_WhenBlockedByUnit()
+    {
+        // Arrange
+        var attacker = new Mech("Chassis", "Model", 50, 4, new List<UnitPart>());
+        var target = new Mech("Chassis", "Model", 50, 4, new List<UnitPart>());
+        var blockingUnit = new Mech("Chassis", "Model", 50, 4, new List<UnitPart>());
+        var coordinates1 = new HexCoordinates(1, 1);
+        var coordinates2 = new HexCoordinates(3, 3);
+        var coordinates3 = new HexCoordinates(2, 2);
+        _battleState.TryDeployUnit(attacker, coordinates1);
+        _battleState.TryDeployUnit(target, coordinates2);
+        _battleState.TryDeployUnit(blockingUnit, coordinates3);
+
+        // Act
+        var result = _battleState.HasLineOfSight(attacker, target);
+
+        // Assert
+        result.Should().BeFalse();
+    }
 
     [Fact]
     public void FindPath_ShouldReturnPath_WhenValid()

@@ -45,7 +45,7 @@ public class BattleState
         var end = target.Position.Value;
 
         _map.HasLineOfSight(start,end);
-        var lineOfSight = HexCoordinates.GetHexesAlongLine(start, end);
+        var lineOfSight = start.LineTo(end);
 
         foreach (var coordinates in lineOfSight)
         {

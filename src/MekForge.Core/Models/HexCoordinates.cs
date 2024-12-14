@@ -40,17 +40,44 @@ public readonly record struct HexCoordinates
     /// </summary>
     public int S => -Q - R;
 
+    // Offsets for the six directions, adjusted for even/odd column rows
+    private static readonly (int dQ, int dR)[] OddRowDirections =
+    {
+        (0, -1), // Direction 0: top
+        (1, -1), // Direction 1: top-right
+        (1, 0),  // Direction 2: bottom-right
+        (0, 1),  // Direction 3: bottom
+        (-1, 0), // Direction 4: bottom-left
+        (-1, -1) // Direction 5: top-left
+    };
+
+    private static readonly (int dQ, int dR)[] EvenRowDirections =
+    {
+        (0, -1), // Direction 0: top
+        (1, 0),  // Direction 1: top-right
+        (1, 1),  // Direction 2: bottom-right
+        (0, 1),  // Direction 3: bottom
+        (-1, 1), // Direction 4: bottom-left
+        (-1, 0)  // Direction 5: top-left
+    };
+
+    public HexCoordinates Neighbor(int direction)
+    {
+        var directions = (Q % 2 == 0) ? EvenRowDirections : OddRowDirections;
+        var (dQ, dR) = directions[direction % 6];
+        return new HexCoordinates(Q + dQ, R + dR);
+    }
+    
     /// <summary>
     /// Returns adjacent hex coordinates in all six directions
     /// </summary>
     public IEnumerable<HexCoordinates> GetAdjacentCoordinates()
     {
-        yield return new HexCoordinates { Q = Q + 1, R = R };     // East
-        yield return new HexCoordinates { Q = Q + 1, R = R - 1 }; // Northeast
-        yield return new HexCoordinates { Q = Q, R = R - 1 };     // Northwest
-        yield return new HexCoordinates { Q = Q - 1, R = R };     // West
-        yield return new HexCoordinates { Q = Q - 1, R = R + 1 }; // Southwest
-        yield return new HexCoordinates { Q = Q, R = R + 1 };     // Southeast
+        var directions = (Q % 2 == 0) ? EvenRowDirections : OddRowDirections;
+        foreach (var (dQ, dR) in directions)
+        {
+            yield return new HexCoordinates(Q + dQ, R + dR);
+        }
     }
 
     /// <summary>
@@ -58,10 +85,17 @@ public readonly record struct HexCoordinates
     /// </summary>
     public int DistanceTo(HexCoordinates other)
     {
-        var dQ = Math.Abs(Q - other.Q);
-        var dR = Math.Abs(R - other.R);
-        var dS = Math.Abs(S - other.S);
-        return Math.Max(Math.Max(dQ, dR), dS);
+        // Convert axial to cube coordinates
+        var x1 = Q;
+        var z1 = R - (Q + (Q % 2)) / 2; // Fix staggered row handling
+        var y1 = -x1 - z1;
+
+        var x2 = other.Q;
+        var z2 = other.R - (other.Q + (other.Q % 2)) / 2; // Fix staggered row handling
+        var y2 = -x2 - z2;
+
+        // Use Manhattan distance in cube space
+        return Math.Max(Math.Abs(x1 - x2), Math.Max(Math.Abs(y1 - y2), Math.Abs(z1 - z2)));
     }
 
     /// <summary>
@@ -84,27 +118,37 @@ public readonly record struct HexCoordinates
     /// <summary>
     /// Gets coordinates of hexes that form a line between two points
     /// </summary>
-    public static IEnumerable<HexCoordinates> GetHexesAlongLine(HexCoordinates from, HexCoordinates to)
+    public List<HexCoordinates> LineTo(HexCoordinates target)
     {
-        var distance = from.DistanceTo(to);
-        if (distance == 0)
-            return [from];
-
-        var results = new List<HexCoordinates> { from };
-        
-        for (var i = 1; i <= distance; i++)
+        if (Equals(target))
         {
-            var t = (double)i / distance;
-            var qLerp = from.Q + (to.Q - from.Q) * t;
-            var rLerp = from.R + (to.R - from.R) * t;
-            
-            // Round to nearest hex
-            var q = (int)Math.Round(qLerp);
-            var r = (int)Math.Round(rLerp);
-            
-            results.Add(new HexCoordinates(q, r));
+            return [target];
+        }
+        var n = DistanceTo(target);
+        var result = new List<HexCoordinates>();
+
+        // Convert to cube coordinates for linear interpolation
+        var x1 = Q;
+        var z1 = R - (Q + (Q & 1)) / 2;
+        var y1 = -x1 - z1;
+
+        var x2 = target.Q;
+        var z2 = target.R - (target.Q + (target.Q & 1)) / 2;
+        var y2 = -x2 - z2;
+
+        for (int i = 0; i <= n; i++)
+        {
+            var t = 1.0f * i / n;
+            var x = (int)Math.Round(x1 * (1 - t) + x2 * t);
+            var y = (int)Math.Round(y1 * (1 - t) + y2 * t);
+            var z = (int)Math.Round(z1 * (1 - t) + z2 * t);
+
+            // Convert back to axial coordinates
+            var q = x;
+            var r = z + (x + (x & 1)) / 2;
+            result.Add(new HexCoordinates(q, r));
         }
 
-        return results;
+        return result;
     }
 }

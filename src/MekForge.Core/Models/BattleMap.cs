@@ -154,7 +154,7 @@ public class BattleMap
             return false;
 
         // Get hexes along the line
-        var hexLine = HexCoordinates.GetHexesAlongLine(from, to);
+        var hexLine = from.LineTo(to);
         var distance = 1;
         var totalDistance = from.DistanceTo(to);
 

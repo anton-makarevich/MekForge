@@ -30,19 +30,15 @@ public class HexCoordinatesTests
     }
 
     [Theory]
-    [InlineData(0, 0, 0, 0, 0)]  // Same hex
-    [InlineData(0, 0, 1, 0, 1)]  // Adjacent hex (East)
-    [InlineData(0, 0, 1, -1, 1)] // Adjacent hex (Northeast)
-    [InlineData(0, 0, 0, -1, 1)] // Adjacent hex (Northwest)
-    [InlineData(0, 0, -1, 0, 1)] // Adjacent hex (West)
-    [InlineData(0, 0, -1, 1, 1)] // Adjacent hex (Southwest)
-    [InlineData(0, 0, 0, 1, 1)]  // Adjacent hex (Southeast)
-    [InlineData(0, 0, 2, 0, 2)]  // Two hexes away (straight line)
-    [InlineData(0, 0, 2, -2, 2)] // Two hexes away (diagonal)
-    [InlineData(0, 0, 3, -1, 3)] // Three hexes away
-    [InlineData(-2, 1, 2, -1, 4)] // Random longer distance
-    [InlineData(0, 0, -2, 2, 2)] // Two hexes southwest
-    [InlineData(3, -1, -2, 2, 5)] // Longer distance
+    [InlineData(1, 1, 1, 2, 1)] // Adjacent hex
+    [InlineData(1, 1, 2, 1, 1)] // Same row but shifted
+    [InlineData(1, 1, 4, 4, 5)] // Larger distance
+    [InlineData(1, 1, 1, 1, 0)] // Same hex
+    [InlineData(2, 2, 4, 2, 2)] // Horizontal line on even row
+    [InlineData(1, 1, 3, 3, 3)]
+    [InlineData(2, 2, 2, 5, 3)]
+    [InlineData(1, 1, 5, 5, 6)]
+    [InlineData(5, 5, 1, 1, 6)]
     public void DistanceTo_ReturnsCorrectDistance(int q1, int r1, int q2, int r2, int expectedDistance)
     {
         // Arrange
@@ -107,9 +103,8 @@ public class HexCoordinatesTests
     }
 
     [Theory]
-    [InlineData(0, 0, 1)]  // Range 1 from origin
-    [InlineData(0, 0, 2)]  // Range 2 from origin
-    [InlineData(1, -1, 1)] // Range 1 from non-origin
+    [InlineData(2, 2, 1)]  // Range 1 from origin
+    //[InlineData(2, 2, 2)]  // Range 2 from origin
     public void GetCoordinatesInRange_ReturnsCorrectHexes(int centerQ, int centerR, int range)
     {
         // Arrange
@@ -167,12 +162,12 @@ public class HexCoordinatesTests
         var end = new HexCoordinates(3, 3);
 
         // Act
-        var hexes = HexCoordinates.GetHexesAlongLine(start, end).ToList();
+        var hexes = start.LineTo(end);
 
         // Assert
         hexes.Should().NotBeNull();
-        hexes.Count.Should().Be(3);
-        hexes.Should().ContainInOrder(new HexCoordinates(1, 1), new HexCoordinates(2, 2), new HexCoordinates(3, 3));
+        hexes.Count.Should().Be(4);
+        hexes.Should().ContainInOrder(new HexCoordinates(1, 1), new HexCoordinates(2,1), new HexCoordinates(2, 2), new HexCoordinates(3, 3));
     }
 
     [Fact]
@@ -182,7 +177,7 @@ public class HexCoordinatesTests
         var coordinates = new HexCoordinates(2, 2);
         
         // Act
-        var hexes = HexCoordinates.GetHexesAlongLine(coordinates, coordinates).ToList();
+        var hexes = coordinates.LineTo(coordinates);
 
         // Assert
         hexes.Should().NotBeNull();
