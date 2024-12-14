@@ -28,21 +28,34 @@ public class HexCoordinatesTests
         // Assert
         s.Should().Be(-5); // -Q - R = -2 - 3 = -5
     }
+    
+    [Fact]
+    public void CubeCoordinates_CalculateCorrectly()
+    {
+        // Arrange
+        var hexEven = new HexCoordinates(2, 3); // Even column
+        var hexOdd = new HexCoordinates(1, 2);  // Odd column
+
+        // Assert
+        hexEven.X.Should().Be(2);
+        hexEven.Z.Should().Be(2); // Calculation: R - (Q + (Q % 2)) / 2 = 3 - (2 + 0) / 2
+        hexEven.Y.Should().Be(-4); // Calculation: -X - Z = -2 - 2
+
+        hexOdd.X.Should().Be(1);
+        hexOdd.Z.Should().Be(1); // Calculation: R - (Q + (Q % 2)) / 2 = 2 - (1 + 1) / 2
+        hexOdd.Y.Should().Be(-2); // Calculation: -X - Z = -1 - 1
+    }
 
     [Theory]
-    [InlineData(0, 0, 0, 0, 0)]  // Same hex
-    [InlineData(0, 0, 1, 0, 1)]  // Adjacent hex (East)
-    [InlineData(0, 0, 1, -1, 1)] // Adjacent hex (Northeast)
-    [InlineData(0, 0, 0, -1, 1)] // Adjacent hex (Northwest)
-    [InlineData(0, 0, -1, 0, 1)] // Adjacent hex (West)
-    [InlineData(0, 0, -1, 1, 1)] // Adjacent hex (Southwest)
-    [InlineData(0, 0, 0, 1, 1)]  // Adjacent hex (Southeast)
-    [InlineData(0, 0, 2, 0, 2)]  // Two hexes away (straight line)
-    [InlineData(0, 0, 2, -2, 2)] // Two hexes away (diagonal)
-    [InlineData(0, 0, 3, -1, 3)] // Three hexes away
-    [InlineData(-2, 1, 2, -1, 4)] // Random longer distance
-    [InlineData(0, 0, -2, 2, 2)] // Two hexes southwest
-    [InlineData(3, -1, -2, 2, 5)] // Longer distance
+    [InlineData(1, 1, 1, 2, 1)] // Adjacent hex
+    [InlineData(1, 1, 2, 1, 1)] // Same row but shifted
+    [InlineData(1, 1, 4, 4, 5)] // Larger distance
+    [InlineData(1, 1, 1, 1, 0)] // Same hex
+    [InlineData(2, 2, 4, 2, 2)] // Horizontal line on even row
+    [InlineData(1, 1, 3, 3, 3)]
+    [InlineData(2, 2, 2, 5, 3)]
+    [InlineData(1, 1, 5, 5, 6)]
+    [InlineData(5, 5, 1, 1, 6)]
     public void DistanceTo_ReturnsCorrectDistance(int q1, int r1, int q2, int r2, int expectedDistance)
     {
         // Arrange
@@ -75,19 +88,19 @@ public class HexCoordinatesTests
     public void GetAdjacentCoordinates_ReturnsAllSixNeighbors()
     {
         // Arrange
-        var center = new HexCoordinates(0, 0);
+        var center = new HexCoordinates(2, 2);
 
         // Act
         var neighbors = center.GetAdjacentCoordinates().ToList();
 
         // Assert
         neighbors.Should().HaveCount(6);
-        neighbors.Should().Contain(new HexCoordinates(1, 0));   // East
-        neighbors.Should().Contain(new HexCoordinates(1, -1));  // Northeast
-        neighbors.Should().Contain(new HexCoordinates(0, -1));  // Northwest
-        neighbors.Should().Contain(new HexCoordinates(-1, 0));  // West
-        neighbors.Should().Contain(new HexCoordinates(-1, 1));  // Southwest
-        neighbors.Should().Contain(new HexCoordinates(0, 1));   // Southeast
+        neighbors.Should().Contain(new HexCoordinates(1, 2));   // East
+        neighbors.Should().Contain(new HexCoordinates(1, 3));  // Northeast
+        neighbors.Should().Contain(new HexCoordinates(2, 1));  // Northwest
+        neighbors.Should().Contain(new HexCoordinates(2, 3));  // West
+        neighbors.Should().Contain(new HexCoordinates(3, 2));  // Southwest
+        neighbors.Should().Contain(new HexCoordinates(3, 3));   // Southeast
     }
 
     [Fact]
@@ -107,9 +120,10 @@ public class HexCoordinatesTests
     }
 
     [Theory]
-    [InlineData(0, 0, 1)]  // Range 1 from origin
-    [InlineData(0, 0, 2)]  // Range 2 from origin
-    [InlineData(1, -1, 1)] // Range 1 from non-origin
+    [InlineData(2, 2, 1)]  // Range 1 from origin
+    [InlineData(3, 3, 1)]  // Range 1 from origin
+    [InlineData(2, 2, 2)]  // Range 2 from origin
+    [InlineData(3, 3, 2)]  // Range 2 from origin
     public void GetCoordinatesInRange_ReturnsCorrectHexes(int centerQ, int centerR, int range)
     {
         // Arrange
@@ -138,9 +152,9 @@ public class HexCoordinatesTests
         var hex3 = new HexCoordinates(2, 0);
 
         // Assert
-        hex1.X.Should().Be(0);
-        hex2.X.Should().Be(75); // 100 * 0.75
-        hex3.X.Should().Be(150); // 200 * 0.75
+        hex1.H.Should().Be(0);
+        hex2.H.Should().Be(75); // 100 * 0.75
+        hex3.H.Should().Be(150); // 200 * 0.75
     }
 
     [Fact]
@@ -153,9 +167,40 @@ public class HexCoordinatesTests
         var hex4 = new HexCoordinates(1, 1); // Odd Q
 
         // Assert
-        hex1.Y.Should().Be(0);
-        hex2.Y.Should().Be(HexCoordinates.HexHeight);
-        hex3.Y.Should().Be(HexCoordinates.HexHeight*0.5);  // Offset for odd Q
-        hex4.Y.Should().Be(HexCoordinates.HexHeight*1.5);  // Height + 0.5*Height offset for odd Q
+        hex1.V.Should().Be(0);
+        hex2.V.Should().Be(HexCoordinates.HexHeight);
+        hex3.V.Should().Be(HexCoordinates.HexHeight*0.5);  // Offset for odd Q
+        hex4.V.Should().Be(HexCoordinates.HexHeight*1.5);  // Height + 0.5*Height offset for odd Q
+    }
+    
+    [Fact]
+    public void GetHexesAlongLine_ShouldReturnHexes_WhenClearPath()
+    {
+        // Arrange
+        var start = new HexCoordinates(1, 1);
+        var end = new HexCoordinates(3, 3);
+
+        // Act
+        var hexes = start.LineTo(end);
+
+        // Assert
+        hexes.Should().NotBeNull();
+        hexes.Count.Should().Be(4);
+        hexes.Should().ContainInOrder(new HexCoordinates(1, 1), new HexCoordinates(2,1), new HexCoordinates(2, 2), new HexCoordinates(3, 3));
+    }
+
+    [Fact]
+    public void GetHexesAlongLine_ShouldHandleSameHex()
+    {
+        // Arrange
+        var coordinates = new HexCoordinates(2, 2);
+        
+        // Act
+        var hexes = coordinates.LineTo(coordinates);
+
+        // Assert
+        hexes.Should().NotBeNull();
+        hexes.Count.Should().Be(1);
+        hexes.Should().ContainSingle().Which.Should().Be(coordinates);
     }
 }

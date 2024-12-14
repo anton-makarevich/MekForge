@@ -68,8 +68,8 @@ public class HexControl : Grid
         Children.Add(_hexPolygon);
         
         // Set position
-        SetValue(Canvas.LeftProperty, hex.Coordinates.X);
-        SetValue(Canvas.TopProperty, hex.Coordinates.Y);
+        SetValue(Canvas.LeftProperty, hex.Coordinates.H);
+        SetValue(Canvas.TopProperty, hex.Coordinates.V);
 
         UpdateTerrainImage();
     }

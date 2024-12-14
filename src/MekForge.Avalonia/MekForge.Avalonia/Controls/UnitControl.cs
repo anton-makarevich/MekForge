@@ -53,8 +53,8 @@ namespace Sanet.MekForge.Avalonia.Controls
         {
             if (_unit.Position == null) return;
             var hexPosition = _unit.Position;
-            SetValue(Canvas.LeftProperty, hexPosition.Value.X);
-            SetValue(Canvas.TopProperty, _unit.Position.Value.Y);            
+            SetValue(Canvas.LeftProperty, hexPosition.Value.H);
+            SetValue(Canvas.TopProperty, _unit.Position.Value.V);            
         }
         
         private void UpdateImage()

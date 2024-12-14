@@ -18,39 +18,78 @@ public readonly record struct HexCoordinates
     /// R coordinate (row)
     /// </summary>
     public int R { get; init; }
+
+    /// <summary>
+    /// Gets the cube coordinate S (derived from Q and R)
+    /// </summary>
+    public int S { get; }
+
+    // Cached cube coordinates
+    public int X { get; }
+    public int Y { get; }
+    public int Z { get; }
     
     /// <summary>
     /// Gets the X coordinate in pixels for rendering
     /// </summary>
-    public double X => Q * HexHorizontalSpacing;
+    public double H => Q * HexHorizontalSpacing;
 
     /// <summary>
     /// Gets the Y coordinate in pixels for rendering
     /// </summary>
-    public double Y => R * HexHeight + (Q % 2 == 0 ? 0 : HexHeight * 0.5);
+    public double V => R * HexHeight + (Q % 2 == 0 ? 0 : HexHeight * 0.5);
 
     public HexCoordinates(int q, int r)
     {
         Q = q;
         R = r;
+
+        S = -Q - R;
+        
+        // Precompute cube coordinates (X, Y, Z)
+        X = Q;
+        Z = R - (Q + (Q & 1)) / 2; // Handles staggered row adjustment
+        Y = -X - Z;
     }
 
-    /// <summary>
-    /// Gets the cube coordinate S (derived from Q and R)
-    /// </summary>
-    public int S => -Q - R;
+    // Offsets for the six directions, adjusted for even/odd column rows
+    private static readonly (int dQ, int dR)[] OddRowDirections =
+    [
+        (0, -1), // Direction 0: top
+        (1, -1), // Direction 1: top-right
+        (1, 0),  // Direction 2: bottom-right
+        (0, 1),  // Direction 3: bottom
+        (-1, 0), // Direction 4: bottom-left
+        (-1, -1) // Direction 5: top-left
+    ];
 
+    private static readonly (int dQ, int dR)[] EvenRowDirections =
+    [
+        (0, -1), // Direction 0: top
+        (1, 0),  // Direction 1: top-right
+        (1, 1),  // Direction 2: bottom-right
+        (0, 1),  // Direction 3: bottom
+        (-1, 1), // Direction 4: bottom-left
+        (-1, 0)  // Direction 5: top-left
+    ];
+
+    public HexCoordinates Neighbor(int direction)
+    {
+        var directions = (Q % 2 == 0) ? EvenRowDirections : OddRowDirections;
+        var (dQ, dR) = directions[direction % 6];
+        return new HexCoordinates(Q + dQ, R + dR);
+    }
+    
     /// <summary>
     /// Returns adjacent hex coordinates in all six directions
     /// </summary>
     public IEnumerable<HexCoordinates> GetAdjacentCoordinates()
     {
-        yield return new HexCoordinates { Q = Q + 1, R = R };     // East
-        yield return new HexCoordinates { Q = Q + 1, R = R - 1 }; // Northeast
-        yield return new HexCoordinates { Q = Q, R = R - 1 };     // Northwest
-        yield return new HexCoordinates { Q = Q - 1, R = R };     // West
-        yield return new HexCoordinates { Q = Q - 1, R = R + 1 }; // Southwest
-        yield return new HexCoordinates { Q = Q, R = R + 1 };     // Southeast
+        var directions = (Q % 2 == 0) ? EvenRowDirections : OddRowDirections;
+        foreach (var (dQ, dR) in directions)
+        {
+            yield return new HexCoordinates(Q + dQ, R + dR);
+        }
     }
 
     /// <summary>
@@ -58,26 +97,53 @@ public readonly record struct HexCoordinates
     /// </summary>
     public int DistanceTo(HexCoordinates other)
     {
-        var dQ = Math.Abs(Q - other.Q);
-        var dR = Math.Abs(R - other.R);
-        var dS = Math.Abs(S - other.S);
-        return Math.Max(Math.Max(dQ, dR), dS);
+        // Use Manhattan distance in cube space
+        return Math.Max(Math.Abs(X - other.X), Math.Max(Math.Abs(Y - other.Y), Math.Abs(Z - other.Z)));
     }
 
     /// <summary>
     /// Returns all hex coordinates within the specified range (inclusive)
+    /// Requires optimisation to remove DistanceTo
     /// </summary>
     public IEnumerable<HexCoordinates> GetCoordinatesInRange(int range)
     {
-        for (var q = -range; q <= range; q++)
+        for (var dQ = -range; dQ <= range; dQ++)
         {
-            var r1 = Math.Max(-range, -q - range);
-            var r2 = Math.Min(range, -q + range);
-            
-            for (var r = r1; r <= r2; r++)
+            for (var dR = -range; dR <= range; dR++)
             {
-                yield return new HexCoordinates(Q + q, R + r);
+                var candidate = new HexCoordinates(Q + dQ, R + dR);
+                if (DistanceTo(candidate) <= range)
+                {
+                    yield return candidate;
+                }
             }
         }
+    }
+    
+    /// <summary>
+    /// Gets coordinates of hexes that form a line between two points
+    /// </summary>
+    public List<HexCoordinates> LineTo(HexCoordinates target)
+    {
+        if (Equals(target))
+        {
+            return [target];
+        }
+        var n = DistanceTo(target);
+        var result = new List<HexCoordinates>();
+
+        for (int i = 0; i <= n; i++)
+        {
+            var t = 1.0f * i / n;
+            var x = (int)Math.Round(X * (1 - t) + target.X * t);
+            var z = (int)Math.Round(Z * (1 - t) + target.Z * t);
+
+            // Convert back to axial coordinates
+            var q = x;
+            var r = z + (x + (x & 1)) / 2;
+            result.Add(new HexCoordinates(q, r));
+        }
+
+        return result;
     }
 }
