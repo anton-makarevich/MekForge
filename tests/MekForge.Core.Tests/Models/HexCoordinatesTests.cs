@@ -71,19 +71,19 @@ public class HexCoordinatesTests
     public void GetAdjacentCoordinates_ReturnsAllSixNeighbors()
     {
         // Arrange
-        var center = new HexCoordinates(0, 0);
+        var center = new HexCoordinates(2, 2);
 
         // Act
         var neighbors = center.GetAdjacentCoordinates().ToList();
 
         // Assert
         neighbors.Should().HaveCount(6);
-        neighbors.Should().Contain(new HexCoordinates(1, 0));   // East
-        neighbors.Should().Contain(new HexCoordinates(1, -1));  // Northeast
-        neighbors.Should().Contain(new HexCoordinates(0, -1));  // Northwest
-        neighbors.Should().Contain(new HexCoordinates(-1, 0));  // West
-        neighbors.Should().Contain(new HexCoordinates(-1, 1));  // Southwest
-        neighbors.Should().Contain(new HexCoordinates(0, 1));   // Southeast
+        neighbors.Should().Contain(new HexCoordinates(1, 2));   // East
+        neighbors.Should().Contain(new HexCoordinates(1, 3));  // Northeast
+        neighbors.Should().Contain(new HexCoordinates(2, 1));  // Northwest
+        neighbors.Should().Contain(new HexCoordinates(2, 3));  // West
+        neighbors.Should().Contain(new HexCoordinates(3, 2));  // Southwest
+        neighbors.Should().Contain(new HexCoordinates(3, 3));   // Southeast
     }
 
     [Fact]
@@ -104,7 +104,9 @@ public class HexCoordinatesTests
 
     [Theory]
     [InlineData(2, 2, 1)]  // Range 1 from origin
-    //[InlineData(2, 2, 2)]  // Range 2 from origin
+    [InlineData(3, 3, 1)]  // Range 1 from origin
+    [InlineData(2, 2, 2)]  // Range 2 from origin
+    [InlineData(3, 3, 2)]  // Range 2 from origin
     public void GetCoordinatesInRange_ReturnsCorrectHexes(int centerQ, int centerR, int range)
     {
         // Arrange

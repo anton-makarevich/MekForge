@@ -100,17 +100,19 @@ public readonly record struct HexCoordinates
 
     /// <summary>
     /// Returns all hex coordinates within the specified range (inclusive)
+    /// Requires optimisation to remove DistanceTo
     /// </summary>
     public IEnumerable<HexCoordinates> GetCoordinatesInRange(int range)
     {
-        for (var q = -range; q <= range; q++)
+        for (var dQ = -range; dQ <= range; dQ++)
         {
-            var r1 = Math.Max(-range, -q - range);
-            var r2 = Math.Min(range, -q + range);
-            
-            for (var r = r1; r <= r2; r++)
+            for (var dR = -range; dR <= range; dR++)
             {
-                yield return new HexCoordinates(Q + q, R + r);
+                var candidate = new HexCoordinates(Q + dQ, R + dR);
+                if (DistanceTo(candidate) <= range)
+                {
+                    yield return candidate;
+                }
             }
         }
     }
