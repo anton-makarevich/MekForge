@@ -132,7 +132,7 @@ public readonly record struct HexCoordinates
         var n = DistanceTo(target);
         var result = new List<HexCoordinates>();
 
-        for (int i = 0; i <= n; i++)
+        for (var i = 0; i <= n; i++)
         {
             var t = 1.0f * i / n;
             var x = (int)Math.Round(X * (1 - t) + target.X * t);

@@ -7,26 +7,24 @@ namespace Sanet.MekForge.Core.ViewModels;
 
 public class BattleMapViewModel : BaseViewModel
 {
-    private BattleMap? _battleMap;
+    private BattleState? _battleState;
     private readonly IImageService _imageService;
-    private static Unit? _unit;
 
     public BattleMapViewModel(IImageService imageService)
     {
         _imageService = imageService;
     }
 
-    public BattleMap? BattleMap
+    public BattleState? BattleState
     {
-        get => _battleMap;
-        set => SetProperty(ref _battleMap, value);
+        get => _battleState;
+        set => SetProperty(ref _battleState, value);
     }
 
     public IImageService ImageService => _imageService;
 
-    public Unit? Unit
+    public void SelectHex(Hex selectedHexHex)
     {
-        get => _unit;
-        set => SetProperty(ref _unit, value);
+        //pass action to battlestate, battlestate should decide what to do with it based on the state
     }
 }
