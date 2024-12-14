@@ -28,6 +28,23 @@ public class HexCoordinatesTests
         // Assert
         s.Should().Be(-5); // -Q - R = -2 - 3 = -5
     }
+    
+    [Fact]
+    public void CubeCoordinates_CalculateCorrectly()
+    {
+        // Arrange
+        var hexEven = new HexCoordinates(2, 3); // Even column
+        var hexOdd = new HexCoordinates(1, 2);  // Odd column
+
+        // Assert
+        hexEven.X.Should().Be(2);
+        hexEven.Z.Should().Be(2); // Calculation: R - (Q + (Q % 2)) / 2 = 3 - (2 + 0) / 2
+        hexEven.Y.Should().Be(-4); // Calculation: -X - Z = -2 - 2
+
+        hexOdd.X.Should().Be(1);
+        hexOdd.Z.Should().Be(1); // Calculation: R - (Q + (Q % 2)) / 2 = 2 - (1 + 1) / 2
+        hexOdd.Y.Should().Be(-2); // Calculation: -X - Z = -1 - 1
+    }
 
     [Theory]
     [InlineData(1, 1, 1, 2, 1)] // Adjacent hex
@@ -135,9 +152,9 @@ public class HexCoordinatesTests
         var hex3 = new HexCoordinates(2, 0);
 
         // Assert
-        hex1.X.Should().Be(0);
-        hex2.X.Should().Be(75); // 100 * 0.75
-        hex3.X.Should().Be(150); // 200 * 0.75
+        hex1.H.Should().Be(0);
+        hex2.H.Should().Be(75); // 100 * 0.75
+        hex3.H.Should().Be(150); // 200 * 0.75
     }
 
     [Fact]
@@ -150,10 +167,10 @@ public class HexCoordinatesTests
         var hex4 = new HexCoordinates(1, 1); // Odd Q
 
         // Assert
-        hex1.Y.Should().Be(0);
-        hex2.Y.Should().Be(HexCoordinates.HexHeight);
-        hex3.Y.Should().Be(HexCoordinates.HexHeight*0.5);  // Offset for odd Q
-        hex4.Y.Should().Be(HexCoordinates.HexHeight*1.5);  // Height + 0.5*Height offset for odd Q
+        hex1.V.Should().Be(0);
+        hex2.V.Should().Be(HexCoordinates.HexHeight);
+        hex3.V.Should().Be(HexCoordinates.HexHeight*0.5);  // Offset for odd Q
+        hex4.V.Should().Be(HexCoordinates.HexHeight*1.5);  // Height + 0.5*Height offset for odd Q
     }
     
     [Fact]

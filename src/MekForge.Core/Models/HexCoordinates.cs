@@ -18,48 +18,60 @@ public readonly record struct HexCoordinates
     /// R coordinate (row)
     /// </summary>
     public int R { get; init; }
+
+    /// <summary>
+    /// Gets the cube coordinate S (derived from Q and R)
+    /// </summary>
+    public int S { get; }
+
+    // Cached cube coordinates
+    public int X { get; }
+    public int Y { get; }
+    public int Z { get; }
     
     /// <summary>
     /// Gets the X coordinate in pixels for rendering
     /// </summary>
-    public double X => Q * HexHorizontalSpacing;
+    public double H => Q * HexHorizontalSpacing;
 
     /// <summary>
     /// Gets the Y coordinate in pixels for rendering
     /// </summary>
-    public double Y => R * HexHeight + (Q % 2 == 0 ? 0 : HexHeight * 0.5);
+    public double V => R * HexHeight + (Q % 2 == 0 ? 0 : HexHeight * 0.5);
 
     public HexCoordinates(int q, int r)
     {
         Q = q;
         R = r;
-    }
 
-    /// <summary>
-    /// Gets the cube coordinate S (derived from Q and R)
-    /// </summary>
-    public int S => -Q - R;
+        S = -Q - R;
+        
+        // Precompute cube coordinates (X, Y, Z)
+        X = Q;
+        Z = R - (Q + (Q & 1)) / 2; // Handles staggered row adjustment
+        Y = -X - Z;
+    }
 
     // Offsets for the six directions, adjusted for even/odd column rows
     private static readonly (int dQ, int dR)[] OddRowDirections =
-    {
+    [
         (0, -1), // Direction 0: top
         (1, -1), // Direction 1: top-right
         (1, 0),  // Direction 2: bottom-right
         (0, 1),  // Direction 3: bottom
         (-1, 0), // Direction 4: bottom-left
         (-1, -1) // Direction 5: top-left
-    };
+    ];
 
     private static readonly (int dQ, int dR)[] EvenRowDirections =
-    {
+    [
         (0, -1), // Direction 0: top
         (1, 0),  // Direction 1: top-right
         (1, 1),  // Direction 2: bottom-right
         (0, 1),  // Direction 3: bottom
         (-1, 1), // Direction 4: bottom-left
         (-1, 0)  // Direction 5: top-left
-    };
+    ];
 
     public HexCoordinates Neighbor(int direction)
     {
@@ -85,17 +97,8 @@ public readonly record struct HexCoordinates
     /// </summary>
     public int DistanceTo(HexCoordinates other)
     {
-        // Convert axial to cube coordinates
-        var x1 = Q;
-        var z1 = R - (Q + (Q % 2)) / 2; // Fix staggered row handling
-        var y1 = -x1 - z1;
-
-        var x2 = other.Q;
-        var z2 = other.R - (other.Q + (other.Q % 2)) / 2; // Fix staggered row handling
-        var y2 = -x2 - z2;
-
         // Use Manhattan distance in cube space
-        return Math.Max(Math.Abs(x1 - x2), Math.Max(Math.Abs(y1 - y2), Math.Abs(z1 - z2)));
+        return Math.Max(Math.Abs(X - other.X), Math.Max(Math.Abs(Y - other.Y), Math.Abs(Z - other.Z)));
     }
 
     /// <summary>
@@ -129,21 +132,11 @@ public readonly record struct HexCoordinates
         var n = DistanceTo(target);
         var result = new List<HexCoordinates>();
 
-        // Convert to cube coordinates for linear interpolation
-        var x1 = Q;
-        var z1 = R - (Q + (Q & 1)) / 2;
-        var y1 = -x1 - z1;
-
-        var x2 = target.Q;
-        var z2 = target.R - (target.Q + (target.Q & 1)) / 2;
-        var y2 = -x2 - z2;
-
         for (int i = 0; i <= n; i++)
         {
             var t = 1.0f * i / n;
-            var x = (int)Math.Round(x1 * (1 - t) + x2 * t);
-            var y = (int)Math.Round(y1 * (1 - t) + y2 * t);
-            var z = (int)Math.Round(z1 * (1 - t) + z2 * t);
+            var x = (int)Math.Round(X * (1 - t) + target.X * t);
+            var z = (int)Math.Round(Z * (1 - t) + target.Z * t);
 
             // Convert back to axial coordinates
             var q = x;
