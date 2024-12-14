@@ -67,9 +67,12 @@ public class NewGameViewModel : BaseViewModel
                 forestCoverage: ForestCoverage / 100.0,
                 lightWoodsProbability: LightWoodsPercentage / 100.0));
 
+        List<Unit> units= [];
+        if (SelectedUnit!= null) units.Add(SelectedUnit!);
+        var battleState = new BattleState(map,units);
+
         var battleMapViewModel = NavigationService.GetViewModel<BattleMapViewModel>();
-        battleMapViewModel.BattleMap = map;
-        battleMapViewModel.Unit = SelectedUnit;
+        battleMapViewModel.BattleState = battleState;
 
         await NavigationService.NavigateToViewModelAsync(battleMapViewModel);
     });

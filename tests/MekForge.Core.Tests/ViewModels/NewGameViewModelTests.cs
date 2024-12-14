@@ -52,8 +52,8 @@ public class NewGameViewModelTests
         _sut.ForestCoverage = 0;
         await ((IAsyncCommand)_sut.StartGameCommand).ExecuteAsync();
 
-        _battleMapViewModel.BattleMap.Should().NotBeNull();
-        var hex = _battleMapViewModel.BattleMap!.GetHexes().First();
+        _battleMapViewModel.BattleState.Should().NotBeNull();
+        var hex = _battleMapViewModel.BattleState!.GetHexes().First();
         hex.GetTerrains().Should().HaveCount(1);
         hex.GetTerrains().First().Should().BeOfType<ClearTerrain>();
     }
@@ -65,8 +65,8 @@ public class NewGameViewModelTests
         _sut.LightWoodsPercentage = 100;
         await ((IAsyncCommand)_sut.StartGameCommand).ExecuteAsync();
 
-        _battleMapViewModel.BattleMap.Should().NotBeNull();
-        var hexes = _battleMapViewModel.BattleMap!.GetHexes().ToList();
+        _battleMapViewModel.BattleState.Should().NotBeNull();
+        var hexes = _battleMapViewModel.BattleState!.GetHexes().ToList();
         hexes.Should().Contain(h => h.GetTerrains().Any(t => t is LightWoodsTerrain));
     }
 

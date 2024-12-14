@@ -22,7 +22,7 @@ public class BattleStateTests
                 return hex;
             });
         var map = BattleMap.GenerateMap(10, 10,generator);
-        _battleState = new BattleState(map);
+        _battleState = new BattleState(map,[]);
     }
 
     [Fact]

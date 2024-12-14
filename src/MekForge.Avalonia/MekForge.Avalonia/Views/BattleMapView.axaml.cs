@@ -43,22 +43,22 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
         MapCanvas.AddHandler(Gestures.PinchEvent, OnPinchChanged);
     }
 
-    private void RenderMap(BattleMap battleMap, IImageService<Bitmap> imageService)
+    private void RenderMap(BattleState battleState, IImageService<Bitmap> imageService)
     {
         MapCanvas.Children.Clear();
 
-        foreach (var hex in battleMap.GetHexes())
+        foreach (var hex in battleState.GetHexes())
         {
             var hexControl = new HexControl(hex, imageService);
             MapCanvas.Children.Add(hexControl);
         }
 
-        if (ViewModel?.Unit == null) return;
-        var unitControl = new UnitControl(ViewModel.Unit, imageService);
-        MapCanvas.Children.Add(unitControl);
-        var hexToDeploy = battleMap.GetHexes().FirstOrDefault();
-        if (hexToDeploy == null) return;
-        ViewModel.Unit.Deploy(hexToDeploy.Coordinates);
+        // if (ViewModel?.Unit == null) return;
+        // var unitControl = new UnitControl(ViewModel.Unit, imageService);
+        // MapCanvas.Children.Add(unitControl);
+        // var hexToDeploy = battleMap.GetHexes().FirstOrDefault();
+        // if (hexToDeploy == null) return;
+        // ViewModel.Unit.Deploy(hexToDeploy.Coordinates);
     }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -97,7 +97,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
             if (selectedHex != null && ViewModel!=null)
             {
                 // Assign the hex coordinates to the ViewModel's unit position
-                ViewModel.Unit?.MoveTo(selectedHex.Hex.Coordinates);
+                ViewModel?.SelectHex(selectedHex.Hex);
             }
         }
         base.OnPointerReleased(e);
@@ -137,9 +137,9 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
     protected override void OnViewModelSet()
     {
         base.OnViewModelSet();
-        if (ViewModel is { BattleMap: not null })
+        if (ViewModel is { BattleState: not null })
         {
-                RenderMap(ViewModel.BattleMap, (IImageService<Bitmap>)ViewModel.ImageService);
+                RenderMap(ViewModel.BattleState, (IImageService<Bitmap>)ViewModel.ImageService);
         }
     }
 }
