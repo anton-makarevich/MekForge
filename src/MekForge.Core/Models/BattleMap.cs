@@ -1,6 +1,5 @@
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Exceptions;
-using Sanet.MekForge.Core.Models.Terrains;
 using Sanet.MekForge.Core.Utils.Generators;
 
 namespace Sanet.MekForge.Core.Models;
@@ -227,13 +226,7 @@ public class BattleMap
             foreach (var terrainType in hex.TerrainTypes)
             {
                 // Map terrain type strings to terrain classes
-                Terrain terrain = terrainType switch
-                {
-                    "Clear" => new ClearTerrain(),
-                    "LightWoods" => new LightWoodsTerrain(),
-                    "HeavyWoods" => new HeavyWoodsTerrain(),
-                    _ => throw new ArgumentException($"Unknown terrain type: {terrainType}")
-                };
+                var terrain = Terrain.GetTerrainType(terrainType);
                 newHex.AddTerrain(terrain);
             }
             map.AddHex(newHex);
