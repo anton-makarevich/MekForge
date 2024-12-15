@@ -16,7 +16,7 @@ MekForge is an open-source tactical combat game featuring giant walking war mach
 
 ### Planned
 - Single-player combat against AI opponents
-- Multiplayer support (LAN and Internet)
+- Multiplayer support (LAN and Internet, WebSockets/SignalR)
 - Unit customization and management
 - Compatible with common community data formats
 
