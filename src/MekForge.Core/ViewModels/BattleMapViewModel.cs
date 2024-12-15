@@ -1,5 +1,5 @@
-using Sanet.MekForge.Core.Game;
 using Sanet.MekForge.Core.Models;
+using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services;
 using Sanet.MVVM.Core.ViewModels;

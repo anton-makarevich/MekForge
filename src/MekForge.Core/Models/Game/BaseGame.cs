@@ -1,10 +1,9 @@
 using Sanet.MekForge.Core.Data;
-using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Protocol;
 using Sanet.MekForge.Core.Utils.TechRules;
 
-namespace Sanet.MekForge.Core.Game;
+namespace Sanet.MekForge.Core.Models.Game;
 
 public abstract class BaseGame : IGame
 {
@@ -13,7 +12,9 @@ public abstract class BaseGame : IGame
     private readonly List<IPlayer> _players = new();
     private readonly MechFactory _mechFactory;
     public Guid GameId { get; private set; }
-    
+    public int Turn { get; protected set; } = 1;
+    public Phase CurrentPhase { get; protected set; } = Phase.Start;
+
     protected BaseGame(
         BattleState battleState,
         IRulesProvider rulesProvider,

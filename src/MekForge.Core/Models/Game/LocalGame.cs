@@ -1,10 +1,9 @@
 using Sanet.MekForge.Core.Data;
-using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Protocol;
 using Sanet.MekForge.Core.Utils.TechRules;
 
-namespace Sanet.MekForge.Core.Game;
+namespace Sanet.MekForge.Core.Models.Game;
 
 public class LocalGame : BaseGame
 {
