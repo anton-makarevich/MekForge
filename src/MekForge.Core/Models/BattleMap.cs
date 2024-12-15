@@ -222,7 +222,7 @@ public class BattleMap
             hexData.Max(h => h.Coordinates.R) + 1);
         foreach (var hex in hexData)
         {
-            var newHex = new Hex(new HexCoordinates(hex.Coordinates));
+            var newHex = new Hex(new HexCoordinates(hex.Coordinates), hex.Level);
             foreach (var terrainType in hex.TerrainTypes)
             {
                 // Map terrain type strings to terrain classes
