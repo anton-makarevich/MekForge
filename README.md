@@ -33,8 +33,7 @@ MekForge/
 ├── src/
 │   ├── MekForge.Core/        # Core game engine and logic
 │   └── MekForge.Avalonia/    # UI implementation
-├── tests/                    # Unit tests
-└── docs/                     # Documentation
+└── tests/                    # Unit tests
 ```
 
 ### Project Status

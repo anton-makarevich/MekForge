@@ -1,3 +1,5 @@
+using Sanet.MekForge.Core.Data;
+
 namespace Sanet.MekForge.Core.Models;
 
 /// <summary>
@@ -47,4 +49,19 @@ public class Hex
     public int MovementCost => _terrains.Count != 0 
         ? _terrains.Values.Max(t => t.TerrainFactor)
         : 1; // Default cost for empty hex
+
+    public string[] GetTerrainTypes()
+    {
+        return _terrains.Values.Select(t => t.Id).ToArray(); 
+    }
+    
+    public HexData ToData()
+    {
+        return new HexData
+        {
+            Coordinates = Coordinates.ToData(),
+            TerrainTypes = GetTerrainTypes(),
+            Level = Level
+        };
+    }
 }

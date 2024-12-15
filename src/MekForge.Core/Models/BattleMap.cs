@@ -1,3 +1,4 @@
+using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Utils.Generators;
 
@@ -211,6 +212,25 @@ public class BattleMap
             }
         }
 
+        return map;
+    }
+
+    public static BattleMap CreateFromData(IList<HexData> hexData)
+    {
+        var map = new BattleMap(
+            hexData.Max(h => h.Coordinates.Q) + 1,
+            hexData.Max(h => h.Coordinates.R) + 1);
+        foreach (var hex in hexData)
+        {
+            var newHex = new Hex(new HexCoordinates(hex.Coordinates), hex.Level);
+            foreach (var terrainType in hex.TerrainTypes)
+            {
+                // Map terrain type strings to terrain classes
+                var terrain = Terrain.GetTerrainType(terrainType);
+                newHex.AddTerrain(terrain);
+            }
+            map.AddHex(newHex);
+        }
         return map;
     }
 

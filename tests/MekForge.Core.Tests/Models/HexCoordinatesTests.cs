@@ -203,4 +203,18 @@ public class HexCoordinatesTests
         hexes.Count.Should().Be(1);
         hexes.Should().ContainSingle().Which.Should().Be(coordinates);
     }
+    
+    [Fact]
+    public void ToData_ReturnsCorrectDataObject()
+    {
+        // Arrange
+        var hexCoordinates = new HexCoordinates(3, 4);
+         
+        // Act
+        var data = hexCoordinates.ToData();
+         
+        // Assert
+        data.Q.Should().Be(3);
+        data.R.Should().Be(4);
+    }
 }

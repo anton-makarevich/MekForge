@@ -1,3 +1,5 @@
+using Sanet.MekForge.Core.Data;
+
 namespace Sanet.MekForge.Core.Models;
 
 /// <summary>
@@ -39,6 +41,7 @@ public readonly record struct HexCoordinates
     /// </summary>
     public double V => R * HexHeight + (Q % 2 == 0 ? 0 : HexHeight * 0.5);
 
+    public HexCoordinates(HexCoordinateData data) : this(data.Q, data.R) { }
     public HexCoordinates(int q, int r)
     {
         Q = q;
@@ -146,4 +149,6 @@ public readonly record struct HexCoordinates
 
         return result;
     }
+    
+    public HexCoordinateData ToData() => new(Q, R);
 }

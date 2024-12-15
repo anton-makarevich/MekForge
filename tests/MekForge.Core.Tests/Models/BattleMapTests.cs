@@ -279,4 +279,31 @@ public class BattleMapTests
         // Verify generator was called for each hex
         generator.Received(width * height).Generate(Arg.Any<HexCoordinates>());
     }
+    
+    [Fact]
+    public void CreateFromData_ShouldCloneHexesCorrectly()
+    {
+        // Arrange
+        var originalMap = new BattleMap(2, 2);
+        var woodHex = new Hex(new HexCoordinates(0, 0), 1);
+        woodHex.AddTerrain(new HeavyWoodsTerrain());
+        originalMap.AddHex(woodHex);
+        originalMap.AddHex(new Hex(new HexCoordinates(0, 1),2));
+        originalMap.AddHex(new Hex(new HexCoordinates(1, 0)));
+        originalMap.AddHex(new Hex(new HexCoordinates(1, 1)));
+        
+        var hexDataList = originalMap.GetHexes().Select(hex => hex.ToData()).ToList();
+
+        // Act
+        var clonedMap = BattleMap.CreateFromData(hexDataList);
+
+        // Assert
+        foreach (var hex in originalMap.GetHexes())
+        {
+            var clonedHex = clonedMap.GetHex(hex.Coordinates);
+            clonedHex.Should().NotBeNull();
+            clonedHex.Level.Should().Be(hex.Level);
+            clonedHex.GetTerrainTypes().Should().BeEquivalentTo(hex.GetTerrainTypes());
+        }
+    }
 }

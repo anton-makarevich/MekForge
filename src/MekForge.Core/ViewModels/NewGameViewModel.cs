@@ -6,6 +6,7 @@ using Sanet.MekForge.Core.Game;
 using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Game.Protocol;
 using Sanet.MekForge.Core.Models.Terrains;
+using Sanet.MekForge.Core.Utils;
 using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MekForge.Core.Utils.TechRules;
 using Sanet.MVVM.Core.ViewModels;
@@ -80,11 +81,12 @@ public class NewGameViewModel : BaseViewModel
                 forestCoverage: ForestCoverage / 100.0,
                 lightWoodsProbability: LightWoodsPercentage / 100.0));
         
-        var battleState = new BattleState(map);
+        var hexDataList = map.GetHexes().Select(hex => hex.ToData()).ToList();
+        var localBattleState = new BattleState(BattleMap.CreateFromData(hexDataList));
         
-        _gameManager.StartServer(battleState);
+        _gameManager.StartServer(localBattleState);
         var player = new Player(Guid.NewGuid(), "Player 1");
-        var localGame = new LocalGame(battleState, _rulesProvider, _commandPublisher, player);
+        var localGame = new LocalGame(localBattleState, _rulesProvider, _commandPublisher, player);
 
         var battleMapViewModel = NavigationService.GetViewModel<BattleMapViewModel>();
         if (SelectedUnit != null) localGame.JoinGameWithUnits([SelectedUnit.Value]);
