@@ -13,7 +13,10 @@ public abstract class BaseGame : IGame
     private readonly List<IPlayer> _players = new();
     private readonly MechFactory _mechFactory;
     
-    protected BaseGame(BattleState battleState, IRulesProvider rulesProvider, ICommandPublisher commandPublisher)
+    protected BaseGame(
+        BattleState battleState,
+        IRulesProvider rulesProvider,
+        ICommandPublisher commandPublisher)
     {
         BattleState = battleState;
         CommandPublisher = commandPublisher;
@@ -49,7 +52,6 @@ public abstract class BaseGame : IGame
 
     private bool ValidateDeployCommand(DeployUnitCommand cmd)
     {
-        //var unit = _battleState.GetUnit(cmd.UnitId);
         return true; //unit != null && !unit.Position.HasValue;
     }
 
