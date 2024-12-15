@@ -1,8 +1,11 @@
 using AsyncAwaitBestPractices.MVVM;
 using FluentAssertions;
 using NSubstitute;
+using Sanet.MekForge.Core.Game;
+using Sanet.MekForge.Core.Models.Game.Protocol;
 using Sanet.MekForge.Core.Models.Terrains;
 using Sanet.MekForge.Core.Services;
+using Sanet.MekForge.Core.Utils.TechRules;
 using Sanet.MekForge.Core.ViewModels;
 using Sanet.MVVM.Core.Services;
 
@@ -20,8 +23,12 @@ public class NewGameViewModelTests
         var imageService = Substitute.For<IImageService>();
         _battleMapViewModel = new BattleMapViewModel(imageService);
         _navigationService.GetViewModel<BattleMapViewModel>().Returns(_battleMapViewModel);
+        
+        var rulesProvider = Substitute.For<IRulesProvider>();
+        var gameManager = Substitute.For<IGameManager>();
+        var commandPublisher = Substitute.For<ICommandPublisher>();
 
-        _sut = new NewGameViewModel();
+        _sut = new NewGameViewModel(gameManager,rulesProvider,commandPublisher);
         _sut.SetNavigationService(_navigationService);
     }
 

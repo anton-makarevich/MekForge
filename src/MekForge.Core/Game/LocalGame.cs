@@ -19,6 +19,7 @@ public class LocalGame : BaseGame
     
     public override void HandleCommand(GameCommand command)
     {
+        if (command.GameOriginId == this.GameId) return;
         switch (command)
         {
             case JoinGameCommand joinCmd:

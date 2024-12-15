@@ -12,12 +12,14 @@ public abstract class BaseGame : IGame
     protected readonly ICommandPublisher CommandPublisher;
     private readonly List<IPlayer> _players = new();
     private readonly MechFactory _mechFactory;
+    public Guid GameId { get; private set; }
     
     protected BaseGame(
         BattleState battleState,
         IRulesProvider rulesProvider,
         ICommandPublisher commandPublisher)
     {
+        GameId = Guid.NewGuid(); 
         BattleState = battleState;
         CommandPublisher = commandPublisher;
         _mechFactory = new MechFactory(rulesProvider);

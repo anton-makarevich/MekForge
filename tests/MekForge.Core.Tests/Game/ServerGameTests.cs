@@ -38,4 +38,24 @@ public class ServerGameTests
         // Assert
         _serverGame.Players.Should().HaveCount(1);
     }
+
+    [Fact]
+    public void HandleCommand_ShouldNotProcessOwnCommands_WhenGameOriginIdMatches()
+    {
+        // Arrange
+        var command = new JoinGameCommand
+        {
+            PlayerId = Guid.NewGuid(),
+            PlayerName = "Player1",
+            Units = new List<UnitData>(),
+            GameOriginId = _serverGame.GameId // Set to this game's ID
+        };
+
+        // Act
+        _serverGame.HandleCommand(command);
+
+        // Assert
+        // Verify that no players were added since the command was from this game instance
+        _serverGame.Players.Should().BeEmpty();
+    }
 }
