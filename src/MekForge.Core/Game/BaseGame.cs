@@ -52,6 +52,11 @@ public abstract class BaseGame : IGame
         };
     }
 
+    protected bool ShouldHandleCommand(GameCommand command)
+    {
+        return command.GameOriginId != GameId && command.GameOriginId != Guid.Empty;
+    }
+
     private bool ValidateJoinCommand(JoinGameCommand joinCommand)
     {
         return true;

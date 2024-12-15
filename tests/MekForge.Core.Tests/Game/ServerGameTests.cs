@@ -29,6 +29,7 @@ public class ServerGameTests
         {
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
+            GameOriginId = Guid.NewGuid(),
             Units = new List<UnitData>()
         };
 

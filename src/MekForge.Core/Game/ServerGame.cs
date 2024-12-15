@@ -14,12 +14,12 @@ public class ServerGame : BaseGame
     
     public override void HandleCommand(GameCommand command)
     {
-        if (command.GameOriginId == this.GameId) return;
+        if (!ShouldHandleCommand(command)) return;
 
         if (!ValidateCommand(command)) return;
         ExecuteCommand(command);
 
-        command.GameOriginId = this.GameId; // Set the GameOriginId before publishing
+        command.GameOriginId = GameId; // Set the GameOriginId before publishing
         CommandPublisher.PublishCommand(command); // Broadcast to all clients
     }
     

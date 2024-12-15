@@ -22,6 +22,7 @@ public class BaseGameTests() : BaseGame(new BattleState(
         {
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
+            GameOriginId = Guid.NewGuid(),
             Units = new List<UnitData>()
         };
 

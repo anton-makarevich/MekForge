@@ -32,6 +32,7 @@ public class LocalGameTests
         {
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
+            GameOriginId = Guid.NewGuid(),
             Units = new List<UnitData>()
         };
 
@@ -41,6 +42,26 @@ public class LocalGameTests
         // Assert
         _localGame.Players.Should().HaveCount(1);
         _localGame.Players[0].Name.Should().Be(joinCommand.PlayerName);
+    }
+    
+    [Fact]
+    public void HandleCommand_ShouldNotProcessOwnCommands_WhenGameOriginIdMatches()
+    {
+        // Arrange
+        var command = new JoinGameCommand
+        {
+            PlayerId = Guid.NewGuid(),
+            PlayerName = "Player1",
+            Units = new List<UnitData>(),
+            GameOriginId = _localGame.GameId // Set to this game's ID
+        };
+
+        // Act
+        _localGame.HandleCommand(command);
+
+        // Assert
+        // Verify that no players were added since the command was from this game instance
+        _localGame.Players.Should().BeEmpty();
     }
 
     [Fact]
