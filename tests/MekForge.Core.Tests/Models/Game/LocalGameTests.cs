@@ -13,15 +13,13 @@ public class LocalGameTests
 {
     private readonly LocalGame _localGame;
     private readonly ICommandPublisher _commandPublisher;
-    private readonly IPlayer _localPlayer;
 
     public LocalGameTests()
     {
         var battleState = new BattleState(new BattleMap(5, 5));
         _commandPublisher = Substitute.For<ICommandPublisher>();
         var rulesProvider = Substitute.For<IRulesProvider>();
-        _localPlayer = Substitute.For<IPlayer>();
-        _localGame = new LocalGame(battleState, rulesProvider, _commandPublisher, _localPlayer);
+        _localGame = new LocalGame(battleState, rulesProvider, _commandPublisher);
     }
 
     [Fact]
@@ -69,14 +67,15 @@ public class LocalGameTests
     {
         // Arrange
         var units = new List<UnitData>();
+        var player = new Player(Guid.NewGuid(), "Player1");
 
         // Act
-        _localGame.JoinGameWithUnits(units);
+        _localGame.JoinGameWithUnits(player, units);
 
         // Assert
         _commandPublisher.Received(1).PublishCommand(Arg.Is<JoinGameCommand>(cmd =>
-            cmd.PlayerId == _localPlayer.Id &&
-            cmd.PlayerName == _localPlayer.Name &&
+            cmd.PlayerId == player.Id &&
+            cmd.PlayerName == player.Name &&
             cmd.Units.Count == units.Count));
     }
 }

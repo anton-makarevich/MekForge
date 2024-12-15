@@ -9,6 +9,7 @@ public class Player : IPlayer
     public Guid Id { get; }
     public string Name { get; }
     public IReadOnlyList<Unit> Units => _units;
+    public PlayerStatus Status { get; set; }
 
     public Player(Guid id, string name)
     {
