@@ -1,9 +1,8 @@
 using Sanet.MekForge.Core.Models.Units;
-using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
-namespace Sanet.MekForge.Core.Utils.MechData;
+namespace Sanet.MekForge.Core.Data;
 
-public record struct MechData
+public record struct UnitData
 {
     public required string Chassis { get; init; }
     public required string Model { get; init; }

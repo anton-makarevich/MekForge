@@ -39,7 +39,7 @@
             SelectedItem="{Binding SelectedUnit}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Name}"/>
+                    <TextBlock Text="{Binding Chassis}"/>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

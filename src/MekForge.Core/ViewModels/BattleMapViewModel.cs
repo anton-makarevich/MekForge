@@ -1,3 +1,4 @@
+using Sanet.MekForge.Core.Game;
 using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services;
@@ -7,7 +8,7 @@ namespace Sanet.MekForge.Core.ViewModels;
 
 public class BattleMapViewModel : BaseViewModel
 {
-    private BattleState? _battleState;
+    private IGame? _game;
     private readonly IImageService _imageService;
 
     public BattleMapViewModel(IImageService imageService)
@@ -15,10 +16,10 @@ public class BattleMapViewModel : BaseViewModel
         _imageService = imageService;
     }
 
-    public BattleState? BattleState
+    public IGame? Game
     {
-        get => _battleState;
-        set => SetProperty(ref _battleState, value);
+        get => _game;
+        set => SetProperty(ref _game, value);
     }
 
     public IImageService ImageService => _imageService;

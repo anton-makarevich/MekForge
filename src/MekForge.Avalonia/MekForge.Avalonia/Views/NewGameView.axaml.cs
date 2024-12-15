@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Data.Community;
 using Sanet.MekForge.Core.Models.Units;
-using Sanet.MekForge.Core.Utils.MechData;
-using Sanet.MekForge.Core.Utils.MechData.Community;
 using Sanet.MekForge.Core.Utils.TechRules;
 using Sanet.MekForge.Core.ViewModels;
 using Sanet.MVVM.Views.Avalonia;
@@ -22,13 +22,11 @@ public partial class NewGameView : BaseView<NewGameViewModel>
     {
         if (ViewModel == null) return;
         var mtfDataProvider = new MtfDataProvider();
-        var rulesProvider = new ClassicBattletechRulesProvider();
-        var mechFactory = new MechFactory(rulesProvider);
 
         var assembly = typeof(App).Assembly;
         var resources = assembly.GetManifestResourceNames();
 
-        var units = new List<Unit>();
+        var units = new List<UnitData>();
         foreach (var resourceName in resources)
         {
             if (!resourceName.EndsWith(".mtf", StringComparison.OrdinalIgnoreCase)) continue;
@@ -37,9 +35,9 @@ public partial class NewGameView : BaseView<NewGameViewModel>
             using var reader = new StreamReader(stream);
             var mtfData = await reader.ReadToEndAsync();
             var mechData = mtfDataProvider.LoadMechFromTextData(mtfData.Split('\n'));
-            var mech = mechFactory.Create(mechData);
+            //var mech = mechFactory.Create(mechData);
                 
-            units.Add(mech);
+            units.Add(mechData);
         }
 
         ViewModel.InitializeUnits(units);

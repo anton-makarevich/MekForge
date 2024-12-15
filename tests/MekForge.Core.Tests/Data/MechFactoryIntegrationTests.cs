@@ -1,11 +1,10 @@
 using FluentAssertions;
+using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Data.Community;
 using Sanet.MekForge.Core.Models.Units.Mechs;
-using Sanet.MekForge.Core.Utils.MechData;
-using Sanet.MekForge.Core.Utils.MechData.Community;
 using Sanet.MekForge.Core.Utils.TechRules;
-using System.IO;
 
-namespace Sanet.MekForge.Core.Tests.Utils.MechData;
+namespace Sanet.MekForge.Core.Tests.Data;
 
 public class MechFactoryIntegrationTests
 {   

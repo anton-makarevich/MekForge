@@ -9,7 +9,7 @@ using Sanet.MekForge.Core.Models.Units.Components.Weapons.Missile;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.Utils.TechRules;
 
-namespace Sanet.MekForge.Core.Utils.MechData;
+namespace Sanet.MekForge.Core.Data;
 
 public class MechFactory
 {
@@ -20,22 +20,22 @@ public class MechFactory
         _rulesProvider = rulesProvider;
     }
 
-    public Mech Create(MechData mechData)
+    public Mech Create(Data.UnitData unitData)
     {
         
         // Create parts with appropriate armor and structure
-        var parts = CreateParts(mechData.ArmorValues, _rulesProvider, mechData.Mass);
+        var parts = CreateParts(unitData.ArmorValues, _rulesProvider, unitData.Mass);
         
         // Create the mech
         var mech = new Mech(
-            mechData.Chassis,
-            mechData.Model,
-            mechData.Mass,
-            mechData.WalkMp,
+            unitData.Chassis,
+            unitData.Model,
+            unitData.Mass,
+            unitData.WalkMp,
             parts);
 
         // Add equipment to parts
-        AddEquipmentToParts(mech, mechData);
+        AddEquipmentToParts(mech, unitData);
 
         return mech;
     }
@@ -60,9 +60,9 @@ public class MechFactory
         return parts;
     }
 
-    private void AddEquipmentToParts(Mech mech, MechData mechData)
+    private void AddEquipmentToParts(Mech mech, Data.UnitData unitData)
     {
-        foreach (var (location, equipment) in mechData.LocationEquipment)
+        foreach (var (location, equipment) in unitData.LocationEquipment)
         {
             var part = mech.Parts.First(p => p.Location == location);
             var componentCounts = new Dictionary<MekForgeComponent, int>(); // Track component counts
@@ -72,7 +72,7 @@ public class MechFactory
                 componentCounts.TryAdd(item, 0);
                 componentCounts[item]++;
 
-                var component = CreateComponent(item, mechData);
+                var component = CreateComponent(item, unitData);
                 if (component == null || (componentCounts[item] < component.Size && component is not Engine)) continue;
                 part.TryAddComponent(component);
                 componentCounts[item] = 0; // Reset count after adding
@@ -80,11 +80,11 @@ public class MechFactory
         }
     }
 
-    private Component? CreateComponent(MekForgeComponent itemName, MechData mechData)
+    private Component? CreateComponent(MekForgeComponent itemName, Data.UnitData unitData)
     {
         return itemName switch
         {
-            MekForgeComponent.Engine => new Engine(mechData.EngineRating, MapEngineType(mechData.EngineType)),
+            MekForgeComponent.Engine => new Engine(unitData.EngineRating, MapEngineType(unitData.EngineType)),
             MekForgeComponent.ISAmmoAC5 => new Ammo(AmmoType.AC5, _rulesProvider.GetAmmoRounds(AmmoType.AC5)),
             MekForgeComponent.ISAmmoSRM2 => new Ammo(AmmoType.SRM2, _rulesProvider.GetAmmoRounds(AmmoType.SRM2)),
             MekForgeComponent.ISAmmoMG => new Ammo(AmmoType.MachineGun, _rulesProvider.GetAmmoRounds(AmmoType.MachineGun)),
