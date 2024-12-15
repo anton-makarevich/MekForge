@@ -21,9 +21,14 @@ public abstract class BaseGame : IGame
         BattleState = battleState;
         CommandPublisher = commandPublisher;
         _mechFactory = new MechFactory(rulesProvider);
+        CommandPublisher.Subscribe(HandleCommand);
     }
 
     public IReadOnlyList<IPlayer> Players => _players;
+    public IEnumerable<Hex> GetHexes()
+    {
+        return BattleState.GetHexes();
+    }
 
     protected void AddPlayer(JoinGameCommand joinGameCommand)
     {

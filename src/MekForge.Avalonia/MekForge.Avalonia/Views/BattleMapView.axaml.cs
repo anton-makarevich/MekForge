@@ -6,6 +6,7 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Sanet.MekForge.Avalonia.Controls;
+using Sanet.MekForge.Core.Game;
 using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.ViewModels;
@@ -43,11 +44,11 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
         MapCanvas.AddHandler(Gestures.PinchEvent, OnPinchChanged);
     }
 
-    private void RenderMap(BattleState battleState, IImageService<Bitmap> imageService)
+    private void RenderMap(IGame game, IImageService<Bitmap> imageService)
     {
         MapCanvas.Children.Clear();
 
-        foreach (var hex in battleState.GetHexes())
+        foreach (var hex in game.GetHexes())
         {
             var hexControl = new HexControl(hex, imageService);
             MapCanvas.Children.Add(hexControl);
@@ -137,9 +138,9 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
     protected override void OnViewModelSet()
     {
         base.OnViewModelSet();
-        if (ViewModel is { BattleState: not null })
+        if (ViewModel is { Game: not null })
         {
-                RenderMap(ViewModel.BattleState, (IImageService<Bitmap>)ViewModel.ImageService);
+                RenderMap(ViewModel.Game, (IImageService<Bitmap>)ViewModel.ImageService);
         }
     }
 }

@@ -15,8 +15,6 @@ public class LocalGame : BaseGame
         : base(battleState, rulesProvider, commandPublisher)
     {
         LocalPlayer = localPlayer;
-        
-        CommandPublisher.Subscribe(HandleCommand);
     }
     
     public override void HandleCommand(GameCommand command)
