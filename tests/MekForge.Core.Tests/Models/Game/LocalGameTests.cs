@@ -78,4 +78,69 @@ public class LocalGameTests
             cmd.PlayerName == player.Name &&
             cmd.Units.Count == units.Count));
     }
+    
+    [Fact]
+    public void HandleCommand_ShouldSetPlayerStatus_WhenPlayerStatusCommandIsReceived()
+    {
+        // Arrange
+        var playerId = Guid.NewGuid();
+        var player = new Player(playerId, "Player1");
+        _localGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = player.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = player.Name, Units = []
+        });
+
+        var statusCommand = new PlayerStatusCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = playerId,
+            PlayerStatus = PlayerStatus.Playing
+        };
+
+        // Act
+        _localGame.HandleCommand(statusCommand);
+
+        // Assert
+        var updatedPlayer = _localGame.Players.FirstOrDefault(p => p.Id == playerId);
+        updatedPlayer.Should().NotBeNull();
+        updatedPlayer.Status.Should().Be(PlayerStatus.Playing);
+    }
+    
+    [Fact]
+    public void SetPlayerReady_ShouldNotPublishPlayerStatusCommand_WhenCalled_ButPlayerIsNotInGame()
+    {
+        // Arrange
+        var player = new Player(Guid.NewGuid(), "Player1");
+
+        // Act
+        _localGame.SetPlayerReady(player);
+
+        // Assert
+        _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<PlayerStatusCommand>());
+    }
+    
+    [Fact]
+    public void SetPlayerReady_ShouldPublishPlayerStatusCommand_WhenCalled_AndPlayerIsInGame()
+    {
+        // Arrange
+        var player = new Player(Guid.NewGuid(), "Player1");
+        _localGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = player.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = player.Name, Units = []
+        });
+
+        // Act
+        _localGame.SetPlayerReady(player);
+
+        // Assert
+        _commandPublisher.Received(1).PublishCommand(Arg.Is<PlayerStatusCommand>(cmd => 
+            cmd.PlayerId == player.Id && 
+            cmd.PlayerStatus == PlayerStatus.Playing &&
+            cmd.GameOriginId == _localGame.GameId
+        ));
+    }
 }
