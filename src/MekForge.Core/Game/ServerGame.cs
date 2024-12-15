@@ -1,7 +1,10 @@
-using Sanet.MekForge.Core.Game;
+using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Protocol;
+using Sanet.MekForge.Core.Utils.TechRules;
+
+namespace Sanet.MekForge.Core.Game;
 
 public class ServerGame : IGame
 {
@@ -9,10 +12,11 @@ public class ServerGame : IGame
     private readonly ICommandPublisher _commandPublisher;
     private readonly List<IPlayer> _players = [];
     
-    public ServerGame(BattleState battleState, ICommandPublisher commandPublisher)
+    public ServerGame(BattleState battleState, IRulesProvider rulesProvider, ICommandPublisher commandPublisher)
     {
         _battleState = battleState;
         _commandPublisher = commandPublisher;
+        _mechFactory = new MechFactory(rulesProvider);
     }
     
     public void HandleCommand(GameCommand command)
@@ -58,6 +62,10 @@ public class ServerGame : IGame
     private void AddPlayer(JoinGameCommand joinGameCommand)
     {
         var player = new Player(joinGameCommand.PlayerId, joinGameCommand.PlayerName);
+        foreach (var unit in joinGameCommand.Units.Select(unitData => _mechFactory.Create(unitData)))
+        {
+            player.AddUnit(unit);
+        }
         _players.Add(player);
     }
     
@@ -74,4 +82,5 @@ public class ServerGame : IGame
     }
     
     private bool _isGameOver = false;
+    private readonly MechFactory _mechFactory;
 }
