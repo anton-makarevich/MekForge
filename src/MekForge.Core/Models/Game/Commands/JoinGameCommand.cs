@@ -2,4 +2,8 @@
 
 namespace Sanet.MekForge.Core.Models.Game.Commands;
 
-public record JoinGameCommand(string PlayerName, List<UnitData> Units) : GameCommand;
+public record JoinGameCommand: GameCommand
+{
+    public string PlayerName { get; init; }
+    public List<UnitData> Units { get; init; }
+}

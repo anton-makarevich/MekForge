@@ -1,9 +1,9 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using AsyncAwaitBestPractices.MVVM;
+using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Terrains;
-using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MVVM.Core.ViewModels;
 
@@ -21,9 +21,9 @@ public class NewGameViewModel : BaseViewModel
     public string ForestCoverageLabel => "Forest Coverage";
     public string LightWoodsLabel => "Light Woods Percentage";
     
-    private ObservableCollection<Unit> _availableUnits=[];
+    private ObservableCollection<UnitData> _availableUnits=[];
     
-    private Unit? _selectedUnit;
+    private UnitData? _selectedUnit;
 
     public int MapWidth
     {
@@ -66,10 +66,8 @@ public class NewGameViewModel : BaseViewModel
                 MapWidth, MapHeight,
                 forestCoverage: ForestCoverage / 100.0,
                 lightWoodsProbability: LightWoodsPercentage / 100.0));
-
-        List<Unit> units= [];
-        if (SelectedUnit!= null) units.Add(SelectedUnit!);
-        var battleState = new BattleState(map,units);
+        
+        var battleState = new BattleState(map);
 
         var battleMapViewModel = NavigationService.GetViewModel<BattleMapViewModel>();
         battleMapViewModel.BattleState = battleState;
@@ -77,13 +75,13 @@ public class NewGameViewModel : BaseViewModel
         await NavigationService.NavigateToViewModelAsync(battleMapViewModel);
     });
 
-    public ObservableCollection<Unit> AvailableUnits
+    public ObservableCollection<UnitData> AvailableUnits
     {
         get => _availableUnits;
         set => SetProperty(ref _availableUnits, value);
     }
 
-    public Unit? SelectedUnit
+    public UnitData? SelectedUnit
     {
         get => _selectedUnit;
         set
@@ -93,9 +91,9 @@ public class NewGameViewModel : BaseViewModel
         }
     }
 
-    public void InitializeUnits(List<Unit> units)
+    public void InitializeUnits(List<UnitData> units)
     {
         // Logic to load available units for selection
-        AvailableUnits = new ObservableCollection<Unit>(units);
+        AvailableUnits = new ObservableCollection<UnitData>(units);
     }
 }

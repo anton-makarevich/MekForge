@@ -5,13 +5,11 @@ namespace Sanet.MekForge.Core.Models;
 public class BattleState
 {
     private readonly BattleMap _map;
-    private readonly List<Unit> _units;
     private readonly Dictionary<HexCoordinates, Unit> _deployedUnits = new();
 
-    public BattleState(BattleMap map, List<Unit> units)
+    public BattleState(BattleMap map)
     {
         _map = map;
-        _units = units;
     }
 
     public bool TryDeployUnit(Unit unit, HexCoordinates coordinates)
