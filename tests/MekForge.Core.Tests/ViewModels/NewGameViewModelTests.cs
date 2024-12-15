@@ -1,10 +1,13 @@
 using AsyncAwaitBestPractices.MVVM;
 using FluentAssertions;
 using NSubstitute;
+using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Game;
+using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Game.Protocol;
 using Sanet.MekForge.Core.Models.Terrains;
 using Sanet.MekForge.Core.Services;
+using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Utils.TechRules;
 using Sanet.MekForge.Core.ViewModels;
 using Sanet.MVVM.Core.Services;
@@ -16,6 +19,7 @@ public class NewGameViewModelTests
     private readonly NewGameViewModel _sut;
     private readonly INavigationService _navigationService;
     private readonly BattleMapViewModel _battleMapViewModel;
+    private readonly IGameManager _gameManager;
 
     public NewGameViewModelTests()
     {
@@ -25,10 +29,11 @@ public class NewGameViewModelTests
         _navigationService.GetViewModel<BattleMapViewModel>().Returns(_battleMapViewModel);
         
         var rulesProvider = Substitute.For<IRulesProvider>();
-        var gameManager = Substitute.For<IGameManager>();
+        
+        _gameManager = Substitute.For<IGameManager>();
         var commandPublisher = Substitute.For<ICommandPublisher>();
 
-        _sut = new NewGameViewModel(gameManager,rulesProvider,commandPublisher);
+        _sut = new NewGameViewModel(_gameManager,rulesProvider,commandPublisher);
         _sut.SetNavigationService(_navigationService);
     }
 
@@ -83,5 +88,75 @@ public class NewGameViewModelTests
         await ((IAsyncCommand)_sut.StartGameCommand).ExecuteAsync();
 
         await _navigationService.Received(1).NavigateToViewModelAsync(_battleMapViewModel);
+    }
+
+    [Fact]
+    public void MapWidth_SetAndGet_ShouldUpdateCorrectly()
+    {
+        // Arrange
+        var newWidth = 20;
+
+        // Act
+        _sut.MapWidth = newWidth;
+
+        // Assert
+        _sut.MapWidth.Should().Be(newWidth);
+    }
+
+    [Fact]
+    public async Task StartGameCommand_ShouldInitializeGame_WhenExecuted()
+    {
+        // Arrange
+        var units = new List<UnitData> { MechFactoryTests.CreateDummyMechData() };
+        _sut.InitializeUnits(units);
+        _sut.SelectedUnit = units[0];
+
+        // Act
+        await ((AsyncCommand)_sut.StartGameCommand).ExecuteAsync();
+
+        // Assert
+        await _navigationService.Received(1).NavigateToViewModelAsync(_battleMapViewModel);
+        _gameManager.Received(1).StartServer(Arg.Any<BattleState>());
+    }
+
+    [Fact]
+    public void InitializeUnits_ShouldPopulateAvailableUnits()
+    {
+        // Arrange
+        var units = new List<UnitData> { MechFactoryTests.CreateDummyMechData() };
+
+        // Act
+        _sut.InitializeUnits(units);
+
+        // Assert
+        _sut.AvailableUnits.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public void CanStartGame_ShouldReturnTrue_WhenUnitIsSelected()
+    {
+        // Arrange
+        var unit = MechFactoryTests.CreateDummyMechData();
+        _sut.InitializeUnits([unit]);
+        _sut.SelectedUnit = unit;
+
+        // Act
+        var canStart = _sut.CanStartGame;
+
+        // Assert
+        canStart.Should().BeTrue();
+    }
+
+    [Fact]
+    public void CanStartGame_ShouldReturnFalse_WhenNoUnitIsSelected()
+    {
+        // Arrange
+        _sut.SelectedUnit = null;
+
+        // Act
+        var canStart = _sut.CanStartGame;
+
+        // Assert
+        canStart.Should().BeFalse();
     }
 }

@@ -33,7 +33,7 @@ public class MechFactoryTests
         _mechFactory = new MechFactory(structureValueProvider);
     }
 
-    private UnitData CreateDummyMechData(Tuple<PartLocation, List<MekForgeComponent>>? locationEquipment = null)
+    public static UnitData CreateDummyMechData(Tuple<PartLocation, List<MekForgeComponent>>? locationEquipment = null)
     {
         var data = new UnitData
         {
