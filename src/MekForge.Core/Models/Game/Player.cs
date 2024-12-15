@@ -1,6 +1,6 @@
 using Sanet.MekForge.Core.Models.Units;
 
-namespace Sanet.MekForge.Core.Game;
+namespace Sanet.MekForge.Core.Models.Game;
 
 public class Player : IPlayer
 {

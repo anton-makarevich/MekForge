@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Sanet.MekForge.Avalonia.Game.Protocol;
 using Sanet.MekForge.Avalonia.Services;
-using Sanet.MekForge.Core.Game;
+using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Protocol;
 using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.Utils.TechRules;

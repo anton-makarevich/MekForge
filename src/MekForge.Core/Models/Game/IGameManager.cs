@@ -1,6 +1,4 @@
-using Sanet.MekForge.Core.Models;
-
-namespace Sanet.MekForge.Core.Game;
+namespace Sanet.MekForge.Core.Models.Game;
 
 public interface IGameManager
 { 

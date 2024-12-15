@@ -1,9 +1,8 @@
-using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Protocol;
 using Sanet.MekForge.Core.Utils.TechRules;
 
-namespace Sanet.MekForge.Core.Game;
+namespace Sanet.MekForge.Core.Models.Game;
 
 public class ServerGame : BaseGame
 {
@@ -14,12 +13,12 @@ public class ServerGame : BaseGame
     
     public override void HandleCommand(GameCommand command)
     {
-        if (!ShouldHandleCommand(command)) return;
+        if (command.GameOriginId == this.GameId) return;
 
         if (!ValidateCommand(command)) return;
         ExecuteCommand(command);
 
-        command.GameOriginId = GameId; // Set the GameOriginId before publishing
+        command.GameOriginId = this.GameId; // Set the GameOriginId before publishing
         CommandPublisher.PublishCommand(command); // Broadcast to all clients
     }
     
@@ -46,5 +45,22 @@ public class ServerGame : BaseGame
     }
     
     private bool _isGameOver = false;
-    
+    private void NextPhase()
+    {
+        if (CurrentPhase == Phase.End)
+        {
+            Turn++;
+        }; 
+        CurrentPhase = CurrentPhase switch
+        {
+            Phase.Start => Phase.Deployment,
+            Phase.Deployment => Phase.Initiative,
+            Phase.Initiative => Phase.Movement,
+            Phase.Movement => Phase.Attack,
+            Phase.Attack => Phase.End,
+            Phase.End => Phase.Deployment,
+            
+            _ => CurrentPhase
+        };
+    }
 }

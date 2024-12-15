@@ -1,13 +1,13 @@
 using FluentAssertions;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
-using Sanet.MekForge.Core.Game;
 using Sanet.MekForge.Core.Models;
+using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Protocol;
 using Sanet.MekForge.Core.Utils.TechRules;
 
-namespace Sanet.MekForge.Core.Tests.Game;
+namespace Sanet.MekForge.Core.Tests.Models.Game;
 
 public class LocalGameTests
 {
