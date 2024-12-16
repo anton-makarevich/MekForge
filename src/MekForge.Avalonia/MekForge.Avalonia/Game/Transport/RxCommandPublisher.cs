@@ -1,9 +1,9 @@
 using System;
 using System.Reactive.Subjects;
 using Sanet.MekForge.Core.Models.Game.Commands;
-using Sanet.MekForge.Core.Models.Game.Protocol;
+using Sanet.MekForge.Core.Models.Game.Transport;
 
-namespace Sanet.MekForge.Avalonia.Game.Protocol;
+namespace Sanet.MekForge.Avalonia.Game.Transport;
 
 public class RxCommandPublisher : ICommandPublisher
 {

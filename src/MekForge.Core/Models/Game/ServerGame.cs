@@ -1,5 +1,6 @@
 using Sanet.MekForge.Core.Models.Game.Commands;
-using Sanet.MekForge.Core.Models.Game.Protocol;
+using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Models.Game;
@@ -13,8 +14,8 @@ public class ServerGame : BaseGame
     
     public override void HandleCommand(GameCommand command)
     {
-        if (!ShouldHandleCommand(command)) return;
-        if (command.PlayerId == null) return; // Server only accepts commands from players 
+        if (command is not ClientCommand) return;
+        if (!ShouldHandleCommand(command)) return; // Server only accepts commands from players 
 
         if (!ValidateCommand(command)) return;
         ExecuteCommand(command);
@@ -30,7 +31,7 @@ public class ServerGame : BaseGame
             case JoinGameCommand joinGameCommand:
                 AddPlayer(joinGameCommand);
                 break;
-            case PlayerStatusCommand playerStatusCommand:
+            case UpdatePlayerStatusCommand playerStatusCommand:
                 UpdatePlayerStatus(playerStatusCommand);
                 if (CurrentPhase == Phase.Start
                     && Players.Count(p => p.Status == PlayerStatus.Playing) == Players.Count)

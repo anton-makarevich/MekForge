@@ -1,6 +1,7 @@
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game.Commands;
-using Sanet.MekForge.Core.Models.Game.Protocol;
+using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Models.Game;
@@ -21,7 +22,7 @@ public class LocalGame : BaseGame
             case JoinGameCommand joinCmd:
                 AddPlayer(joinCmd);
                 break;
-            case PlayerStatusCommand playerStatusCommand:
+            case UpdatePlayerStatusCommand playerStatusCommand:
                 UpdatePlayerStatus(playerStatusCommand);
                 break;
         }
@@ -45,7 +46,7 @@ public class LocalGame : BaseGame
     
     public void SetPlayerReady(IPlayer player)
     {
-        var readyCommand = new PlayerStatusCommand() { PlayerId = player.Id, GameOriginId = GameId, PlayerStatus = PlayerStatus.Playing };
+        var readyCommand = new UpdatePlayerStatusCommand() { PlayerId = player.Id, GameOriginId = GameId, PlayerStatus = PlayerStatus.Playing };
         if (ValidateCommand(readyCommand))
         {
             CommandPublisher.PublishCommand(readyCommand);

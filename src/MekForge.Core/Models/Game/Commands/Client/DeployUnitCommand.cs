@@ -1,0 +1,5 @@
+﻿using Sanet.MekForge.Core.Data;
+
+namespace Sanet.MekForge.Core.Models.Game.Commands.Client;
+
+public record DeployUnitCommand(Guid UnitId, HexCoordinateData Position) : ClientCommand;

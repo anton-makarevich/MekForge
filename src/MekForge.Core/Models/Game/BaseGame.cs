@@ -1,6 +1,7 @@
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game.Commands;
-using Sanet.MekForge.Core.Models.Game.Protocol;
+using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Models.Game;
@@ -35,11 +36,7 @@ public abstract class BaseGame : IGame
 
     protected void AddPlayer(JoinGameCommand joinGameCommand)
     {
-        if (joinGameCommand.PlayerId == null)
-        {
-            throw new ArgumentNullException(nameof(joinGameCommand.PlayerId)); 
-        }
-        var player = new Player(joinGameCommand.PlayerId.Value, joinGameCommand.PlayerName);
+        var player = new Player(joinGameCommand.PlayerId, joinGameCommand.PlayerName);
         foreach (var unit in joinGameCommand.Units.Select(unitData => _mechFactory.Create(unitData)))
         {
             player.AddUnit(unit);
@@ -47,11 +44,11 @@ public abstract class BaseGame : IGame
         _players.Add(player);
     }
     
-    protected void UpdatePlayerStatus(PlayerStatusCommand playerStatusCommand)
+    protected void UpdatePlayerStatus(UpdatePlayerStatusCommand updatePlayerStatusCommand)
     {
-        var player = _players.FirstOrDefault(p => p.Id == playerStatusCommand.PlayerId);
+        var player = _players.FirstOrDefault(p => p.Id == updatePlayerStatusCommand.PlayerId);
         if (player == null) return;
-        player.Status = playerStatusCommand.PlayerStatus;
+        player.Status = updatePlayerStatusCommand.PlayerStatus;
     }
     
     protected bool ValidateCommand(GameCommand command)
@@ -59,15 +56,15 @@ public abstract class BaseGame : IGame
         return command switch
         {
             JoinGameCommand joinGameCommand => ValidateJoinCommand(joinGameCommand),
-            PlayerStatusCommand playerStateCommand => ValidatePlayer(playerStateCommand),
+            UpdatePlayerStatusCommand playerStateCommand => ValidatePlayer(playerStateCommand),
             DeployUnitCommand deployUnitCommand => ValidateDeployCommand(deployUnitCommand),
             _ => false
         };
     }
 
-    private bool ValidatePlayer(PlayerStatusCommand playerStateCommand)
+    private bool ValidatePlayer(UpdatePlayerStatusCommand updatePlayerStateCommand)
     {
-        var player = _players.FirstOrDefault(p => p.Id == playerStateCommand.PlayerId);
+        var player = _players.FirstOrDefault(p => p.Id == updatePlayerStateCommand.PlayerId);
         return player != null;
     }
 

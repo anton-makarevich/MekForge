@@ -4,7 +4,8 @@ using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands;
-using Sanet.MekForge.Core.Models.Game.Protocol;
+using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game;
@@ -92,7 +93,7 @@ public class LocalGameTests
             PlayerName = player.Name, Units = []
         });
 
-        var statusCommand = new PlayerStatusCommand
+        var statusCommand = new UpdatePlayerStatusCommand
         {
             GameOriginId = Guid.NewGuid(),
             PlayerId = playerId,
@@ -118,7 +119,7 @@ public class LocalGameTests
         _localGame.SetPlayerReady(player);
 
         // Assert
-        _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<PlayerStatusCommand>());
+        _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<UpdatePlayerStatusCommand>());
     }
     
     [Fact]
@@ -137,7 +138,7 @@ public class LocalGameTests
         _localGame.SetPlayerReady(player);
 
         // Assert
-        _commandPublisher.Received(1).PublishCommand(Arg.Is<PlayerStatusCommand>(cmd => 
+        _commandPublisher.Received(1).PublishCommand(Arg.Is<UpdatePlayerStatusCommand>(cmd => 
             cmd.PlayerId == player.Id && 
             cmd.PlayerStatus == PlayerStatus.Playing &&
             cmd.GameOriginId == _localGame.GameId
