@@ -8,10 +8,26 @@ namespace Sanet.MekForge.Core.Models.Game;
 
 public class ServerGame : BaseGame
 {
+    private Queue<IPlayer> deploymentOrderQueue;
+
     public ServerGame(BattleState battleState, IRulesProvider rulesProvider, ICommandPublisher commandPublisher)
         : base(battleState, rulesProvider, commandPublisher)
     {
     }
+
+    public override IPlayer ActivePlayer { 
+        get => base.ActivePlayer;
+        protected set 
+        {
+            base.ActivePlayer = value; 
+            CommandPublisher.PublishCommand(new ChangeActivePlayerCommand
+            {
+                GameOriginId = GameId,
+                PlayerId = ActivePlayer?.Id
+            });
+        }
+    }
+
     
     public override void HandleCommand(GameCommand command)
     {
@@ -42,6 +58,32 @@ public class ServerGame : BaseGame
                 break;
             case MoveUnitCommand moveUnitCommand:
                 break;
+            case DeployUnitCommand deployUnitCommand:
+                DeployUnit(deployUnitCommand);
+                DeployNextPlayer();
+                break;
+        }
+    }
+
+    private void RandomizeDeploymentOrder()
+    {
+        var players = Players.Where(p => p.Status == PlayerStatus.Playing).ToList();
+        var randomizedPlayers = players.OrderBy(p => Guid.NewGuid()).ToList();
+        deploymentOrderQueue = new Queue<IPlayer>(randomizedPlayers);
+    }
+
+    private void DeployNextPlayer()
+    {
+        if (ActivePlayer == null || ActivePlayer.Units.All(unit => unit.IsDeployed))
+        {
+            if (deploymentOrderQueue.Count > 0)
+            {
+                ActivePlayer = deploymentOrderQueue.Dequeue();
+            }
+            else
+            {
+                NextPhase();
+            }
         }
     }
 
@@ -67,6 +109,11 @@ public class ServerGame : BaseGame
                 Phase = value
             };
             CommandPublisher.PublishCommand(command);
+            if (value == Phase.Deployment)
+            {
+                RandomizeDeploymentOrder();
+                DeployNextPlayer();
+            }
         }
     }
 

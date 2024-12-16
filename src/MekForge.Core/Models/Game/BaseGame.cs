@@ -15,6 +15,7 @@ public abstract class BaseGame : IGame
     public Guid GameId { get; private set; }
     public int Turn { get; protected set; } = 1;
     public virtual Phase TurnPhase { get; protected set; } = Phase.Start;
+    public virtual IPlayer ActivePlayer {get; protected set;}
 
     protected BaseGame(
         BattleState battleState,
@@ -49,6 +50,13 @@ public abstract class BaseGame : IGame
         var player = _players.FirstOrDefault(p => p.Id == updatePlayerStatusCommand.PlayerId);
         if (player == null) return;
         player.Status = updatePlayerStatusCommand.PlayerStatus;
+    }
+    
+    protected void DeployUnit(DeployUnitCommand command)
+    {
+        if (ActivePlayer?.Id != command.PlayerId) return;
+        var unit = ActivePlayer.Units.FirstOrDefault(u => u.Id == command.UnitId);
+        unit?.Deploy(new HexCoordinates(command.Position));
     }
     
     protected bool ValidateCommand(GameCommand command)

@@ -70,6 +70,7 @@ public abstract class Unit
     
     // Parts management
     public IReadOnlyList<UnitPart> Parts =>_parts;
+    public Guid Id { get; private set; } = Guid.NewGuid();
 
     // Methods
     public abstract int CalculateBattleValue();

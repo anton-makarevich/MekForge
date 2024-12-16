@@ -6,4 +6,6 @@ public interface IGame
     IEnumerable<Hex> GetHexes();
     int Turn { get; }
     Phase TurnPhase { get; }
+
+    IPlayer ActivePlayer { get; }
 }
