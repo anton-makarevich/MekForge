@@ -62,6 +62,7 @@ public class NewGameViewModelTests
     public async Task StartGameCommand_WithZeroForestCoverage_CreatesClearTerrainMap()
     {
         _sut.ForestCoverage = 0;
+        _sut.SelectedUnit = MechFactoryTests.CreateDummyMechData();
         await ((IAsyncCommand)_sut.StartGameCommand).ExecuteAsync();
 
         _battleMapViewModel.Game.Should().NotBeNull();
@@ -75,6 +76,7 @@ public class NewGameViewModelTests
     {
         _sut.ForestCoverage = 100;
         _sut.LightWoodsPercentage = 100;
+        _sut.SelectedUnit = MechFactoryTests.CreateDummyMechData();
         await ((IAsyncCommand)_sut.StartGameCommand).ExecuteAsync();
 
         _battleMapViewModel.Game.Should().NotBeNull();
@@ -85,6 +87,7 @@ public class NewGameViewModelTests
     [Fact]
     public async Task StartGameCommand_NavigatesToBattleMap()
     {
+        _sut.SelectedUnit = MechFactoryTests.CreateDummyMechData();
         await ((IAsyncCommand)_sut.StartGameCommand).ExecuteAsync();
 
         await _navigationService.Received(1).NavigateToViewModelAsync(_battleMapViewModel);
