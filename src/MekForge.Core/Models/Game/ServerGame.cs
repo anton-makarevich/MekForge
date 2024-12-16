@@ -8,14 +8,14 @@ namespace Sanet.MekForge.Core.Models.Game;
 
 public class ServerGame : BaseGame
 {
-    private Queue<IPlayer> deploymentOrderQueue;
+    private Queue<IPlayer> _deploymentOrderQueue;
 
     public ServerGame(BattleState battleState, IRulesProvider rulesProvider, ICommandPublisher commandPublisher)
         : base(battleState, rulesProvider, commandPublisher)
     {
     }
 
-    public override IPlayer ActivePlayer { 
+    public override IPlayer? ActivePlayer { 
         get => base.ActivePlayer;
         protected set 
         {
@@ -69,19 +69,20 @@ public class ServerGame : BaseGame
     {
         var players = Players.Where(p => p.Status == PlayerStatus.Playing).ToList();
         var randomizedPlayers = players.OrderBy(p => Guid.NewGuid()).ToList();
-        deploymentOrderQueue = new Queue<IPlayer>(randomizedPlayers);
+        _deploymentOrderQueue = new Queue<IPlayer>(randomizedPlayers);
     }
 
     private void DeployNextPlayer()
     {
         if (ActivePlayer == null || ActivePlayer.Units.All(unit => unit.IsDeployed))
         {
-            if (deploymentOrderQueue.Count > 0)
+            if (_deploymentOrderQueue.Count > 0)
             {
-                ActivePlayer = deploymentOrderQueue.Dequeue();
+                ActivePlayer = _deploymentOrderQueue.Dequeue();
             }
             else
             {
+                ActivePlayer = null;
                 NextPhase();
             }
         }

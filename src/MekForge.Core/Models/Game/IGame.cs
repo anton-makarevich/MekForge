@@ -7,5 +7,5 @@ public interface IGame
     int Turn { get; }
     Phase TurnPhase { get; }
 
-    IPlayer ActivePlayer { get; }
+    IPlayer? ActivePlayer { get; }
 }

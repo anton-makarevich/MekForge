@@ -37,4 +37,11 @@ public class MechFactoryIntegrationTests
             createdMech.Should().NotBeNull();
         }
     }
+
+    public static UnitData LoadMechFromMtfFile(string mtfFile)
+    {
+        var parser = new MtfDataProvider();
+        var mtfData = File.ReadAllLines(mtfFile);
+        return parser.LoadMechFromTextData(mtfData); 
+    }
 }

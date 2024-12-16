@@ -15,7 +15,7 @@ public abstract class BaseGame : IGame
     public Guid GameId { get; private set; }
     public int Turn { get; protected set; } = 1;
     public virtual Phase TurnPhase { get; protected set; } = Phase.Start;
-    public virtual IPlayer ActivePlayer {get; protected set;}
+    public virtual IPlayer? ActivePlayer {get; protected set;}
 
     protected BaseGame(
         BattleState battleState,
