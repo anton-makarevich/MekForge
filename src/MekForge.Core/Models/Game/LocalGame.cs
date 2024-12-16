@@ -7,13 +7,10 @@ namespace Sanet.MekForge.Core.Models.Game;
 
 public class LocalGame : BaseGame
 {
-    public IPlayer LocalPlayer { get; }
-    
     public LocalGame(BattleState battleState, 
-        IRulesProvider rulesProvider, ICommandPublisher commandPublisher, IPlayer localPlayer)
+        IRulesProvider rulesProvider, ICommandPublisher commandPublisher)
         : base(battleState, rulesProvider, commandPublisher)
     {
-        LocalPlayer = localPlayer;
     }
     
     public override void HandleCommand(GameCommand command)
@@ -24,23 +21,34 @@ public class LocalGame : BaseGame
             case JoinGameCommand joinCmd:
                 AddPlayer(joinCmd);
                 break;
-            // Handle other commands
+            case PlayerStatusCommand playerStatusCommand:
+                UpdatePlayerStatus(playerStatusCommand);
+                break;
         }
     }
     
 
-    public void JoinGameWithUnits(List<UnitData> units)
+    public void JoinGameWithUnits(IPlayer player, List<UnitData> units)
     {
         var joinCommand = new JoinGameCommand
         {
-            PlayerId = LocalPlayer.Id,
-            PlayerName = LocalPlayer.Name,
+            PlayerId = player.Id,
+            PlayerName = player.Name,
             GameOriginId = GameId,
             Units = units
         };
         if (ValidateCommand(joinCommand))
         {
             CommandPublisher.PublishCommand(joinCommand);
+        }
+    }
+    
+    public void SetPlayerReady(IPlayer player)
+    {
+        var readyCommand = new PlayerStatusCommand() { PlayerId = player.Id, GameOriginId = GameId, PlayerStatus = PlayerStatus.Playing };
+        if (ValidateCommand(readyCommand))
+        {
+            CommandPublisher.PublishCommand(readyCommand);
         }
     }
 }

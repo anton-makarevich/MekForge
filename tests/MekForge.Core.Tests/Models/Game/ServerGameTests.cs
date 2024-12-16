@@ -59,4 +59,35 @@ public class ServerGameTests
         // Verify that no players were added since the command was from this game instance
         _serverGame.Players.Should().BeEmpty();
     }
+    
+    [Fact]
+    public void HandleCommand_ShouldProcessPlayerStatusCommand_WhenReceived()
+    {
+        // Arrange
+        var playerId = Guid.NewGuid();
+        var player = new Player(playerId, "Player1");
+        
+        _serverGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = playerId,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = "Player1",
+            Units=[]
+        });
+
+        var statusCommand = new PlayerStatusCommand
+        {
+            PlayerId = playerId,
+            GameOriginId = Guid.NewGuid(),
+            PlayerStatus = PlayerStatus.Playing
+        };
+
+        // Act
+        _serverGame.HandleCommand(statusCommand);
+
+        // Assert
+        var updatedPlayer = _serverGame.Players.FirstOrDefault(p => p.Id == playerId);
+        updatedPlayer.Should().NotBeNull();
+        updatedPlayer.Status.Should().Be(PlayerStatus.Playing);
+    }
 }

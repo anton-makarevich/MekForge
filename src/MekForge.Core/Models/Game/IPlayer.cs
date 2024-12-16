@@ -7,4 +7,12 @@ public interface IPlayer
     Guid Id { get; }
     string Name { get; }
     IReadOnlyList<Unit> Units { get; }
+    
+    PlayerStatus Status { get; set; }
+}
+
+public enum PlayerStatus
+{
+    Joining,
+    Playing
 }
