@@ -4,6 +4,7 @@ namespace Sanet.MekForge.Core.Data;
 
 public record struct UnitData
 {
+    public Guid? Id { get; set; } 
     public required string Chassis { get; init; }
     public required string Model { get; init; }
     public required int Mass { get; init; }
@@ -12,6 +13,6 @@ public record struct UnitData
     public required string EngineType { get; init; }
     public required Dictionary<PartLocation, ArmorLocation> ArmorValues { get; init; }
     public required Dictionary<PartLocation, List<MekForgeComponent>> LocationEquipment { get; init; }
-    public required Dictionary<string, string> AdditionalAttributes { get; set; }
-    public required Dictionary<string,string> Quirks { get; set; }
+    public required Dictionary<string, string> AdditionalAttributes { get; init; }
+    public required Dictionary<string,string> Quirks { get; init; }
 }

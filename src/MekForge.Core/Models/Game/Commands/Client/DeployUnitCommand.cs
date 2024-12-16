@@ -2,4 +2,8 @@
 
 namespace Sanet.MekForge.Core.Models.Game.Commands.Client;
 
-public record DeployUnitCommand(Guid UnitId, HexCoordinateData Position) : ClientCommand;
+public record DeployUnitCommand : ClientCommand
+{
+    public Guid UnitId { get; init; }
+    public HexCoordinateData Position { get; init; }
+}

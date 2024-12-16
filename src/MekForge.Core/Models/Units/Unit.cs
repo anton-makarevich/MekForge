@@ -5,8 +5,10 @@ namespace Sanet.MekForge.Core.Models.Units;
 public abstract class Unit
 {
     protected readonly List<UnitPart> _parts; 
-    protected Unit(string chassis, string model, int tonnage, int walkMp,
-        IEnumerable<UnitPart> parts)
+    protected Unit(string chassis, string model, int tonnage,
+        int walkMp,
+        IEnumerable<UnitPart> parts,
+        Guid? id = null)
     {
         Chassis = chassis;
         Model = model;
@@ -14,6 +16,10 @@ public abstract class Unit
         Tonnage = tonnage;
         BaseMovement = walkMp;
         _parts = parts.ToList();
+        if (id.HasValue)
+        {
+            Id = id.Value;
+        }
     }
 
     public string Chassis { get; }
@@ -70,6 +76,7 @@ public abstract class Unit
     
     // Parts management
     public IReadOnlyList<UnitPart> Parts =>_parts;
+    public Guid Id { get; private set; } = Guid.NewGuid();
 
     // Methods
     public abstract int CalculateBattleValue();

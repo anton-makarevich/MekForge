@@ -10,8 +10,9 @@ public class Mech : Unit
         string model, 
         int tonnage, 
         int walkMp,
-        IEnumerable<UnitPart> parts) 
-        : base(chassis, model, tonnage, walkMp, parts)
+        IEnumerable<UnitPart> parts,
+        Guid? id = null) 
+        : base(chassis, model, tonnage, walkMp, parts,id)
     {
         Status = UnitStatus.Active;
     }
