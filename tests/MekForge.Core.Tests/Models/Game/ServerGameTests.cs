@@ -4,7 +4,9 @@ using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands;
-using Sanet.MekForge.Core.Models.Game.Protocol;
+using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Game.Commands.Server;
+using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game;
@@ -12,13 +14,14 @@ namespace Sanet.MekForge.Core.Tests.Models.Game;
 public class ServerGameTests
 {
     private readonly ServerGame _serverGame;
-
+    private readonly ICommandPublisher _commandPublisher;
     public ServerGameTests()
     {
         var battleState = new BattleState(new BattleMap(5, 5));
-        var commandPublisher = Substitute.For<ICommandPublisher>();
+        
+        _commandPublisher = Substitute.For<ICommandPublisher>();
         var rulesProvider = Substitute.For<IRulesProvider>();
-        _serverGame = new ServerGame(battleState, rulesProvider, commandPublisher);
+        _serverGame = new ServerGame(battleState, rulesProvider, _commandPublisher);
     }
 
     [Fact]
@@ -65,8 +68,6 @@ public class ServerGameTests
     {
         // Arrange
         var playerId = Guid.NewGuid();
-        var player = new Player(playerId, "Player1");
-        
         _serverGame.HandleCommand(new JoinGameCommand
         {
             PlayerId = playerId,
@@ -75,7 +76,7 @@ public class ServerGameTests
             Units=[]
         });
 
-        var statusCommand = new PlayerStatusCommand
+        var statusCommand = new UpdatePlayerStatusCommand
         {
             PlayerId = playerId,
             GameOriginId = Guid.NewGuid(),
@@ -89,5 +90,32 @@ public class ServerGameTests
         var updatedPlayer = _serverGame.Players.FirstOrDefault(p => p.Id == playerId);
         updatedPlayer.Should().NotBeNull();
         updatedPlayer.Status.Should().Be(PlayerStatus.Playing);
+    }
+
+    [Fact]
+    public void UpdatePhase_ShouldPublishPhaseChangedEvent_WhenCalled()
+    {
+        // Arrange
+        var playerId = Guid.NewGuid();
+        _serverGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = playerId,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = "Player1",
+            Units=[]
+        });
+        _serverGame.HandleCommand(new UpdatePlayerStatusCommand
+        {
+            PlayerId = playerId,
+            GameOriginId = Guid.NewGuid(),
+            PlayerStatus = PlayerStatus.Playing
+        });
+
+        // Assert
+        _serverGame.TurnPhase.Should().Be(Phase.Deployment);
+        _commandPublisher.Received(1).PublishCommand(Arg.Is<ChangePhaseCommand>(cmd => 
+            cmd.Phase == Phase.Deployment &&
+            cmd.GameOriginId == _serverGame.GameId
+        ));
     }
 }

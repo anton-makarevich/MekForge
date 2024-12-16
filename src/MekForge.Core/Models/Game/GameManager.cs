@@ -1,4 +1,4 @@
-using Sanet.MekForge.Core.Models.Game.Protocol;
+using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Models.Game;

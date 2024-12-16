@@ -4,7 +4,7 @@ using AsyncAwaitBestPractices.MVVM;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Game;
-using Sanet.MekForge.Core.Models.Game.Protocol;
+using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Terrains;
 using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MekForge.Core.Utils.TechRules;
@@ -85,7 +85,7 @@ public class NewGameViewModel : BaseViewModel
         
         _gameManager.StartServer(localBattleState);
         var player = new Player(Guid.NewGuid(), "Player 1");
-        var localGame = new LocalGame(localBattleState, _rulesProvider, _commandPublisher);
+        var localGame = new ClientGame(localBattleState, _rulesProvider, _commandPublisher);
 
         var battleMapViewModel = NavigationService.GetViewModel<BattleMapViewModel>();
         if (SelectedUnit != null) localGame.JoinGameWithUnits(player,[SelectedUnit.Value]);
