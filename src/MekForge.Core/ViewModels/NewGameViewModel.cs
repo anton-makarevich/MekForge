@@ -85,7 +85,7 @@ public class NewGameViewModel : BaseViewModel
         
         _gameManager.StartServer(localBattleState);
         var player = new Player(Guid.NewGuid(), "Player 1");
-        var localGame = new LocalGame(localBattleState, _rulesProvider, _commandPublisher);
+        var localGame = new ClientGame(localBattleState, _rulesProvider, _commandPublisher);
 
         var battleMapViewModel = NavigationService.GetViewModel<BattleMapViewModel>();
         if (SelectedUnit != null) localGame.JoinGameWithUnits(player,[SelectedUnit.Value]);

@@ -38,7 +38,7 @@ public class BaseGameTests() : BaseGame(new BattleState(
     public void New_ShouldHaveCorrectTurnAndPhase()
     {
         Turn.Should().Be(1);
-        CurrentPhase.Should().Be(Phase.Start);
+        TurnPhase.Should().Be(Phase.Start);
     }
 
     // Additional tests for common functionalities can be added here

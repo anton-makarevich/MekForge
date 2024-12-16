@@ -20,7 +20,4 @@
     <ItemGroup>
       <PackageReference Include="Sanet.MVVM.Core" Version="1.1.1" />
     </ItemGroup>
-    <ItemGroup>
-      <Folder Include="Models\Game\Commands\Server\" />
-    </ItemGroup>
 </Project>

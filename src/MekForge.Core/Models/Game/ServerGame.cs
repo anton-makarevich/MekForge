@@ -1,5 +1,6 @@
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Utils.TechRules;
 
@@ -33,7 +34,7 @@ public class ServerGame : BaseGame
                 break;
             case UpdatePlayerStatusCommand playerStatusCommand:
                 UpdatePlayerStatus(playerStatusCommand);
-                if (CurrentPhase == Phase.Start
+                if (TurnPhase == Phase.Start
                     && Players.Count(p => p.Status == PlayerStatus.Playing) == Players.Count)
                 {
                     NextPhase();
@@ -53,15 +54,30 @@ public class ServerGame : BaseGame
                 return;
         }
     }
-    
+
+    public override Phase TurnPhase
+    {
+        get => base.TurnPhase;
+        protected set
+        {
+            base.TurnPhase = value;
+            var command = new ChangePhaseCommand
+            {
+                GameOriginId = this.GameId,
+                Phase = value
+            };
+            CommandPublisher.PublishCommand(command);
+        }
+    }
+
     private bool _isGameOver = false;
     private void NextPhase()
     {
-        if (CurrentPhase == Phase.End)
+        if (TurnPhase == Phase.End)
         {
             Turn++;
         }; 
-        CurrentPhase = CurrentPhase switch
+        TurnPhase = TurnPhase switch
         {
             Phase.Start => Phase.Deployment,
             Phase.Deployment => Phase.Initiative,
@@ -70,7 +86,7 @@ public class ServerGame : BaseGame
             Phase.Attack => Phase.End,
             Phase.End => Phase.Deployment,
             
-            _ => CurrentPhase
+            _ => TurnPhase
         };
     }
 }

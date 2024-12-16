@@ -5,22 +5,23 @@ using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game;
 
-public class LocalGameTests
+public class ClientGameTests
 {
-    private readonly LocalGame _localGame;
+    private readonly ClientGame _clientGame;
     private readonly ICommandPublisher _commandPublisher;
 
-    public LocalGameTests()
+    public ClientGameTests()
     {
         var battleState = new BattleState(new BattleMap(5, 5));
         _commandPublisher = Substitute.For<ICommandPublisher>();
         var rulesProvider = Substitute.For<IRulesProvider>();
-        _localGame = new LocalGame(battleState, rulesProvider, _commandPublisher);
+        _clientGame = new ClientGame(battleState, rulesProvider, _commandPublisher);
     }
 
     [Fact]
@@ -36,11 +37,11 @@ public class LocalGameTests
         };
 
         // Act
-        _localGame.HandleCommand(joinCommand);
+        _clientGame.HandleCommand(joinCommand);
 
         // Assert
-        _localGame.Players.Should().HaveCount(1);
-        _localGame.Players[0].Name.Should().Be(joinCommand.PlayerName);
+        _clientGame.Players.Should().HaveCount(1);
+        _clientGame.Players[0].Name.Should().Be(joinCommand.PlayerName);
     }
     
     [Fact]
@@ -52,15 +53,15 @@ public class LocalGameTests
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
             Units = new List<UnitData>(),
-            GameOriginId = _localGame.GameId // Set to this game's ID
+            GameOriginId = _clientGame.GameId // Set to this game's ID
         };
 
         // Act
-        _localGame.HandleCommand(command);
+        _clientGame.HandleCommand(command);
 
         // Assert
         // Verify that no players were added since the command was from this game instance
-        _localGame.Players.Should().BeEmpty();
+        _clientGame.Players.Should().BeEmpty();
     }
 
     [Fact]
@@ -71,7 +72,7 @@ public class LocalGameTests
         var player = new Player(Guid.NewGuid(), "Player1");
 
         // Act
-        _localGame.JoinGameWithUnits(player, units);
+        _clientGame.JoinGameWithUnits(player, units);
 
         // Assert
         _commandPublisher.Received(1).PublishCommand(Arg.Is<JoinGameCommand>(cmd =>
@@ -86,7 +87,7 @@ public class LocalGameTests
         // Arrange
         var playerId = Guid.NewGuid();
         var player = new Player(playerId, "Player1");
-        _localGame.HandleCommand(new JoinGameCommand
+        _clientGame.HandleCommand(new JoinGameCommand
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
@@ -101,10 +102,10 @@ public class LocalGameTests
         };
 
         // Act
-        _localGame.HandleCommand(statusCommand);
+        _clientGame.HandleCommand(statusCommand);
 
         // Assert
-        var updatedPlayer = _localGame.Players.FirstOrDefault(p => p.Id == playerId);
+        var updatedPlayer = _clientGame.Players.FirstOrDefault(p => p.Id == playerId);
         updatedPlayer.Should().NotBeNull();
         updatedPlayer.Status.Should().Be(PlayerStatus.Playing);
     }
@@ -116,7 +117,7 @@ public class LocalGameTests
         var player = new Player(Guid.NewGuid(), "Player1");
 
         // Act
-        _localGame.SetPlayerReady(player);
+        _clientGame.SetPlayerReady(player);
 
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<UpdatePlayerStatusCommand>());
@@ -127,7 +128,7 @@ public class LocalGameTests
     {
         // Arrange
         var player = new Player(Guid.NewGuid(), "Player1");
-        _localGame.HandleCommand(new JoinGameCommand
+        _clientGame.HandleCommand(new JoinGameCommand
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
@@ -135,13 +136,30 @@ public class LocalGameTests
         });
 
         // Act
-        _localGame.SetPlayerReady(player);
+        _clientGame.SetPlayerReady(player);
 
         // Assert
         _commandPublisher.Received(1).PublishCommand(Arg.Is<UpdatePlayerStatusCommand>(cmd => 
             cmd.PlayerId == player.Id && 
             cmd.PlayerStatus == PlayerStatus.Playing &&
-            cmd.GameOriginId == _localGame.GameId
+            cmd.GameOriginId == _clientGame.GameId
         ));
+    }
+
+    [Fact]
+    public void ChangePhase_ShouldProcessCommand()
+    {
+        // Arrange
+        var command = new ChangePhaseCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            Phase = Phase.End
+        };
+        
+        // Act
+        _clientGame.HandleCommand(command);
+        
+        // Assert
+        _clientGame.TurnPhase.Should().Be(Phase.End);
     }
 }

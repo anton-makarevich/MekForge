@@ -1,14 +1,15 @@
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Models.Game;
 
-public class LocalGame : BaseGame
+public class ClientGame : BaseGame
 {
-    public LocalGame(BattleState battleState, 
+    public ClientGame(BattleState battleState, 
         IRulesProvider rulesProvider, ICommandPublisher commandPublisher)
         : base(battleState, rulesProvider, commandPublisher)
     {
@@ -24,6 +25,9 @@ public class LocalGame : BaseGame
                 break;
             case UpdatePlayerStatusCommand playerStatusCommand:
                 UpdatePlayerStatus(playerStatusCommand);
+                break;
+            case ChangePhaseCommand changePhaseCommand:
+                TurnPhase = changePhaseCommand.Phase;
                 break;
         }
     }
