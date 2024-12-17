@@ -35,9 +35,9 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
         transformGroup.Children.Add(_mapTranslateTransform);
         MapCanvas.RenderTransform = transformGroup;
         
-        this.PointerPressed += OnPointerPressed;
-        this.PointerMoved += OnPointerMoved;
-        this.PointerWheelChanged += OnPointerWheelChanged;
+        PointerPressed += OnPointerPressed;
+        PointerMoved += OnPointerMoved;
+        PointerWheelChanged += OnPointerWheelChanged;
         
         var pinchGestureRecognizer = new PinchGestureRecognizer();
         MapCanvas.GestureRecognizers.Add(pinchGestureRecognizer);

@@ -162,4 +162,31 @@ public class ClientGameTests
         // Assert
         _clientGame.TurnPhase.Should().Be(Phase.End);
     }
+    
+    [Fact]
+    public void ChangeActivePlayer_ShouldProcessCommand()
+    {
+        // Arrange
+        var player = new Player(Guid.NewGuid(), "Player1");
+        _clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = player.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = player.Name, Units = []
+        });
+        var actualPlayer = _clientGame.Players.FirstOrDefault(p => p.Id == player.Id);
+        var command = new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id
+        };
+        
+        // Act
+        _clientGame.HandleCommand(command);
+        
+        // Assert
+        _clientGame.ActivePlayer.Should().Be(actualPlayer);
+        actualPlayer.Name.Should().Be(player.Name);
+        actualPlayer.Id.Should().Be(player.Id);
+    }
 }

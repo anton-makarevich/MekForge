@@ -29,6 +29,10 @@ public class ClientGame : BaseGame
             case ChangePhaseCommand changePhaseCommand:
                 TurnPhase = changePhaseCommand.Phase;
                 break;
+            case ChangeActivePlayerCommand changeActivePlayerCommand:
+                var player = Players.FirstOrDefault(p => p.Id == changeActivePlayerCommand.PlayerId);
+                ActivePlayer = player;
+                break;
         }
     }
     
