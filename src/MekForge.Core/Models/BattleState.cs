@@ -5,7 +5,7 @@ namespace Sanet.MekForge.Core.Models;
 public class BattleState
 {
     private readonly BattleMap _map;
-    private readonly Dictionary<HexCoordinates, Unit> _deployedUnits = new();
+    private readonly List<Unit> _deployedUnits = [];
 
     public BattleState(BattleMap map)
     {
@@ -14,26 +14,23 @@ public class BattleState
 
     public bool TryDeployUnit(Unit unit, HexCoordinates coordinates)
     {
-        if (_deployedUnits.ContainsKey(coordinates)) return false;
+        if (!IsHexFree(coordinates)) return false;
         var hex = _map.GetHex(coordinates);
         if (hex == null) return false;
 
         unit.Deploy(coordinates);
-        _deployedUnits[coordinates] = unit;
+        _deployedUnits.Add(unit);
 
         return true;
     }
 
     public bool TryMoveUnit(Unit unit, HexCoordinates destination)
     {
-        if (!unit.Position.HasValue || !_deployedUnits.ContainsValue(unit)) return false;
-        if (_deployedUnits.ContainsKey(destination)) return false;
-
-        var oldPosition = unit.Position.Value;
-        _deployedUnits.Remove(oldPosition);
+        if (!unit.Position.HasValue) return false;
+        if (!IsHexFree(destination)) return false;
+        
         unit.MoveTo(destination);
-        _deployedUnits[destination] = unit;
-
+        
         return true;
     }
 
@@ -50,7 +47,7 @@ public class BattleState
         foreach (var coordinates in lineOfSight)
         {
             if (coordinates == start || coordinates == end) continue;
-            if (_deployedUnits.ContainsKey(coordinates)) return false; //Should be more complicated than boolean as can also be partial
+            if (!IsHexFree(coordinates)) return false; //Should be more complicated than boolean as can also be partial
         }
 
         return true;
@@ -69,5 +66,10 @@ public class BattleState
     public IEnumerable<Hex> GetHexes()
     {
         return _map.GetHexes();
+    }
+
+    private bool IsHexFree(HexCoordinates coordinates)
+    {
+        return _deployedUnits.Find(u => u.Position == coordinates)==null;
     }
 }
