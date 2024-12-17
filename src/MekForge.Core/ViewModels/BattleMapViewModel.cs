@@ -21,6 +21,12 @@ public class BattleMapViewModel : BaseViewModel
         get => _game;
         set => SetProperty(ref _game, value);
     }
+    
+    public int Turn => Game?.Turn ?? 0;
+
+    public Phase TurnPhase => Game?.TurnPhase ?? Phase.Start;
+    
+    public string ActivePlayerName => Game?.ActivePlayer?.Name ?? string.Empty;
 
     public IImageService ImageService => _imageService;
 

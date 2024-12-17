@@ -56,7 +56,8 @@ public abstract class BaseGame : IGame
     {
         if (ActivePlayer?.Id != command.PlayerId) return;
         var unit = ActivePlayer.Units.FirstOrDefault(u => u.Id == command.UnitId);
-        unit?.Deploy(new HexCoordinates(command.Position));
+        if (unit == null) return;
+        BattleState.TryDeployUnit(unit, new HexCoordinates(command.Position));
     }
     
     protected bool ValidateCommand(GameCommand command)
