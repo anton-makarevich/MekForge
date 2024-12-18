@@ -50,7 +50,7 @@ MekForge/
 ### Prerequisites
 
 - .NET 9 SDK
-- Your favorite IDE (Visual Studio 2022, Rider, or VS Code)
+- Your favorite IDE (Visual Studio, Rider, or VS Code)
 
 ### Building
 
@@ -74,3 +74,4 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 ## Disclaimer
 
 This is a fan-made game and is not affiliated with or endorsed by any commercial mech combat game properties. All trademarks belong to their respective owners.
+I'm working on it not to build a game (there are more efficient ways of achieving the same) but just for fun of the process itself.
