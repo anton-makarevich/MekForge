@@ -2,7 +2,6 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using AsyncAwaitBestPractices.MVVM;
 using Sanet.MekForge.Core.Data;
-using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
@@ -86,7 +85,11 @@ public class NewGameViewModel : BaseViewModel
         
         _gameManager.StartServer(localBattleMap);
         var player = new Player(Guid.NewGuid(), "Player 1");
-        var localGame = new ClientGame(localBattleMap, _rulesProvider, _commandPublisher);
+        var localGame = new ClientGame(
+            localBattleMap,
+            [player],
+            _rulesProvider,
+            _commandPublisher);
 
         var battleMapViewModel = NavigationService.GetViewModel<BattleMapViewModel>();
         if (SelectedUnit != null)

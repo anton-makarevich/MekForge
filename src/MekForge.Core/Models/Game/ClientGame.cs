@@ -10,10 +10,13 @@ namespace Sanet.MekForge.Core.Models.Game;
 
 public class ClientGame : BaseGame
 {
-    public ClientGame(BattleMap battleMap, 
+    private readonly IReadOnlyList<IPlayer> _localPlayers;
+
+    public ClientGame(BattleMap battleMap, IReadOnlyList<IPlayer> localPlayers,
         IRulesProvider rulesProvider, ICommandPublisher commandPublisher)
         : base(battleMap, rulesProvider, commandPublisher)
     {
+        _localPlayers = localPlayers;
     }
     
     public override void HandleCommand(GameCommand command)
