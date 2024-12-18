@@ -1,6 +1,6 @@
-﻿using Sanet.MekForge.Core.Models.Terrains;
+﻿using Sanet.MekForge.Core.Models.Map.Terrains;
 
-namespace Sanet.MekForge.Core.Models;
+namespace Sanet.MekForge.Core.Models.Map;
 
 /// <summary>
 /// Base class for all terrain types

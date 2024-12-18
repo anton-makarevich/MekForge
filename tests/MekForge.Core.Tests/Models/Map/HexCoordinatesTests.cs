@@ -1,7 +1,7 @@
 using FluentAssertions;
-using Sanet.MekForge.Core.Models;
+using Sanet.MekForge.Core.Models.Map;
 
-namespace Sanet.MekForge.Core.Tests.Models;
+namespace Sanet.MekForge.Core.Tests.Models.Map;
 
 public class HexCoordinatesTests
 {

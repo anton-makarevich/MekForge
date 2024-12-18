@@ -1,4 +1,4 @@
-namespace Sanet.MekForge.Core.Models.Terrains;
+namespace Sanet.MekForge.Core.Models.Map.Terrains;
 
 public class LightWoodsTerrain : Terrain
 {

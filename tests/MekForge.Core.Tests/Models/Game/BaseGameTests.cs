@@ -6,7 +6,8 @@ using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Transport;
-using Sanet.MekForge.Core.Models.Terrains;
+using Sanet.MekForge.Core.Models.Map;
+using Sanet.MekForge.Core.Models.Map.Terrains;
 using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MekForge.Core.Utils.TechRules;
 

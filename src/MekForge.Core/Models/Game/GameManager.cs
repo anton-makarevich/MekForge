@@ -1,4 +1,5 @@
 using Sanet.MekForge.Core.Models.Game.Transport;
+using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Models.Game;

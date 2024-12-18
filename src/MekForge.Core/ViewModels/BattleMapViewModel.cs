@@ -1,6 +1,7 @@
 using System.Reactive.Linq;
 using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Services;
 using Sanet.MVVM.Core.ViewModels;
 

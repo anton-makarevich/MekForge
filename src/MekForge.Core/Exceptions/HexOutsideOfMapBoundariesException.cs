@@ -1,4 +1,5 @@
 using Sanet.MekForge.Core.Models;
+using Sanet.MekForge.Core.Models.Map;
 
 namespace Sanet.MekForge.Core.Exceptions;
 

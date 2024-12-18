@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Sanet.MekForge.Core.Models;
-using Sanet.MekForge.Core.Models.Terrains;
 using Sanet.MekForge.Core.Exceptions;
+using Sanet.MekForge.Core.Models.Map;
+using Sanet.MekForge.Core.Models.Map.Terrains;
 
 namespace Sanet.MekForge.Core.Utils.Generators;
 

@@ -8,6 +8,7 @@ using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services;
 using System.Reactive.Linq;
 using System.Threading;
+using Sanet.MekForge.Core.Models.Map;
 
 namespace Sanet.MekForge.Avalonia.Controls
 {
