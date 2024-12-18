@@ -1,6 +1,6 @@
 using Sanet.MekForge.Core.Data;
 
-namespace Sanet.MekForge.Core.Models;
+namespace Sanet.MekForge.Core.Models.Map;
 
 /// <summary>
 /// Represents coordinates in a hexagonal grid using axial coordinate system

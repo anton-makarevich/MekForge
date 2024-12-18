@@ -1,3 +1,4 @@
+using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units.Components;
 
 namespace Sanet.MekForge.Core.Models.Units;

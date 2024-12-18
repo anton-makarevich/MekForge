@@ -2,7 +2,7 @@ using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Utils.Generators;
 
-namespace Sanet.MekForge.Core.Models;
+namespace Sanet.MekForge.Core.Models.Map;
 
 /// <summary>
 /// Represents the game battle map, managing hexes and providing pathfinding capabilities

@@ -7,7 +7,8 @@ using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Transport;
-using Sanet.MekForge.Core.Models.Terrains;
+using Sanet.MekForge.Core.Models.Map;
+using Sanet.MekForge.Core.Models.Map.Terrains;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Utils.Generators;
@@ -21,8 +22,8 @@ public class ServerGameTests
     private readonly ICommandPublisher _commandPublisher;
     public ServerGameTests()
     {
-        var battleState = new BattleState(BattleMap.GenerateMap(5, 5,
-            new SingleTerrainGenerator(5,5, new ClearTerrain())));
+        var battleMap = BattleMap.GenerateMap(5, 5,
+            new SingleTerrainGenerator(5,5, new ClearTerrain()));
         
         _commandPublisher = Substitute.For<ICommandPublisher>();
         var rulesProvider = Substitute.For<IRulesProvider>();
@@ -37,7 +38,7 @@ public class ServerGameTests
             { PartLocation.LeftLeg, 8 },
             { PartLocation.RightLeg, 8 }
         });
-        _serverGame = new ServerGame(battleState, rulesProvider, _commandPublisher);
+        _serverGame = new ServerGame(battleMap, rulesProvider, _commandPublisher);
     }
 
     [Fact]

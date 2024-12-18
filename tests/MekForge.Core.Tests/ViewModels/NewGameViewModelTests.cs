@@ -5,7 +5,8 @@ using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Transport;
-using Sanet.MekForge.Core.Models.Terrains;
+using Sanet.MekForge.Core.Models.Map;
+using Sanet.MekForge.Core.Models.Map.Terrains;
 using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Utils.TechRules;
@@ -119,7 +120,7 @@ public class NewGameViewModelTests
 
         // Assert
         await _navigationService.Received(1).NavigateToViewModelAsync(_battleMapViewModel);
-        _gameManager.Received(1).StartServer(Arg.Any<BattleState>());
+        _gameManager.Received(1).StartServer(Arg.Any<BattleMap>());
     }
 
     [Fact]

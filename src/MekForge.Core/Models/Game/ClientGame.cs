@@ -3,15 +3,16 @@ using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Transport;
+using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Models.Game;
 
 public class ClientGame : BaseGame
 {
-    public ClientGame(BattleState battleState, 
+    public ClientGame(BattleMap battleMap, 
         IRulesProvider rulesProvider, ICommandPublisher commandPublisher)
-        : base(battleState, rulesProvider, commandPublisher)
+        : base(battleMap, rulesProvider, commandPublisher)
     {
     }
     

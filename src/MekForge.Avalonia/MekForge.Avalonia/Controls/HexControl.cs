@@ -6,6 +6,7 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Sanet.MekForge.Core.Models;
+using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Services;
 
 namespace Sanet.MekForge.Avalonia.Controls;

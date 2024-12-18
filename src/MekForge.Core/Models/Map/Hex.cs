@@ -1,6 +1,6 @@
 using Sanet.MekForge.Core.Data;
 
-namespace Sanet.MekForge.Core.Models;
+namespace Sanet.MekForge.Core.Models.Map;
 
 /// <summary>
 /// Represents a single hex on the game map

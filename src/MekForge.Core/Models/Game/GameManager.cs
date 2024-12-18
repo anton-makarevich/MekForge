@@ -1,4 +1,5 @@
 using Sanet.MekForge.Core.Models.Game.Transport;
+using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Models.Game;
@@ -15,36 +16,10 @@ public class GameManager : IGameManager
         _commandPublisher = commandPublisher;
     }
 
-    public void StartServer(BattleState battleState)
+    public void StartServer(BattleMap battleMap)
     {
-        _serverGame = new ServerGame(battleState, _rulesProvider, _commandPublisher);
+        _serverGame = new ServerGame(battleMap, _rulesProvider, _commandPublisher);
         // Start server in background
         Task.Run(() => _serverGame.Start());
     }
-
-    // public async Task<IGame> CreateLocalGameAsync(string playerName, List<UnitData> units)
-    // {
-    //     // Ensure server is running
-    //     if (_serverGame == null)
-    //     {
-    //         StartServer();
-    //     }
-    //
-    //     // Create local game instance
-    //     var localBattleState = new BattleState(/* init params */);
-    //     var localPlayer = new Player(Guid.NewGuid(), playerName, units);
-    //     var localGame = new LocalGame(localBattleState, _commandPublisher, localPlayer);
-    //
-    //     // Join the game
-    //     var joinCommand = new JoinGameCommand
-    //     {
-    //         PlayerId = localPlayer.Id,
-    //         PlayerName = localPlayer.Name,
-    //         Units = units
-    //     };
-    //
-    //     _commandPublisher.PublishCommand(joinCommand);
-    //
-    //     return localGame;
-    // }
 }
