@@ -11,7 +11,7 @@
         <Canvas x:Name="MapCanvas" 
                 Background="Transparent">
         </Canvas>
-        <StackPanel
+        <StackPanel x:Name="TurnStatus"
             Orientation="Horizontal"
             HorizontalAlignment="Center"
             VerticalAlignment="Top"
@@ -20,5 +20,22 @@
             <Label Content="{Binding TurnPhase}"/>
             <Label Content="{Binding ActivePlayerName}"/>
         </StackPanel>
+        
+        <Grid x:Name="MechList"
+              IsVisible="{Binding AreUnitsToDeployVisible}"
+              Grid.RowDefinitions="Auto,*"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center">
+            <Label Content="Select a Unit to deploy"/>
+            <ListBox Grid.Row="1"
+                ItemsSource="{Binding UnitsToDeploy}"
+                SelectedItem="{Binding SelectedUnit}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
     </Grid>
 </UserControl>
