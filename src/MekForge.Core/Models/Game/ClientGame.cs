@@ -64,4 +64,22 @@ public class ClientGame : BaseGame
             CommandPublisher.PublishCommand(readyCommand);
         }
     }
+
+    public bool ActionPossible => ActivePlayer != null
+                                   && _localPlayers.Any(lp => lp.Id == ActivePlayer.Id);
+
+    public PlayerActions GetNextClientAction(PlayerActions currentAction)
+    {
+        if (!ActionPossible) return PlayerActions.None;
+        if (TurnPhase == Phase.Deployment)
+        {
+            if (currentAction == PlayerActions.SelectUnitToDeploy)
+            {
+                return PlayerActions.SelectHex;
+            }
+            var hasUnitsToDeploy = ActivePlayer?.Units.Any(u => !u.IsDeployed);
+            if (hasUnitsToDeploy == true) return PlayerActions.SelectUnitToDeploy;
+        }
+        return PlayerActions.None;
+    }
 }
