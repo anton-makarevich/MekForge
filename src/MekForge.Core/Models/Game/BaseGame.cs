@@ -8,7 +8,7 @@ namespace Sanet.MekForge.Core.Models.Game;
 
 public abstract class BaseGame : IGame
 {
-    protected readonly BattleState BattleState;
+    protected readonly BattleMap BattleMap;
     protected readonly ICommandPublisher CommandPublisher;
     private readonly List<IPlayer> _players = new();
     private readonly MechFactory _mechFactory;
@@ -18,12 +18,12 @@ public abstract class BaseGame : IGame
     public virtual IPlayer? ActivePlayer {get; protected set;}
 
     protected BaseGame(
-        BattleState battleState,
+        BattleMap battleMap,
         IRulesProvider rulesProvider,
         ICommandPublisher commandPublisher)
     {
         GameId = Guid.NewGuid(); 
-        BattleState = battleState;
+        BattleMap = battleMap;
         CommandPublisher = commandPublisher;
         _mechFactory = new MechFactory(rulesProvider);
         CommandPublisher.Subscribe(HandleCommand);
@@ -32,7 +32,7 @@ public abstract class BaseGame : IGame
     public IReadOnlyList<IPlayer> Players => _players;
     public IEnumerable<Hex> GetHexes()
     {
-        return BattleState.GetHexes();
+        return BattleMap.GetHexes();
     }
 
     protected void AddPlayer(JoinGameCommand joinGameCommand)
@@ -56,8 +56,7 @@ public abstract class BaseGame : IGame
     {
         if (ActivePlayer?.Id != command.PlayerId) return;
         var unit = ActivePlayer.Units.FirstOrDefault(u => u.Id == command.UnitId);
-        if (unit == null) return;
-        BattleState.TryDeployUnit(unit, new HexCoordinates(command.Position));
+        unit?.Deploy(new HexCoordinates(command.Position));
     }
     
     protected bool ValidateCommand(GameCommand command)

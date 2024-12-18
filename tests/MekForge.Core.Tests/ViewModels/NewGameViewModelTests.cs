@@ -119,7 +119,7 @@ public class NewGameViewModelTests
 
         // Assert
         await _navigationService.Received(1).NavigateToViewModelAsync(_battleMapViewModel);
-        _gameManager.Received(1).StartServer(Arg.Any<BattleState>());
+        _gameManager.Received(1).StartServer(Arg.Any<BattleMap>());
     }
 
     [Fact]

@@ -9,9 +9,9 @@ namespace Sanet.MekForge.Core.Models.Game;
 
 public class ClientGame : BaseGame
 {
-    public ClientGame(BattleState battleState, 
+    public ClientGame(BattleMap battleMap, 
         IRulesProvider rulesProvider, ICommandPublisher commandPublisher)
-        : base(battleState, rulesProvider, commandPublisher)
+        : base(battleMap, rulesProvider, commandPublisher)
     {
     }
     

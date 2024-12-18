@@ -10,8 +10,8 @@ public class ServerGame : BaseGame
 {
     private Queue<IPlayer> _deploymentOrderQueue;
 
-    public ServerGame(BattleState battleState, IRulesProvider rulesProvider, ICommandPublisher commandPublisher)
-        : base(battleState, rulesProvider, commandPublisher)
+    public ServerGame(BattleMap battleMap, IRulesProvider rulesProvider, ICommandPublisher commandPublisher)
+        : base(battleMap, rulesProvider, commandPublisher)
     {
     }
 

@@ -6,12 +6,13 @@ using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Transport;
+using Sanet.MekForge.Core.Models.Terrains;
+using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game;
 
-public class BaseGameTests() : BaseGame(new BattleState(
-        new BattleMap(5, 5)),
+public class BaseGameTests() : BaseGame(BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5,5, new ClearTerrain())),
         Substitute.For<IRulesProvider>(),
         Substitute.For<ICommandPublisher>())
 {
