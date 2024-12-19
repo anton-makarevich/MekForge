@@ -1,4 +1,7 @@
+using System;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
@@ -68,6 +71,14 @@ public class HexControl : Grid
         Children.Add(_terrainImage);
         Children.Add(_hexPolygon);
         
+        // Create an observable that polls the unit's position
+        Observable
+            .Interval(TimeSpan.FromMilliseconds(16)) // ~60fps
+            .Select(_ => _hex.IsHighlighted)
+            .DistinctUntilChanged()
+            .ObserveOn(SynchronizationContext.Current) // Ensure events are processed on the UI thread
+            .Subscribe(_ => Highlight(_hex.IsHighlighted ? HexHighlightType.Selected : HexHighlightType.None));
+        
         // Set position
         SetValue(Canvas.LeftProperty, hex.Coordinates.H);
         SetValue(Canvas.TopProperty, hex.Coordinates.V);
@@ -75,7 +86,6 @@ public class HexControl : Grid
         UpdateTerrainImage();
     }
     public Hex Hex => _hex;
-    public HexHighlightType HighlightType { get; private set; }
     
     private void Highlight(HexHighlightType type)
     {

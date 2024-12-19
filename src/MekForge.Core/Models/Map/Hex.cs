@@ -50,6 +50,8 @@ public class Hex
         ? _terrains.Values.Max(t => t.TerrainFactor)
         : 1; // Default cost for empty hex
 
+    public bool IsHighlighted { get; set; }
+
     public string[] GetTerrainTypes()
     {
         return _terrains.Values.Select(t => t.Id).ToArray(); 
