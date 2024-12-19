@@ -1,29 +1,95 @@
 ﻿using FluentAssertions;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Game.Commands.Server;
+using Sanet.MekForge.Core.Models.Game.Transport;
+using Sanet.MekForge.Core.Models.Map;
+using Sanet.MekForge.Core.Models.Map.Terrains;
 using Sanet.MekForge.Core.Services;
+using Sanet.MekForge.Core.Tests.Data;
+using Sanet.MekForge.Core.Utils.Generators;
+using Sanet.MekForge.Core.Utils.TechRules;
 using Sanet.MekForge.Core.ViewModels;
 
 namespace Sanet.MekForge.Core.Tests.ViewModels;
 
 public class BattleMapViewModelTests
 {
+    private readonly IImageService _imageService;
+    private readonly BattleMapViewModel _viewModel;
+    private IGame _game;
+
+    public BattleMapViewModelTests()
+    {
+        _imageService = Substitute.For<IImageService>();
+        _viewModel = new BattleMapViewModel(_imageService);
+        _game = Substitute.For<IGame>();
+        _viewModel.Game = _game;
+    }
+
     [Fact]
     public void GameUpdates_RaiseNotifyPropertyChanged()
     {
-        // Arrange
-        var gameMock = Substitute.For<IGame>();
-        var viewModel = new BattleMapViewModel(Substitute.For<IImageService>())
-        {
-            Game = gameMock
-        };
-        
+
         // Act and Assert
-        gameMock.Turn.Returns(1);
-        viewModel.Turn.Should().Be(1);
-        gameMock.TurnPhase.Returns(Phase.Start);
-        viewModel.TurnPhase.Should().Be(Phase.Start);
-        gameMock.ActivePlayer.Returns(new Player(Guid.Empty, "Player1"));
-        viewModel.ActivePlayerName.Should().Be( "Player1");
+        _game.Turn.Returns(1);
+        _viewModel.Turn.Should().Be(1);
+        _game.TurnPhase.Returns(Phase.Start);
+        _viewModel.TurnPhase.Should().Be(Phase.Start);
+        _game.ActivePlayer.Returns(new Player(Guid.Empty, "Player1"));
+        _viewModel.ActivePlayerName.Should().Be("Player1");
+    }
+
+    [Fact]
+    public async Task UnitsToDeploy_ShouldBeVisible_WhenItsPlayersTurnToDeploy()
+    {
+        // Arrange
+        var playerId = Guid.NewGuid();
+        var player = new Player(playerId, "Player1");
+        var unitData = MechFactoryTests.CreateDummyMechData();
+
+        var tcs = new TaskCompletionSource<bool>();
+
+        _viewModel.PropertyChanged += (s, e) =>
+        {
+            if (e.PropertyName == nameof(BattleMapViewModel.UnitsToDeploy))
+            {
+                tcs.SetResult(true); // Signal that the property has changed
+            }
+        };
+
+        _game = new ClientGame(BattleMap.GenerateMap(2, 2,
+                new SingleTerrainGenerator(2, 2, new ClearTerrain())),
+            new[] { player }, new ClassicBattletechRulesProvider(),
+            Substitute.For<ICommandPublisher>());
+        _viewModel.Game = _game;
+
+        ((ClientGame)_game).HandleCommand(new ChangePhaseCommand()
+        {
+            Phase = Phase.Deployment,
+            GameOriginId = Guid.NewGuid()
+        });
+        ((ClientGame)_game).HandleCommand(new JoinGameCommand()
+        {
+            PlayerId = player.Id,
+            Units = [unitData],
+            PlayerName = player.Name,
+            GameOriginId = Guid.NewGuid()
+        });
+
+        // Act
+        ((ClientGame)_game).HandleCommand(new ChangeActivePlayerCommand
+        {
+            PlayerId = player.Id,
+            GameOriginId = Guid.NewGuid()
+        });
+
+        // Wait for the PropertyChanged event
+        await tcs.Task;
+        
+        // Assert
+        _viewModel.UnitsToDeploy.Should().ContainSingle();
+        _viewModel.AreUnitsToDeployVisible.Should().BeTrue();
     }
 }
