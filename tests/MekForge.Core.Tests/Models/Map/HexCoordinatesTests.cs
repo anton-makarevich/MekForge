@@ -169,8 +169,8 @@ public class HexCoordinatesTests
         // Assert
         hex1.V.Should().Be(0);
         hex2.V.Should().Be(HexCoordinates.HexHeight);
-        hex3.V.Should().Be(HexCoordinates.HexHeight*0.5);  // Offset for odd Q
-        hex4.V.Should().Be(HexCoordinates.HexHeight*1.5);  // Height + 0.5*Height offset for odd Q
+        hex3.V.Should().Be( -HexCoordinates.HexHeight*0.5);  // Offset for odd Q
+        hex4.V.Should().Be(HexCoordinates.HexHeight*0.5);  // Height - 0.5*Height offset for odd Q
     }
     
     [Fact]
@@ -216,5 +216,18 @@ public class HexCoordinatesTests
         // Assert
         data.Q.Should().Be(3);
         data.R.Should().Be(4);
+    }
+
+    [Fact]
+    public void ToString_ReturnsHexCoordinatesAsText()
+    {
+        // Arrange
+        var hexCoordinates = new HexCoordinates(3, 4);
+        
+        // Act
+        var text = hexCoordinates.ToString();
+        
+        // Assert
+        text.Should().Be("0304");
     }
 }

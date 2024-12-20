@@ -19,8 +19,8 @@ public class SingleTerrainGenerator : ITerrainGenerator
 
     public Hex Generate(HexCoordinates coordinates)
     {
-        if (coordinates.Q < 0 || coordinates.Q >= _width ||
-            coordinates.R < 0 || coordinates.R >= _height)
+        if (coordinates.Q < 1 || coordinates.Q >= _width+1 ||
+            coordinates.R < 1 || coordinates.R >= _height+1)
         {
             throw new HexOutsideOfMapBoundariesException(coordinates, _width, _height);
         }

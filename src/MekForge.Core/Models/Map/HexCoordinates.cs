@@ -39,7 +39,7 @@ public readonly record struct HexCoordinates
     /// <summary>
     /// Gets the Y coordinate in pixels for rendering
     /// </summary>
-    public double V => R * HexHeight + (Q % 2 == 0 ? 0 : HexHeight * 0.5);
+    public double V => R * HexHeight - (Q % 2 == 0 ? 0 : HexHeight * 0.5);
 
     public HexCoordinates(HexCoordinateData data) : this(data.Q, data.R) { }
     public HexCoordinates(int q, int r)
@@ -155,5 +155,10 @@ public readonly record struct HexCoordinates
     public override int GetHashCode()
     {
         return HashCode.Combine(Q, R);
+    }
+
+    public override string ToString()
+    {
+        return $"{Q:D2}{R:D2}";
     }
 }

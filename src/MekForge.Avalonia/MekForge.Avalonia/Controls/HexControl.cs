@@ -5,10 +5,9 @@ using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
-using Avalonia.Input;
+using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
-using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Services;
 
@@ -68,8 +67,17 @@ public class HexControl : Grid
             StrokeThickness = DefaultStrokeThickness
         };
         
+        var label = new Label
+        {
+            Content = hex.Coordinates.ToString(),
+            VerticalAlignment = VerticalAlignment.Top,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Foreground = Brushes.White
+        };
+        
         Children.Add(_terrainImage);
         Children.Add(_hexPolygon);
+        Children.Add(label);
         
         // Create an observable that polls the unit's position
         Observable

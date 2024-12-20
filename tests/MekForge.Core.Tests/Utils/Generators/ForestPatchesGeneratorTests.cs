@@ -17,9 +17,9 @@ public class ForestPatchesGeneratorTests
         var generator = new ForestPatchesGenerator(width, height, forestCoverage: 0);
 
         // Act & Assert
-        for (var q = 0; q < width; q++)
+        for (var q = 1; q < width+1; q++)
         {
-            for (var r = 0; r < height; r++)
+            for (var r = 1; r < height+1; r++)
             {
                 var hex = generator.Generate(new HexCoordinates(q, r));
                 hex.HasTerrain("Clear").Should().BeTrue();
@@ -42,9 +42,9 @@ public class ForestPatchesGeneratorTests
 
         // Act & Assert
         var hasAnyWoods = false;
-        for (var q = 0; q < width; q++)
+        for (var q = 1; q < width+1; q++)
         {
-            for (var r = 0; r < height; r++)
+            for (var r = 1; r < height+1; r++)
             {
                 var hex = generator.Generate(new HexCoordinates(q, r));
                 hex.HasTerrain("Clear").Should().BeFalse();
@@ -94,9 +94,9 @@ public class ForestPatchesGeneratorTests
 
         // Act
         var hexes = new List<Hex>();
-        for (var q = 0; q < width; q++)
+        for (var q = 1; q < width+1; q++)
         {
-            for (var r = 0; r < height; r++)
+            for (var r = 1; r < height+1; r++)
             {
                 hexes.Add(generator.Generate(new HexCoordinates(q, r)));
             }
@@ -120,10 +120,10 @@ public class ForestPatchesGeneratorTests
                     var coords = new HexCoordinates(q, r);
                     foreach (var neighbor in coords.GetAdjacentCoordinates())
                     {
-                        if (neighbor.Q >= 0 && neighbor.Q < width &&
-                            neighbor.R >= 0 && neighbor.R < height)
+                        if (neighbor.Q >= 1 && neighbor.Q < width+1 &&
+                            neighbor.R >= 1 && neighbor.R < height+1)
                         {
-                            var neighborHex = hexes[neighbor.Q * height + neighbor.R];
+                            var neighborHex = hexes[neighbor.Q * (height+1) + neighbor.R];
                             if (neighborHex.HasTerrain("LightWoods") || neighborHex.HasTerrain("HeavyWoods"))
                             {
                                 hasAdjacentWoods = true;
