@@ -91,5 +91,7 @@ public class BattleMapViewModelTests
         // Assert
         _viewModel.UnitsToDeploy.Should().ContainSingle();
         _viewModel.AreUnitsToDeployVisible.Should().BeTrue();
+        _viewModel.UserActionLabel.Should().Be("Select Unit");
+        _viewModel.IsUserActionLabelVisible.Should().BeTrue();
     }
 }

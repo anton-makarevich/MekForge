@@ -83,6 +83,8 @@ public class BattleMapViewModel : BaseViewModel
             {
                 _selectedHex = null;
             }
+            NotifyPropertyChanged(nameof(UserActionLabel));
+            NotifyPropertyChanged(nameof(IsUserActionLabelVisible));
         }
     }
 
@@ -174,4 +176,21 @@ public class BattleMapViewModel : BaseViewModel
             hex.IsHighlighted = isHighlighted;
         }
     }
+
+    public string UserActionLabel
+    {
+        get
+        {
+            return AwaitedAction switch
+            {
+                PlayerActions.None => "",
+                PlayerActions.SelectUnitToDeploy => "Select Unit",
+                PlayerActions.SelectHex => "Select hex",
+                PlayerActions.SelectDirection => "Select facing direction",
+                _ => ""
+            };
+        }
+    }
+
+    public bool IsUserActionLabelVisible => !string.IsNullOrEmpty(UserActionLabel);
 }
