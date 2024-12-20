@@ -11,6 +11,7 @@
         <Canvas x:Name="MapCanvas" 
                 Background="Transparent">
         </Canvas>
+        
         <StackPanel x:Name="TurnStatus"
             Orientation="Horizontal"
             HorizontalAlignment="Center"
@@ -37,5 +38,14 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </Grid>
+        
+        <StackPanel x:Name="PlayerAction"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Bottom"
+                    Background="Aqua"
+                    IsVisible="{Binding IsUserActionLabelVisible}">
+            <Label Content="{Binding UserActionLabel}"/>
+        </StackPanel>
     </Grid>
 </UserControl>
