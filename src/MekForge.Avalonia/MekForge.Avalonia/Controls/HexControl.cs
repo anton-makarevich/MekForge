@@ -1,11 +1,13 @@
+using System;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
-using Avalonia.Input;
+using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
-using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Services;
 
@@ -65,8 +67,25 @@ public class HexControl : Grid
             StrokeThickness = DefaultStrokeThickness
         };
         
+        var label = new Label
+        {
+            Content = hex.Coordinates.ToString(),
+            VerticalAlignment = VerticalAlignment.Top,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Foreground = Brushes.White
+        };
+        
         Children.Add(_terrainImage);
         Children.Add(_hexPolygon);
+        Children.Add(label);
+        
+        // Create an observable that polls the unit's position
+        Observable
+            .Interval(TimeSpan.FromMilliseconds(16)) // ~60fps
+            .Select(_ => _hex.IsHighlighted)
+            .DistinctUntilChanged()
+            .ObserveOn(SynchronizationContext.Current) // Ensure events are processed on the UI thread
+            .Subscribe(_ => Highlight(_hex.IsHighlighted ? HexHighlightType.Selected : HexHighlightType.None));
         
         // Set position
         SetValue(Canvas.LeftProperty, hex.Coordinates.H);
@@ -75,7 +94,6 @@ public class HexControl : Grid
         UpdateTerrainImage();
     }
     public Hex Hex => _hex;
-    public HexHighlightType HighlightType { get; private set; }
     
     private void Highlight(HexHighlightType type)
     {

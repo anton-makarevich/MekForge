@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using System.Reactive.Linq;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Map;
@@ -49,7 +48,7 @@ public class BattleMapViewModel : BaseViewModel
                 .Subscribe(_ =>
                 {
                     UpdateGameState();
-                    CheckPlayerAction();
+                    CheckPlayerActionState();
                 });
         }
     }
@@ -61,24 +60,28 @@ public class BattleMapViewModel : BaseViewModel
         NotifyPropertyChanged(nameof(ActivePlayerName));
     }
 
-    private void CheckPlayerAction()
+    private void CheckPlayerActionState()
     {
-        var clientGame = Game as ClientGame;
-        if (clientGame == null) return;              // No game
+        if (Game is not ClientGame clientGame) return;              // No game
        
         AwaitedAction = clientGame.GetNextClientAction(AwaitedAction); 
         
     }
 
-    public PlayerActions AwaitedAction
+    private PlayerActions AwaitedAction
     {
         get => _awaitedAction;
-        private set
+        set
         {
             SetProperty(ref _awaitedAction, value);
             if (value == PlayerActions.SelectUnitToDeploy)
             {
                 ShowUnitsToDeploy();
+            }
+
+            if (value == PlayerActions.SelectHex)
+            {
+                _selectedHex = null;
             }
         }
     }
@@ -118,17 +121,57 @@ public class BattleMapViewModel : BaseViewModel
         {
             SetProperty(ref _selectedUnit, value);
             NotifyPropertyChanged(nameof(AreUnitsToDeployVisible));
-            CheckPlayerAction();
+            CheckPlayerActionState();
+        }
+    }
+    
+    private Hex? _selectedHex=null;
+    
+
+    public void SelectHex(Hex selectedHex)
+    {
+        if (TurnPhase == Phase.Start)
+        {
+            var player = Game?.Players[0];
+            if (player != null)
+            {
+                (Game as ClientGame)?.SetPlayerReady(player);
+            }
+        }
+
+        if (TurnPhase == Phase.Deployment)
+        {
+            if (AwaitedAction == PlayerActions.SelectHex)
+            {
+                if (_selectedHex == null)
+                {
+                    _selectedHex = selectedHex;
+                    var adjustedHex = _selectedHex.Coordinates.GetAdjacentCoordinates().ToList();
+                    if (Game is ClientGame localGame)
+                    {
+                        HighlightHexes(adjustedHex,true);
+                    }
+                }
+                else
+                {
+                    var adjustedHex = _selectedHex.Coordinates.GetAdjacentCoordinates().ToList();
+                    if (Game is ClientGame localGame)
+                    {
+                        HighlightHexes(adjustedHex,false);
+                    }
+
+                    _selectedHex = null;
+                }
+            }
         }
     }
 
-    public void SelectHex(Hex selectedHexHex)
+    private void HighlightHexes(List<HexCoordinates> adjustedHex, bool isHighlighted)
     {
-        if (TurnPhase != Phase.Start) return;
-        var player = Game?.Players[0];
-        if (player != null)
+        var hexesToHighlight = _game?.GetHexes().Where(h => adjustedHex.Contains(h.Coordinates)).ToList();
+        foreach (var hex in hexesToHighlight)
         {
-            (Game as ClientGame)?.SetPlayerReady(player);
+            hex.IsHighlighted = isHighlighted;
         }
     }
 }

@@ -9,7 +9,7 @@ public readonly record struct HexCoordinates
 {
     public const double HexWidth = 100;
     public const double HexHeight = 86.6;
-    public const double HexHorizontalSpacing = HexWidth * 0.75;
+    private const double HexHorizontalSpacing = HexWidth * 0.75;
 
     /// <summary>
     /// Q coordinate (column)
@@ -39,7 +39,7 @@ public readonly record struct HexCoordinates
     /// <summary>
     /// Gets the Y coordinate in pixels for rendering
     /// </summary>
-    public double V => R * HexHeight + (Q % 2 == 0 ? 0 : HexHeight * 0.5);
+    public double V => R * HexHeight - (Q % 2 == 0 ? 0 : HexHeight * 0.5);
 
     public HexCoordinates(HexCoordinateData data) : this(data.Q, data.R) { }
     public HexCoordinates(int q, int r)
@@ -76,10 +76,10 @@ public readonly record struct HexCoordinates
         (-1, 0)  // Direction 5: top-left
     ];
 
-    public HexCoordinates Neighbor(int direction)
+    public HexCoordinates Neighbor(HexDirection direction)
     {
         var directions = (Q % 2 == 0) ? EvenRowDirections : OddRowDirections;
-        var (dQ, dR) = directions[direction % 6];
+        var (dQ, dR) = directions[(int)direction % 6];
         return new HexCoordinates(Q + dQ, R + dR);
     }
     
@@ -151,4 +151,14 @@ public readonly record struct HexCoordinates
     }
     
     public HexCoordinateData ToData() => new(Q, R);
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Q, R);
+    }
+
+    public override string ToString()
+    {
+        return $"{Q:D2}{R:D2}";
+    }
 }

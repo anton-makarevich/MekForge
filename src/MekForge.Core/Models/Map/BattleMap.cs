@@ -25,8 +25,8 @@ public class BattleMap
     /// </summary>
     public void AddHex(Hex hex)
     {
-        if (hex.Coordinates.Q < 0 || hex.Coordinates.Q >= Width ||
-            hex.Coordinates.R < 0 || hex.Coordinates.R >= Height)
+        if (hex.Coordinates.Q < 1 || hex.Coordinates.Q >= Width +1 ||
+            hex.Coordinates.R < 1 || hex.Coordinates.R >= Height +1)
         {
             throw new HexOutsideOfMapBoundariesException(hex.Coordinates, Width, Height);
         }
@@ -202,9 +202,9 @@ public class BattleMap
     {
         var map = new BattleMap(width, height);
 
-        for (var q = 0; q < width; q++)
+        for (var q = 1; q < width+1; q++)
         {
-            for (var r = 0; r < height; r++)
+            for (var r = 1; r < height+1; r++)
             {
                 var coordinates = new HexCoordinates(q, r);
                 var hex = generator.Generate(coordinates);

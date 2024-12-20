@@ -39,7 +39,7 @@ namespace Sanet.MekForge.Avalonia.Controls
 
             // Create an observable that polls the unit's position
              Observable
-                .Interval(TimeSpan.FromMilliseconds(16)) // ~60fps
+                .Interval(TimeSpan.FromMilliseconds(32)) // ~60fps
                 .Select(_ => _unit.Position)
                 .DistinctUntilChanged()
                 .ObserveOn(SynchronizationContext.Current) // Ensure events are processed on the UI thread

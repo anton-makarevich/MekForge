@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
@@ -50,9 +47,9 @@ public class ForestPatchesGenerator : ITerrainGenerator
         if (forestCoverage >= 1.0)
         {
             // For full coverage, add all hexes to forest
-            for (var q = 0; q < width; q++)
+            for (var q = 1; q < width+1; q++)
             {
-                for (var r = 0; r < height; r++)
+                for (var r = 1; r < height+1; r++)
                 {
                     _forestHexes.Add(new HexCoordinates(q, r));
                 }
@@ -86,8 +83,8 @@ public class ForestPatchesGenerator : ITerrainGenerator
                 foreach (var neighbor in current.GetAdjacentCoordinates())
                 {
                     // Skip if outside map bounds
-                    if (neighbor.Q < 0 || neighbor.Q >= _width ||
-                        neighbor.R < 0 || neighbor.R >= _height)
+                    if (neighbor.Q < 1 || neighbor.Q >= _width+1 ||
+                        neighbor.R < 1 || neighbor.R >= _height+1)
                         continue;
 
                     if (patchHexes.Count >= patchSize) break;
@@ -112,8 +109,8 @@ public class ForestPatchesGenerator : ITerrainGenerator
 
     public Hex Generate(HexCoordinates coordinates)
     {
-        if (coordinates.Q < 0 || coordinates.Q >= _width ||
-            coordinates.R < 0 || coordinates.R >= _height)
+        if (coordinates.Q < 1 || coordinates.Q >= _width+1 ||
+            coordinates.R < 1 || coordinates.R >= _height+1)
         {
             throw new HexOutsideOfMapBoundariesException(coordinates, _width, _height);
         }

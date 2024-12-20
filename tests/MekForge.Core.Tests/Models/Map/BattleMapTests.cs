@@ -27,7 +27,7 @@ public class BattleMapTests
     {
         // Arrange
         var map = new BattleMap(1, 1);
-        var hex = new Hex(new HexCoordinates(0, 0));
+        var hex = new Hex(new HexCoordinates(1, 1));
 
         // Act
         map.AddHex(hex);
@@ -61,47 +61,11 @@ public class BattleMapTests
     {
         // Arrange
         var map = new BattleMap(3, 1);
-        var start = new HexCoordinates(0, 0);
-        var target = new HexCoordinates(2, 0);
+        var start = new HexCoordinates(1, 1);
+        var target = new HexCoordinates(3, 1);
 
         // Add hexes with clear terrain
-        for (var q = 0; q <= 2; q++)
-        {
-            var hex = new Hex(new HexCoordinates(q, 0));
-            hex.AddTerrain(new ClearTerrain());
-            map.AddHex(hex);
-        }
-
-        // Act
-        var path = map.FindPath(start, target, 10);
-
-        // Assert
-        path.Should().NotBeNull();
-        path!.Count.Should().Be(2); // Should be [1,0] and [2,0]
-        path.Should().ContainInOrder(
-            new HexCoordinates(1, 0),
-            new HexCoordinates(2, 0)
-        );
-    }
-
-    [Fact]
-    public void FindPath_WithHeavyWoods_TakesLongerPath()
-    {
-        // Arrange
-        var map = new BattleMap(3, 2);
-        var start = new HexCoordinates(0, 0);
-        var target = new HexCoordinates(2, 0);
-
-        // Add heavy woods on direct path (row 0)
-        for (var q = 0; q <= 2; q++)
-        {
-            var hex = new Hex(new HexCoordinates(q, 0));
-            hex.AddTerrain(new HeavyWoodsTerrain());
-            map.AddHex(hex);
-        }
-
-        // Add clear terrain path through row 1
-        for (var q = 0; q <= 2; q++)
+        for (var q = 1; q <= 3; q++)
         {
             var hex = new Hex(new HexCoordinates(q, 1));
             hex.AddTerrain(new ClearTerrain());
@@ -113,7 +77,44 @@ public class BattleMapTests
 
         // Assert
         path.Should().NotBeNull();
-        path!.Should().Contain(new HexCoordinates(1, 1)); // Should go through clear terrain
+        path!.Count.Should().Be(2); // Should be [2,1] and [3,1]
+        path.Should().ContainInOrder(
+            new HexCoordinates(2, 1),
+            new HexCoordinates(3, 1)
+        );
+    }
+
+    [Fact]
+    public void FindPath_WithHeavyWoods_TakesLongerPath()
+    {
+        // Arrange
+        var map = new BattleMap(2, 3);
+        var start = new HexCoordinates(1, 1);
+        var target = new HexCoordinates(2, 3);
+
+        // Add heavy woods on col 2
+        for (var r = 1; r <= 3; r++)
+        {
+            var hex = new Hex(new HexCoordinates(2, r));
+            hex.AddTerrain(new HeavyWoodsTerrain());
+            map.AddHex(hex);
+        }
+
+        // Add clear terrain path through row 1
+        for (var r = 1; r <= 3; r++)
+        {
+            var hex = new Hex(new HexCoordinates(1, r));
+            hex.AddTerrain(new ClearTerrain());
+            map.AddHex(hex);
+        }
+
+        // Act
+        var path = map.FindPath(start, target, 6);
+
+        // Assert
+        path.Should().NotBeNull();
+        path!.Should().Contain(new HexCoordinates(1, 2)); // Should go through clear terrain
+        path!.Should().Contain(new HexCoordinates(1, 3)); // Should go through clear terrain
     }
 
     [Fact]
@@ -121,7 +122,7 @@ public class BattleMapTests
     {
         // Arrange
         var map = new BattleMap(5, 5);
-        var start = new HexCoordinates(2, 2);
+        var start = new HexCoordinates(3, 3);
 
         // Add clear terrain in a 2-hex radius
         foreach (var hex in start.GetCoordinatesInRange(2))
@@ -146,15 +147,15 @@ public class BattleMapTests
     {
         // Arrange
         var map = new BattleMap(2, 2);
-        var start = new HexCoordinates(0, 0);
+        var start = new HexCoordinates(1, 1);
 
         // Add clear terrain hex
-        var clearHex = new Hex(new HexCoordinates(1, 0));
+        var clearHex = new Hex(new HexCoordinates(2, 1));
         clearHex.AddTerrain(new ClearTerrain());
         map.AddHex(clearHex);
 
         // Add heavy woods hex
-        var woodsHex = new Hex(new HexCoordinates(0, 1));
+        var woodsHex = new Hex(new HexCoordinates(1, 2));
         woodsHex.AddTerrain(new HeavyWoodsTerrain());
         map.AddHex(woodsHex);
 
@@ -171,13 +172,13 @@ public class BattleMapTests
     {
         // Arrange
         var map = new BattleMap(4, 1);
-        var start = new HexCoordinates(0, 0);
-        var end = new HexCoordinates(3, 0);
+        var start = new HexCoordinates(1, 1);
+        var end = new HexCoordinates(4, 1);
 
         // Add clear terrain hexes
-        for (var q = 0; q <= 3; q++)
+        for (var q = 1; q <= 4; q++)
         {
-            var hex = new Hex(new HexCoordinates(q, 0));
+            var hex = new Hex(new HexCoordinates(q, 1));
             hex.AddTerrain(new ClearTerrain());
             map.AddHex(hex);
         }
@@ -194,19 +195,19 @@ public class BattleMapTests
     {
         // Arrange
         var map = new BattleMap(4, 1);
-        var start = new HexCoordinates(0, 0);
-        var end = new HexCoordinates(3, 0);
+        var start = new HexCoordinates(1, 1);
+        var end = new HexCoordinates(4, 1);
 
         // Add clear terrain hexes
-        for (var q = 0; q <= 3; q++)
+        for (var q = 1; q <= 4; q++)
         {
-            var hex = new Hex(new HexCoordinates(q, 0));
+            var hex = new Hex(new HexCoordinates(q, 1));
             hex.AddTerrain(new ClearTerrain());
             map.AddHex(hex);
         }
 
         // Add blocking heavy woods in the middle
-        var blockingHex = new Hex(new HexCoordinates(1, 0), 2); // Higher base level
+        var blockingHex = new Hex(new HexCoordinates(2, 1), 2); // Higher base level
         blockingHex.AddTerrain(new HeavyWoodsTerrain()); // Adds 2 more levels
         map.AddHex(blockingHex);
 
@@ -235,9 +236,9 @@ public class BattleMapTests
         map.Height.Should().Be(height);
 
         // Check if all hexes are created
-        for (var r = 0; r < height; r++)
+        for (var r = 1; r < height+1; r++)
         {
-            for (var q = 0; q < width; q++)
+            for (var q = 1; q < width+1; q++)
             {
                 var hex = map.GetHex(new HexCoordinates(q, r));
                 hex.Should().NotBeNull();
@@ -267,9 +268,9 @@ public class BattleMapTests
 
         // Assert
         // Check all hexes have clear terrain
-        for (var q = 0; q < width; q++)
+        for (var q = 1; q < width+1; q++)
         {
-            for (var r = 0; r < height; r++)
+            for (var r = 1; r < height+1; r++)
             {
                 var hex = map.GetHex(new HexCoordinates(q, r));
                 hex!.HasTerrain("Clear").Should().BeTrue();
@@ -285,12 +286,12 @@ public class BattleMapTests
     {
         // Arrange
         var originalMap = new BattleMap(2, 2);
-        var woodHex = new Hex(new HexCoordinates(0, 0), 1);
+        var woodHex = new Hex(new HexCoordinates(1, 1), 1);
         woodHex.AddTerrain(new HeavyWoodsTerrain());
         originalMap.AddHex(woodHex);
-        originalMap.AddHex(new Hex(new HexCoordinates(0, 1),2));
-        originalMap.AddHex(new Hex(new HexCoordinates(1, 0)));
-        originalMap.AddHex(new Hex(new HexCoordinates(1, 1)));
+        originalMap.AddHex(new Hex(new HexCoordinates(1, 1),2));
+        originalMap.AddHex(new Hex(new HexCoordinates(1, 2)));
+        originalMap.AddHex(new Hex(new HexCoordinates(2, 1)));
         
         var hexDataList = originalMap.GetHexes().Select(hex => hex.ToData()).ToList();
 
