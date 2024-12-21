@@ -4,5 +4,6 @@ public enum PlayerActions
 {
     None,
     SelectUnitToDeploy,
-    SelectHex
+    SelectHex,
+    SelectDirection
 }
