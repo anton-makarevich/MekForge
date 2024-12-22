@@ -15,6 +15,7 @@ public class BattleMapViewModel : BaseViewModel
     private PlayerActions _awaitedAction = PlayerActions.None;
     private List<Unit> _unitsToDeploy = [];
     private Unit? _selectedUnit = null;
+    private HexDirection? _selectedDirection = null;
 
     public BattleMapViewModel(IImageService imageService)
     {
@@ -153,9 +154,7 @@ public class BattleMapViewModel : BaseViewModel
                     {
                         HighlightHexes(adjustedHex,true);
                     }
-                    AwaitedAction = (Game as ClientGame)?
-                        .GetNextClientAction(AwaitedAction)
-                        ??PlayerActions.None;
+                    CheckPlayerActionState();
                     return;
                 }
             }
@@ -163,12 +162,12 @@ public class BattleMapViewModel : BaseViewModel
             {
                 if (_selectedHex != null)
                 {
-                    var adjustedHex = _selectedHex.Coordinates.GetAdjacentCoordinates().ToList();
-                    HighlightHexes(adjustedHex, false);
-                    _selectedHex = null;
-                    AwaitedAction = (Game as ClientGame)?
-                        .GetNextClientAction(AwaitedAction)
-                        ?? PlayerActions.None;
+                    _selectedDirection = _selectedHex.Coordinates.GetDirectionToNeighbour(selectedHex.Coordinates);
+                    if (_selectedDirection == null) return;
+                    if (Game is not ClientGame localGame) return;
+                    localGame.DeployUnit(SelectedUnit!.Id,
+                        _selectedHex.Coordinates,
+                        _selectedDirection.Value);
                 }
             }
         }
@@ -177,6 +176,7 @@ public class BattleMapViewModel : BaseViewModel
     private void HighlightHexes(List<HexCoordinates> adjustedHex, bool isHighlighted)
     {
         var hexesToHighlight = _game?.GetHexes().Where(h => adjustedHex.Contains(h.Coordinates)).ToList();
+        if (hexesToHighlight == null) return;
         foreach (var hex in hexesToHighlight)
         {
             hex.IsHighlighted = isHighlighted;

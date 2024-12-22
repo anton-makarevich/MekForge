@@ -209,7 +209,8 @@ public class ServerGameTests
             PlayerId = playerId,
             UnitId = unitId,
             GameOriginId = Guid.NewGuid(),
-            Position = new HexCoordinateData(2, 3)
+            Position = new HexCoordinateData(2, 3) ,
+            Direction = 0
         });
     
         // Assert
