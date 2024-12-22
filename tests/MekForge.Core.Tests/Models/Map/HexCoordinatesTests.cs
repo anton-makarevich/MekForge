@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Models.Map;
 
 namespace Sanet.MekForge.Core.Tests.Models.Map;
@@ -44,6 +45,39 @@ public class HexCoordinatesTests
         hexOdd.X.Should().Be(1);
         hexOdd.Z.Should().Be(1); // Calculation: R - (Q + (Q % 2)) / 2 = 2 - (1 + 1) / 2
         hexOdd.Y.Should().Be(-2); // Calculation: -X - Z = -1 - 1
+    }
+    
+    [Theory]
+    [InlineData(5, 4, 5, 3, HexDirection.Top)]
+    [InlineData(5, 4, 6, 4, HexDirection.BottomRight)]
+    [InlineData(5, 4, 4, 4, HexDirection.BottomLeft)]
+    [InlineData(4, 4, 3, 4, HexDirection.TopLeft)]
+    public void GetDirectionToNeighbour_ReturnsExpectedDirection(int centerQ, int centerR, int neighbourQ, int neighbourR, HexDirection expectedDirection)
+    {
+        // Arrange
+        var center = new HexCoordinates(centerQ, centerR);
+        var neighbour = new HexCoordinates(neighbourQ, neighbourR);
+
+        // Act
+        var direction = center.GetDirectionToNeighbour(neighbour);
+
+        // Assert
+        direction.Should().Be(expectedDirection);
+    }
+    
+    [Fact]
+    public void GetDirectionFromToNeighbour_ThrowsException_ForNonAdjacentNeighbour()
+    {
+        // Arrange
+        var center = new HexCoordinates(4, 4);
+        var neighbour = new HexCoordinates(6, 4); // Non-adjacent
+
+        // Act
+        Action act = () => center.GetDirectionToNeighbour(neighbour);
+
+        // Assert
+        act.Should().Throw<WrongHexException>()
+            .WithMessage("Neighbour is not adjacent to center.");
     }
 
     [Theory]

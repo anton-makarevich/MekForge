@@ -1,4 +1,5 @@
 using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Exceptions;
 
 namespace Sanet.MekForge.Core.Models.Map;
 
@@ -81,6 +82,24 @@ public readonly record struct HexCoordinates
         var directions = (Q % 2 == 0) ? EvenRowDirections : OddRowDirections;
         var (dQ, dR) = directions[(int)direction % 6];
         return new HexCoordinates(Q + dQ, R + dR);
+    }
+    
+    public HexDirection GetDirectionToNeighbour(HexCoordinates neighbour)
+    {
+        var dQ = neighbour.Q - Q;
+        var dR = neighbour.R - R;
+
+        var directions = (Q % 2 == 0) ? EvenRowDirections : OddRowDirections;
+
+        for (var i = 0; i < directions.Length; i++)
+        {
+            if (directions[i].Item1 == dQ && directions[i].Item2 == dR)
+            {
+                return (HexDirection)i;
+            }
+        }
+
+        throw new WrongHexException(neighbour, "Neighbour is not adjacent to center.");
     }
     
     /// <summary>

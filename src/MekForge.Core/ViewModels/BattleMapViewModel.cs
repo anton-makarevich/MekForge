@@ -153,16 +153,22 @@ public class BattleMapViewModel : BaseViewModel
                     {
                         HighlightHexes(adjustedHex,true);
                     }
+                    AwaitedAction = (Game as ClientGame)?
+                        .GetNextClientAction(AwaitedAction)
+                        ??PlayerActions.None;
+                    return;
                 }
-                else
+            }
+            if (AwaitedAction == PlayerActions.SelectDirection)
+            {
+                if (_selectedHex != null)
                 {
                     var adjustedHex = _selectedHex.Coordinates.GetAdjacentCoordinates().ToList();
-                    if (Game is ClientGame localGame)
-                    {
-                        HighlightHexes(adjustedHex,false);
-                    }
-
+                    HighlightHexes(adjustedHex, false);
                     _selectedHex = null;
+                    AwaitedAction = (Game as ClientGame)?
+                        .GetNextClientAction(AwaitedAction)
+                        ?? PlayerActions.None;
                 }
             }
         }

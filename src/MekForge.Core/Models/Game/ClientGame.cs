@@ -77,6 +77,10 @@ public class ClientGame : BaseGame
             {
                 return PlayerActions.SelectHex;
             }
+            if (currentAction == PlayerActions.SelectHex)
+            {
+                return PlayerActions.SelectDirection;
+            }
             var hasUnitsToDeploy = ActivePlayer?.Units.Any(u => !u.IsDeployed);
             if (hasUnitsToDeploy == true) return PlayerActions.SelectUnitToDeploy;
         }
