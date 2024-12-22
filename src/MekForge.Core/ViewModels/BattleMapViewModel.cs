@@ -15,6 +15,7 @@ public class BattleMapViewModel : BaseViewModel
     private PlayerActions _awaitedAction = PlayerActions.None;
     private List<Unit> _unitsToDeploy = [];
     private Unit? _selectedUnit = null;
+    private HexDirection? _selectedDirection = null;
 
     public BattleMapViewModel(IImageService imageService)
     {
@@ -153,16 +154,20 @@ public class BattleMapViewModel : BaseViewModel
                     {
                         HighlightHexes(adjustedHex,true);
                     }
+                    CheckPlayerActionState();
+                    return;
                 }
-                else
+            }
+            if (AwaitedAction == PlayerActions.SelectDirection)
+            {
+                if (_selectedHex != null)
                 {
-                    var adjustedHex = _selectedHex.Coordinates.GetAdjacentCoordinates().ToList();
-                    if (Game is ClientGame localGame)
-                    {
-                        HighlightHexes(adjustedHex,false);
-                    }
-
-                    _selectedHex = null;
+                    _selectedDirection = _selectedHex.Coordinates.GetDirectionToNeighbour(selectedHex.Coordinates);
+                    if (_selectedDirection == null) return;
+                    if (Game is not ClientGame localGame) return;
+                    localGame.DeployUnit(SelectedUnit!.Id,
+                        _selectedHex.Coordinates,
+                        _selectedDirection.Value);
                 }
             }
         }
@@ -171,6 +176,7 @@ public class BattleMapViewModel : BaseViewModel
     private void HighlightHexes(List<HexCoordinates> adjustedHex, bool isHighlighted)
     {
         var hexesToHighlight = _game?.GetHexes().Where(h => adjustedHex.Contains(h.Coordinates)).ToList();
+        if (hexesToHighlight == null) return;
         foreach (var hex in hexesToHighlight)
         {
             hex.IsHighlighted = isHighlighted;

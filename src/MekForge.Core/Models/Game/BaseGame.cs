@@ -52,8 +52,8 @@ public abstract class BaseGame : IGame
         if (player == null) return;
         player.Status = updatePlayerStatusCommand.PlayerStatus;
     }
-    
-    protected void DeployUnit(DeployUnitCommand command)
+
+    protected void OnDeployUnit(DeployUnitCommand command)
     {
         if (ActivePlayer?.Id != command.PlayerId) return;
         var unit = ActivePlayer.Units.FirstOrDefault(u => u.Id == command.UnitId);
@@ -84,7 +84,7 @@ public abstract class BaseGame : IGame
 
     private bool ValidateJoinCommand(JoinGameCommand joinCommand)
     {
-        return joinCommand.PlayerId != null;
+        return true;
     }
 
     private bool ValidateDeployCommand(DeployUnitCommand cmd)

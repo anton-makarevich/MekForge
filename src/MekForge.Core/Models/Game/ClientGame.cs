@@ -77,9 +77,27 @@ public class ClientGame : BaseGame
             {
                 return PlayerActions.SelectHex;
             }
+            if (currentAction == PlayerActions.SelectHex)
+            {
+                return PlayerActions.SelectDirection;
+            }
             var hasUnitsToDeploy = ActivePlayer?.Units.Any(u => !u.IsDeployed);
             if (hasUnitsToDeploy == true) return PlayerActions.SelectUnitToDeploy;
         }
         return PlayerActions.None;
+    }
+
+    public void DeployUnit(Guid id, HexCoordinates selectedHexCoordinates, HexDirection selectedDirection)
+    {
+        if (ActivePlayer == null) return;
+        var command = new DeployUnitCommand()
+        {
+            GameOriginId = GameId,
+            PlayerId = ActivePlayer.Id,
+            UnitId = id,
+            Position = selectedHexCoordinates.ToData(),
+            Direction = (int)selectedDirection
+        };
+        CommandPublisher.PublishCommand(command);
     }
 }

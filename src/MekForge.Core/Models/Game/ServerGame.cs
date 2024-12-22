@@ -60,7 +60,7 @@ public class ServerGame : BaseGame
             case MoveUnitCommand moveUnitCommand:
                 break;
             case DeployUnitCommand deployUnitCommand:
-                DeployUnit(deployUnitCommand);
+                OnDeployUnit(deployUnitCommand);
                 DeployNextPlayer();
                 break;
         }
