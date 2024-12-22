@@ -1,7 +1,6 @@
 using FluentAssertions;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Ballistic;
-using Xunit;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Components.Weapons.Ballistic;
 

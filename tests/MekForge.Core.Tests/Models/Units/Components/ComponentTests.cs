@@ -1,4 +1,3 @@
-using System.Drawing;
 using FluentAssertions;
 using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Models.Units.Components;

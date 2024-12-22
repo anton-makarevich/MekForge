@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
-using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services;
 using System.Reactive.Linq;
