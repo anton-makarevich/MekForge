@@ -23,6 +23,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
     private const double ScaleStep = 0.1;
     private const int SelectionThresholdMilliseconds = 250; // Time to distinguish selection vs pan
     private bool _isManipulating;
+    private bool _isPressed;
     private CancellationTokenSource _manipulationTokenSource;
 
     public BattleMapView()
@@ -77,6 +78,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
                     _isManipulating = true; // Set flag if the delay completes
                 }
             }, TaskScheduler.FromCurrentSynchronizationContext());
+        _isPressed = true;
         base.OnPointerPressed(e);
     }
 
@@ -87,6 +89,8 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
 
         if (!_isManipulating)
         {
+            if (!_isPressed) return;
+            _isPressed = false;
             // Handle hex selection
             // this is temporary for testing only
             var position = e.GetPosition(MapCanvas);

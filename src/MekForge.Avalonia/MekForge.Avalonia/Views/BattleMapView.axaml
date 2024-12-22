@@ -23,6 +23,7 @@
         </StackPanel>
         
         <Grid x:Name="MechList"
+              Background="Aqua"
               IsVisible="{Binding AreUnitsToDeployVisible}"
               Grid.RowDefinitions="Auto,*"
               HorizontalAlignment="Center"

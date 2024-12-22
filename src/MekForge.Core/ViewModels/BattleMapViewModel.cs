@@ -160,15 +160,18 @@ public class BattleMapViewModel : BaseViewModel
             }
             if (AwaitedAction == PlayerActions.SelectDirection)
             {
-                if (_selectedHex != null)
-                {
-                    _selectedDirection = _selectedHex.Coordinates.GetDirectionToNeighbour(selectedHex.Coordinates);
-                    if (_selectedDirection == null) return;
-                    if (Game is not ClientGame localGame) return;
-                    localGame.DeployUnit(SelectedUnit!.Id,
-                        _selectedHex.Coordinates,
-                        _selectedDirection.Value);
-                }
+                if (_selectedHex == null) return;
+                var adjustedHex = _selectedHex.Coordinates.GetAdjacentCoordinates().ToList();
+                if (Game is not ClientGame localGame) return;
+                if (!adjustedHex.Contains(selectedHex.Coordinates)) return;
+                HighlightHexes(adjustedHex, false);
+
+                _selectedDirection = _selectedHex.Coordinates.GetDirectionToNeighbour(selectedHex.Coordinates);
+                if (_selectedDirection == null) return;
+                localGame.DeployUnit(SelectedUnit!.Id,
+                    _selectedHex.Coordinates,
+                    _selectedDirection.Value);
+                AwaitedAction = PlayerActions.None;
             }
         }
     }
