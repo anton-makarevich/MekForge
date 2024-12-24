@@ -1,4 +1,3 @@
-using System.Reactive.Subjects;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
@@ -12,8 +11,6 @@ namespace Sanet.MekForge.Core.Models.Game;
 public class ClientGame : BaseGame
 {
     private readonly IReadOnlyList<IPlayer> _localPlayers;
-    public readonly Subject<IPlayer> PlayerJoined = new();
-
 
     public ClientGame(BattleMap battleMap, IReadOnlyList<IPlayer> localPlayers,
         IRulesProvider rulesProvider, ICommandPublisher commandPublisher)
@@ -105,12 +102,5 @@ public class ClientGame : BaseGame
             Direction = (int)selectedDirection
         };
         CommandPublisher.PublishCommand(command);
-    }
-
-    protected override IPlayer OnPlayerJoined(JoinGameCommand joinGameCommand)
-    {
-        var player = base.OnPlayerJoined(joinGameCommand);
-        PlayerJoined.OnNext(player);
-        return player;
     }
 }

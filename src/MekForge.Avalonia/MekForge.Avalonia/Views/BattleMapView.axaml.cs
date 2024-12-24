@@ -54,6 +54,12 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
             var hexControl = new HexControl(hex, imageService);
             MapCanvas.Children.Add(hexControl);
         }
+
+        foreach (var unit in ViewModel.Units)
+        {
+            var unitControl = new UnitControl(unit, (IImageService<Bitmap>)ViewModel.ImageService);
+            MapCanvas.Children.Add(unitControl);
+        }
     }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -137,21 +143,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
         base.OnViewModelSet();
         if (ViewModel is { Game: not null })
         {
-            ViewModel.PropertyChanged+= OnViewModelPropertyChanged;
             RenderMap(ViewModel.Game, (IImageService<Bitmap>)ViewModel.ImageService);
-        }
-    }
-
-    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(ViewModel.PlayerToRender) && ViewModel?.PlayerToRender is not null)
-        {
-            var playerToRender = ViewModel.PlayerToRender;
-            foreach (var unit in playerToRender.Units)
-            {
-                var unitControl = new UnitControl(unit, (IImageService<Bitmap>)ViewModel.ImageService);
-                MapCanvas.Children.Add(unitControl);
-            }
         }
     }
 }
