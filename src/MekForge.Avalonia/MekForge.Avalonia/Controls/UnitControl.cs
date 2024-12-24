@@ -39,18 +39,23 @@ namespace Sanet.MekForge.Avalonia.Controls
             // Create an observable that polls the unit's position
              Observable
                 .Interval(TimeSpan.FromMilliseconds(32)) // ~60fps
-                .Select(_ => _unit.Position)
+                .Select(_ => new
+                {
+                    _unit.Position,
+                    _unit.IsDeployed
+                })
                 .DistinctUntilChanged()
                 .ObserveOn(SynchronizationContext.Current) // Ensure events are processed on the UI thread
-                .Subscribe(_ => UpdatePosition());
+                .Subscribe(_ => Render());
             
             // Initial update
-            UpdatePosition();
+            Render();
             UpdateImage();
         }
 
-        private void UpdatePosition()
+        private void Render()
         {
+            IsVisible = _unit.IsDeployed;
             if (_unit.Position == null) return;
             var hexPosition = _unit.Position;
             SetValue(Canvas.LeftProperty, hexPosition.Value.H);

@@ -12,7 +12,7 @@ namespace Sanet.MekForge.Core.Models.Game;
 public class ClientGame : BaseGame
 {
     private readonly IReadOnlyList<IPlayer> _localPlayers;
-    public readonly Subject<IPlayer> PlayerJoined = new Subject<IPlayer>();
+    public readonly Subject<IPlayer> PlayerJoined = new();
 
 
     public ClientGame(BattleMap battleMap, IReadOnlyList<IPlayer> localPlayers,
@@ -39,6 +39,9 @@ public class ClientGame : BaseGame
             case ChangeActivePlayerCommand changeActivePlayerCommand:
                 var player = Players.FirstOrDefault(p => p.Id == changeActivePlayerCommand.PlayerId);
                 ActivePlayer = player;
+                break;
+            case DeployUnitCommand deployUnitCommand:
+                OnDeployUnit(deployUnitCommand);
                 break;
         }
     }

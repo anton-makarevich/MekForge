@@ -56,8 +56,9 @@ public abstract class BaseGame : IGame
 
     protected void OnDeployUnit(DeployUnitCommand command)
     {
-        if (ActivePlayer?.Id != command.PlayerId) return;
-        var unit = ActivePlayer.Units.FirstOrDefault(u => u.Id == command.UnitId);
+        var player = _players.FirstOrDefault(p => p.Id == command.PlayerId);
+        if (player == null) return;
+        var unit = player.Units.FirstOrDefault(u => u.Id == command.UnitId && !u.IsDeployed);
         unit?.Deploy(new HexCoordinates(command.Position));
     }
     
