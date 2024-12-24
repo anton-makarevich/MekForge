@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -53,13 +54,6 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
             var hexControl = new HexControl(hex, imageService);
             MapCanvas.Children.Add(hexControl);
         }
-
-        // if (ViewModel?.Unit == null) return;
-        // var unitControl = new UnitControl(ViewModel.Unit, imageService);
-        // MapCanvas.Children.Add(unitControl);
-        // var hexToDeploy = battleMap.GetHexes().FirstOrDefault();
-        // if (hexToDeploy == null) return;
-        // ViewModel.Unit.Deploy(hexToDeploy.Coordinates);
     }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -85,7 +79,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         // Cancel the manipulation timer
-        _manipulationTokenSource?.Cancel();
+        _manipulationTokenSource.Cancel();
 
         if (!_isManipulating)
         {
@@ -143,7 +137,21 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
         base.OnViewModelSet();
         if (ViewModel is { Game: not null })
         {
-                RenderMap(ViewModel.Game, (IImageService<Bitmap>)ViewModel.ImageService);
+            ViewModel.PropertyChanged+= OnViewModelPropertyChanged;
+            RenderMap(ViewModel.Game, (IImageService<Bitmap>)ViewModel.ImageService);
+        }
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ViewModel.PlayerToRender) && ViewModel?.PlayerToRender is not null)
+        {
+            var playerToRender = ViewModel.PlayerToRender;
+            foreach (var unit in playerToRender.Units)
+            {
+                var unitControl = new UnitControl(unit, (IImageService<Bitmap>)ViewModel.ImageService);
+                MapCanvas.Children.Add(unitControl);
+            }
         }
     }
 }

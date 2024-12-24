@@ -47,10 +47,10 @@ public class ServerGame : BaseGame
         switch (command)
         {
             case JoinGameCommand joinGameCommand:
-                AddPlayer(joinGameCommand);
+                OnPlayerJoined(joinGameCommand);
                 break;
             case UpdatePlayerStatusCommand playerStatusCommand:
-                UpdatePlayerStatus(playerStatusCommand);
+                OnPlayerStatusUpdated(playerStatusCommand);
                 if (TurnPhase == Phase.Start
                     && Players.Count(p => p.Status == PlayerStatus.Playing) == Players.Count)
                 {

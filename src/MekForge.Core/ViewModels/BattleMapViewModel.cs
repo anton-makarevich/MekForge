@@ -12,10 +12,12 @@ public class BattleMapViewModel : BaseViewModel
     private IGame? _game;
     private readonly IImageService _imageService;
     private IDisposable? _gameSubscription;
+    private IDisposable? _playerJoinedSubscription;
     private PlayerActions _awaitedAction = PlayerActions.None;
     private List<Unit> _unitsToDeploy = [];
     private Unit? _selectedUnit = null;
     private HexDirection? _selectedDirection = null;
+    
 
     public BattleMapViewModel(IImageService imageService)
     {
@@ -31,27 +33,38 @@ public class BattleMapViewModel : BaseViewModel
             SubscribeToGameChanges();
         }
     }
-    
+
+    public IPlayer? PlayerToRender
+    {
+        get => _playerToRender;
+        private set => SetProperty(ref _playerToRender, value);
+    }
+
     private void SubscribeToGameChanges()
     {
         _gameSubscription?.Dispose(); // Dispose of previous subscription
-        if (_game != null)
-        {
-            _gameSubscription = Observable
-                .Interval(TimeSpan.FromMilliseconds(100)) // Adjust the interval as needed
-                .Select(_ => new
-                {
-                    _game.Turn,
-                    _game.TurnPhase,
-                    _game.ActivePlayer
-                })
-                .DistinctUntilChanged()
-                .Subscribe(_ =>
-                {
-                    UpdateGameState();
-                    CheckPlayerActionState();
-                });
-        }
+        _playerJoinedSubscription?.Dispose();
+        if (Game is not ClientGame localGame) return;
+        _gameSubscription = Observable
+            .Interval(TimeSpan.FromMilliseconds(100)) // Adjust the interval as needed
+            .Select(_ => new
+            {
+                localGame.Turn,
+                localGame.TurnPhase,
+                localGame.ActivePlayer
+            })
+            .DistinctUntilChanged()
+            .Subscribe(_ =>
+            {
+                UpdateGameState();
+                CheckPlayerActionState();
+            });
+        _playerJoinedSubscription = localGame.PlayerJoined.Subscribe(OnPlayerJoined);
+    }
+
+    private void OnPlayerJoined(IPlayer player)
+    {
+        PlayerToRender = player;
     }
 
     private void UpdateGameState()
@@ -129,7 +142,8 @@ public class BattleMapViewModel : BaseViewModel
     }
     
     private Hex? _selectedHex=null;
-    
+    private IPlayer? _playerToRender = null;
+
 
     public void SelectHex(Hex selectedHex)
     {

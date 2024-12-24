@@ -29,7 +29,7 @@ public class BaseGameTests() : BaseGame(BattleMap.GenerateMap(5, 5, new SingleTe
         };
 
         // Act
-        AddPlayer(joinCommand);
+        OnPlayerJoined(joinCommand);
 
         // Assert
         Players.Should().HaveCount(1);
