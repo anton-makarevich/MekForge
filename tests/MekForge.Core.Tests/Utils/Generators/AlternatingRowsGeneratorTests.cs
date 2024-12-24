@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Sanet.MekForge.Core.Exceptions;
-using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
 using Sanet.MekForge.Core.Utils.Generators;

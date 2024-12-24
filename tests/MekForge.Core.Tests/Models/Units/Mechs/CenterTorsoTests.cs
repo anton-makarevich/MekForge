@@ -1,6 +1,5 @@
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Mechs;
-using Xunit;
 
 namespace MekForge.Core.Tests.Models.Units.Mechs;
 

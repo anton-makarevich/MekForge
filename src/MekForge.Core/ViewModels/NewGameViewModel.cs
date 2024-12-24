@@ -92,12 +92,12 @@ public class NewGameViewModel : BaseViewModel
             _commandPublisher);
 
         var battleMapViewModel = NavigationService.GetViewModel<BattleMapViewModel>();
+        battleMapViewModel.Game = localGame;
         if (SelectedUnit != null)
         {
             var unit = SelectedUnit.Value;
             unit.Id = Guid.NewGuid();
             if (SelectedUnit != null) localGame.JoinGameWithUnits(player, [SelectedUnit.Value]);
-            battleMapViewModel.Game = localGame;
 
             await NavigationService.NavigateToViewModelAsync(battleMapViewModel);
         }

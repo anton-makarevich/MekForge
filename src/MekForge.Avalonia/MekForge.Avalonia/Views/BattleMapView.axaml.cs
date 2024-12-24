@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,7 +7,6 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Sanet.MekForge.Avalonia.Controls;
-using Sanet.MekForge.Core.Models;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.ViewModels;
@@ -24,6 +24,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
     private const double ScaleStep = 0.1;
     private const int SelectionThresholdMilliseconds = 250; // Time to distinguish selection vs pan
     private bool _isManipulating;
+    private bool _isPressed;
     private CancellationTokenSource _manipulationTokenSource;
 
     public BattleMapView()
@@ -54,12 +55,11 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
             MapCanvas.Children.Add(hexControl);
         }
 
-        // if (ViewModel?.Unit == null) return;
-        // var unitControl = new UnitControl(ViewModel.Unit, imageService);
-        // MapCanvas.Children.Add(unitControl);
-        // var hexToDeploy = battleMap.GetHexes().FirstOrDefault();
-        // if (hexToDeploy == null) return;
-        // ViewModel.Unit.Deploy(hexToDeploy.Coordinates);
+        foreach (var unit in ViewModel.Units)
+        {
+            var unitControl = new UnitControl(unit, (IImageService<Bitmap>)ViewModel.ImageService);
+            MapCanvas.Children.Add(unitControl);
+        }
     }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -78,16 +78,19 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
                     _isManipulating = true; // Set flag if the delay completes
                 }
             }, TaskScheduler.FromCurrentSynchronizationContext());
+        _isPressed = true;
         base.OnPointerPressed(e);
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         // Cancel the manipulation timer
-        _manipulationTokenSource?.Cancel();
+        _manipulationTokenSource.Cancel();
 
         if (!_isManipulating)
         {
+            if (!_isPressed) return;
+            _isPressed = false;
             // Handle hex selection
             // this is temporary for testing only
             var position = e.GetPosition(MapCanvas);
@@ -140,7 +143,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
         base.OnViewModelSet();
         if (ViewModel is { Game: not null })
         {
-                RenderMap(ViewModel.Game, (IImageService<Bitmap>)ViewModel.ImageService);
+            RenderMap(ViewModel.Game, (IImageService<Bitmap>)ViewModel.ImageService);
         }
     }
 }

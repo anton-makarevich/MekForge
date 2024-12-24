@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Sanet.MekForge.Core.Models.Units.Components.Engines;
-using Xunit;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Components.Engines;
 

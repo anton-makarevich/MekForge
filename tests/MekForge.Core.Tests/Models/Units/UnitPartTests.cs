@@ -1,7 +1,6 @@
 using FluentAssertions;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;
-using Xunit;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units;
 

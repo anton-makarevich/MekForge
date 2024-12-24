@@ -16,6 +16,7 @@ public class BattleMapViewModel : BaseViewModel
     private List<Unit> _unitsToDeploy = [];
     private Unit? _selectedUnit = null;
     private HexDirection? _selectedDirection = null;
+    
 
     public BattleMapViewModel(IImageService imageService)
     {
@@ -31,27 +32,25 @@ public class BattleMapViewModel : BaseViewModel
             SubscribeToGameChanges();
         }
     }
-    
+
     private void SubscribeToGameChanges()
     {
         _gameSubscription?.Dispose(); // Dispose of previous subscription
-        if (_game != null)
-        {
-            _gameSubscription = Observable
-                .Interval(TimeSpan.FromMilliseconds(100)) // Adjust the interval as needed
-                .Select(_ => new
-                {
-                    _game.Turn,
-                    _game.TurnPhase,
-                    _game.ActivePlayer
-                })
-                .DistinctUntilChanged()
-                .Subscribe(_ =>
-                {
-                    UpdateGameState();
-                    CheckPlayerActionState();
-                });
-        }
+        if (Game is not ClientGame localGame) return;
+        _gameSubscription = Observable
+            .Interval(TimeSpan.FromMilliseconds(100)) // Adjust the interval as needed
+            .Select(_ => new
+            {
+                localGame.Turn,
+                localGame.TurnPhase,
+                localGame.ActivePlayer
+            })
+            .DistinctUntilChanged()
+            .Subscribe(_ =>
+            {
+                UpdateGameState();
+                CheckPlayerActionState();
+            });
     }
 
     private void UpdateGameState()
@@ -129,7 +128,6 @@ public class BattleMapViewModel : BaseViewModel
     }
     
     private Hex? _selectedHex=null;
-    
 
     public void SelectHex(Hex selectedHex)
     {
@@ -160,15 +158,18 @@ public class BattleMapViewModel : BaseViewModel
             }
             if (AwaitedAction == PlayerActions.SelectDirection)
             {
-                if (_selectedHex != null)
-                {
-                    _selectedDirection = _selectedHex.Coordinates.GetDirectionToNeighbour(selectedHex.Coordinates);
-                    if (_selectedDirection == null) return;
-                    if (Game is not ClientGame localGame) return;
-                    localGame.DeployUnit(SelectedUnit!.Id,
-                        _selectedHex.Coordinates,
-                        _selectedDirection.Value);
-                }
+                if (_selectedHex == null) return;
+                var adjustedHex = _selectedHex.Coordinates.GetAdjacentCoordinates().ToList();
+                if (Game is not ClientGame localGame) return;
+                if (!adjustedHex.Contains(selectedHex.Coordinates)) return;
+                HighlightHexes(adjustedHex, false);
+
+                _selectedDirection = _selectedHex.Coordinates.GetDirectionToNeighbour(selectedHex.Coordinates);
+                if (_selectedDirection == null) return;
+                localGame.DeployUnit(SelectedUnit!.Id,
+                    _selectedHex.Coordinates,
+                    _selectedDirection.Value);
+                AwaitedAction = PlayerActions.None;
             }
         }
     }
@@ -199,4 +200,5 @@ public class BattleMapViewModel : BaseViewModel
     }
 
     public bool IsUserActionLabelVisible => !string.IsNullOrEmpty(UserActionLabel);
+    public IEnumerable<Unit> Units => Game.Players.Select(u=>u.Units).SelectMany(u=>u);
 }

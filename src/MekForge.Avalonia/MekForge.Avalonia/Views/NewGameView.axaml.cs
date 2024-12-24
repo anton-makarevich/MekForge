@@ -4,8 +4,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Data.Community;
-using Sanet.MekForge.Core.Models.Units;
-using Sanet.MekForge.Core.Utils.TechRules;
 using Sanet.MekForge.Core.ViewModels;
 using Sanet.MVVM.Views.Avalonia;
 

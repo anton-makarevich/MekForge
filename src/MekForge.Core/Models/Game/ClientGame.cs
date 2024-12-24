@@ -25,10 +25,10 @@ public class ClientGame : BaseGame
         switch (command)
         {
             case JoinGameCommand joinCmd:
-                AddPlayer(joinCmd);
+                OnPlayerJoined(joinCmd);
                 break;
             case UpdatePlayerStatusCommand playerStatusCommand:
-                UpdatePlayerStatus(playerStatusCommand);
+                OnPlayerStatusUpdated(playerStatusCommand);
                 break;
             case ChangePhaseCommand changePhaseCommand:
                 TurnPhase = changePhaseCommand.Phase;
@@ -36,6 +36,9 @@ public class ClientGame : BaseGame
             case ChangeActivePlayerCommand changeActivePlayerCommand:
                 var player = Players.FirstOrDefault(p => p.Id == changeActivePlayerCommand.PlayerId);
                 ActivePlayer = player;
+                break;
+            case DeployUnitCommand deployUnitCommand:
+                OnDeployUnit(deployUnitCommand);
                 break;
         }
     }

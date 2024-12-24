@@ -1,5 +1,3 @@
-using Sanet.MekForge.Core.Models.Units.Components.Weapons;
-
 namespace Sanet.MekForge.Core.Models.Units.Components.Weapons.Missile
 {
     public class SRM2 : Weapon
