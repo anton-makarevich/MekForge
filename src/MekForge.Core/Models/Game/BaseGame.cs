@@ -59,7 +59,7 @@ public abstract class BaseGame : IGame
         var player = _players.FirstOrDefault(p => p.Id == command.PlayerId);
         if (player == null) return;
         var unit = player.Units.FirstOrDefault(u => u.Id == command.UnitId && !u.IsDeployed);
-        unit?.Deploy(new HexCoordinates(command.Position));
+        unit?.Deploy(new HexCoordinates(command.Position), (HexDirection)command.Direction);
     }
     
     protected bool ValidateCommand(GameCommand command)
