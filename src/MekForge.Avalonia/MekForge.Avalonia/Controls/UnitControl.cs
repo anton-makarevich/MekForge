@@ -42,7 +42,8 @@ namespace Sanet.MekForge.Avalonia.Controls
                 .Select(_ => new
                 {
                     _unit.Position,
-                    _unit.IsDeployed
+                    _unit.IsDeployed    ,
+                    _unit.Facing
                 })
                 .DistinctUntilChanged()
                 .ObserveOn(SynchronizationContext.Current) // Ensure events are processed on the UI thread
@@ -59,7 +60,19 @@ namespace Sanet.MekForge.Avalonia.Controls
             if (_unit.Position == null) return;
             var hexPosition = _unit.Position;
             SetValue(Canvas.LeftProperty, hexPosition.Value.H);
-            SetValue(Canvas.TopProperty, _unit.Position.Value.V);            
+            SetValue(Canvas.TopProperty, _unit.Position.Value.V);
+            double rotationAngle = _unit.Facing switch
+            {
+                HexDirection.Top => 0,
+                HexDirection.TopRight => 60,
+                HexDirection.BottomRight => 120,
+                HexDirection.Bottom => 180,
+                HexDirection.BottomLeft => 240,
+                HexDirection.TopLeft => 300,
+                _ => 0
+            };
+
+            _unitImage.RenderTransform = new RotateTransform(rotationAngle, 0, 0);
         }
         
         private void UpdateImage()
