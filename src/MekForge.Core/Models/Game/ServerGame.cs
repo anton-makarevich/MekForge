@@ -75,17 +75,15 @@ public class ServerGame : BaseGame
 
     private void DeployNextPlayer()
     {
-        if (ActivePlayer == null || ActivePlayer.Units.All(unit => unit.IsDeployed))
+        if (ActivePlayer != null && !ActivePlayer.Units.All(unit => unit.IsDeployed)) return;
+        if (_deploymentOrderQueue.Count > 0)
         {
-            if (_deploymentOrderQueue.Count > 0)
-            {
-                ActivePlayer = _deploymentOrderQueue.Dequeue();
-            }
-            else
-            {
-                ActivePlayer = null;
-                NextPhase();
-            }
+            ActivePlayer = _deploymentOrderQueue.Dequeue();
+        }
+        else
+        {
+            ActivePlayer = null;
+            NextPhase();
         }
     }
 
