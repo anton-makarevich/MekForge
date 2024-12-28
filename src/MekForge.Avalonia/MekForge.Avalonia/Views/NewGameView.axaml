@@ -8,8 +8,10 @@
              x:CompileBindings="True"
              x:DataType="viewModels:NewGameViewModel">
     <Grid Margin="20"
-          ColumnDefinitions="1*,1*">
+          ColumnDefinitions="*,*"
+          RowDefinitions="*,Auto">
         <StackPanel
+            Margin="10"
             Grid.Column="0"
              Spacing="20">
             <TextBlock Text="New Game" FontSize="24" HorizontalAlignment="Center"/>
@@ -37,35 +39,54 @@
                 <Slider Value="{Binding LightWoodsPercentage}" Minimum="0" Maximum="100" TickFrequency="5" IsEnabled="{Binding IsLightWoodsEnabled}"/>
                 <TextBlock Text="{Binding LightWoodsPercentage, StringFormat='Light Woods: {0}%'}"/>
             </StackPanel>
-            
-            <ListBox
-                ItemsSource="{Binding AvailableUnits}"
-                SelectedItem="{Binding SelectedUnit}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Chassis}"/>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-            
-            <Button Command="{Binding StartGameCommand}"
-                    Content="Start Game"
-                    IsEnabled="{Binding CanStartGame}"
-                    HorizontalAlignment="Center"
-                    Padding="20,10"/>
         </StackPanel>
-        <StackPanel Grid.Column="1" Spacing="20">
+        <StackPanel 
+            Margin="10"
+            Grid.Column="1"
+            Spacing="20">
             <TextBlock Text="Players" FontSize="24" HorizontalAlignment="Center"/>
             <ItemsControl ItemsSource="{Binding Players}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Name}"/> <!-- Display player name -->
+                        <Grid
+                            ColumnDefinitions="2*,1*,2*">
+                            <TextBlock Text="{Binding Name}"/> <!-- Display player name -->
+                            <StackPanel
+                                Grid.Column="1">
+                                <ComboBox ItemsSource="{Binding AvailableUnits}"
+                                          SelectedItem="{Binding SelectedUnit, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Chassis}"/> <!-- Display only the Chassis property -->
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox><!-- ComboBox for unit selection -->
+                                <Button Content="Add Unit" Command="{Binding AddUnitCommand}" 
+                                        IsEnabled="{Binding CanAddUnit}"/> <!-- Button to add unit -->
+                            </StackPanel>
+                            <ItemsControl
+                                Grid.Column="2"
+                                ItemsSource="{Binding Units}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Chassis}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
             <Button Content="Add Player" Command="{Binding AddPlayerCommand}"
                     IsEnabled="{Binding CanAddPlayer}"/>
         </StackPanel>
-        
+        <Button 
+            Grid.Row="1"
+            Grid.ColumnSpan="2"
+            Command="{Binding StartGameCommand}"
+                Content="Start Game"
+                IsEnabled="{Binding CanStartGame}"
+                HorizontalAlignment="Center"
+                Padding="20,10"/>
     </Grid>
 </UserControl>

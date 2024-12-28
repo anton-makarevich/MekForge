@@ -25,7 +25,6 @@ public class NewGameViewModel : BaseViewModel
         _gameManager = gameManager;
         _rulesProvider = rulesProvider;
         _commandPublisher = commandPublisher;
-        AddPlayerCommand.Execute(null); // Add default player();
     }
 
     public string MapWidthLabel => "Map Width";
@@ -33,9 +32,9 @@ public class NewGameViewModel : BaseViewModel
     public string ForestCoverageLabel => "Forest Coverage";
     public string LightWoodsLabel => "Light Woods Percentage";
     
-    private ObservableCollection<UnitData> _availableUnits=[];
+    private IEnumerable<UnitData> _availableUnits=[];
     
-    private UnitData? _selectedUnit;
+    
     private readonly IGameManager _gameManager;
     private readonly IRulesProvider _rulesProvider;
     private readonly ICommandPublisher _commandPublisher;
@@ -70,7 +69,7 @@ public class NewGameViewModel : BaseViewModel
 
     public bool IsLightWoodsEnabled => _forestCoverage>0;
     
-    public bool CanStartGame => SelectedUnit != null;
+    public bool CanStartGame => true;
 
     public ICommand StartGameCommand => new AsyncCommand(async () =>
     {
@@ -86,45 +85,30 @@ public class NewGameViewModel : BaseViewModel
         var localBattleMap = BattleMap.CreateFromData(hexDataList);
         
         _gameManager.StartServer(localBattleMap);
-        var player = new Player(Guid.NewGuid(), "Player 1");
+        
         var localGame = new ClientGame(
             localBattleMap,
-            [player],
+            Players.Select(vm=>vm.Player).ToList(),
             _rulesProvider,
             _commandPublisher);
 
         var battleMapViewModel = NavigationService.GetViewModel<BattleMapViewModel>();
         battleMapViewModel.Game = localGame;
-        if (SelectedUnit != null)
-        {
-            var unit = SelectedUnit.Value;
-            unit.Id = Guid.NewGuid();
-            localGame.JoinGameWithUnits(player, [unit]);
 
-            await NavigationService.NavigateToViewModelAsync(battleMapViewModel);
+        foreach (var playerViewModel in Players)
+        {
+            localGame.JoinGameWithUnits(playerViewModel.Player, playerViewModel.Units.ToList());
         }
+        
+        await NavigationService.NavigateToViewModelAsync(battleMapViewModel);
     });
 
-    public ObservableCollection<UnitData> AvailableUnits
-    {
-        get => _availableUnits;
-        set => SetProperty(ref _availableUnits, value);
-    }
-
-    public UnitData? SelectedUnit
-    {
-        get => _selectedUnit;
-        set
-        {
-            SetProperty(ref _selectedUnit, value);
-            NotifyPropertyChanged(nameof(CanStartGame));
-        }
-    }
+    
 
     public void InitializeUnits(List<UnitData> units)
     {
         // Logic to load available units for selection
-        AvailableUnits = new ObservableCollection<UnitData>(units);
+        _availableUnits =units;
     }
     
     private ObservableCollection<PlayerViewModel> _players=new ObservableCollection<PlayerViewModel>();
@@ -141,7 +125,7 @@ public class NewGameViewModel : BaseViewModel
     {
         if (!CanAddPlayer) return Task.CompletedTask; // Limit to 4 players
         var newPlayer = new Player(Guid.NewGuid(), $"Player {_players.Count + 1}");
-        var playerViewModel = new PlayerViewModel(newPlayer);
+        var playerViewModel = new PlayerViewModel(newPlayer,_availableUnits);
         _players.Add(playerViewModel);
         NotifyPropertyChanged(nameof(CanAddPlayer));
 

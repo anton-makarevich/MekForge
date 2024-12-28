@@ -11,7 +11,6 @@ using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Utils.TechRules;
 using Sanet.MekForge.Core.ViewModels;
-using Sanet.MekForge.Core.ViewModels.Wrappers;
 using Sanet.MVVM.Core.Services;
 
 namespace Sanet.MekForge.Core.Tests.ViewModels;
@@ -42,12 +41,6 @@ public class NewGameViewModelTests
     }
 
     [Fact]
-    public void Constructor_CreatesNewGameViewModel_WithOnePlayer()
-    {
-        _sut.Players.Count.Should().Be(1); // One player by default()
-    }
-
-    [Fact]
     public void Constructor_SetsDefaultValues()
     {
         _sut.MapWidth.Should().Be(15);
@@ -72,7 +65,6 @@ public class NewGameViewModelTests
     public async Task StartGameCommand_WithZeroForestCoverage_CreatesClearTerrainMap()
     {
         _sut.ForestCoverage = 0;
-        _sut.SelectedUnit = MechFactoryTests.CreateDummyMechData();
         await ((IAsyncCommand)_sut.StartGameCommand).ExecuteAsync();
 
         _battleMapViewModel.Game.Should().NotBeNull();
@@ -86,7 +78,6 @@ public class NewGameViewModelTests
     {
         _sut.ForestCoverage = 100;
         _sut.LightWoodsPercentage = 100;
-        _sut.SelectedUnit = MechFactoryTests.CreateDummyMechData();
         await ((IAsyncCommand)_sut.StartGameCommand).ExecuteAsync();
 
         _battleMapViewModel.Game.Should().NotBeNull();
@@ -97,7 +88,6 @@ public class NewGameViewModelTests
     [Fact]
     public async Task StartGameCommand_NavigatesToBattleMap()
     {
-        _sut.SelectedUnit = MechFactoryTests.CreateDummyMechData();
         await ((IAsyncCommand)_sut.StartGameCommand).ExecuteAsync();
 
         await _navigationService.Received(1).NavigateToViewModelAsync(_battleMapViewModel);
@@ -122,7 +112,9 @@ public class NewGameViewModelTests
         // Arrange
         var units = new List<UnitData> { MechFactoryTests.CreateDummyMechData() };
         _sut.InitializeUnits(units);
-        _sut.SelectedUnit = units[0];
+        _sut.AddPlayerCommand.Execute(null);
+        _sut.Players.First().SelectedUnit = units.First();
+        _sut.Players.First().AddUnitCommand.Execute(null);
 
         // Act
         await ((AsyncCommand)_sut.StartGameCommand).ExecuteAsync();
@@ -131,47 +123,6 @@ public class NewGameViewModelTests
         await _navigationService.Received(1).NavigateToViewModelAsync(_battleMapViewModel);
         _commandPublisher.Received(1).PublishCommand(Arg.Is<JoinGameCommand>(g => g.Units.First().Id != Guid.Empty ));
         _gameManager.Received(1).StartServer(Arg.Any<BattleMap>());
-    }
-
-    [Fact]
-    public void InitializeUnits_ShouldPopulateAvailableUnits()
-    {
-        // Arrange
-        var units = new List<UnitData> { MechFactoryTests.CreateDummyMechData() };
-
-        // Act
-        _sut.InitializeUnits(units);
-
-        // Assert
-        _sut.AvailableUnits.Should().HaveCount(1);
-    }
-
-    [Fact]
-    public void CanStartGame_ShouldReturnTrue_WhenUnitIsSelected()
-    {
-        // Arrange
-        var unit = MechFactoryTests.CreateDummyMechData();
-        _sut.InitializeUnits([unit]);
-        _sut.SelectedUnit = unit;
-
-        // Act
-        var canStart = _sut.CanStartGame;
-
-        // Assert
-        canStart.Should().BeTrue();
-    }
-
-    [Fact]
-    public void CanStartGame_ShouldReturnFalse_WhenNoUnitIsSelected()
-    {
-        // Arrange
-        _sut.SelectedUnit = null;
-
-        // Act
-        var canStart = _sut.CanStartGame;
-
-        // Assert
-        canStart.Should().BeFalse();
     }
     
     [Fact]
