@@ -114,7 +114,7 @@ public class NewGameViewModel : BaseViewModel
     public ObservableCollection<PlayerViewModel> Players
     {
         get => _players;
-        set => SetProperty(ref _players, value);
+        private set => SetProperty(ref _players, value);
     }
 
     public ICommand AddPlayerCommand => new AsyncCommand(AddPlayer);
