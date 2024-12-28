@@ -11,6 +11,7 @@ using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Utils.TechRules;
 using Sanet.MekForge.Core.ViewModels;
+using Sanet.MekForge.Core.ViewModels.Wrappers;
 using Sanet.MVVM.Core.Services;
 
 namespace Sanet.MekForge.Core.Tests.ViewModels;
@@ -165,5 +166,35 @@ public class NewGameViewModelTests
 
         // Assert
         canStart.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void AddPlayer_ShouldAddPlayer_WhenLessThanFourPlayers()
+    {
+        // Arrange
+        var initialPlayerCount = _sut.Players.Count;
+
+        // Act
+        _sut.AddPlayerCommand.Execute(null);
+
+        // Assert
+        _sut.Players.Count.Should().Be(initialPlayerCount + 1);
+    }
+
+    [Fact]
+    public void AddPlayer_ShouldNotAddPlayer_WhenFourPlayersAlreadyAdded()
+    {
+        // Arrange
+        for (var i = 0; i < 4; i++)
+        {
+            _sut.AddPlayerCommand.Execute(null);
+        }
+        var initialPlayerCount = _sut.Players.Count;
+
+        // Act
+        _sut.AddPlayerCommand.Execute(null);
+
+        // Assert
+        _sut.Players.Count.Should().Be(initialPlayerCount); // Should not increase
     }
 }

@@ -8,6 +8,7 @@ using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
 using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MekForge.Core.Utils.TechRules;
+using Sanet.MekForge.Core.ViewModels.Wrappers;
 using Sanet.MVVM.Core.ViewModels;
 
 namespace Sanet.MekForge.Core.ViewModels;
@@ -123,5 +124,25 @@ public class NewGameViewModel : BaseViewModel
     {
         // Logic to load available units for selection
         AvailableUnits = new ObservableCollection<UnitData>(units);
+    }
+    
+    private ObservableCollection<PlayerViewModel> _players=new ObservableCollection<PlayerViewModel>();
+
+    public ObservableCollection<PlayerViewModel> Players
+    {
+        get => _players;
+        set => SetProperty(ref _players, value);
+    }
+
+    public ICommand AddPlayerCommand => new AsyncCommand(AddPlayer);
+
+    private Task AddPlayer()
+    {
+        if (_players.Count >= 4) return Task.CompletedTask; // Limit to 4 players
+        var newPlayer = new Player(Guid.NewGuid(), $"Player {_players.Count + 1}");
+        var playerViewModel = new PlayerViewModel(newPlayer);
+        _players.Add(playerViewModel);
+
+        return Task.CompletedTask;
     }
 }
