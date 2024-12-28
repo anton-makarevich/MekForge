@@ -139,11 +139,14 @@ public class NewGameViewModel : BaseViewModel
 
     private Task AddPlayer()
     {
-        if (_players.Count >= 4) return Task.CompletedTask; // Limit to 4 players
+        if (!CanAddPlayer) return Task.CompletedTask; // Limit to 4 players
         var newPlayer = new Player(Guid.NewGuid(), $"Player {_players.Count + 1}");
         var playerViewModel = new PlayerViewModel(newPlayer);
         _players.Add(playerViewModel);
+        NotifyPropertyChanged(nameof(CanAddPlayer));
 
         return Task.CompletedTask;
     }
+    
+    public bool CanAddPlayer => _players.Count < 4;
 }

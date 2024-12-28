@@ -185,6 +185,7 @@ public class NewGameViewModelTests
 
         // Assert
         _sut.Players.Count.Should().Be(initialPlayerCount + 1);
+        _sut.CanAddPlayer.Should().BeTrue();
     }
 
     [Fact]
@@ -202,5 +203,6 @@ public class NewGameViewModelTests
 
         // Assert
         _sut.Players.Count.Should().Be(initialPlayerCount); // Should not increase
+        _sut.CanAddPlayer.Should().BeFalse();
     }
 }

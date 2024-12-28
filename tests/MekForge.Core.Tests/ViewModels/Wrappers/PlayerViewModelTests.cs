@@ -20,4 +20,17 @@ public class PlayerViewModelTests
         // Assert
         playerViewModel.Units.Should().Contain(unit);
     }
+    
+    [Fact]
+    public void Name_ShouldReturnPlayerName()
+    {
+        // Arrange
+        var playerViewModel = new PlayerViewModel(new Player(Guid.NewGuid(), "Player1"));
+    
+        // Act
+        var name = playerViewModel.Name;
+    
+        // Assert
+        name.Should().Be("Player1");
+    }
 }

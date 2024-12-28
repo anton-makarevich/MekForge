@@ -13,6 +13,8 @@ namespace Sanet.MekForge.Core.ViewModels.Wrappers;
         public ObservableCollection<UnitData> Units { get; }
 
         public ICommand AddUnitCommand { get; }
+        
+        public string Name => Player.Name;
 
         public PlayerViewModel(Player player)
         {

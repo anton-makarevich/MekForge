@@ -7,47 +7,65 @@
              x:Class="Sanet.MekForge.Avalonia.Views.NewGameView"
              x:CompileBindings="True"
              x:DataType="viewModels:NewGameViewModel">
-    <StackPanel Margin="20" Spacing="20">
-        <TextBlock Text="New Game" FontSize="24" HorizontalAlignment="Center"/>
-        
-        <StackPanel Spacing="10">
-            <TextBlock Text="{Binding MapWidthLabel}"/>
-            <Slider Value="{Binding MapWidth}" Minimum="8" Maximum="32" TickFrequency="1" IsSnapToTickEnabled="True"/>
-            <TextBlock Text="{Binding MapWidth, StringFormat='Width: {0} hexes'}"/>
+    <Grid Margin="20"
+          ColumnDefinitions="1*,1*">
+        <StackPanel
+            Grid.Column="0"
+             Spacing="20">
+            <TextBlock Text="New Game" FontSize="24" HorizontalAlignment="Center"/>
+            
+            <StackPanel Spacing="10">
+                <TextBlock Text="{Binding MapWidthLabel}"/>
+                <Slider Value="{Binding MapWidth}" Minimum="8" Maximum="32" TickFrequency="1" IsSnapToTickEnabled="True"/>
+                <TextBlock Text="{Binding MapWidth, StringFormat='Width: {0} hexes'}"/>
+            </StackPanel>
+            
+            <StackPanel Spacing="10">
+                <TextBlock Text="{Binding MapHeightLabel}"/>
+                <Slider Value="{Binding MapHeight}" Minimum="8" Maximum="32" TickFrequency="1" IsSnapToTickEnabled="True"/>
+                <TextBlock Text="{Binding MapHeight, StringFormat='Height: {0} hexes'}"/>
+            </StackPanel>
+            
+            <StackPanel Spacing="10">
+                <TextBlock Text="{Binding ForestCoverageLabel}"/>
+                <Slider Value="{Binding ForestCoverage}" Minimum="0" Maximum="50" TickFrequency="5"/>
+                <TextBlock Text="{Binding ForestCoverage, StringFormat='Forest Coverage: {0}%'}"/>
+            </StackPanel>
+            
+            <StackPanel Spacing="10">
+                <TextBlock Text="{Binding LightWoodsLabel}"/>
+                <Slider Value="{Binding LightWoodsPercentage}" Minimum="0" Maximum="100" TickFrequency="5" IsEnabled="{Binding IsLightWoodsEnabled}"/>
+                <TextBlock Text="{Binding LightWoodsPercentage, StringFormat='Light Woods: {0}%'}"/>
+            </StackPanel>
+            
+            <ListBox
+                ItemsSource="{Binding AvailableUnits}"
+                SelectedItem="{Binding SelectedUnit}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Chassis}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            
+            <Button Command="{Binding StartGameCommand}"
+                    Content="Start Game"
+                    IsEnabled="{Binding CanStartGame}"
+                    HorizontalAlignment="Center"
+                    Padding="20,10"/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Spacing="20">
+            <TextBlock Text="Players" FontSize="24" HorizontalAlignment="Center"/>
+            <ItemsControl ItemsSource="{Binding Players}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}"/> <!-- Display player name -->
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Button Content="Add Player" Command="{Binding AddPlayerCommand}"
+                    IsEnabled="{Binding CanAddPlayer}"/>
         </StackPanel>
         
-        <StackPanel Spacing="10">
-            <TextBlock Text="{Binding MapHeightLabel}"/>
-            <Slider Value="{Binding MapHeight}" Minimum="8" Maximum="32" TickFrequency="1" IsSnapToTickEnabled="True"/>
-            <TextBlock Text="{Binding MapHeight, StringFormat='Height: {0} hexes'}"/>
-        </StackPanel>
-        
-        <StackPanel Spacing="10">
-            <TextBlock Text="{Binding ForestCoverageLabel}"/>
-            <Slider Value="{Binding ForestCoverage}" Minimum="0" Maximum="50" TickFrequency="5"/>
-            <TextBlock Text="{Binding ForestCoverage, StringFormat='Forest Coverage: {0}%'}"/>
-        </StackPanel>
-        
-        <StackPanel Spacing="10">
-            <TextBlock Text="{Binding LightWoodsLabel}"/>
-            <Slider Value="{Binding LightWoodsPercentage}" Minimum="0" Maximum="100" TickFrequency="5" IsEnabled="{Binding IsLightWoodsEnabled}"/>
-            <TextBlock Text="{Binding LightWoodsPercentage, StringFormat='Light Woods: {0}%'}"/>
-        </StackPanel>
-        
-        <ListBox
-            ItemsSource="{Binding AvailableUnits}"
-            SelectedItem="{Binding SelectedUnit}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Chassis}"/>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        
-        <Button Command="{Binding StartGameCommand}"
-                Content="Start Game"
-                IsEnabled="{Binding CanStartGame}"
-                HorizontalAlignment="Center"
-                Padding="20,10"/>
-    </StackPanel>
+    </Grid>
 </UserControl>
