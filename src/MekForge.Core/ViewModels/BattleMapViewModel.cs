@@ -49,7 +49,7 @@ public class BattleMapViewModel : BaseViewModel
             .Subscribe(_ =>
             {
                 UpdateGameState();
-                AwaitedAction = GetNextClientAction(AwaitedAction); 
+                AwaitedAction = GetNextClientAction(); 
             });
     }
 
@@ -80,16 +80,16 @@ public class BattleMapViewModel : BaseViewModel
         }
     }
     
-    private PlayerActions GetNextClientAction(PlayerActions currentAction)
+    private PlayerActions GetNextClientAction()
     {
         if (!ActionPossible) return PlayerActions.None;
         if (TurnPhase == Phase.Deployment)
         {
-            if (currentAction == PlayerActions.SelectUnitToDeploy)
+            if (AwaitedAction == PlayerActions.SelectUnitToDeploy)
             {
                 return PlayerActions.SelectHex;
             }
-            if (currentAction == PlayerActions.SelectHex)
+            if (AwaitedAction == PlayerActions.SelectHex)
             {
                 return PlayerActions.SelectDirection;
             }
@@ -137,7 +137,7 @@ public class BattleMapViewModel : BaseViewModel
         {
             SetProperty(ref _selectedUnit, value);
             NotifyPropertyChanged(nameof(AreUnitsToDeployVisible));
-            AwaitedAction = GetNextClientAction(AwaitedAction); 
+            AwaitedAction = GetNextClientAction(); 
         }
     }
     
@@ -166,7 +166,7 @@ public class BattleMapViewModel : BaseViewModel
                     {
                         HighlightHexes(adjustedHex,true);
                     }
-                    AwaitedAction = GetNextClientAction(AwaitedAction); 
+                    AwaitedAction = GetNextClientAction(); 
                     return;
                 }
             }
@@ -183,7 +183,7 @@ public class BattleMapViewModel : BaseViewModel
                 localGame.DeployUnit(SelectedUnit!.Id,
                     _selectedHex.Coordinates,
                     _selectedDirection.Value);
-                AwaitedAction = PlayerActions.None;
+                SelectedUnit = null;
             }
         }
     }
