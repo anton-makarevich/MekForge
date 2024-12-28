@@ -49,7 +49,7 @@ public class BattleMapViewModel : BaseViewModel
             .Subscribe(_ =>
             {
                 UpdateGameState();
-                CheckPlayerActionState();
+                AwaitedAction = GetNextClientAction(AwaitedAction); 
             });
     }
 
@@ -58,15 +58,7 @@ public class BattleMapViewModel : BaseViewModel
         NotifyPropertyChanged(nameof(Turn));
         NotifyPropertyChanged(nameof(TurnPhase));
         NotifyPropertyChanged(nameof(ActivePlayerName));
-    }
-
-    private void CheckPlayerActionState()
-    {
-        if (Game is not ClientGame clientGame) return;              // No game
-       
-        AwaitedAction = clientGame.GetNextClientAction(AwaitedAction); 
-        
-    }
+    } 
 
     private PlayerActions AwaitedAction
     {
@@ -87,6 +79,28 @@ public class BattleMapViewModel : BaseViewModel
             NotifyPropertyChanged(nameof(IsUserActionLabelVisible));
         }
     }
+    
+    private PlayerActions GetNextClientAction(PlayerActions currentAction)
+    {
+        if (!ActionPossible) return PlayerActions.None;
+        if (TurnPhase == Phase.Deployment)
+        {
+            if (currentAction == PlayerActions.SelectUnitToDeploy)
+            {
+                return PlayerActions.SelectHex;
+            }
+            if (currentAction == PlayerActions.SelectHex)
+            {
+                return PlayerActions.SelectDirection;
+            }
+            var hasUnitsToDeploy = Game?.ActivePlayer?.Units.Any(u => !u.IsDeployed);
+            if (hasUnitsToDeploy == true) return PlayerActions.SelectUnitToDeploy;
+        }
+        return PlayerActions.None;
+    }
+
+    private bool ActionPossible => Game?.ActivePlayer != null
+                                             && ((ClientGame)Game).LocalPlayers.Any(lp => lp.Id == Game.ActivePlayer.Id);
 
     private void ShowUnitsToDeploy()
     {
@@ -123,13 +137,13 @@ public class BattleMapViewModel : BaseViewModel
         {
             SetProperty(ref _selectedUnit, value);
             NotifyPropertyChanged(nameof(AreUnitsToDeployVisible));
-            CheckPlayerActionState();
+            AwaitedAction = GetNextClientAction(AwaitedAction); 
         }
     }
     
     private Hex? _selectedHex=null;
 
-    public void SelectHex(Hex selectedHex)
+    public void HandleHexSelection(Hex selectedHex)
     {
         if (TurnPhase == Phase.Start)
         {
@@ -152,7 +166,7 @@ public class BattleMapViewModel : BaseViewModel
                     {
                         HighlightHexes(adjustedHex,true);
                     }
-                    CheckPlayerActionState();
+                    AwaitedAction = GetNextClientAction(AwaitedAction); 
                     return;
                 }
             }
@@ -200,5 +214,7 @@ public class BattleMapViewModel : BaseViewModel
     }
 
     public bool IsUserActionLabelVisible => !string.IsNullOrEmpty(UserActionLabel);
-    public IEnumerable<Unit> Units => Game.Players.Select(u=>u.Units).SelectMany(u=>u);
+    public IEnumerable<Unit> Units => (Game==null)
+        ? new List<Unit>()
+        : Game.Players.Select(u=>u.Units).SelectMany(u=>u);
 }
