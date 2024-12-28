@@ -97,7 +97,7 @@ public class NewGameViewModel : BaseViewModel
         {
             var unit = SelectedUnit.Value;
             unit.Id = Guid.NewGuid();
-            if (SelectedUnit != null) localGame.JoinGameWithUnits(player, [SelectedUnit.Value]);
+            localGame.JoinGameWithUnits(player, [unit]);
 
             await NavigationService.NavigateToViewModelAsync(battleMapViewModel);
         }

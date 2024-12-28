@@ -3,6 +3,7 @@ using FluentAssertions;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
@@ -20,6 +21,7 @@ public class NewGameViewModelTests
     private readonly INavigationService _navigationService;
     private readonly BattleMapViewModel _battleMapViewModel;
     private readonly IGameManager _gameManager;
+    private readonly ICommandPublisher? _commandPublisher;
 
     public NewGameViewModelTests()
     {
@@ -31,9 +33,10 @@ public class NewGameViewModelTests
         var rulesProvider = Substitute.For<IRulesProvider>();
         
         _gameManager = Substitute.For<IGameManager>();
-        var commandPublisher = Substitute.For<ICommandPublisher>();
+        
+        _commandPublisher = Substitute.For<ICommandPublisher>();
 
-        _sut = new NewGameViewModel(_gameManager,rulesProvider,commandPublisher);
+        _sut = new NewGameViewModel(_gameManager,rulesProvider,_commandPublisher);
         _sut.SetNavigationService(_navigationService);
     }
 
@@ -119,6 +122,7 @@ public class NewGameViewModelTests
 
         // Assert
         await _navigationService.Received(1).NavigateToViewModelAsync(_battleMapViewModel);
+        _commandPublisher.Received(1).PublishCommand(Arg.Is<JoinGameCommand>(g => g.Units.First().Id != Guid.Empty ));
         _gameManager.Received(1).StartServer(Arg.Any<BattleMap>());
     }
 
