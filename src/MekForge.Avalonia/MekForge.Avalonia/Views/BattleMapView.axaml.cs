@@ -101,7 +101,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
             if (selectedHex != null && ViewModel!=null)
             {
                 // Assign the hex coordinates to the ViewModel's unit position
-                ViewModel?.SelectHex(selectedHex.Hex);
+                ViewModel?.HandleHexSelection(selectedHex.Hex);
             }
         }
         base.OnPointerReleased(e);

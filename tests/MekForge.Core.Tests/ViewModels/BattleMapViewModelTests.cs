@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using NSubstitute;
+using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
@@ -93,5 +94,32 @@ public class BattleMapViewModelTests
         _viewModel.AreUnitsToDeployVisible.Should().BeTrue();
         _viewModel.UserActionLabel.Should().Be("Select Unit");
         _viewModel.IsUserActionLabelVisible.Should().BeTrue();
+    }
+    
+    [Fact]
+    public void Units_ReturnsAllUnitsFromPlayers()
+    {
+        // Arrange
+        var player1 = new Player(Guid.NewGuid(), "Player1");
+        var player2 = new Player(Guid.NewGuid(), "Player2");
+
+        var mechData = MechFactoryTests.CreateDummyMechData();
+        var mechFactory = new MechFactory(new ClassicBattletechRulesProvider());
+        var unit1 = mechFactory.Create(mechData); 
+        var unit2 = mechFactory.Create(mechData); 
+    
+        player1.AddUnit(unit1);
+        player2.AddUnit(unit1);
+        player2.AddUnit(unit2);
+    
+        _game.Players.Returns(new List<Player> { player1, player2 });
+
+        // Act
+        var units = _viewModel.Units.ToList();
+
+        // Assert
+        units.Should().HaveCount(3);
+        units.Should().Contain(unit1);
+        units.Should().Contain(unit2);
     }
 }
