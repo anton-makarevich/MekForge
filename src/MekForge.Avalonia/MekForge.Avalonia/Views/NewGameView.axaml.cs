@@ -39,6 +39,7 @@ public partial class NewGameView : BaseView<NewGameViewModel>
         }
 
         ViewModel.InitializeUnits(units);
+        
     }
 
     protected async override void OnViewModelSet()

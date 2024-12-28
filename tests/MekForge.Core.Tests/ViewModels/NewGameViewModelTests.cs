@@ -65,7 +65,6 @@ public class NewGameViewModelTests
     public async Task StartGameCommand_WithZeroForestCoverage_CreatesClearTerrainMap()
     {
         _sut.ForestCoverage = 0;
-        _sut.SelectedUnit = MechFactoryTests.CreateDummyMechData();
         await ((IAsyncCommand)_sut.StartGameCommand).ExecuteAsync();
 
         _battleMapViewModel.Game.Should().NotBeNull();
@@ -79,7 +78,6 @@ public class NewGameViewModelTests
     {
         _sut.ForestCoverage = 100;
         _sut.LightWoodsPercentage = 100;
-        _sut.SelectedUnit = MechFactoryTests.CreateDummyMechData();
         await ((IAsyncCommand)_sut.StartGameCommand).ExecuteAsync();
 
         _battleMapViewModel.Game.Should().NotBeNull();
@@ -90,7 +88,6 @@ public class NewGameViewModelTests
     [Fact]
     public async Task StartGameCommand_NavigatesToBattleMap()
     {
-        _sut.SelectedUnit = MechFactoryTests.CreateDummyMechData();
         await ((IAsyncCommand)_sut.StartGameCommand).ExecuteAsync();
 
         await _navigationService.Received(1).NavigateToViewModelAsync(_battleMapViewModel);
@@ -115,7 +112,9 @@ public class NewGameViewModelTests
         // Arrange
         var units = new List<UnitData> { MechFactoryTests.CreateDummyMechData() };
         _sut.InitializeUnits(units);
-        _sut.SelectedUnit = units[0];
+        _sut.AddPlayerCommand.Execute(null);
+        _sut.Players.First().SelectedUnit = units.First();
+        _sut.Players.First().AddUnitCommand.Execute(null);
 
         // Act
         await ((AsyncCommand)_sut.StartGameCommand).ExecuteAsync();
@@ -125,45 +124,97 @@ public class NewGameViewModelTests
         _commandPublisher.Received(1).PublishCommand(Arg.Is<JoinGameCommand>(g => g.Units.First().Id != Guid.Empty ));
         _gameManager.Received(1).StartServer(Arg.Any<BattleMap>());
     }
+    
+    [Fact]
+    public void AddPlayer_ShouldAddPlayer_WhenLessThanFourPlayers()
+    {
+        // Arrange
+        var initialPlayerCount = _sut.Players.Count;
+
+        // Act
+        _sut.AddPlayerCommand.Execute(null);
+
+        // Assert
+        _sut.Players.Count.Should().Be(initialPlayerCount + 1);
+        _sut.CanAddPlayer.Should().BeTrue();
+    }
 
     [Fact]
-    public void InitializeUnits_ShouldPopulateAvailableUnits()
+    public void AddPlayer_ShouldNotAddPlayer_WhenFourPlayersAlreadyAdded()
+    {
+        // Arrange
+        for (var i = 0; i < 4; i++)
+        {
+            _sut.AddPlayerCommand.Execute(null);
+        }
+        var initialPlayerCount = _sut.Players.Count;
+
+        // Act
+        _sut.AddPlayerCommand.Execute(null);
+
+        // Assert
+        _sut.Players.Count.Should().Be(initialPlayerCount); // Should not increase
+        _sut.CanAddPlayer.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void CanStartGame_ShouldBeFalse_WhenNoPlayers()
+    {
+        // Arrange
+        // No players added
+
+        // Act
+        var result = _sut.CanStartGame;
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CanStartGame_ShouldBeFalse_WhenPlayersHaveNoUnits()
+    {
+        // Arrange
+        _sut.AddPlayerCommand.Execute(null); // Add a player
+
+        // Act
+        var result = _sut.CanStartGame;
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CanStartGame_ShouldBeTrue_WhenPlayersHaveUnits()
     {
         // Arrange
         var units = new List<UnitData> { MechFactoryTests.CreateDummyMechData() };
-
-        // Act
         _sut.InitializeUnits(units);
-
+        _sut.AddPlayerCommand.Execute(null);
+        _sut.Players.First().SelectedUnit = units.First();
+        _sut.Players.First().AddUnitCommand.Execute(null);
+    
+        // Act
+        var result = _sut.CanStartGame;
+    
         // Assert
-        _sut.AvailableUnits.Should().HaveCount(1);
+        result.Should().BeTrue();
     }
-
+    
     [Fact]
-    public void CanStartGame_ShouldReturnTrue_WhenUnitIsSelected()
+    public void CanStartGame_ShouldBeFalse_WhenOnePlayerHasNoUnits()
     {
         // Arrange
-        var unit = MechFactoryTests.CreateDummyMechData();
-        _sut.InitializeUnits([unit]);
-        _sut.SelectedUnit = unit;
-
+        var units = new List<UnitData> { MechFactoryTests.CreateDummyMechData() };
+        _sut.InitializeUnits(units);
+        _sut.AddPlayerCommand.Execute(null); // first player
+        _sut.AddPlayerCommand.Execute(null); // second player
+        _sut.Players.First().SelectedUnit = units.First();
+        _sut.Players.First().AddUnitCommand.Execute(null);
+    
         // Act
-        var canStart = _sut.CanStartGame;
-
+        var result = _sut.CanStartGame;
+    
         // Assert
-        canStart.Should().BeTrue();
-    }
-
-    [Fact]
-    public void CanStartGame_ShouldReturnFalse_WhenNoUnitIsSelected()
-    {
-        // Arrange
-        _sut.SelectedUnit = null;
-
-        // Act
-        var canStart = _sut.CanStartGame;
-
-        // Assert
-        canStart.Should().BeFalse();
+        result.Should().BeFalse();
     }
 }
