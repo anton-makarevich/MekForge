@@ -11,6 +11,7 @@ namespace Sanet.MekForge.Core.ViewModels.Wrappers;
     {
         public Player Player { get; }
         private UnitData? _selectedUnit;
+        private Action? _onUnitAdded; // Delegate to notify when a unit is added
         public ObservableCollection<UnitData> Units { get; }
         public ObservableCollection<UnitData> AvailableUnits { get;}
 
@@ -28,12 +29,13 @@ namespace Sanet.MekForge.Core.ViewModels.Wrappers;
         
         public string Name => Player.Name;
 
-        public PlayerViewModel(Player player, IEnumerable<UnitData> availableUnits)
+        public PlayerViewModel(Player player, IEnumerable<UnitData> availableUnits, Action? onUnitAdded = null)
         {
             Player = player;
             Units = [];
             AddUnitCommand = new AsyncCommand(AddUnit);
             AvailableUnits = new ObservableCollection<UnitData>(availableUnits);
+            _onUnitAdded = onUnitAdded;
         }
 
         private Task AddUnit()
@@ -42,6 +44,7 @@ namespace Sanet.MekForge.Core.ViewModels.Wrappers;
             var unit = SelectedUnit.Value;
             unit.Id= Guid.NewGuid();
             Units.Add(unit);
+            _onUnitAdded?.Invoke();
             return Task.CompletedTask;
         }
         

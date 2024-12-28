@@ -69,7 +69,7 @@ public class NewGameViewModel : BaseViewModel
 
     public bool IsLightWoodsEnabled => _forestCoverage>0;
     
-    public bool CanStartGame => true;
+    public bool CanStartGame => Players.Count > 0 && Players.All(p => p.Units.Count > 0);
 
     public ICommand StartGameCommand => new AsyncCommand(async () =>
     {
@@ -103,8 +103,6 @@ public class NewGameViewModel : BaseViewModel
         await NavigationService.NavigateToViewModelAsync(battleMapViewModel);
     });
 
-    
-
     public void InitializeUnits(List<UnitData> units)
     {
         // Logic to load available units for selection
@@ -125,9 +123,13 @@ public class NewGameViewModel : BaseViewModel
     {
         if (!CanAddPlayer) return Task.CompletedTask; // Limit to 4 players
         var newPlayer = new Player(Guid.NewGuid(), $"Player {_players.Count + 1}");
-        var playerViewModel = new PlayerViewModel(newPlayer,_availableUnits);
+        var playerViewModel = new PlayerViewModel(
+            newPlayer,
+            _availableUnits,
+            () => { NotifyPropertyChanged(nameof(CanStartGame));});
         _players.Add(playerViewModel);
         NotifyPropertyChanged(nameof(CanAddPlayer));
+        NotifyPropertyChanged(nameof(CanStartGame));
 
         return Task.CompletedTask;
     }

@@ -156,4 +156,65 @@ public class NewGameViewModelTests
         _sut.Players.Count.Should().Be(initialPlayerCount); // Should not increase
         _sut.CanAddPlayer.Should().BeFalse();
     }
+    
+    [Fact]
+    public void CanStartGame_ShouldBeFalse_WhenNoPlayers()
+    {
+        // Arrange
+        // No players added
+
+        // Act
+        var result = _sut.CanStartGame;
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CanStartGame_ShouldBeFalse_WhenPlayersHaveNoUnits()
+    {
+        // Arrange
+        _sut.AddPlayerCommand.Execute(null); // Add a player
+
+        // Act
+        var result = _sut.CanStartGame;
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CanStartGame_ShouldBeTrue_WhenPlayersHaveUnits()
+    {
+        // Arrange
+        var units = new List<UnitData> { MechFactoryTests.CreateDummyMechData() };
+        _sut.InitializeUnits(units);
+        _sut.AddPlayerCommand.Execute(null);
+        _sut.Players.First().SelectedUnit = units.First();
+        _sut.Players.First().AddUnitCommand.Execute(null);
+    
+        // Act
+        var result = _sut.CanStartGame;
+    
+        // Assert
+        result.Should().BeTrue();
+    }
+    
+    [Fact]
+    public void CanStartGame_ShouldBeFalse_WhenOnePlayerHasNoUnits()
+    {
+        // Arrange
+        var units = new List<UnitData> { MechFactoryTests.CreateDummyMechData() };
+        _sut.InitializeUnits(units);
+        _sut.AddPlayerCommand.Execute(null); // first player
+        _sut.AddPlayerCommand.Execute(null); // second player
+        _sut.Players.First().SelectedUnit = units.First();
+        _sut.Players.First().AddUnitCommand.Execute(null);
+    
+        // Act
+        var result = _sut.CanStartGame;
+    
+        // Assert
+        result.Should().BeFalse();
+    }
 }
