@@ -25,6 +25,7 @@ public class NewGameViewModel : BaseViewModel
         _gameManager = gameManager;
         _rulesProvider = rulesProvider;
         _commandPublisher = commandPublisher;
+        AddPlayerCommand.Execute(null); // Add default player();
     }
 
     public string MapWidthLabel => "Map Width";

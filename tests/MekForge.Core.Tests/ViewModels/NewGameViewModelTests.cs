@@ -42,6 +42,12 @@ public class NewGameViewModelTests
     }
 
     [Fact]
+    public void Constructor_CreatesNewGameViewModel_WithOnePlayer()
+    {
+        _sut.Players.Count.Should().Be(1); // One player by default()
+    }
+
+    [Fact]
     public void Constructor_SetsDefaultValues()
     {
         _sut.MapWidth.Should().Be(15);
