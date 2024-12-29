@@ -48,6 +48,7 @@ public class BattleMapViewModel : BaseViewModel
             .DistinctUntilChanged()
             .Subscribe(_ =>
             {
+                CleanSelection();
                 UpdateGameState();
                 AwaitedAction = GetNextClientAction(); 
             });
@@ -147,10 +148,12 @@ public class BattleMapViewModel : BaseViewModel
     {
         if (TurnPhase == Phase.Start)
         {
-            var player = Game?.Players[0];
-            if (player != null)
+            if (Game is ClientGame localGame)
             {
-                (Game as ClientGame)?.SetPlayerReady(player);
+                foreach (var player in localGame.Players)
+                {
+                    localGame.SetPlayerReady(player);
+                }
             }
         }
 
@@ -170,6 +173,7 @@ public class BattleMapViewModel : BaseViewModel
                     return;
                 }
             }
+
             if (AwaitedAction == PlayerActions.SelectDirection)
             {
                 if (_selectedHex == null) return;
@@ -180,12 +184,21 @@ public class BattleMapViewModel : BaseViewModel
 
                 _selectedDirection = _selectedHex.Coordinates.GetDirectionToNeighbour(selectedHex.Coordinates);
                 if (_selectedDirection == null) return;
-                localGame.DeployUnit(SelectedUnit!.Id,
-                    _selectedHex.Coordinates,
-                    _selectedDirection.Value);
-                SelectedUnit = null;
+
+                if (SelectedUnit != null)
+                {
+                    localGame.DeployUnit(SelectedUnit.Id,
+                        _selectedHex.Coordinates,
+                        _selectedDirection.Value);
+                }
             }
         }
+    }
+
+    private void CleanSelection()
+    {
+        
+        SelectedUnit = null;
     }
 
     private void HighlightHexes(List<HexCoordinates> adjustedHex, bool isHighlighted)
