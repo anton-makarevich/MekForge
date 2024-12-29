@@ -5,7 +5,6 @@ using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.UiStates;
-using Sanet.MekForge.Core.ViewModels.States;
 using Sanet.MVVM.Core.ViewModels;
 
 namespace Sanet.MekForge.Core.ViewModels;
