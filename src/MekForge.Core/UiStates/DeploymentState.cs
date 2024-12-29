@@ -17,7 +17,8 @@ public class DeploymentState : IUiState
     {
         SelectingUnit,
         SelectingHex,
-        SelectingDirection
+        SelectingDirection,
+        Completed
     }
     
     private SubState _currentSubState = SubState.SelectingUnit;
@@ -87,14 +88,9 @@ public class DeploymentState : IUiState
             clientGame.DeployUnit(command.UnitId, new HexCoordinates(command.Position), (HexDirection)command.Direction);
         }
         
-        Reset();
-    }
-
-    private void Reset()
-    {
         _builder.Reset();
         _selectedHex = null;
-        _currentSubState = SubState.SelectingUnit;
+        _currentSubState = SubState.Completed;
         _viewModel.NotifyStateChanged();
     }
 
