@@ -19,7 +19,9 @@ public class NewGameViewModel : BaseViewModel
     private int _mapHeight = 17;
     private int _forestCoverage = 20;
     private int _lightWoodsPercentage = 30;
-    
+
+    private readonly ObservableCollection<PlayerViewModel> _players= [];
+
     public NewGameViewModel(IGameManager gameManager, IRulesProvider rulesProvider, ICommandPublisher commandPublisher)
     {
         _gameManager = gameManager;
@@ -31,13 +33,14 @@ public class NewGameViewModel : BaseViewModel
     public string MapHeightLabel => "Map Height";
     public string ForestCoverageLabel => "Forest Coverage";
     public string LightWoodsLabel => "Light Woods Percentage";
-    
+
     private IEnumerable<UnitData> _availableUnits=[];
-    
-    
+
+
     private readonly IGameManager _gameManager;
     private readonly IRulesProvider _rulesProvider;
     private readonly ICommandPublisher _commandPublisher;
+
 
     public int MapWidth
     {
@@ -68,8 +71,9 @@ public class NewGameViewModel : BaseViewModel
     }
 
     public bool IsLightWoodsEnabled => _forestCoverage>0;
-    
+
     public bool CanStartGame => Players.Count > 0 && Players.All(p => p.Units.Count > 0);
+
 
     public ICommand StartGameCommand => new AsyncCommand(async () =>
     {
@@ -108,20 +112,14 @@ public class NewGameViewModel : BaseViewModel
         // Logic to load available units for selection
         _availableUnits =units;
     }
-    
-    private ObservableCollection<PlayerViewModel> _players=new ObservableCollection<PlayerViewModel>();
 
-    public ObservableCollection<PlayerViewModel> Players
-    {
-        get => _players;
-        private set => SetProperty(ref _players, value);
-    }
+    public ObservableCollection<PlayerViewModel> Players => _players;
 
     public ICommand AddPlayerCommand => new AsyncCommand(AddPlayer);
 
     private Task AddPlayer()
     {
-        if (!CanAddPlayer) return Task.CompletedTask; // Limit to 4 players
+        if (!CanAddPlayer) return Task.CompletedTask; 
         var newPlayer = new Player(Guid.NewGuid(), $"Player {_players.Count + 1}");
         var playerViewModel = new PlayerViewModel(
             newPlayer,
@@ -134,5 +132,5 @@ public class NewGameViewModel : BaseViewModel
         return Task.CompletedTask;
     }
     
-    public bool CanAddPlayer => _players.Count < 4;
+    public bool CanAddPlayer => _players.Count < 4; // Limit to 4 players for now
 }
