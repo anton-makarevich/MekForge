@@ -13,16 +13,15 @@ namespace Sanet.MekForge.Core.ViewModels;
 public class BattleMapViewModel : BaseViewModel
 {
     private IGame? _game;
-    private readonly IImageService _imageService;
     private IDisposable? _gameSubscription;
     private IUiState _currentState;
     private DeploymentCommandBuilder? _deploymentBuilder;
     private List<Unit> _unitsToDeploy = [];
-    private Unit? _selectedUnit = null;
+    private Unit? _selectedUnit;
 
     public BattleMapViewModel(IImageService imageService)
     {
-        _imageService = imageService;
+        ImageService = imageService;
         _currentState = new IdleState();
     }
 
@@ -83,7 +82,7 @@ public class BattleMapViewModel : BaseViewModel
         UnitsToDeploy = Game.ActivePlayer.Units.Where(u => !u.IsDeployed).ToList();
     }
 
-    public void TransitionToState(IUiState newState)
+    private void TransitionToState(IUiState newState)
     {
         _currentState = newState;
         NotifyStateChanged();
@@ -129,7 +128,7 @@ public class BattleMapViewModel : BaseViewModel
     
     public string ActivePlayerName => Game?.ActivePlayer?.Name ?? string.Empty;
 
-    public IImageService ImageService => _imageService;
+    public IImageService ImageService { get; }
 
     public Unit? SelectedUnit
     {
