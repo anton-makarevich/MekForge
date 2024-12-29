@@ -9,7 +9,7 @@ public class InitiativeState : GameState
     public override void Enter()
     {
         // TODO: Implement initiative phase
-        Game.TransitionToState(new MovementState(Game));
+        //Game.TransitionToState(new MovementState(Game));
     }
 
     public override void HandleCommand(GameCommand command)
