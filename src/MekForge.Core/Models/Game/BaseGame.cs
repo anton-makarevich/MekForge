@@ -13,10 +13,21 @@ public abstract class BaseGame : IGame
     protected readonly ICommandPublisher CommandPublisher;
     private readonly List<IPlayer> _players = new();
     private readonly MechFactory _mechFactory;
-    public Guid GameId { get; private set; }
+    private Phase _turnPhase = Phase.Start;
+    public Guid GameId { get; }
     public int Turn { get; protected set; } = 1;
-    public virtual Phase TurnPhase { get; protected set; } = Phase.Start;
-    public virtual IPlayer? ActivePlayer {get; protected set;}
+
+    public virtual Phase TurnPhase
+    {
+        get => _turnPhase;
+        protected set
+        {
+            _turnPhase = value;
+            ActivePlayer = null;
+        }
+    }
+
+    public virtual IPlayer? ActivePlayer { get; protected set; }
 
     protected BaseGame(
         BattleMap battleMap,
@@ -36,7 +47,7 @@ public abstract class BaseGame : IGame
         return BattleMap.GetHexes();
     }
 
-    protected virtual IPlayer OnPlayerJoined(JoinGameCommand joinGameCommand)
+    internal void OnPlayerJoined(JoinGameCommand joinGameCommand)
     {
         var player = new Player(joinGameCommand.PlayerId, joinGameCommand.PlayerName);
         foreach (var unit in joinGameCommand.Units.Select(unitData => _mechFactory.Create(unitData)))
@@ -44,17 +55,16 @@ public abstract class BaseGame : IGame
             player.AddUnit(unit);
         }
         _players.Add(player);
-        return player;
     }
     
-    protected void OnPlayerStatusUpdated(UpdatePlayerStatusCommand updatePlayerStatusCommand)
+    internal void OnPlayerStatusUpdated(UpdatePlayerStatusCommand updatePlayerStatusCommand)
     {
         var player = _players.FirstOrDefault(p => p.Id == updatePlayerStatusCommand.PlayerId);
         if (player == null) return;
         player.Status = updatePlayerStatusCommand.PlayerStatus;
     }
 
-    protected void OnDeployUnit(DeployUnitCommand command)
+    internal void OnDeployUnit(DeployUnitCommand command)
     {
         var player = _players.FirstOrDefault(p => p.Id == command.PlayerId);
         if (player == null) return;

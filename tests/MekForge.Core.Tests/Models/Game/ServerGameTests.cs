@@ -214,4 +214,15 @@ public class ServerGameTests
         // Assert
         _serverGame.ActivePlayer.Should().BeNull();
     }
+    
+    [Fact]
+    public void IncrementTurn_ShouldIncrementTurn_WhenCalled()
+    {
+        // Arrange
+        // Act
+        _serverGame.IncrementTurn();
+    
+        // Assert
+        _serverGame.Turn.Should().Be(2);
+    }
 }
