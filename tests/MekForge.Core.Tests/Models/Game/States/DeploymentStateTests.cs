@@ -68,7 +68,7 @@ public class DeploymentStateTests : GameStateTestsBase
     }
 
     [Fact]
-    public async Task HandleCommand_WhenAllUnitsDeployed_ShouldTransitionToInitiative()
+    public void HandleCommand_WhenAllUnitsDeployed_ShouldTransitionToInitiative()
     {
         // Arrange
         var player1Id = Guid.NewGuid();

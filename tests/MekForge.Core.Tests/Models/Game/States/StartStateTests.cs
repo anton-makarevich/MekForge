@@ -37,7 +37,7 @@ public class StartStateTests : GameStateTestsBase
     }
 
     [Fact]
-    public async Task HandleCommand_WhenAllPlayersReady_ShouldTransitionToDeployment()
+    public void HandleCommand_WhenAllPlayersReady_ShouldTransitionToDeployment()
     {
         // Arrange
         var player1Id = Guid.NewGuid();
