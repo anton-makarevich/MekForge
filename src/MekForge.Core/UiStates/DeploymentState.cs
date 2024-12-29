@@ -1,9 +1,11 @@
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
-using Sanet.MekForge.Core.ViewModels.Deployment;
+using Sanet.MekForge.Core.ViewModels;
+using Sanet.MekForge.Core.ViewModels.States;
 
-namespace Sanet.MekForge.Core.ViewModels.States;
+namespace Sanet.MekForge.Core.UiStates;
 
 public class DeploymentState : IUiState
 {

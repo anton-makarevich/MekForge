@@ -1,8 +1,7 @@
-using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 
-namespace Sanet.MekForge.Core.ViewModels.Deployment;
+namespace Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 
 public class DeploymentCommandBuilder
 {

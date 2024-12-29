@@ -1,9 +1,10 @@
 using System.Reactive.Linq;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services;
-using Sanet.MekForge.Core.ViewModels.Deployment;
+using Sanet.MekForge.Core.UiStates;
 using Sanet.MekForge.Core.ViewModels.States;
 using Sanet.MVVM.Core.ViewModels;
 
