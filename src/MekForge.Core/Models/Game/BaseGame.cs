@@ -13,10 +13,10 @@ public abstract class BaseGame : IGame
     protected readonly ICommandPublisher CommandPublisher;
     private readonly List<IPlayer> _players = new();
     private readonly MechFactory _mechFactory;
-    public Guid GameId { get; private set; }
+    public Guid GameId { get; }
     public int Turn { get; protected set; } = 1;
     public virtual Phase TurnPhase { get; protected set; } = Phase.Start;
-    public virtual IPlayer? ActivePlayer {get; protected set;}
+    public virtual IPlayer? ActivePlayer { get; protected set; }
 
     protected BaseGame(
         BattleMap battleMap,
