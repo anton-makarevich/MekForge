@@ -46,7 +46,8 @@ public class BattleMapViewModel : BaseViewModel
             {
                 localGame.Turn,
                 localGame.TurnPhase,
-                localGame.ActivePlayer
+                localGame.ActivePlayer,
+                UndeployedUnits = localGame.ActivePlayer?.Units.Count(u => !u.IsDeployed) ?? 0
             })
             .DistinctUntilChanged()
             .Subscribe(_ =>
