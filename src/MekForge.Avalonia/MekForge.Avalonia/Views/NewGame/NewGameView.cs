@@ -7,15 +7,10 @@ using Sanet.MekForge.Core.Data.Community;
 using Sanet.MekForge.Core.ViewModels;
 using Sanet.MVVM.Views.Avalonia;
 
-namespace Sanet.MekForge.Avalonia.Views;
+namespace Sanet.MekForge.Avalonia.Views.NewGame;
 
-public partial class NewGameView : BaseView<NewGameViewModel>
+public abstract class NewGameView : BaseView<NewGameViewModel>
 {
-    public NewGameView()
-    {
-        InitializeComponent();
-    }
-    
     private async Task LoadUnits()
     {
         if (ViewModel == null) return;

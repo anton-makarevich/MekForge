@@ -40,4 +40,17 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </EmbeddedResource>
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Views\NewGame\NewGameViewNarrow.axaml.cs">
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\NewGame\NewGameViewWide.axaml.cs">
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="Views\NewGame\NewGameView.axaml" />
+    </ItemGroup>
 </Project>
