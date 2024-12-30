@@ -4,6 +4,7 @@ using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
+using Sanet.MekForge.Core.Models.Game.Dice;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
@@ -24,6 +25,7 @@ public class ServerGameTests
             new SingleTerrainGenerator(5,5, new ClearTerrain()));
         
         _commandPublisher = Substitute.For<ICommandPublisher>();
+        var diceRoller = Substitute.For<IDiceRoller>();
         var rulesProvider = Substitute.For<IRulesProvider>();
         rulesProvider.GetStructureValues(20).Returns(new Dictionary<PartLocation, int>
         {
@@ -36,7 +38,7 @@ public class ServerGameTests
             { PartLocation.LeftLeg, 8 },
             { PartLocation.RightLeg, 8 }
         });
-        _serverGame = new ServerGame(battleMap, rulesProvider, _commandPublisher);
+        _serverGame = new ServerGame(battleMap, rulesProvider, _commandPublisher, diceRoller);
     }
 
     [Fact]
@@ -178,7 +180,7 @@ public class ServerGameTests
     }
     
     [Fact]
-    public void DeployUnit_ShouldDeployUnitAndSetNextPlayer_WhenCalled()
+    public void DeployUnit_ShouldDeployUnitAndSetNextPhase_WhenCalled()
     {
         // Arrange
         var playerId = Guid.NewGuid();
@@ -212,7 +214,8 @@ public class ServerGameTests
         });
     
         // Assert
-        _serverGame.ActivePlayer.Should().BeNull();
+        _serverGame.Players.All(p=>p.Units.All(u=>u.IsDeployed)).Should().BeTrue();
+        _serverGame.TurnPhase.Should().Be(Phase.Initiative);
     }
     
     [Fact]

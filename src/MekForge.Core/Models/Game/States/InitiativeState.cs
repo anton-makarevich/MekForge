@@ -16,7 +16,7 @@ public class InitiativeState : GameState
     public override void Enter()
     {
         _initiativeOrder.Clear();
-        Game.SetActivePlayer(Game.Players.First(p => p.Status == PlayerStatus.Playing));
+        Game.SetActivePlayer(Game.Players[0]);
     }
 
     public override void HandleCommand(GameCommand command)
