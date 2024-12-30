@@ -17,6 +17,7 @@ public class InitiativePhaseTests : GameStateTestsBase
 
     public InitiativePhaseTests()
     {
+        Game.IsAutoRoll = false;
         _sut = new InitiativePhase(Game);
 
         // Add two players
@@ -146,5 +147,81 @@ public class InitiativePhaseTests : GameStateTestsBase
         // Assert
         Game.ActivePlayer.Should().Be(activePlayer); // Active player shouldn't change
         CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<DiceRolledCommand>());
+    }
+
+    // [Fact]
+    // public void Enter_WhenAutoRollEnabled_ShouldRollForAllPlayers()
+    // {
+    //     // Arrange
+    //     Game.IsAutoRoll = true;
+    //     SetupDiceRoll(7); // First player rolls 7
+    //     SetupDiceRoll(8); // Second player rolls 8
+    //
+    //     // Act
+    //     _sut.Enter();
+    //
+    //     // Assert
+    //     CommandPublisher.Received(2).PublishCommand(Arg.Any<DiceRolledCommand>());
+    //     Game.TurnPhase.Should().Be(PhaseNames.Movement);
+    //     Game.InitiativeOrder[0].Should().Be(Game.Players[1]); // Player with roll 8 should be first
+    //     Game.InitiativeOrder[1].Should().Be(Game.Players[0]); // Player with roll 7 should be second
+    // }
+
+    // [Fact]
+    // public void Enter_WhenAutoRollAndTiesOccur_ShouldRerollAutomatically()
+    // {
+    //     // Arrange
+    //     Game.IsAutoRoll = true;
+    //     SetupDiceRoll(7); // First player rolls 7
+    //     SetupDiceRoll(7); // Second player rolls 7 too
+    //     SetupDiceRoll(8); // First player rerolls 8
+    //     SetupDiceRoll(6); // Second player rerolls 6
+    //
+    //     // Act
+    //     _sut.Enter();
+    //
+    //     // Assert
+    //     CommandPublisher.Received(4).PublishCommand(Arg.Any<DiceRolledCommand>()); // Should receive 4 roll commands (2 initial + 2 rerolls)
+    //     Game.TurnPhase.Should().Be(PhaseNames.Movement); // Should proceed to movement after resolving ties
+    //     Game.InitiativeOrder[0].Should().Be(Game.Players[0]); // Player who rerolled 8 should be first
+    //     Game.InitiativeOrder[1].Should().Be(Game.Players[1]); // Player who rerolled 6 should be second
+    // }
+
+    // [Fact]
+    // public void Enter_WhenAutoRollAndMultipleTiesOccur_ShouldKeepRerollingUntilResolved()
+    // {
+    //     // Arrange
+    //     Game.IsAutoRoll = true;
+    //     SetupDiceRoll(7); // First player rolls 7
+    //     SetupDiceRoll(7); // Second player rolls 7
+    //     SetupDiceRoll(6); // First player rerolls 6
+    //     SetupDiceRoll(6); // Second player rerolls 6
+    //     SetupDiceRoll(8); // First player rerolls again 8
+    //     SetupDiceRoll(5); // Second player rerolls again 5
+    //
+    //     // Act
+    //     _sut.Enter();
+    //
+    //     // Assert
+    //     CommandPublisher.Received(6).PublishCommand(Arg.Any<DiceRolledCommand>()); // Should receive 6 roll commands (2 initial + 2 first reroll + 2 second reroll)
+    //     Game.TurnPhase.Should().Be(PhaseNames.Movement);
+    //     Game.InitiativeOrder[0].Should().Be(Game.Players[0]); // Player who rolled 8 should be first
+    //     Game.InitiativeOrder[1].Should().Be(Game.Players[1]); // Player who rolled 5 should be second
+    // }
+
+    [Fact]
+    public void Enter_WhenAutoRollDisabled_ShouldWaitForPlayerCommands()
+    {
+        // Arrange
+        Game.IsAutoRoll = false;
+        Game.SetPhase(PhaseNames.Initiative);
+
+        // Act
+        _sut.Enter();
+
+        // Assert
+        CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<DiceRolledCommand>());
+        Game.TurnPhase.Should().Be(PhaseNames.Initiative);
+        Game.ActivePlayer.Should().Be(Game.Players[0]); // First player should be active
     }
 }

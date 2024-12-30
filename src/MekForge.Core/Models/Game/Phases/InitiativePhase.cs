@@ -17,7 +17,44 @@ public class InitiativePhase : GamePhase
     public override void Enter()
     {
         _initiativeOrder.Clear();
-        Game.SetActivePlayer(Game.Players[0]);
+        
+        if (!Game.IsAutoRoll)
+        {
+            Game.SetActivePlayer(Game.Players[0]);
+            return;
+        }
+        AutoRollForAllPlayers();
+    }
+
+    private void AutoRollForAllPlayers()
+    {
+        var playersToRoll = Game.Players.Where(p => p.Status == PlayerStatus.Playing).ToList();
+        
+        while (playersToRoll.Any())
+        {
+            foreach (var player in playersToRoll)
+            {
+                Game.SetActivePlayer(player);
+                var roll = Roll2D6();
+                _initiativeOrder.AddResult(player, roll);
+
+                Game.CommandPublisher.PublishCommand(new DiceRolledCommand
+                {
+                    GameOriginId = Game.GameId,
+                    PlayerId = player.Id,
+                    Roll = roll
+                });
+            }
+
+            if (!_initiativeOrder.HasTies()) break;
+            // If there are ties, prepare for reroll
+            playersToRoll = _initiativeOrder.GetTiedPlayers();
+            _initiativeOrder.StartNewRoll(); // Start next roll number
+        }
+
+        // All rolls are complete, proceed to movement
+        Game.SetInitiativeOrder(_initiativeOrder.GetOrderedPlayers());
+        Game.TransitionToPhase(new MovementPhase(Game));
     }
 
     public override void HandleCommand(GameCommand command)

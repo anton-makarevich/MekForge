@@ -10,6 +10,7 @@ public class InitiativeOrderTests
     private readonly IPlayer _player1 = Substitute.For<IPlayer>();
     private readonly IPlayer _player2 = Substitute.For<IPlayer>();
     private readonly IPlayer _player3 = Substitute.For<IPlayer>();
+    private readonly IPlayer _player4 = Substitute.For<IPlayer>();
 
     [Fact]
     public void AddResult_ShouldSortResultsDescending()
@@ -22,6 +23,26 @@ public class InitiativeOrderTests
         // Assert
         var orderedPlayers = _sut.GetOrderedPlayers();
         orderedPlayers.Should().ContainInOrder(_player2, _player3, _player1);
+    }
+
+    [Fact]
+    public void AddResult_WhenRerolling_ShouldMaintainFirstRollPrecedence()
+    {
+        // Arrange
+        _sut.AddResult(_player1, 7);  // First roll
+        _sut.AddResult(_player2, 4);  // First roll
+        _sut.AddResult(_player3, 10); // First roll - Winner
+        _sut.AddResult(_player4, 7);  // First roll
+
+        _sut.StartNewRoll(); // Start second roll
+
+        // Act
+        _sut.AddResult(_player1, 11); // Second roll - Higher than winner but doesn't matter
+        _sut.AddResult(_player4, 3);  // Second roll
+
+        // Assert
+        var orderedPlayers = _sut.GetOrderedPlayers();
+        orderedPlayers.Should().ContainInOrder(_player3, _player1, _player4, _player2);
     }
 
     [Fact]
@@ -87,6 +108,21 @@ public class InitiativeOrderTests
     }
 
     [Fact]
+    public void HasTies_WhenTiesResolvedInSecondRoll_ShouldReturnFalse()
+    {
+        // Arrange
+        _sut.AddResult(_player1, 7);
+        _sut.AddResult(_player2, 7);
+        
+        _sut.StartNewRoll();
+        _sut.AddResult(_player1, 8);
+        _sut.AddResult(_player2, 6);
+
+        // Act & Assert
+        _sut.HasTies().Should().BeFalse();
+    }
+
+    [Fact]
     public void GetTiedPlayers_WhenNoTies_ShouldReturnEmptyList()
     {
         // Arrange
@@ -120,27 +156,24 @@ public class InitiativeOrderTests
     }
 
     [Fact]
-    public void GetTiedPlayers_WhenNoResults_ShouldReturnEmptyList()
-    {
-        // Act & Assert
-        _sut.GetTiedPlayers().Should().BeEmpty();
-    }
-
-    [Fact]
-    public void HasTies_WhenNoResults_ShouldReturnFalse()
-    {
-        // Act & Assert
-        _sut.HasTies().Should().BeFalse();
-    }
-
-    [Fact]
-    public void HasTies_WhenSingleResult_ShouldReturnFalse()
+    public void GetTiedPlayers_WhenMultipleRollsAndTies_ShouldOnlyConsiderCurrentRoll()
     {
         // Arrange
         _sut.AddResult(_player1, 7);
+        _sut.AddResult(_player2, 7);
+        _sut.AddResult(_player3, 7);
+        
+        _sut.StartNewRoll();
+        _sut.AddResult(_player1, 6);
+        _sut.AddResult(_player2, 6);
 
-        // Act & Assert
-        _sut.HasTies().Should().BeFalse();
+        // Act
+        var tiedPlayers = _sut.GetTiedPlayers();
+
+        // Assert
+        tiedPlayers.Should().HaveCount(2);
+        tiedPlayers.Should().Contain(_player1);
+        tiedPlayers.Should().Contain(_player2);
     }
 
     [Fact]
@@ -151,15 +184,19 @@ public class InitiativeOrderTests
     }
 
     [Fact]
-    public void GetOrderedPlayers_ShouldMaintainOrderAfterMultipleAdditions()
+    public void GetOrderedPlayers_ShouldMaintainOrderAfterMultipleRolls()
     {
-        // Arrange & Act
-        _sut.AddResult(_player1, 5); // Will end up last
-        _sut.AddResult(_player2, 9); // Will be first
-        _sut.AddResult(_player3, 7); // Will be second
+        // Arrange
+        _sut.AddResult(_player1, 7);  // Ties for first
+        _sut.AddResult(_player2, 4);  // Last
+        _sut.AddResult(_player3, 7);  // Ties for first
+        
+        _sut.StartNewRoll();
+        _sut.AddResult(_player1, 8);  // Wins tie
+        _sut.AddResult(_player3, 6);  // Loses tie
 
         // Assert
         var orderedPlayers = _sut.GetOrderedPlayers();
-        orderedPlayers.Should().ContainInOrder(_player2, _player3, _player1);
+        orderedPlayers.Should().ContainInOrder(_player1, _player3, _player2);
     }
 }

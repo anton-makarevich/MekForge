@@ -14,7 +14,8 @@ public class ServerGame : BaseGame
 {
     private GamePhase _currentPhase;
     private readonly IDiceRoller _diceRoller;
-    private List<IPlayer> _initiativeOrder = new();
+    private List<IPlayer> _initiativeOrder = [];
+    public bool IsAutoRoll { get; set; } = true;
 
     public ServerGame(
         BattleMap battleMap, 
