@@ -19,17 +19,22 @@ public class DiceResultTests
             .WithParameterName("value");
     }
 
-    [Fact]
-    public void SettingResult_ShouldSetValue_WhenValueIsInRange()
+    [Theory]
+    [InlineData(1, 1)]
+    [InlineData(2, 2)]
+    [InlineData(3, 3)]
+    [InlineData(4, 4)]
+    [InlineData(5, 5)]
+    [InlineData(6, 6)]
+    public void SettingResult_ShouldSetValue_WhenValueIsInRange(int input, int expected)
     {
         // Arrange
-        var diceResult = new DiceResult
-        {
-            // Act
-            Result = 5
-        };
+        var diceResult = new DiceResult();
+
+        // Act
+        diceResult.Result = input;
 
         // Assert
-        diceResult.Result.Should().Be(5);
+        diceResult.Result.Should().Be(expected);
     }
 }
