@@ -12,7 +12,7 @@ public class RandomDiceRollerTests
         var roller = new RandomDiceRoller();
 
         // Act
-        var result = roller.Roll();
+        var result = roller.RollD6();
 
         // Assert
         result.Result.Should().BeGreaterThan(0).And.BeLessThan(7);
@@ -25,7 +25,7 @@ public class RandomDiceRollerTests
         var roller = new RandomDiceRoller();
 
         // Act
-        var results = roller.Roll2D();
+        var results = roller.Roll2D6();
 
         // Assert
         results.Should().HaveCount(2);
