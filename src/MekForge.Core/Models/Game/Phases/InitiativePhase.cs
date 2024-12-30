@@ -1,14 +1,15 @@
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
+using Sanet.MekForge.Core.Models.Game.Phases;
 
 namespace Sanet.MekForge.Core.Models.Game.States;
 
-public class InitiativeState : GameState
+public class InitiativePhase : GamePhase
 {
     private readonly InitiativeOrder _initiativeOrder;
 
-    public InitiativeState(ServerGame game) : base(game)
+    public InitiativePhase(ServerGame game) : base(game)
     {
         _initiativeOrder = new InitiativeOrder();
     }
@@ -21,14 +22,14 @@ public class InitiativeState : GameState
 
     public override void HandleCommand(GameCommand command)
     {
-        if (command is not RollInitiativeCommand rollCommand) return;
+        if (command is not RollDiceCommand rollCommand) return;
         if (rollCommand.PlayerId != Game.ActivePlayer?.Id) return;
 
         var roll = Roll2D6();
         _initiativeOrder.AddResult(Game.ActivePlayer, roll);
 
         // Publish the roll result
-        Game.CommandPublisher.PublishCommand(new InitiativeRolledCommand
+        Game.CommandPublisher.PublishCommand(new DiceRolledCommand
         {
             GameOriginId = Game.GameId,
             PlayerId = Game.ActivePlayer.Id,
@@ -56,7 +57,7 @@ public class InitiativeState : GameState
             {
                 // Store initiative order in the game
                 Game.SetInitiativeOrder(_initiativeOrder.GetOrderedPlayers());
-                Game.TransitionToState(new MovementState(Game));
+                Game.TransitionToPhase(new MovementPhase(Game));
             }
         }
     }
@@ -67,5 +68,5 @@ public class InitiativeState : GameState
         return rolls.Sum(r => r.Result);
     }
 
-    public override string Name => "Initiative";
+    public override PhaseNames Name => PhaseNames.Initiative;
 }

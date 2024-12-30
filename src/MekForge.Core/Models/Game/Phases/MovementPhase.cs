@@ -1,10 +1,11 @@
 using Sanet.MekForge.Core.Models.Game.Commands;
+using Sanet.MekForge.Core.Models.Game.Phases;
 
 namespace Sanet.MekForge.Core.Models.Game.States;
 
-public class MovementState : GameState
+public class MovementPhase : GamePhase
 {
-    public MovementState(ServerGame game) : base(game) { }
+    public MovementPhase(ServerGame game) : base(game) { }
 
     public override void Enter()
     {
@@ -17,5 +18,5 @@ public class MovementState : GameState
         // TODO: Handle movement commands
     }
 
-    public override string Name => "Movement";
+    public override PhaseNames Name => PhaseNames.Movement;
 }

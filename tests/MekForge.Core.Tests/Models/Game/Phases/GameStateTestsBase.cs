@@ -4,6 +4,7 @@ using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Dice;
+using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
@@ -11,7 +12,7 @@ using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MekForge.Core.Utils.TechRules;
 
-namespace Sanet.MekForge.Core.Tests.Models.Game.States;
+namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
 
 public abstract class GameStateTestsBase
 {
@@ -28,11 +29,11 @@ public abstract class GameStateTestsBase
         Game = new ServerGame(battleMap, rulesProvider, CommandPublisher, DiceRoller);
     }
 
-    protected void VerifyPhaseChange(Phase expectedPhase)
+    protected void VerifyPhaseChange(PhaseNames expectedPhaseNames)
     {
         CommandPublisher.Received(1).PublishCommand(
             Arg.Is<ChangePhaseCommand>(cmd => 
-                cmd.Phase == expectedPhase && 
+                cmd.Phase == expectedPhaseNames && 
                 cmd.GameOriginId == Game.GameId));
     }
 

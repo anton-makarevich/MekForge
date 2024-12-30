@@ -1,6 +1,7 @@
 using System.Reactive.Linq;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
+using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services;
@@ -58,7 +59,7 @@ public class BattleMapViewModel : BaseViewModel
 
     private void UpdateGamePhase()
     {
-        if (TurnPhase == Phase.Deployment 
+        if (TurnPhaseNames == PhaseNames.Deployment 
             && Game is ClientGame { ActivePlayer: not null } clientGame
             && clientGame.ActivePlayer?.Units.Any(u => !u.IsDeployed) == true)
         {
@@ -90,7 +91,7 @@ public class BattleMapViewModel : BaseViewModel
     public void NotifyStateChanged()
     {
         NotifyPropertyChanged(nameof(Turn));
-        NotifyPropertyChanged(nameof(TurnPhase));
+        NotifyPropertyChanged(nameof(TurnPhaseNames));
         NotifyPropertyChanged(nameof(ActivePlayerName));
         NotifyPropertyChanged(nameof(UserActionLabel));
         NotifyPropertyChanged(nameof(IsUserActionLabelVisible));
@@ -123,7 +124,7 @@ public class BattleMapViewModel : BaseViewModel
 
     public int Turn => Game?.Turn ?? 0;
 
-    public Phase TurnPhase => Game?.TurnPhase ?? Phase.Start;
+    public PhaseNames TurnPhaseNames => Game?.TurnPhase ?? PhaseNames.Start;
     
     public string ActivePlayerName => Game?.ActivePlayer?.Name ?? string.Empty;
 
@@ -143,7 +144,7 @@ public class BattleMapViewModel : BaseViewModel
 
     public void HandleHexSelection(Hex selectedHex)
     {
-        if (TurnPhase == Phase.Start)
+        if (TurnPhaseNames == PhaseNames.Start)
         {
             if (Game is ClientGame localGame)
             {

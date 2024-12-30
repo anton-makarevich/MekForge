@@ -18,7 +18,7 @@
             VerticalAlignment="Top"
             Background="Aqua">
             <Label Content="{Binding Turn}"/>
-            <Label Content="{Binding TurnPhase}"/>
+            <Label Content="{Binding TurnPhaseNames}"/>
             <Label Content="{Binding ActivePlayerName}"/>
         </StackPanel>
         

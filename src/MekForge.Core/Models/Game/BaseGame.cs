@@ -1,6 +1,7 @@
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Utils.TechRules;
@@ -13,16 +14,16 @@ public abstract class BaseGame : IGame
     internal readonly ICommandPublisher CommandPublisher;
     private readonly List<IPlayer> _players = new();
     private readonly MechFactory _mechFactory;
-    private Phase _turnPhase = Phase.Start;
+    private PhaseNames _turnPhases = PhaseNames.Start;
     public Guid GameId { get; }
     public int Turn { get; protected set; } = 1;
 
-    public virtual Phase TurnPhase
+    public virtual PhaseNames TurnPhase
     {
-        get => _turnPhase;
+        get => _turnPhases;
         protected set
         {
-            _turnPhase = value;
+            _turnPhases = value;
             ActivePlayer = null;
         }
     }

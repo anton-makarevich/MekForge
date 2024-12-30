@@ -5,6 +5,7 @@ using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Dice;
+using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
@@ -129,9 +130,9 @@ public class ServerGameTests
         });
 
         // Assert
-        _serverGame.TurnPhase.Should().Be(Phase.Deployment);
+        _serverGame.TurnPhase.Should().Be(PhaseNames.Deployment);
         _commandPublisher.Received(1).PublishCommand(Arg.Is<ChangePhaseCommand>(cmd => 
-            cmd.Phase == Phase.Deployment &&
+            cmd.Phase == PhaseNames.Deployment &&
             cmd.GameOriginId == _serverGame.GameId
         ));
     }
@@ -215,7 +216,7 @@ public class ServerGameTests
     
         // Assert
         _serverGame.Players.All(p=>p.Units.All(u=>u.IsDeployed)).Should().BeTrue();
-        _serverGame.TurnPhase.Should().Be(Phase.Initiative);
+        _serverGame.TurnPhase.Should().Be(PhaseNames.Initiative);
     }
     
     [Fact]

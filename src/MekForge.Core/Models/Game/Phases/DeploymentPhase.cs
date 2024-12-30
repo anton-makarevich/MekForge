@@ -1,13 +1,14 @@
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Game.States;
 
-namespace Sanet.MekForge.Core.Models.Game.States;
+namespace Sanet.MekForge.Core.Models.Game.Phases;
 
-public class DeploymentState : GameState
+public class DeploymentPhase : GamePhase
 {
     private Queue<IPlayer> _deploymentOrderQueue;
 
-    public DeploymentState(ServerGame game) : base(game)
+    public DeploymentPhase(ServerGame game) : base(game)
     {
         _deploymentOrderQueue = new Queue<IPlayer>();
     }
@@ -38,7 +39,7 @@ public class DeploymentState : GameState
         }
         else if (AllUnitsDeployed())
         {
-            Game.TransitionToState(new InitiativeState(Game));
+            Game.TransitionToPhase(new InitiativePhase(Game));
         }
     }
 
@@ -61,5 +62,5 @@ public class DeploymentState : GameState
         Game.SetActivePlayer(_deploymentOrderQueue.Dequeue());
     }
 
-    public override string Name => "Deployment";
+    public override PhaseNames Name => PhaseNames.Deployment;
 }

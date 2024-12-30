@@ -4,19 +4,20 @@ using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Dice;
+using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.States;
 
-namespace Sanet.MekForge.Core.Tests.Models.Game.States;
+namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
 
-public class InitiativeStateTests : GameStateTestsBase
+public class InitiativePhaseTests : GameStateTestsBase
 {
-    private readonly InitiativeState _sut;
+    private readonly InitiativePhase _sut;
     private readonly Guid _player1Id = Guid.NewGuid();
     private readonly Guid _player2Id = Guid.NewGuid();
 
-    public InitiativeStateTests()
+    public InitiativePhaseTests()
     {
-        _sut = new InitiativeState(Game);
+        _sut = new InitiativePhase(Game);
 
         // Add two players
         Game.HandleCommand(CreateJoinCommand(_player1Id, "Player 1"));
@@ -35,7 +36,7 @@ public class InitiativeStateTests : GameStateTestsBase
     [Fact]
     public void Name_ShouldBeInitiative()
     {
-        _sut.Name.Should().Be("Initiative");
+        _sut.Name.Should().Be(PhaseNames.Initiative);
     }
 
     [Fact]
@@ -54,14 +55,14 @@ public class InitiativeStateTests : GameStateTestsBase
         SetupDiceRoll(7); // Total roll of 7
 
         // Act
-        _sut.HandleCommand(new RollInitiativeCommand
+        _sut.HandleCommand(new RollDiceCommand
         {
             GameOriginId = Guid.NewGuid(),
             PlayerId = Game.ActivePlayer!.Id
         });
 
         // Assert
-        CommandPublisher.Received().PublishCommand(Arg.Do<InitiativeRolledCommand>(cmd =>
+        CommandPublisher.Received().PublishCommand(Arg.Do<DiceRolledCommand>(cmd =>
         {
             cmd.GameOriginId.Should().Be(Game.GameId);
             cmd.PlayerId.Should().Be(Game.ActivePlayer!.Id);
@@ -78,7 +79,7 @@ public class InitiativeStateTests : GameStateTestsBase
 
         // First player rolls 8
         SetupDiceRoll(8);
-        _sut.HandleCommand(new RollInitiativeCommand
+        _sut.HandleCommand(new RollDiceCommand
         {
             GameOriginId = Guid.NewGuid(),
             PlayerId = firstPlayer!.Id
@@ -86,14 +87,14 @@ public class InitiativeStateTests : GameStateTestsBase
 
         // Second player rolls 6
         SetupDiceRoll(6);
-        _sut.HandleCommand(new RollInitiativeCommand 
+        _sut.HandleCommand(new RollDiceCommand 
         { 
             GameOriginId = Guid.NewGuid(),
             PlayerId = Game.Players.First(p => p != firstPlayer).Id 
         });
 
         // Assert
-        Game.TurnPhase.Should().Be(Phase.Movement);
+        Game.TurnPhase.Should().Be(PhaseNames.Movement);
         Game.InitiativeOrder.Should().HaveCount(2);
         Game.InitiativeOrder[0].Should().Be(firstPlayer); // Higher roll should be first
     }
@@ -102,19 +103,19 @@ public class InitiativeStateTests : GameStateTestsBase
     public void HandleCommand_WhenPlayersRollTie_ShouldRerollTiedPlayers()
     {
         // Arrange
-        Game.SetPhase(Phase.Initiative);
+        Game.SetPhase(PhaseNames.Initiative);
         _sut.Enter();
         var firstPlayer = Game.ActivePlayer;
         var secondPlayer = Game.Players.First(p => p != firstPlayer);
 
         // Both players roll 7
         SetupDiceRoll(7);
-        _sut.HandleCommand(new RollInitiativeCommand
+        _sut.HandleCommand(new RollDiceCommand
         {
             GameOriginId = Guid.NewGuid(),
             PlayerId = firstPlayer!.Id
         });
-        _sut.HandleCommand(new RollInitiativeCommand
+        _sut.HandleCommand(new RollDiceCommand
         {
             GameOriginId = Guid.NewGuid(),
             PlayerId = secondPlayer.Id
@@ -124,7 +125,7 @@ public class InitiativeStateTests : GameStateTestsBase
         CommandPublisher.ClearReceivedCalls();
 
         // Assert
-        Game.TurnPhase.Should().Be(Phase.Initiative); // Should stay in initiative
+        Game.TurnPhase.Should().Be(PhaseNames.Initiative); // Should stay in initiative
         Game.ActivePlayer.Should().BeOneOf(firstPlayer, secondPlayer); // One of tied players should be active
     }
 
@@ -136,7 +137,7 @@ public class InitiativeStateTests : GameStateTestsBase
         var activePlayer = Game.ActivePlayer;
 
         // Act - wrong player tries to roll
-        _sut.HandleCommand(new RollInitiativeCommand 
+        _sut.HandleCommand(new RollDiceCommand 
         { 
             GameOriginId = Guid.NewGuid(),
             PlayerId = Game.Players.First(p => p != activePlayer).Id 
@@ -144,6 +145,6 @@ public class InitiativeStateTests : GameStateTestsBase
 
         // Assert
         Game.ActivePlayer.Should().Be(activePlayer); // Active player shouldn't change
-        CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<InitiativeRolledCommand>());
+        CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<DiceRolledCommand>());
     }
 }

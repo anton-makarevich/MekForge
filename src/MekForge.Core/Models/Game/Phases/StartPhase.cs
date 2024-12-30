@@ -1,11 +1,11 @@
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 
-namespace Sanet.MekForge.Core.Models.Game.States;
+namespace Sanet.MekForge.Core.Models.Game.Phases;
 
-public class StartState : GameState
+public class StartPhase : GamePhase
 {
-    public StartState(ServerGame game) : base(game) { }
+    public StartPhase(ServerGame game) : base(game) { }
 
     public override void HandleCommand(GameCommand command)
     {
@@ -18,7 +18,7 @@ public class StartState : GameState
                 Game.OnPlayerStatusUpdated(playerStatusCommand);
                 if (AllPlayersReady())
                 {
-                    Game.TransitionToState(new DeploymentState(Game));
+                    Game.TransitionToPhase(new DeploymentPhase(Game));
                 }
                 break;
         }
@@ -30,5 +30,5 @@ public class StartState : GameState
                Game.Players.Count(p => p.Status == PlayerStatus.Playing) == Game.Players.Count;
     }
 
-    public override string Name => "Start";
+    public override PhaseNames Name => PhaseNames.Start;
 }
