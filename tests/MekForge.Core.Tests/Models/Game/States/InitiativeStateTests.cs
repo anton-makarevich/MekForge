@@ -61,11 +61,12 @@ public class InitiativeStateTests : GameStateTestsBase
         });
 
         // Assert
-        CommandPublisher.Received(1).PublishCommand(
-            Arg.Is<InitiativeRolledCommand>(cmd =>
-                cmd.PlayerId == Game.ActivePlayer.Id &&
-                cmd.Roll == 7 &&
-                cmd.GameOriginId == Game.GameId));
+        CommandPublisher.Received().PublishCommand(Arg.Do<InitiativeRolledCommand>(cmd =>
+        {
+            cmd.GameOriginId.Should().Be(Game.GameId);
+            cmd.PlayerId.Should().Be(Game.ActivePlayer!.Id);
+            cmd.Roll.Should().Be(7);
+        }));
     }
 
     [Fact]
