@@ -73,29 +73,32 @@ public class InitiativePhase : GamePhase
             Roll = roll
         });
 
+        // Get all players who still need to roll in this round
+        var unrolledPlayers = Game.Players
+            .Where(p => p.Status == PlayerStatus.Playing)
+            .Where(p => !_initiativeOrder.HasPlayerRolledInCurrentRound(p))
+            .ToList();
+
+        if (unrolledPlayers.Any())
+        {
+            // Some players still need to roll in this round
+            Game.SetActivePlayer(unrolledPlayers.First());
+            return;
+        }
+
+        // All players have rolled in this round
         if (_initiativeOrder.HasTies())
         {
-            // If there are ties, only tied players should roll again
+            // If there are ties, start a new round for tied players
+            _initiativeOrder.StartNewRoll();
             var tiedPlayers = _initiativeOrder.GetTiedPlayers();
             Game.SetActivePlayer(tiedPlayers.First());
         }
         else
         {
-            // No ties, get next unrolled player or finish if all have rolled
-            var nextPlayer = Game.Players
-                .Where(p => p.Status == PlayerStatus.Playing)
-                .FirstOrDefault(p => !_initiativeOrder.HasPlayer(p));
-
-            if (nextPlayer != null)
-            {
-                Game.SetActivePlayer(nextPlayer);
-            }
-            else
-            {
-                // Store initiative order in the game
-                Game.SetInitiativeOrder(_initiativeOrder.GetOrderedPlayers());
-                Game.TransitionToPhase(new MovementPhase(Game));
-            }
+            // No ties, we're done
+            Game.SetInitiativeOrder(_initiativeOrder.GetOrderedPlayers());
+            Game.TransitionToPhase(new MovementPhase(Game));
         }
     }
 

@@ -81,6 +81,12 @@ public class InitiativeOrder
         return _results.Select(r => r.Player).ToList();
     }
 
+    public bool HasPlayerRolledInCurrentRound(IPlayer player)
+    {
+        var result = _results.FirstOrDefault(r => r.Player == player);
+        return result?.HasRoll(_currentRollNumber) ?? false;
+    }
+
     private class InitiativeResult
     {
         private readonly Dictionary<int, int> _rolls = new();
