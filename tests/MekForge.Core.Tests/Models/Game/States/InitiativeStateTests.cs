@@ -101,6 +101,7 @@ public class InitiativeStateTests : GameStateTestsBase
     public void HandleCommand_WhenPlayersRollTie_ShouldRerollTiedPlayers()
     {
         // Arrange
+        Game.SetPhase(Phase.Initiative);
         _sut.Enter();
         var firstPlayer = Game.ActivePlayer;
         var secondPlayer = Game.Players.First(p => p != firstPlayer);

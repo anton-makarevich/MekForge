@@ -9,7 +9,7 @@ public class MovementState : GameState
     public override void Enter()
     {
         // TODO: Implement movement phase
-        Game.TransitionToState(new AttackState(Game));
+        //Game.TransitionToState(new AttackState(Game));
     }
 
     public override void HandleCommand(GameCommand command)
