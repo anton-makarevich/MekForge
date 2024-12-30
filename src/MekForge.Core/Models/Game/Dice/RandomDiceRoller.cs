@@ -4,14 +4,14 @@ public class RandomDiceRoller : IDiceRoller
 {
     private readonly Random _random = new();
 
-    public DiceResult Roll()
+    public DiceResult RollD6()
     {
         var result = new DiceResult { Result = _random.Next(1, 7) };
         return result;
     }
 
-    public List<DiceResult> Roll2D()
+    public List<DiceResult> Roll2D6()
     {
-        return [Roll(), Roll()];
+        return [RollD6(), RollD6()];
     }
 }

@@ -1,12 +1,12 @@
 using Sanet.MekForge.Core.Models.Game.Commands;
 
-namespace Sanet.MekForge.Core.Models.Game.States;
+namespace Sanet.MekForge.Core.Models.Game.Phases;
 
-public abstract class GameState
+public abstract class GamePhase
 {
     protected readonly ServerGame Game;
 
-    protected GameState(ServerGame game)
+    protected GamePhase(ServerGame game)
     {
         Game = game;
     }
@@ -15,5 +15,5 @@ public abstract class GameState
     public virtual void Exit() { }
     
     public abstract void HandleCommand(GameCommand command);
-    public abstract string Name { get; }
+    public abstract PhaseNames Name { get; }
 }

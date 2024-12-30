@@ -3,21 +3,21 @@ using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
-using Sanet.MekForge.Core.Models.Game.States;
+using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Tests.Data;
 
-namespace Sanet.MekForge.Core.Tests.Models.Game.States;
+namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
 
-public class DeploymentStateTests : GameStateTestsBase
+public class DeploymentPhaseTests : GameStateTestsBase
 {
-    private DeploymentState _sut = null!;
+    private DeploymentPhase _sut = null!;
 
     [Fact]
     public void Name_ShouldBeDeployment()
     {
-        _sut = new DeploymentState(Game);
+        _sut = new DeploymentPhase(Game);
 
-        _sut.Name.Should().Be("Deployment");
+        _sut.Name.Should().Be(PhaseNames.Deployment);
     }
 
     [Fact]
@@ -26,7 +26,7 @@ public class DeploymentStateTests : GameStateTestsBase
         // Arrange
         var player1Id = Guid.NewGuid();
         var player2Id = Guid.NewGuid();
-        _sut = new DeploymentState(Game);
+        _sut = new DeploymentPhase(Game);
 
         // Add two players
         Game.HandleCommand(CreateJoinCommand(player1Id, "Player 1"));
@@ -47,8 +47,9 @@ public class DeploymentStateTests : GameStateTestsBase
     public void HandleCommand_WhenUnitDeployed_ShouldUpdateUnitPosition()
     {
         // Arrange
+        Game.IsAutoRoll = false;
         var playerId = Guid.NewGuid();
-        _sut = new DeploymentState(Game);
+        _sut = new DeploymentPhase(Game);
 
         // Add a player with a unit
         Game.HandleCommand(CreateJoinCommand(playerId, "Player 1"));
@@ -71,10 +72,10 @@ public class DeploymentStateTests : GameStateTestsBase
     public void HandleCommand_WhenAllUnitsDeployed_ShouldTransitionToInitiative()
     {
         // Arrange
+        Game.IsAutoRoll = false;
         var player1Id = Guid.NewGuid();
         var player2Id = Guid.NewGuid();
-        var unitId = Guid.NewGuid();
-        _sut = new DeploymentState(Game);
+        _sut = new DeploymentPhase(Game);
 
         // Add two players with one unit each
         Game.HandleCommand(CreateJoinCommand(player1Id, "Player 1"));
@@ -91,8 +92,8 @@ public class DeploymentStateTests : GameStateTestsBase
         _sut.HandleCommand(CreateDeployCommand(Game.ActivePlayer.Id, Game.ActivePlayer.Units[0].Id, 2, 2, 0));
         
         // Assert
-        Game.TurnPhase.Should().Be(Phase.Initiative);
-        VerifyPhaseChange(Phase.Initiative);
+        Game.TurnPhase.Should().Be(PhaseNames.Initiative);
+        VerifyPhaseChange(PhaseNames.Initiative);
     }
 
     [Fact]
@@ -104,7 +105,7 @@ public class DeploymentStateTests : GameStateTestsBase
        unit1.Id = Guid.NewGuid();
        var unit2 = MechFactoryTests.CreateDummyMechData();
        unit2.Id = Guid.NewGuid();
-        _sut = new DeploymentState(Game);
+        _sut = new DeploymentPhase(Game);
 
         // Add a player with two units
         var joinCommand = new JoinGameCommand
@@ -128,7 +129,7 @@ public class DeploymentStateTests : GameStateTestsBase
 
         // Assert
         Game.ActivePlayer.Should().Be(initialActivePlayer);
-        Game.TurnPhase.Should().Be(Phase.Deployment);
+        Game.TurnPhase.Should().Be(PhaseNames.Deployment);
         CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<ChangePhaseCommand>());
     }
 
@@ -138,7 +139,7 @@ public class DeploymentStateTests : GameStateTestsBase
         // Arrange
         var player1Id = Guid.NewGuid();
         var player2Id = Guid.NewGuid();
-        _sut = new DeploymentState(Game);
+        _sut = new DeploymentPhase(Game);
 
         // Add two players
         Game.HandleCommand(CreateJoinCommand(player1Id, "Player 1"));
@@ -157,6 +158,6 @@ public class DeploymentStateTests : GameStateTestsBase
 
         // Assert
         Game.ActivePlayer.Should().NotBe(initialActivePlayer);
-        Game.TurnPhase.Should().Be(Phase.Deployment);
+        Game.TurnPhase.Should().Be(PhaseNames.Deployment);
     }
 }

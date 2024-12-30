@@ -4,6 +4,7 @@ using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
+using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
@@ -154,14 +155,14 @@ public class ClientGameTests
         var command = new ChangePhaseCommand
         {
             GameOriginId = Guid.NewGuid(),
-            Phase = Phase.End
+            Phase = PhaseNames.End
         };
         
         // Act
         _clientGame.HandleCommand(command);
         
         // Assert
-        _clientGame.TurnPhase.Should().Be(Phase.End);
+        _clientGame.TurnPhase.Should().Be(PhaseNames.End);
     }
     
     [Fact]

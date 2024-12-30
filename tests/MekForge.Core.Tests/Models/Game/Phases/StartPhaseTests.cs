@@ -2,27 +2,27 @@ using FluentAssertions;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
-using Sanet.MekForge.Core.Models.Game.States;
+using Sanet.MekForge.Core.Models.Game.Phases;
 
-namespace Sanet.MekForge.Core.Tests.Models.Game.States;
+namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
 
-public class StartStateTests : GameStateTestsBase
+public class StartPhaseTests : GameStateTestsBase
 {
-    private StartState _sut = null!;
+    private StartPhase _sut = null!;
 
     [Fact]
     public void Name_ShouldBeStart()
     {
-        _sut = new StartState(Game);
+        _sut = new StartPhase(Game);
 
-        _sut.Name.Should().Be("Start");
+        _sut.Name.Should().Be(PhaseNames.Start);
     }
 
     [Fact]
     public void HandleCommand_WhenPlayerJoins_ShouldAddPlayerToGame()
     {
         // Arrange
-        _sut = new StartState(Game);
+        _sut = new StartPhase(Game);
         var playerId = Guid.NewGuid();
         var joinCommand = CreateJoinCommand(playerId, "Player 1");
 
@@ -42,7 +42,7 @@ public class StartStateTests : GameStateTestsBase
         // Arrange
         var player1Id = Guid.NewGuid();
         var player2Id = Guid.NewGuid();
-        _sut = new StartState(Game);
+        _sut = new StartPhase(Game);
         
         // Add two players
         _sut.HandleCommand(CreateJoinCommand(player1Id, "Player 1"));
@@ -54,8 +54,8 @@ public class StartStateTests : GameStateTestsBase
         _sut.HandleCommand(CreateStatusCommand(player2Id, PlayerStatus.Playing));
 
         // Assert
-        Game.TurnPhase.Should().Be(Phase.Deployment);
-        VerifyPhaseChange(Phase.Deployment);
+        Game.TurnPhase.Should().Be(PhaseNames.Deployment);
+        VerifyPhaseChange(PhaseNames.Deployment);
         
         // Should set first player as active
         Game.ActivePlayer.Should().NotBeNull();
@@ -66,7 +66,7 @@ public class StartStateTests : GameStateTestsBase
     public void HandleCommand_WhenNotAllPlayersReady_ShouldStayInStartPhase()
     {
         // Arrange
-        _sut = new StartState(Game);
+        _sut = new StartPhase(Game);
         
         // Add two players
         _sut.HandleCommand(CreateJoinCommand(Guid.NewGuid(), "Player 1"));
@@ -77,7 +77,7 @@ public class StartStateTests : GameStateTestsBase
         _sut.HandleCommand(CreateStatusCommand(Guid.NewGuid(), PlayerStatus.Playing));
 
         // Assert
-        Game.TurnPhase.Should().Be(Phase.Start);
+        Game.TurnPhase.Should().Be(PhaseNames.Start);
         CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<ChangePhaseCommand>());
         Game.ActivePlayer.Should().BeNull();
     }
@@ -86,13 +86,13 @@ public class StartStateTests : GameStateTestsBase
     public void HandleCommand_WhenNoPlayers_ShouldStayInStartPhase()
     {
         // Arrange
-        _sut = new StartState(Game);
+        _sut = new StartPhase(Game);
 
         // Act
         _sut.HandleCommand(CreateStatusCommand(Guid.NewGuid(), PlayerStatus.Playing));
 
         // Assert
-        Game.TurnPhase.Should().Be(Phase.Start);
+        Game.TurnPhase.Should().Be(PhaseNames.Start);
         CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<ChangePhaseCommand>());
         Game.ActivePlayer.Should().BeNull();
     }

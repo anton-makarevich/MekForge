@@ -4,6 +4,7 @@ using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
+using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
@@ -36,8 +37,8 @@ public class BattleMapViewModelTests
         // Act and Assert
         _game.Turn.Returns(1);
         _viewModel.Turn.Should().Be(1);
-        _game.TurnPhase.Returns(Phase.Start);
-        _viewModel.TurnPhase.Should().Be(Phase.Start);
+        _game.TurnPhase.Returns(PhaseNames.Start);
+        _viewModel.TurnPhaseNames.Should().Be(PhaseNames.Start);
         _game.ActivePlayer.Returns(new Player(Guid.Empty, "Player1"));
         _viewModel.ActivePlayerName.Should().Be("Player1");
     }
@@ -68,7 +69,7 @@ public class BattleMapViewModelTests
 
         ((ClientGame)_game).HandleCommand(new ChangePhaseCommand()
         {
-            Phase = Phase.Deployment,
+            Phase = PhaseNames.Deployment,
             GameOriginId = Guid.NewGuid()
         });
         ((ClientGame)_game).HandleCommand(new JoinGameCommand()

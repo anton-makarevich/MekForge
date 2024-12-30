@@ -4,6 +4,7 @@ using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
@@ -39,7 +40,7 @@ public class BaseGameTests() : BaseGame(BattleMap.GenerateMap(5, 5, new SingleTe
     public void New_ShouldHaveCorrectTurnAndPhase()
     {
         Turn.Should().Be(1);
-        TurnPhase.Should().Be(Phase.Start);
+        TurnPhase.Should().Be(PhaseNames.Start);
     }
 
     // Additional tests for common functionalities can be added here

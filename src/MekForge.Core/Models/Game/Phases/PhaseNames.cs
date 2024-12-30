@@ -1,6 +1,6 @@
-﻿namespace Sanet.MekForge.Core.Models.Game;
+﻿namespace Sanet.MekForge.Core.Models.Game.Phases;
 
-public enum Phase
+public enum PhaseNames
 {
     Start,
     Deployment,
