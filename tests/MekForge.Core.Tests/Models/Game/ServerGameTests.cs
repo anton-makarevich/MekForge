@@ -184,6 +184,7 @@ public class ServerGameTests
     public void DeployUnit_ShouldDeployUnitAndSetNextPhase_WhenCalled()
     {
         // Arrange
+        _serverGame.IsAutoRoll = false;
         var playerId = Guid.NewGuid();
         var unitId = Guid.NewGuid();
         var unitData = MechFactoryIntegrationTests.LoadMechFromMtfFile("Resources/Mechs/LCT-1V.mtf");

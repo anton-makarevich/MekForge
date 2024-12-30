@@ -79,7 +79,7 @@ public class InitiativePhase : GamePhase
             .Where(p => !_initiativeOrder.HasPlayerRolledInCurrentRound(p))
             .ToList();
 
-        if (unrolledPlayers.Any())
+        if (unrolledPlayers.Count != 0)
         {
             // Some players still need to roll in this round
             Game.SetActivePlayer(unrolledPlayers.First());
@@ -90,8 +90,8 @@ public class InitiativePhase : GamePhase
         if (_initiativeOrder.HasTies())
         {
             // If there are ties, start a new round for tied players
-            _initiativeOrder.StartNewRoll();
             var tiedPlayers = _initiativeOrder.GetTiedPlayers();
+            _initiativeOrder.StartNewRoll();
             Game.SetActivePlayer(tiedPlayers.First());
         }
         else

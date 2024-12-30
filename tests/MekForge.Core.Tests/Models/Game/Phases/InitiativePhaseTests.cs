@@ -230,4 +230,54 @@ public class InitiativePhaseTests : GameStateTestsBase
         Game.TurnPhase.Should().Be(PhaseNames.Initiative);
         Game.ActivePlayer.Should().Be(Game.Players[0]); // First player should be active
     }
+
+    [Fact]
+    public void HandleCommand_WhenManualRollingAndTies_ShouldHandleMultipleRounds()
+    {
+        // Arrange
+        Game.IsAutoRoll = false;
+        _sut.Enter();
+        var player1 = Game.ActivePlayer;
+        var player2 = Game.Players[1];
+
+        // First round - both roll 7
+        SetupDiceRolls(7, 7);
+
+        // Player 1 rolls
+        _sut.HandleCommand(new RollDiceCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player1!.Id
+        });
+
+        // Player 2 rolls
+        _sut.HandleCommand(new RollDiceCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player2.Id
+        });
+
+        // Second round - 8 and 6
+        SetupDiceRolls(8, 6);
+
+        // Player 1 rolls in second round
+        _sut.HandleCommand(new RollDiceCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player1.Id
+        });
+
+        // Player 2 rolls in second round
+        _sut.HandleCommand(new RollDiceCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player2.Id
+        });
+
+        // Assert
+        CommandPublisher.Received(4).PublishCommand(Arg.Any<DiceRolledCommand>()); // Should receive 4 roll commands (2 initial + 2 rerolls)
+        Game.TurnPhase.Should().Be(PhaseNames.Movement);
+        Game.InitiativeOrder[0].Should().Be(player1); // Player who rolled 8 in second round should be first
+        Game.InitiativeOrder[1].Should().Be(player2); // Player who rolled 6 in second round should be second
+    }
 }

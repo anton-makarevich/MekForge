@@ -47,6 +47,7 @@ public class DeploymentPhaseTests : GameStateTestsBase
     public void HandleCommand_WhenUnitDeployed_ShouldUpdateUnitPosition()
     {
         // Arrange
+        Game.IsAutoRoll = false;
         var playerId = Guid.NewGuid();
         _sut = new DeploymentPhase(Game);
 
@@ -71,9 +72,9 @@ public class DeploymentPhaseTests : GameStateTestsBase
     public void HandleCommand_WhenAllUnitsDeployed_ShouldTransitionToInitiative()
     {
         // Arrange
+        Game.IsAutoRoll = false;
         var player1Id = Guid.NewGuid();
         var player2Id = Guid.NewGuid();
-        var unitId = Guid.NewGuid();
         _sut = new DeploymentPhase(Game);
 
         // Add two players with one unit each

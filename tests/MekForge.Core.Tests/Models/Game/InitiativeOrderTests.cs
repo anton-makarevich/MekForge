@@ -199,4 +199,53 @@ public class InitiativeOrderTests
         var orderedPlayers = _sut.GetOrderedPlayers();
         orderedPlayers.Should().ContainInOrder(_player1, _player3, _player2);
     }
+
+    [Fact]
+    public void HasPlayerRolledInCurrentRound_WhenPlayerHasNotRolled_ShouldReturnFalse()
+    {
+        // Arrange
+        _sut.AddResult(_player1, 7);
+        _sut.StartNewRoll(); // Move to round 2
+
+        // Act & Assert
+        _sut.HasPlayerRolledInCurrentRound(_player1).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasPlayerRolledInCurrentRound_WhenPlayerHasRolledInCurrentRound_ShouldReturnTrue()
+    {
+        // Arrange
+        _sut.AddResult(_player1, 7);
+
+        // Act & Assert
+        _sut.HasPlayerRolledInCurrentRound(_player1).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasPlayerRolledInCurrentRound_WhenPlayerHasRolledInPreviousRound_ShouldReturnFalse()
+    {
+        // Arrange
+        _sut.AddResult(_player1, 7); // Round 1
+        _sut.StartNewRoll();        // Move to round 2
+        _sut.AddResult(_player2, 8); // Round 2
+
+        // Act & Assert
+        _sut.HasPlayerRolledInCurrentRound(_player1).Should().BeFalse();
+        _sut.HasPlayerRolledInCurrentRound(_player2).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasPlayerRolledInCurrentRound_WhenPlayerHasRolledInMultipleRounds_ShouldCheckCurrentRound()
+    {
+        // Arrange
+        _sut.AddResult(_player1, 7); // Round 1
+        _sut.AddResult(_player2, 7); // Round 1
+        
+        _sut.StartNewRoll();        // Move to round 2
+        _sut.AddResult(_player1, 8); // Round 2
+        
+        // Act & Assert
+        _sut.HasPlayerRolledInCurrentRound(_player1).Should().BeTrue();
+        _sut.HasPlayerRolledInCurrentRound(_player2).Should().BeFalse();
+    }
 }
