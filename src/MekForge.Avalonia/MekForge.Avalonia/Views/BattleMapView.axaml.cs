@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,9 +35,10 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
         transformGroup.Children.Add(_mapTranslateTransform);
         MapCanvas.RenderTransform = transformGroup;
         
-        PointerPressed += OnPointerPressed;
-        PointerMoved += OnPointerMoved;
-        PointerWheelChanged += OnPointerWheelChanged;
+        MapCanvas.PointerPressed += OnPointerPressed;
+        MapCanvas.PointerMoved += OnPointerMoved;
+        MapCanvas.PointerReleased += OnPointerReleased;
+        MapCanvas.PointerWheelChanged += OnPointerWheelChanged;
         
         var pinchGestureRecognizer = new PinchGestureRecognizer();
         MapCanvas.GestureRecognizers.Add(pinchGestureRecognizer);
@@ -79,10 +79,9 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
                 }
             }, TaskScheduler.FromCurrentSynchronizationContext());
         _isPressed = true;
-        base.OnPointerPressed(e);
     }
 
-    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    private void OnPointerReleased(object? sender, PointerReleasedEventArgs? e)
     {
         // Cancel the manipulation timer
         _manipulationTokenSource.Cancel();
@@ -91,12 +90,12 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
         {
             if (!_isPressed) return;
             _isPressed = false;
-            // Handle hex selection
-            // this is temporary for testing only
-            var position = e.GetPosition(MapCanvas);
+            
+            var position = e?.GetPosition(MapCanvas);
+            if (!position.HasValue) return;
             var selectedHex = MapCanvas.Children
                 .OfType<HexControl>()
-                .FirstOrDefault(h => h.IsPointInside(position));
+                .FirstOrDefault(h => h.IsPointInside(position.Value));
 
             if (selectedHex != null && ViewModel!=null)
             {
@@ -104,7 +103,6 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
                 ViewModel?.HandleHexSelection(selectedHex.Hex);
             }
         }
-        base.OnPointerReleased(e);
     }
     
 
