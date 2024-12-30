@@ -10,7 +10,7 @@ namespace Sanet.MekForge.Core.Models.Game;
 public abstract class BaseGame : IGame
 {
     protected readonly BattleMap BattleMap;
-    protected readonly ICommandPublisher CommandPublisher;
+    internal readonly ICommandPublisher CommandPublisher;
     private readonly List<IPlayer> _players = new();
     private readonly MechFactory _mechFactory;
     private Phase _turnPhase = Phase.Start;

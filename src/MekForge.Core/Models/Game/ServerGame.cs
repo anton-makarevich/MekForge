@@ -1,6 +1,7 @@
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
+using Sanet.MekForge.Core.Models.Game.Dice;
 using Sanet.MekForge.Core.Models.Game.States;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
@@ -11,11 +12,27 @@ namespace Sanet.MekForge.Core.Models.Game;
 public class ServerGame : BaseGame
 {
     private GameState _currentState;
+    private readonly IDiceRoller _diceRoller;
+    private List<IPlayer> _initiativeOrder = new();
 
-    public ServerGame(BattleMap battleMap, IRulesProvider rulesProvider, ICommandPublisher commandPublisher)
+    public ServerGame(
+        BattleMap battleMap, 
+        IRulesProvider rulesProvider, 
+        ICommandPublisher commandPublisher,
+        IDiceRoller diceRoller)
         : base(battleMap, rulesProvider, commandPublisher)
     {
+        _diceRoller = diceRoller;
         _currentState = new StartState(this);
+    }
+
+    public IDiceRoller DiceRoller => _diceRoller;
+
+    public IReadOnlyList<IPlayer> InitiativeOrder => _initiativeOrder;
+
+    public void SetInitiativeOrder(IReadOnlyList<IPlayer> order)
+    {
+        _initiativeOrder = order.ToList();
     }
 
     public void TransitionToState(GameState newState)
@@ -63,7 +80,7 @@ public class ServerGame : BaseGame
         }
     }
 
-    private void SetPhase(Phase phase)
+    public void SetPhase(Phase phase)
     {
         TurnPhase = phase;
         CommandPublisher.PublishCommand(new ChangePhaseCommand
@@ -76,6 +93,7 @@ public class ServerGame : BaseGame
     public void IncrementTurn()
     {
         Turn++;
+        _initiativeOrder.Clear(); // Clear initiative order at the start of new turn
     }
 
     public async Task Start()

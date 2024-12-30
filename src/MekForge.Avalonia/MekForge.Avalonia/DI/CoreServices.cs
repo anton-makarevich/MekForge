@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Sanet.MekForge.Avalonia.Game.Transport;
 using Sanet.MekForge.Avalonia.Services;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Dice;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.Utils.TechRules;
@@ -16,6 +17,7 @@ public static class CoreServices
         services.AddSingleton<IImageService, AvaloniaAssetImageService>();
         services.AddSingleton<ICommandPublisher, RxCommandPublisher>();
         services.AddSingleton<IRulesProvider, ClassicBattletechRulesProvider>();
+        services.AddSingleton<IDiceRoller, RandomDiceRoller>();
         services.AddSingleton<IGameManager, GameManager>();
     }
     public static void RegisterViewModels(this IServiceCollection services)
