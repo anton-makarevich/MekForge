@@ -3,6 +3,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:Sanet.MekForge.Core.ViewModels;assembly=Sanet.MekForge.Core"
+             xmlns:i="using:Avalonia.Xaml.Interactivity"
+             xmlns:behaviors="using:Sanet.MekForge.Avalonia.Behaviors"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Sanet.MekForge.Avalonia.Views.BattleMapView"
              x:CompileBindings="True"
@@ -96,6 +98,9 @@
                 <!-- Command List -->
                 <ScrollViewer Grid.Row="1" 
                             MaxHeight="360">
+                    <i:Interaction.Behaviors>
+                        <behaviors:AutoScrollBehavior />
+                    </i:Interaction.Behaviors>
                     <ItemsControl ItemsSource="{Binding CommandLog}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
