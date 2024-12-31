@@ -2,6 +2,7 @@ using FluentAssertions;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Phases;
@@ -35,7 +36,7 @@ public class ClientGameTests
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
             GameOriginId = Guid.NewGuid(),
-            Units = new List<UnitData>()
+            Units = []
         };
 
         // Act
@@ -190,5 +191,66 @@ public class ClientGameTests
         _clientGame.ActivePlayer.Should().Be(actualPlayer);
         actualPlayer.Name.Should().Be(player.Name);
         actualPlayer.Id.Should().Be(player.Id);
+    }
+
+    [Fact]
+    public void HandleCommand_ShouldAddCommandToLog_WhenCommandIsValid()
+    {
+        // Arrange
+        var joinCommand = new JoinGameCommand
+        {
+            PlayerId = Guid.NewGuid(),
+            PlayerName = "Player1",
+            GameOriginId = Guid.NewGuid(),
+            Units = new List<UnitData>()
+        };
+
+        // Act
+        _clientGame.HandleCommand(joinCommand);
+
+        // Assert
+        _clientGame.CommandLog.Should().HaveCount(1);
+        _clientGame.CommandLog[0].Should().BeEquivalentTo(joinCommand);
+    }
+
+    [Fact]
+    public void HandleCommand_ShouldNotAddCommandToLog_WhenGameOriginIdMatches()
+    {
+        // Arrange
+        var command = new JoinGameCommand
+        {
+            PlayerId = Guid.NewGuid(),
+            PlayerName = "Player1",
+            Units = new List<UnitData>(),
+            GameOriginId = _clientGame.GameId
+        };
+
+        // Act
+        _clientGame.HandleCommand(command);
+
+        // Assert
+        _clientGame.CommandLog.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Commands_ShouldEmitCommand_WhenHandleCommandIsCalled()
+    {
+        // Arrange
+        var joinCommand = new JoinGameCommand
+        {
+            PlayerId = Guid.NewGuid(),
+            PlayerName = "Player1",
+            GameOriginId = Guid.NewGuid(),
+            Units = []
+        };
+        var receivedCommands = new List<GameCommand>();
+        using var subscription = _clientGame.Commands.Subscribe(cmd => receivedCommands.Add(cmd));
+
+        // Act
+        _clientGame.HandleCommand(joinCommand);
+
+        // Assert
+        receivedCommands.Should().HaveCount(1);
+        receivedCommands.First().Should().BeEquivalentTo(joinCommand);
     }
 }
