@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
@@ -18,14 +18,13 @@ namespace Sanet.MekForge.Core.Tests.ViewModels;
 
 public class BattleMapViewModelTests
 {
-    private readonly IImageService _imageService;
     private readonly BattleMapViewModel _viewModel;
     private IGame _game;
 
     public BattleMapViewModelTests()
     {
-        _imageService = Substitute.For<IImageService>();
-        _viewModel = new BattleMapViewModel(_imageService);
+        var imageService = Substitute.For<IImageService>();
+        _viewModel = new BattleMapViewModel(imageService);
         _game = Substitute.For<IGame>();
         _viewModel.Game = _game;
     }
@@ -53,7 +52,7 @@ public class BattleMapViewModelTests
 
         var tcs = new TaskCompletionSource<bool>();
 
-        _viewModel.PropertyChanged += (s, e) =>
+        _viewModel.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(BattleMapViewModel.UnitsToDeploy))
             {
@@ -63,7 +62,7 @@ public class BattleMapViewModelTests
 
         _game = new ClientGame(BattleMap.GenerateMap(2, 2,
                 new SingleTerrainGenerator(2, 2, new ClearTerrain())),
-            new[] { player }, new ClassicBattletechRulesProvider(),
+            [player], new ClassicBattletechRulesProvider(),
             Substitute.For<ICommandPublisher>());
         _viewModel.Game = _game;
 
@@ -122,5 +121,78 @@ public class BattleMapViewModelTests
         units.Should().HaveCount(3);
         units.Should().Contain(unit1);
         units.Should().Contain(unit2);
+    }
+
+    [Fact]
+    public void CommandLog_ShouldBeEmpty_WhenGameIsNotClientGame()
+    {
+        // Assert
+        _viewModel.CommandLog.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void CommandLog_ShouldUpdateWithNewCommands_WhenClientGameReceivesCommands()
+    {
+        // Arrange
+        var playerId = Guid.NewGuid();
+        var player = new Player(playerId, "Player1");
+        var clientGame = new ClientGame(
+            BattleMap.GenerateMap(2, 2, new SingleTerrainGenerator(2, 2, new ClearTerrain())),
+            [player],
+            new ClassicBattletechRulesProvider(),
+            Substitute.For<ICommandPublisher>());
+        _viewModel.Game = clientGame;
+
+        var joinCommand = new JoinGameCommand
+        {
+            PlayerId = Guid.NewGuid(),
+            PlayerName = "Player2",
+            GameOriginId = Guid.NewGuid(),
+            Units = []
+        };
+
+        // Act
+        clientGame.HandleCommand(joinCommand);
+
+        // Assert
+        _viewModel.CommandLog.Should().HaveCount(1);
+        _viewModel.CommandLog.First().Should().BeEquivalentTo(joinCommand);
+    }
+
+    [Fact]
+    public void CommandLog_ShouldPreserveCommandOrder_WhenMultipleCommandsReceived()
+    {
+        // Arrange
+        var playerId = Guid.NewGuid();
+        var player = new Player(playerId, "Player1");
+        var clientGame = new ClientGame(
+            BattleMap.GenerateMap(2, 2, new SingleTerrainGenerator(2, 2, new ClearTerrain())),
+            [player],
+            new ClassicBattletechRulesProvider(),
+            Substitute.For<ICommandPublisher>());
+        _viewModel.Game = clientGame;
+
+        var joinCommand = new JoinGameCommand
+        {
+            PlayerId = Guid.NewGuid(),
+            PlayerName = "Player2",
+            GameOriginId = Guid.NewGuid(),
+            Units = []
+        };
+
+        var phaseCommand = new ChangePhaseCommand
+        {
+            Phase = PhaseNames.Deployment,
+            GameOriginId = Guid.NewGuid()
+        };
+
+        // Act
+        clientGame.HandleCommand(joinCommand);
+        clientGame.HandleCommand(phaseCommand);
+
+        // Assert
+        _viewModel.CommandLog.Should().HaveCount(2);
+        _viewModel.CommandLog.First().Should().BeEquivalentTo(joinCommand);
+        _viewModel.CommandLog.Last().Should().BeEquivalentTo(phaseCommand);
     }
 }

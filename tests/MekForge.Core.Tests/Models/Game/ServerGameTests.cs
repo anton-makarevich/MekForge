@@ -51,7 +51,7 @@ public class ServerGameTests
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
             GameOriginId = Guid.NewGuid(),
-            Units = new List<UnitData>()
+            Units = []
         };
 
         // Act
@@ -69,7 +69,7 @@ public class ServerGameTests
         {
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
-            Units = new List<UnitData>(),
+            Units = [],
             GameOriginId = _serverGame.GameId // Set to this game's ID
         };
 
@@ -149,7 +149,7 @@ public class ServerGameTests
             PlayerId = playerId1,
             PlayerName = "Player1",
             GameOriginId = Guid.NewGuid(),
-            Units = new List<UnitData>()
+            Units = []
         });
 
         _serverGame.HandleCommand(new JoinGameCommand
@@ -157,7 +157,7 @@ public class ServerGameTests
             PlayerId = playerId2,
             PlayerName = "Player2",
             GameOriginId = Guid.NewGuid(),
-            Units = new List<UnitData>()
+            Units = []
         });
 
         _serverGame.HandleCommand(new UpdatePlayerStatusCommand

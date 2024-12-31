@@ -1,12 +1,14 @@
 using System.Reactive.Linq;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
+using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.UiStates;
 using Sanet.MVVM.Core.ViewModels;
+using System.Collections.ObjectModel;
 
 namespace Sanet.MekForge.Core.ViewModels;
 
@@ -14,10 +16,13 @@ public class BattleMapViewModel : BaseViewModel
 {
     private IGame? _game;
     private IDisposable? _gameSubscription;
+    private IDisposable? _commandSubscription;
     private IUiState _currentState;
     private DeploymentCommandBuilder? _deploymentBuilder;
     private List<Unit> _unitsToDeploy = [];
     private Unit? _selectedUnit;
+    private readonly ObservableCollection<GameCommand> _commandLog = [];
+    private bool _isCommandLogExpanded;
 
     public BattleMapViewModel(IImageService imageService)
     {
@@ -35,10 +40,22 @@ public class BattleMapViewModel : BaseViewModel
         }
     }
 
+    public IReadOnlyCollection<GameCommand> CommandLog => _commandLog;
+
     private void SubscribeToGameChanges()
     {
         _gameSubscription?.Dispose();
+        _commandSubscription?.Dispose();
+        
         if (Game is not ClientGame localGame) return;
+
+        _commandSubscription = localGame.Commands
+            .Subscribe(command =>
+            {
+                _commandLog.Add(command);
+                NotifyPropertyChanged(nameof(CommandLog));
+            });
+        
         _gameSubscription = Observable
             .Interval(TimeSpan.FromMilliseconds(100))
             .Select(_ => new
@@ -166,6 +183,17 @@ public class BattleMapViewModel : BaseViewModel
 
     public string UserActionLabel => _currentState.ActionLabel;
     public bool IsUserActionLabelVisible => _currentState.IsActionRequired;
+
+    public bool IsCommandLogExpanded
+    {
+        get => _isCommandLogExpanded;
+        set => SetProperty(ref _isCommandLogExpanded, value);
+    }
+
+    public void ToggleCommandLog()
+    {
+        IsCommandLogExpanded = !IsCommandLogExpanded;
+    }
 
     public IEnumerable<Unit> Units => Game?.Players.SelectMany(p => p.Units) ?? [];
 }

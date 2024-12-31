@@ -5,11 +5,19 @@ using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Utils.TechRules;
+using System.Reactive.Subjects;
+using System.Reactive.Linq;
 
 namespace Sanet.MekForge.Core.Models.Game;
 
 public class ClientGame : BaseGame
 {
+    private readonly Subject<GameCommand> _commandSubject = new();
+    private readonly List<GameCommand> _commandLog = [];
+
+    public IObservable<GameCommand> Commands => _commandSubject.AsObservable();
+    public IReadOnlyList<GameCommand> CommandLog => _commandLog;
+    
     public ClientGame(BattleMap battleMap, IReadOnlyList<IPlayer> localPlayers,
         IRulesProvider rulesProvider, ICommandPublisher commandPublisher)
         : base(battleMap, rulesProvider, commandPublisher)
@@ -22,6 +30,10 @@ public class ClientGame : BaseGame
     public override void HandleCommand(GameCommand command)
     {
         if (!ShouldHandleCommand(command)) return;
+        
+        _commandLog.Add(command);
+        _commandSubject.OnNext(command);
+        
         switch (command)
         {
             case JoinGameCommand joinCmd:
