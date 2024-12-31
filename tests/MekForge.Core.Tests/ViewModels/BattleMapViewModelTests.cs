@@ -195,4 +195,32 @@ public class BattleMapViewModelTests
         _viewModel.CommandLog.First().Should().BeEquivalentTo(joinCommand);
         _viewModel.CommandLog.Last().Should().BeEquivalentTo(phaseCommand);
     }
+
+    [Fact]
+    public void IsCommandLogExpanded_ShouldBeFalse_ByDefault()
+    {
+        // Assert
+        _viewModel.IsCommandLogExpanded.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ToggleCommandLog_ShouldToggleIsCommandLogExpanded()
+    {
+        // Arrange
+        var propertyChangedEvents = new List<string>();
+        _viewModel.PropertyChanged += (_, e) => propertyChangedEvents.Add(e.PropertyName ?? string.Empty);
+
+        // Act & Assert - First toggle
+        _viewModel.ToggleCommandLog();
+        _viewModel.IsCommandLogExpanded.Should().BeTrue();
+        propertyChangedEvents.Should().Contain(nameof(BattleMapViewModel.IsCommandLogExpanded));
+
+        // Clear events for second test
+        propertyChangedEvents.Clear();
+
+        // Act & Assert - Second toggle
+        _viewModel.ToggleCommandLog();
+        _viewModel.IsCommandLogExpanded.Should().BeFalse();
+        propertyChangedEvents.Should().Contain(nameof(BattleMapViewModel.IsCommandLogExpanded));
+    }
 }
