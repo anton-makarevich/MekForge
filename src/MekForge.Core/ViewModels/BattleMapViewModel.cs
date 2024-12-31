@@ -22,6 +22,7 @@ public class BattleMapViewModel : BaseViewModel
     private List<Unit> _unitsToDeploy = [];
     private Unit? _selectedUnit;
     private readonly ObservableCollection<GameCommand> _commandLog = [];
+    private bool _isCommandLogExpanded;
 
     public BattleMapViewModel(IImageService imageService)
     {
@@ -182,6 +183,17 @@ public class BattleMapViewModel : BaseViewModel
 
     public string UserActionLabel => _currentState.ActionLabel;
     public bool IsUserActionLabelVisible => _currentState.IsActionRequired;
+
+    public bool IsCommandLogExpanded
+    {
+        get => _isCommandLogExpanded;
+        set => SetProperty(ref _isCommandLogExpanded, value);
+    }
+
+    public void ToggleCommandLog()
+    {
+        IsCommandLogExpanded = !IsCommandLogExpanded;
+    }
 
     public IEnumerable<Unit> Units => Game?.Players.SelectMany(p => p.Units) ?? [];
 }
