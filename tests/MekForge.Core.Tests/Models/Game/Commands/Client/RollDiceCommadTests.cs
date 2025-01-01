@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
@@ -6,47 +6,53 @@ using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Commands.Client;
 
-public class RollDiceCommadTests
+public class RollDiceCommandTests : GameCommandTestBase<RollDiceCommand>
 {
     private readonly ILocalizationService _localizationService = Substitute.For<ILocalizationService>();
     private readonly IGame _game = Substitute.For<IGame>();
     private readonly Guid _gameId = Guid.NewGuid();
     private readonly Player _player1 = new Player(Guid.NewGuid(), "Player 1");
 
-    public RollDiceCommadTests()
+    public RollDiceCommandTests()
     {
         _game.Players.Returns([_player1]);
     }
-    [Fact]
-    public void Format_ShouldFormatCorrectly()
+
+    protected override RollDiceCommand CreateCommand()
     {
-        // Arrange
-        var command = new RollDiceCommand
+        return new RollDiceCommand
         {
             GameOriginId = _gameId,
             PlayerId = _player1.Id,
         };
-        
-        _localizationService.GetString("Command_RollDice").Returns("formatted roll command");
+    }
+
+    protected override void AssertCommandSpecificProperties(RollDiceCommand original, RollDiceCommand? cloned)
+    {
+        base.AssertCommandSpecificProperties(original, cloned);
+        cloned!.PlayerId.Should().Be(original.PlayerId);
+    }
+
+    [Fact]
+    public void Format_ShouldFormatCorrectly()
+    {
+        // Arrange
+        var command = CreateCommand();
+        _localizationService.GetString("Command_RollDice").Returns("formatted dice command");
 
         // Act
         var result = command.Format(_localizationService, _game);
 
         // Assert
-        result.Should().Be("formatted roll command");
+        result.Should().Be("formatted dice command");
+        _localizationService.Received(1).GetString("Command_RollDice");
     }
 
     [Fact]
     public void Format_ShouldReturnEmpty_WhenPlayerNotFound()
     {
         // Arrange
-        var command = new RollDiceCommand
-        {
-            GameOriginId = _gameId,
-            PlayerId = Guid.NewGuid(),
-        };
-
-        _localizationService.GetString("Command_RollDice").Returns("formatted roll command");
+        var command = CreateCommand() with { PlayerId = Guid.NewGuid() };
 
         // Act
         var result = command.Format(_localizationService, _game);
