@@ -51,11 +51,11 @@ public class ServerGame : BaseGame
         if (!ShouldHandleCommand(command)) return;
         if (!ValidateCommand(command)) return;
 
-        _currentPhase.HandleCommand(command);
-        
         // Clone the command before broadcasting with server's GameId
         var broadcastCommand = command.CloneWithGameId(GameId);
         CommandPublisher.PublishCommand(broadcastCommand);
+        
+        _currentPhase.HandleCommand(command);
     }
 
     public void SetActivePlayer(IPlayer? player)
