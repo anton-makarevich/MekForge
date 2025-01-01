@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
@@ -6,7 +6,7 @@ using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Commands.Server;
 
-public class ChangeActivePlayerCommandTests
+public class ChangeActivePlayerCommandTests : GameCommandTestBase<ChangeActivePlayerCommand>
 {
     private readonly ILocalizationService _localizationService = Substitute.For<ILocalizationService>();
     private readonly IGame _game = Substitute.For<IGame>();
@@ -18,15 +18,26 @@ public class ChangeActivePlayerCommandTests
         _game.Players.Returns([_player1]);
     }
 
-    [Fact]
-    public void Format_ShouldFormatCorrectly()
+    protected override ChangeActivePlayerCommand CreateCommand()
     {
-        // Arrange
-        var command = new ChangeActivePlayerCommand
+        return new ChangeActivePlayerCommand
         {
             GameOriginId = _gameId,
             PlayerId = _player1.Id
         };
+    }
+
+    protected override void AssertCommandSpecificProperties(ChangeActivePlayerCommand original, ChangeActivePlayerCommand? cloned)
+    {
+        base.AssertCommandSpecificProperties(original, cloned);
+        cloned!.PlayerId.Should().Be(original.PlayerId);
+    }
+
+    [Fact]
+    public void Format_ShouldFormatCorrectly()
+    {
+        // Arrange
+        var command = CreateCommand();
 
         _localizationService.GetString("Command_ChangeActivePlayer").Returns("formatted active player command");
 
