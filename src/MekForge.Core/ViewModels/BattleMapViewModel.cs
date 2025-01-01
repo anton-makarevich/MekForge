@@ -1,7 +1,6 @@
 using System.Reactive.Linq;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
-using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
@@ -21,12 +20,14 @@ public class BattleMapViewModel : BaseViewModel
     private DeploymentCommandBuilder? _deploymentBuilder;
     private List<Unit> _unitsToDeploy = [];
     private Unit? _selectedUnit;
-    private readonly ObservableCollection<GameCommand> _commandLog = [];
+    private readonly ObservableCollection<string> _commandLog = [];
     private bool _isCommandLogExpanded;
+    private readonly ILocalizationService _localizationService;
 
-    public BattleMapViewModel(IImageService imageService)
+    public BattleMapViewModel(IImageService imageService, ILocalizationService localizationService)
     {
         ImageService = imageService;
+        _localizationService = localizationService;
         _currentState = new IdleState();
     }
 
@@ -40,7 +41,7 @@ public class BattleMapViewModel : BaseViewModel
         }
     }
 
-    public IReadOnlyCollection<GameCommand> CommandLog => _commandLog;
+    public IReadOnlyCollection<string> CommandLog => _commandLog;
 
     private void SubscribeToGameChanges()
     {
@@ -52,7 +53,8 @@ public class BattleMapViewModel : BaseViewModel
         _commandSubscription = localGame.Commands
             .Subscribe(command =>
             {
-                _commandLog.Add(command);
+                var formattedCommand = command.Format(_localizationService, Game);
+                _commandLog.Add(formattedCommand);
                 NotifyPropertyChanged(nameof(CommandLog));
             });
         

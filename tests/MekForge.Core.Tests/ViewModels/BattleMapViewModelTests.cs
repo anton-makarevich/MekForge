@@ -20,11 +20,14 @@ public class BattleMapViewModelTests
 {
     private readonly BattleMapViewModel _viewModel;
     private IGame _game;
+    private readonly ILocalizationService _localizationService;
 
     public BattleMapViewModelTests()
     {
         var imageService = Substitute.For<IImageService>();
-        _viewModel = new BattleMapViewModel(imageService);
+        
+        _localizationService = Substitute.For<ILocalizationService>();
+        _viewModel = new BattleMapViewModel(imageService, _localizationService);
         _game = Substitute.For<IGame>();
         _viewModel.Game = _game;
     }
@@ -156,7 +159,7 @@ public class BattleMapViewModelTests
 
         // Assert
         _viewModel.CommandLog.Should().HaveCount(1);
-        _viewModel.CommandLog.First().Should().BeEquivalentTo(joinCommand);
+        _viewModel.CommandLog.First().Should().BeEquivalentTo(joinCommand.Format(_localizationService, clientGame));
     }
 
     [Fact]
@@ -192,8 +195,8 @@ public class BattleMapViewModelTests
 
         // Assert
         _viewModel.CommandLog.Should().HaveCount(2);
-        _viewModel.CommandLog.First().Should().BeEquivalentTo(joinCommand);
-        _viewModel.CommandLog.Last().Should().BeEquivalentTo(phaseCommand);
+        _viewModel.CommandLog.First().Should().BeEquivalentTo(joinCommand.Format(_localizationService,clientGame));
+        _viewModel.CommandLog.Last().Should().BeEquivalentTo(phaseCommand.Format(_localizationService,clientGame));
     }
 
     [Fact]
