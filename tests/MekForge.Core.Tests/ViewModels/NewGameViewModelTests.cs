@@ -8,6 +8,7 @@ using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
 using Sanet.MekForge.Core.Services;
+using Sanet.MekForge.Core.Services.Localization;
 using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Utils.TechRules;
 using Sanet.MekForge.Core.ViewModels;
@@ -26,8 +27,9 @@ public class NewGameViewModelTests
     public NewGameViewModelTests()
     {
         _navigationService = Substitute.For<INavigationService>();
+        var localizationService = Substitute.For<ILocalizationService>();
         var imageService = Substitute.For<IImageService>();
-        _battleMapViewModel = new BattleMapViewModel(imageService);
+        _battleMapViewModel = new BattleMapViewModel(imageService, localizationService);
         _navigationService.GetViewModel<BattleMapViewModel>().Returns(_battleMapViewModel);
         
         var rulesProvider = Substitute.For<IRulesProvider>();

@@ -8,6 +8,7 @@ using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.UiStates;
 using Sanet.MekForge.Core.ViewModels;
 using Sanet.MekForge.Core.Services;
+using Sanet.MekForge.Core.Services.Localization;
 using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Utils.TechRules;
 
@@ -24,7 +25,8 @@ public class DeploymentStateTests
     public DeploymentStateTests()
     {
         var imageService = Substitute.For<IImageService>();
-        _viewModel = Substitute.For<BattleMapViewModel>(imageService);
+        var localizationService = Substitute.For<ILocalizationService>();
+        _viewModel = Substitute.For<BattleMapViewModel>(imageService, localizationService);
         var builder = new DeploymentCommandBuilder(Guid.NewGuid(), Guid.NewGuid());
         _state = new DeploymentState(_viewModel, builder);
         
