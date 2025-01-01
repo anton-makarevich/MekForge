@@ -9,7 +9,7 @@ public record UpdatePlayerStatusCommand: ClientCommand
     {
         var player = game.Players.FirstOrDefault(p => p.Id == PlayerId);
         if (player == null) return string.Empty;
-        var localizedTemplate = localizationService.GetString("Command_SetPlayerStatus"); 
+        var localizedTemplate = localizationService.GetString("Command_UpdatePlayerStatus"); 
         return string.Format(localizedTemplate, player.Name, PlayerStatus);
     }
 }
