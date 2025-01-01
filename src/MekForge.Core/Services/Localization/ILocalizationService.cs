@@ -1,4 +1,4 @@
-namespace Sanet.MekForge.Core.Services;
+namespace Sanet.MekForge.Core.Services.Localization;
 
 public interface ILocalizationService
 {

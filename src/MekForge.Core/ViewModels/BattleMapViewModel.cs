@@ -8,6 +8,7 @@ using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.UiStates;
 using Sanet.MVVM.Core.ViewModels;
 using System.Collections.ObjectModel;
+using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.ViewModels;
 

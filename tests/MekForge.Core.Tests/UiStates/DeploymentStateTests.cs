@@ -8,6 +8,7 @@ using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.UiStates;
 using Sanet.MekForge.Core.ViewModels;
 using Sanet.MekForge.Core.Services;
+using Sanet.MekForge.Core.Services.Localization;
 using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Utils.TechRules;
 

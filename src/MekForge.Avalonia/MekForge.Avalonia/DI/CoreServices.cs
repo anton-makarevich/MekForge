@@ -5,6 +5,7 @@ using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Dice;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Services;
+using Sanet.MekForge.Core.Services.Localization;
 using Sanet.MekForge.Core.Utils.TechRules;
 using Sanet.MekForge.Core.ViewModels;
 
@@ -15,6 +16,7 @@ public static class CoreServices
     public static void RegisterServices(this IServiceCollection services)
     {
         services.AddSingleton<IImageService, AvaloniaAssetImageService>();
+        services.AddSingleton<ILocalizationService, FakeLocalizationService>();
         services.AddSingleton<ICommandPublisher, RxCommandPublisher>();
         services.AddSingleton<IRulesProvider, ClassicBattletechRulesProvider>();
         services.AddSingleton<IDiceRoller, RandomDiceRoller>();
