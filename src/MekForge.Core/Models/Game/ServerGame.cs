@@ -53,9 +53,9 @@ public class ServerGame : BaseGame
 
         _currentPhase.HandleCommand(command);
         
-        // Broadcast the command to all clients
-        command.GameOriginId = GameId;
-        CommandPublisher.PublishCommand(command);
+        // Clone the command before broadcasting with server's GameId
+        var broadcastCommand = command.CloneWithGameId(GameId);
+        CommandPublisher.PublishCommand(broadcastCommand);
     }
 
     public void SetActivePlayer(IPlayer? player)
