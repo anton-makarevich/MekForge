@@ -5,10 +5,9 @@ using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.Models.Game.Commands.Client;
 
-public record MoveUnitCommand(
-    Guid UnitId,
-    HexCoordinateData Destination) : ClientCommand
+public record MoveUnitCommand: ClientCommand
 {
+
     public override string Format(ILocalizationService localizationService, IGame game)
     {
         var player = game.Players.FirstOrDefault(p => p.Id == PlayerId);
@@ -19,4 +18,7 @@ public record MoveUnitCommand(
         var localizedTemplate = localizationService.GetString("Command_MoveUnit");
         return string.Format(localizedTemplate, player.Name, unit.Name, destination); 
     }
+
+    public Guid UnitId { get; init; }
+    public HexCoordinateData Destination { get; init; }
 }
