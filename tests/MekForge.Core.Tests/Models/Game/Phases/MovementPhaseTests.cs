@@ -1,7 +1,9 @@
 using FluentAssertions;
+using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Phases;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
@@ -85,6 +87,32 @@ public class MovementPhaseTests : GameStateTestsBase
         {
             unit.Position.Should().BeNull();
         }
+    }
+    
+    [Fact]
+    public void HandleCommand_WhenAllUnitsOfPlayerMoved_ShouldActivateNextPlayer()
+    {
+        // Arrange
+        _sut.Enter();
+        var player2 = Game.Players[1];
+        CommandPublisher.ClearReceivedCalls();
+    
+        // Move all units of first player
+        foreach (var unit in Game.ActivePlayer.Units)
+        {
+            _sut.HandleCommand(new MoveUnitCommand
+            {
+                GameOriginId = Game.GameId,
+                PlayerId = Game.ActivePlayer!.Id,
+                UnitId = unit.Id,
+                Destination = new HexCoordinateData(1, 1)
+            });
+        }
+
+        // Assert
+        CommandPublisher.Received().PublishCommand(Arg.Is<ChangeActivePlayerCommand>(cmd =>
+        cmd.GameOriginId == Game.GameId &&
+        cmd.PlayerId == player2.Id ));
     }
 
     [Fact]
