@@ -4,7 +4,6 @@ using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Utils.TechRules;
-using Xunit;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game;
 
@@ -89,7 +88,7 @@ public class TurnOrderTests
     public void GetNextStep_ShouldTrackProgress()
     {
         // Arrange
-        var initiativeOrder = new List<IPlayer> { _player1, _player2 };
+        var initiativeOrder = new List<IPlayer> { _player1 };
         _sut.CalculateOrder(initiativeOrder);
 
         // Act & Assert
@@ -98,10 +97,11 @@ public class TurnOrderTests
         var step1 = _sut.GetNextStep();
         step1.Should().NotBeNull();
         _sut.CurrentStep.Should().Be(step1);
-        
+        _sut.HasNextStep.Should().BeFalse();
+
         var step2 = _sut.GetNextStep();
-        step2.Should().NotBeNull();
-        _sut.CurrentStep.Should().Be(step2);
+        step2.Should().BeNull();
+        _sut.CurrentStep.Should().BeNull();
     }
 
     [Fact]

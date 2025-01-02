@@ -21,6 +21,13 @@ public class TurnOrder
         var unitCounts = initiativeOrder
             .ToDictionary(p => p, p => p.Units.Count);
 
+        // If only one player, move all units
+        if (unitCounts.Count == 1)
+        {
+            _steps.Add(new TurnStep(unitCounts.First().Key, unitCounts.First().Value));
+            return;
+        }
+        
         // Keep track of remaining units for each player
         var remainingUnits = new Dictionary<IPlayer, int>(unitCounts);
 
@@ -47,7 +54,6 @@ public class TurnOrder
 
     public TurnStep? GetNextStep()
     {
-        if (!HasNextStep) return null;
         _currentStepIndex++;
         return CurrentStep;
     }

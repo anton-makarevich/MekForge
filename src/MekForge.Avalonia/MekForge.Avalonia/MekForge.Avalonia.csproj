@@ -50,8 +50,4 @@
         <SubType>Code</SubType>
       </Compile>
     </ItemGroup>
-
-    <ItemGroup>
-      <AdditionalFiles Include="Views\NewGame\NewGameView.axaml" />
-    </ItemGroup>
 </Project>
