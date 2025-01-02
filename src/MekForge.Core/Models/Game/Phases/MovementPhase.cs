@@ -37,17 +37,13 @@ public class MovementPhase : GamePhase
         if (command is not MoveUnitCommand moveCommand) return;
         if (moveCommand.PlayerId != Game.ActivePlayer?.Id) return;
 
-        // Process unit movement here
-        // TODO: Implement actual movement logic
+        Game.OnMoveUnit(moveCommand);
         
-
         _remainingUnitsToMove--;
         if (_remainingUnitsToMove <= 0)
         {
             SetNextPlayerActive();
-            return;
         }
-        Game.SetActivePlayer(Game.ActivePlayer);// Stil has units to move
     }
 
     public override PhaseNames Name => PhaseNames.Movement;

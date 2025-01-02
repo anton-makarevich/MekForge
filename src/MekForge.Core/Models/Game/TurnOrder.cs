@@ -63,5 +63,3 @@ public class TurnOrder
         _currentStepIndex = -1;
     }
 }
-
-public record TurnStep(IPlayer Player, int UnitsToMove);
