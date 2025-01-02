@@ -45,16 +45,22 @@ public abstract class GameStateTestsBase
                 cmd.GameOriginId == Game.GameId));
     }
 
-    protected JoinGameCommand CreateJoinCommand(Guid playerId, string playerName)
+    protected JoinGameCommand CreateJoinCommand(Guid playerId, string playerName, int unitsCount=1)
     {
-        var mechData = MechFactoryTests.CreateDummyMechData();
-        mechData.Id = Guid.NewGuid();
+        List<UnitData> units = [];
+        for (var i = 0; i < unitsCount ; i++)
+        {
+            var mechData = MechFactoryTests.CreateDummyMechData();
+            mechData.Id = Guid.NewGuid();
+            units.Add(mechData);
+        }
+        
         return new JoinGameCommand
         {
             GameOriginId = Guid.NewGuid(),
             PlayerId = playerId,
             PlayerName = playerName,
-            Units = [mechData]
+            Units = units
         };
     }
 

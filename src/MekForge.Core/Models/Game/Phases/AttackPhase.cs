@@ -1,5 +1,4 @@
 using Sanet.MekForge.Core.Models.Game.Commands;
-using Sanet.MekForge.Core.Models.Game.States;
 
 namespace Sanet.MekForge.Core.Models.Game.Phases;
 
@@ -10,7 +9,7 @@ public class AttackPhase : GamePhase
     public override void Enter()
     {
         // TODO: Implement attack phase
-        Game.TransitionToPhase(new EndPhase(Game));
+        //Game.TransitionToPhase(new EndPhase(Game));
     }
 
     public override void HandleCommand(GameCommand command)

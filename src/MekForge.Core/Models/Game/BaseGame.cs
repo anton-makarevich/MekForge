@@ -12,7 +12,7 @@ public abstract class BaseGame : IGame
 {
     protected readonly BattleMap BattleMap;
     internal readonly ICommandPublisher CommandPublisher;
-    private readonly List<IPlayer> _players = new();
+    private readonly List<IPlayer> _players = [];
     private readonly MechFactory _mechFactory;
     private PhaseNames _turnPhases = PhaseNames.Start;
     public Guid GameId { get; }
@@ -71,6 +71,14 @@ public abstract class BaseGame : IGame
         if (player == null) return;
         var unit = player.Units.FirstOrDefault(u => u.Id == command.UnitId && !u.IsDeployed);
         unit?.Deploy(new HexCoordinates(command.Position), (HexDirection)command.Direction);
+    }
+    
+    public void OnMoveUnit(MoveUnitCommand moveCommand)
+    {
+        var player = _players.FirstOrDefault(p => p.Id == moveCommand.PlayerId);
+        if (player == null) return;
+        var unit = player.Units.FirstOrDefault(u => u.Id == moveCommand.UnitId);
+        unit?.MoveTo(new HexCoordinates(moveCommand.Destination));
     }
     
     protected bool ValidateCommand(GameCommand command)
