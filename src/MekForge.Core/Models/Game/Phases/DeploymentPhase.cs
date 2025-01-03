@@ -29,9 +29,12 @@ public class DeploymentPhase : GamePhase
 
     private void HandleDeploymentProgress()
     {
-        if (Game.ActivePlayer != null && !Game.ActivePlayer.Units.All(unit => unit.IsDeployed)) 
+        if (Game.ActivePlayer != null && !Game.ActivePlayer.Units.All(unit => unit.IsDeployed))
+        {
+            Game.SetActivePlayer(Game.ActivePlayer, Game.ActivePlayer.Units.Count(u => !u.IsDeployed));
             return;
-            
+        }
+
         if (_deploymentOrderQueue.Count > 0)
         {
             SetNextDeployingPlayer();
@@ -52,13 +55,14 @@ public class DeploymentPhase : GamePhase
     private void RandomizeDeploymentOrder()
     {
         var players = Game.Players.Where(p => p.Status == PlayerStatus.Playing).ToList();
-        var randomizedPlayers = players.OrderBy(p => Guid.NewGuid()).ToList();
+        var randomizedPlayers = players.OrderBy(_ => Guid.NewGuid()).ToList();
         _deploymentOrderQueue = new Queue<IPlayer>(randomizedPlayers);
     }
 
     private void SetNextDeployingPlayer()
     {
-        Game.SetActivePlayer(_deploymentOrderQueue.Dequeue());
+        var nextPlayer = _deploymentOrderQueue.Dequeue();
+        Game.SetActivePlayer(nextPlayer, nextPlayer.Units.Count(u=>!u.IsDeployed));
     }
 
     public override PhaseNames Name => PhaseNames.Deployment;

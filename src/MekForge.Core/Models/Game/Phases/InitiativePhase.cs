@@ -19,7 +19,7 @@ public class InitiativePhase : GamePhase
         
         if (!Game.IsAutoRoll)
         {
-            Game.SetActivePlayer(Game.Players[0]);
+            Game.SetActivePlayer(Game.Players[0],0);
             return;
         }
         AutoRollForAllPlayers();
@@ -33,7 +33,7 @@ public class InitiativePhase : GamePhase
         {
             foreach (var player in playersToRoll)
             {
-                Game.SetActivePlayer(player);
+                Game.SetActivePlayer(player,0);
                 var roll = Roll2D6();
                 _initiativeOrder.AddResult(player, roll);
 
@@ -81,7 +81,7 @@ public class InitiativePhase : GamePhase
         if (unrolledPlayers.Count != 0)
         {
             // Some players still need to roll in this round
-            Game.SetActivePlayer(unrolledPlayers.First());
+            Game.SetActivePlayer(unrolledPlayers.First(),0);
             return;
         }
 
@@ -91,7 +91,7 @@ public class InitiativePhase : GamePhase
             // If there are ties, start a new round for tied players
             var tiedPlayers = _initiativeOrder.GetTiedPlayers();
             _initiativeOrder.StartNewRoll();
-            Game.SetActivePlayer(tiedPlayers.First());
+            Game.SetActivePlayer(tiedPlayers.First(),0);
         }
         else
         {

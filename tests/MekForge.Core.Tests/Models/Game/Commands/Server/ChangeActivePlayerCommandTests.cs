@@ -23,7 +23,8 @@ public class ChangeActivePlayerCommandTests : GameCommandTestBase<ChangeActivePl
         return new ChangeActivePlayerCommand
         {
             GameOriginId = _gameId,
-            PlayerId = _player1.Id
+            PlayerId = _player1.Id,
+            UnitsToMove = 1
         };
     }
 
@@ -56,7 +57,8 @@ public class ChangeActivePlayerCommandTests : GameCommandTestBase<ChangeActivePl
         var command = new ChangeActivePlayerCommand
         {
             GameOriginId = _gameId,
-            PlayerId = Guid.NewGuid()
+            PlayerId = Guid.NewGuid(),
+            UnitsToMove = 1
         };
         
         // Act

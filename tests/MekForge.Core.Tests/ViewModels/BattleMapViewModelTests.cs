@@ -46,8 +46,13 @@ public class BattleMapViewModelTests
         _viewModel.ActivePlayerName.Should().Be("Player1");
     }
 
-    [Fact]
-    public async Task UnitsToDeploy_ShouldBeVisible_WhenItsPlayersTurnToDeploy()
+    [Theory]
+    [InlineData(1, "Select Unit",true)]
+    [InlineData(0, "", false)]
+    public async Task UnitsToDeploy_ShouldBeVisible_WhenItsPlayersTurnToDeploy_AndThereAreUnitsToDeploy(
+        int unitsToMove, 
+        string actionLabel,
+        bool expectedVisible)
     {
         // Arrange
         var playerId = Guid.NewGuid();
@@ -87,17 +92,25 @@ public class BattleMapViewModelTests
         ((ClientGame)_game).HandleCommand(new ChangeActivePlayerCommand
         {
             PlayerId = player.Id,
-            GameOriginId = Guid.NewGuid()
+            GameOriginId = Guid.NewGuid(),
+            UnitsToMove = unitsToMove
         });
 
         // Wait for the PropertyChanged event
         await tcs.Task;
         
         // Assert
-        _viewModel.UnitsToDeploy.Should().ContainSingle();
-        _viewModel.AreUnitsToDeployVisible.Should().BeTrue();
-        _viewModel.UserActionLabel.Should().Be("Select Unit");
-        _viewModel.IsUserActionLabelVisible.Should().BeTrue();
+        if (expectedVisible)
+        {
+            _viewModel.UnitsToDeploy.Should().ContainSingle();
+        }
+        else
+        {
+            _viewModel.UnitsToDeploy.Should().BeEmpty();
+        }
+        _viewModel.AreUnitsToDeployVisible.Should().Be(expectedVisible);
+        _viewModel.UserActionLabel.Should().Be(actionLabel);
+        _viewModel.IsUserActionLabelVisible.Should().Be(expectedVisible);
     }
     
     [Fact]

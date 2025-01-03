@@ -12,7 +12,6 @@ namespace Sanet.MekForge.Core.Models.Game;
 public class ServerGame : BaseGame
 {
     private GamePhase _currentPhase;
-    private readonly IDiceRoller _diceRoller;
     private List<IPlayer> _initiativeOrder = [];
     public bool IsAutoRoll { get; set; } = true;
 
@@ -23,11 +22,11 @@ public class ServerGame : BaseGame
         IDiceRoller diceRoller)
         : base(battleMap, rulesProvider, commandPublisher)
     {
-        _diceRoller = diceRoller;
+        DiceRoller = diceRoller;
         _currentPhase = new StartPhase(this);
     }
 
-    public IDiceRoller DiceRoller => _diceRoller;
+    public IDiceRoller DiceRoller { get; }
 
     public IReadOnlyList<IPlayer> InitiativeOrder => _initiativeOrder;
 
@@ -38,7 +37,7 @@ public class ServerGame : BaseGame
 
     public void TransitionToPhase(GamePhase newPhase)
     {
-        _currentPhase?.Exit();
+        _currentPhase.Exit();
         _currentPhase = newPhase;
         SetPhase(newPhase.Name);
         _currentPhase.Enter();
@@ -57,15 +56,17 @@ public class ServerGame : BaseGame
         _currentPhase.HandleCommand(command);
     }
 
-    public void SetActivePlayer(IPlayer? player)
+    public void SetActivePlayer(IPlayer? player, int unitsToMove)
     {
         ActivePlayer = player;
+        UnitsToMoveCurrentStep= unitsToMove;
         if (player != null)
         {
             CommandPublisher.PublishCommand(new ChangeActivePlayerCommand
             {
                 GameOriginId = GameId,
-                PlayerId = player.Id
+                PlayerId = player.Id,
+                UnitsToMove = unitsToMove
             });
         }
     }

@@ -48,6 +48,7 @@ public class ClientGame : BaseGame
             case ChangeActivePlayerCommand changeActivePlayerCommand:
                 var player = Players.FirstOrDefault(p => p.Id == changeActivePlayerCommand.PlayerId);
                 ActivePlayer = player;
+                UnitsToMoveCurrentStep = changeActivePlayerCommand.UnitsToMove;
                 break;
             case DeployUnitCommand deployUnitCommand:
                 OnDeployUnit(deployUnitCommand);

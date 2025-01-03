@@ -11,4 +11,5 @@ public interface IGame
     PhaseNames TurnPhase { get; }
 
     IPlayer? ActivePlayer { get; }
+    int UnitsToMoveCurrentStep { get; }
 }

@@ -2,7 +2,10 @@ using FluentAssertions;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
+using Sanet.MekForge.Core.Models.Game.Commands.Server;
+using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.UiStates;
@@ -18,6 +21,7 @@ public class DeploymentStateTests
 {
     private readonly DeploymentState _state;
     private readonly BattleMapViewModel _viewModel;
+    private readonly ClientGame _game;
     private readonly Unit _unit;
     private readonly Hex _hex1;
     private readonly Hex _hex2;
@@ -30,22 +34,49 @@ public class DeploymentStateTests
         var builder = new DeploymentCommandBuilder(Guid.NewGuid(), Guid.NewGuid());
         _state = new DeploymentState(_viewModel, builder);
         
-        _unit = new MechFactory(new ClassicBattletechRulesProvider()).Create(MechFactoryTests.CreateDummyMechData());
+        var rules = new ClassicBattletechRulesProvider();
+        _unit = new MechFactory(rules).Create(MechFactoryTests.CreateDummyMechData());
         
         // Create two adjacent hexes
         _hex1 = new Hex(new HexCoordinates(1, 1));
         _hex2 = new Hex(new HexCoordinates(1, 2)); 
         
-        var game = Substitute.For<IGame>();
-        _viewModel.Game = game;
+        var battleMap = new BattleMap(1, 1);
+        var player = new Player(Guid.NewGuid(), "Player1");
+        _game = new ClientGame(
+            battleMap, [player], rules,
+            Substitute.For<ICommandPublisher>());
+        
+        _viewModel.Game = _game;
     }
 
     [Fact]
     public void InitialState_HasSelectUnitAction()
     {
+        // Arrange
+        SetActivePlayer();
+
         // Assert
         _state.ActionLabel.Should().Be("Select Unit");
         _state.IsActionRequired.Should().BeTrue();
+    }
+
+    private void SetActivePlayer()
+    {
+        var player = _game.LocalPlayers[0];
+        _game.HandleCommand(new JoinGameCommand
+        {
+            PlayerName = player.Name,
+            Units = [],
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id
+        });
+        _game.HandleCommand(new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id,
+            UnitsToMove = 1
+        });
     }
 
     [Fact]
@@ -61,6 +92,9 @@ public class DeploymentStateTests
     [Fact]
     public void HandleUnitSelection_TransitionsToHexSelection()
     {
+        // Arrange
+        SetActivePlayer();
+        
         // Act
         _state.HandleUnitSelection(_unit);
 
@@ -73,6 +107,7 @@ public class DeploymentStateTests
     public void HandleHexSelection_ForDeployment_SetsPositionAndHighlightsAdjacent()
     {
         // Arrange
+        SetActivePlayer();
         _state.HandleUnitSelection(_unit); // Move to hex selection state
 
         // Act
@@ -101,6 +136,7 @@ public class DeploymentStateTests
     public void HandleHexSelection_ForDirection_DoesNothing_WhenHexIsNotAdjacent()
     {
         // Arrange
+        SetActivePlayer();
         var nonAdjacentHex = new Hex(new HexCoordinates(5, 5));
         _state.HandleUnitSelection(_unit);
         _state.HandleHexSelection(_hex1);
