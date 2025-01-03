@@ -66,7 +66,7 @@ public class BattleMapViewModel : BaseViewModel
                 localGame.Turn,
                 localGame.TurnPhase,
                 localGame.ActivePlayer,
-                localGame.UnitsToMoveCurrentStep
+                UnitsToMoveCurrentStep = localGame.UnitsToPlayCurrentStep
             })
             .DistinctUntilChanged()
             .Subscribe(_ =>
@@ -98,7 +98,7 @@ public class BattleMapViewModel : BaseViewModel
 
     private void ShowUnitsToDeploy()
     {
-        if (Game?.ActivePlayer == null || Game?.UnitsToMoveCurrentStep < 1)
+        if (Game?.ActivePlayer == null || Game?.UnitsToPlayCurrentStep < 1)
         {
             UnitsToDeploy = [];
             return;

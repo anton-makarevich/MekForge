@@ -93,7 +93,7 @@ public class BattleMapViewModelTests
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
-            UnitsToMove = unitsToMove
+            UnitsToPlay = unitsToMove
         });
 
         // Wait for the PropertyChanged event

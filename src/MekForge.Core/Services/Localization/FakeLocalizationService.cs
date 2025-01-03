@@ -13,7 +13,8 @@ public class FakeLocalizationService: ILocalizationService
             "Command_DiceRolled" => "{0} rolled {1}.",
             "Command_UpdatePlayerStatus" => "{0}'s status is {1}.",
             "Command_ChangePhase" => "Game changed phase to {0}.",
-            "Command_ChangeActivePlayer" => "Game changed active player to {0}.",
+            "Command_ChangeActivePlayer" => "{0}'s turn.",
+            "Command_ChangeActivePlayerUnits" => "{0}'s turn to play {1} units.",
             _ => throw new ArgumentOutOfRangeException(nameof(key), key, null)
         };
     }

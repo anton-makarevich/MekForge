@@ -13,7 +13,8 @@ public class FakeLocalizationServiceTests
     [InlineData("Command_DiceRolled", "{0} rolled {1}.")]
     [InlineData("Command_UpdatePlayerStatus", "{0}'s status is {1}.")]
     [InlineData("Command_ChangePhase", "Game changed phase to {0}.")]
-    [InlineData("Command_ChangeActivePlayer", "Game changed active player to {0}.")]
+    [InlineData("Command_ChangeActivePlayer", "{0}'s turn.")]
+    [InlineData("Command_ChangeActivePlayerUnits", "{0}'s turn to play {1} units.")]
     public void GetString_ShouldReturnCorrectString(string key, string expectedValue)
     {
         // Arrange

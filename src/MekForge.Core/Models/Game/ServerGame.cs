@@ -59,14 +59,14 @@ public class ServerGame : BaseGame
     public void SetActivePlayer(IPlayer? player, int unitsToMove)
     {
         ActivePlayer = player;
-        UnitsToMoveCurrentStep= unitsToMove;
+        UnitsToPlayCurrentStep= unitsToMove;
         if (player != null)
         {
             CommandPublisher.PublishCommand(new ChangeActivePlayerCommand
             {
                 GameOriginId = GameId,
                 PlayerId = player.Id,
-                UnitsToMove = unitsToMove
+                UnitsToPlay = unitsToMove
             });
         }
     }

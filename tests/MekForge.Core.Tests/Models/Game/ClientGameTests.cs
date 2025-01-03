@@ -182,7 +182,7 @@ public class ClientGameTests
         {
             GameOriginId = Guid.NewGuid(),
             PlayerId = player.Id,
-            UnitsToMove = 0
+            UnitsToPlay = 0
         };
         
         // Act

@@ -25,12 +25,12 @@ public abstract class BaseGame : IGame
         {
             _turnPhases = value;
             ActivePlayer = null;
-            UnitsToMoveCurrentStep = 0;
+            UnitsToPlayCurrentStep = 0;
         }
     }
 
     public virtual IPlayer? ActivePlayer { get; protected set; }
-    public int UnitsToMoveCurrentStep { get; protected set; }
+    public int UnitsToPlayCurrentStep { get; protected set; }
 
     protected BaseGame(
         BattleMap battleMap,

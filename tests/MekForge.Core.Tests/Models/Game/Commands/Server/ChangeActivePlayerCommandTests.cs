@@ -24,7 +24,7 @@ public class ChangeActivePlayerCommandTests : GameCommandTestBase<ChangeActivePl
         {
             GameOriginId = _gameId,
             PlayerId = _player1.Id,
-            UnitsToMove = 1
+            UnitsToPlay = 1
         };
     }
 
@@ -39,6 +39,27 @@ public class ChangeActivePlayerCommandTests : GameCommandTestBase<ChangeActivePl
     {
         // Arrange
         var command = CreateCommand();
+
+        _localizationService.GetString("Command_ChangeActivePlayerUnits").Returns("formatted active player command");
+
+        // Act
+        var result = command.Format(_localizationService, _game);
+
+        // Assert
+        result.Should().Be("formatted active player command");
+        _localizationService.Received(1).GetString("Command_ChangeActivePlayerUnits");
+    }
+    
+    [Fact]
+    public void Format_ShouldFormatCorrectly_WhenNoUnits()
+    {
+        // Arrange
+        var command = new ChangeActivePlayerCommand
+        {
+            GameOriginId = _gameId,
+            PlayerId = _player1.Id,
+            UnitsToPlay = 0
+        };
 
         _localizationService.GetString("Command_ChangeActivePlayer").Returns("formatted active player command");
 
@@ -58,7 +79,7 @@ public class ChangeActivePlayerCommandTests : GameCommandTestBase<ChangeActivePl
         {
             GameOriginId = _gameId,
             PlayerId = Guid.NewGuid(),
-            UnitsToMove = 1
+            UnitsToPlay = 1
         };
         
         // Act
