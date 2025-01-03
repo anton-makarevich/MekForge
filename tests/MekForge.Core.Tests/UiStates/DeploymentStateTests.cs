@@ -75,7 +75,7 @@ public class DeploymentStateTests
         {
             GameOriginId = Guid.NewGuid(),
             PlayerId = player.Id,
-            UnitsToMove = 1
+            UnitsToPlay = 1
         });
     }
 

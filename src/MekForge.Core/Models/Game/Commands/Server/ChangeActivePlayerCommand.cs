@@ -5,13 +5,16 @@ namespace Sanet.MekForge.Core.Models.Game.Commands.Server;
 public record ChangeActivePlayerCommand : GameCommand
 {
     public required Guid? PlayerId { get; init; }
-    public required int UnitsToMove { get; init; }
+    public required int UnitsToPlay { get; init; }
     public override string Format(ILocalizationService localizationService, IGame game)
     {
         var player = game.Players.FirstOrDefault(p => p.Id == PlayerId);
         if (player == null) return string.Empty;
-        var localizedTemplate = localizationService.GetString("Command_ChangeActivePlayer"); 
+        var localizationKey = UnitsToPlay >0 
+            ? "Command_ChangeActivePlayerUnits"
+            : "Command_ChangeActivePlayer";
+        var localizedTemplate = localizationService.GetString(localizationKey); 
         
-        return string.Format(localizedTemplate, player.Name, UnitsToMove);
+        return string.Format(localizedTemplate, player.Name, UnitsToPlay);
     }
 }

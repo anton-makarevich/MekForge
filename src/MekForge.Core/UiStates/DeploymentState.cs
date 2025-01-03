@@ -115,7 +115,7 @@ public class DeploymentState : IUiState
         {
             if (_viewModel.Game is not ClientGame clientGame)
                 return false;
-            return clientGame is { ActivePlayer: not null, UnitsToMoveCurrentStep: > 0 }
+            return clientGame is { ActivePlayer: not null, UnitsToPlayCurrentStep: > 0 }
                    && clientGame.LocalPlayers.FirstOrDefault(p=>p.Id==clientGame.ActivePlayer.Id)!=null;
         }
     }
