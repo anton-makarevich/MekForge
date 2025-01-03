@@ -93,13 +93,30 @@ public class DeploymentState : IUiState
         _viewModel.NotifyStateChanged();
     }
 
-    public string ActionLabel => _currentSubState switch
+    public string ActionLabel
     {
-        SubState.SelectingUnit => "Select Unit",
-        SubState.SelectingHex => "Select Hex",
-        SubState.SelectingDirection => "Select Direction",
-        _ => string.Empty
-    };
+        get
+        {
+            if (!IsActionRequired)
+                return string.Empty;
+            return _currentSubState switch
+            {
+                SubState.SelectingUnit => "Select Unit",
+                SubState.SelectingHex => "Select Hex",
+                SubState.SelectingDirection => "Select Direction",
+                _ => string.Empty
+            };
+        }
+    }
 
-    public bool IsActionRequired => true;
+    public bool IsActionRequired
+    {
+        get
+        {
+            if (_viewModel.Game is not ClientGame clientGame)
+                return false;
+            return clientGame is { ActivePlayer: not null, UnitsToMoveCurrentStep: > 0 }
+                   && clientGame.LocalPlayers.FirstOrDefault(p=>p.Id==clientGame.ActivePlayer.Id)!=null;
+        }
+    }
 }

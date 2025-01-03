@@ -181,7 +181,8 @@ public class ClientGameTests
         var command = new ChangeActivePlayerCommand
         {
             GameOriginId = Guid.NewGuid(),
-            PlayerId = player.Id
+            PlayerId = player.Id,
+            UnitsToMove = 0
         };
         
         // Act

@@ -66,7 +66,7 @@ public class BattleMapViewModel : BaseViewModel
                 localGame.Turn,
                 localGame.TurnPhase,
                 localGame.ActivePlayer,
-                UndeployedUnits = localGame.ActivePlayer?.Units.Count(u => !u.IsDeployed) ?? 0
+                localGame.UnitsToMoveCurrentStep
             })
             .DistinctUntilChanged()
             .Subscribe(_ =>
@@ -98,8 +98,12 @@ public class BattleMapViewModel : BaseViewModel
 
     private void ShowUnitsToDeploy()
     {
-        if (Game?.ActivePlayer == null) return;
-        UnitsToDeploy = Game.ActivePlayer.Units.Where(u => !u.IsDeployed).ToList();
+        if (Game?.ActivePlayer == null || Game?.UnitsToMoveCurrentStep < 1)
+        {
+            UnitsToDeploy = [];
+            return;
+        }
+        UnitsToDeploy = Game?.ActivePlayer?.Units.Where(u => !u.IsDeployed).ToList()??[];
     }
 
     private void TransitionToState(IUiState newState)

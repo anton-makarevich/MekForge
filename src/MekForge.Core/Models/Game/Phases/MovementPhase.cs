@@ -29,7 +29,7 @@ public class MovementPhase : GamePhase
         }
 
         _remainingUnitsToMove = nextStep.UnitsToMove;
-        Game.SetActivePlayer(nextStep.Player);
+        Game.SetActivePlayer(nextStep.Player,_remainingUnitsToMove);
     }
 
     public override void HandleCommand(GameCommand command)
@@ -43,7 +43,9 @@ public class MovementPhase : GamePhase
         if (_remainingUnitsToMove <= 0)
         {
             SetNextPlayerActive();
+            return;
         }
+        Game.SetActivePlayer(Game.ActivePlayer, _remainingUnitsToMove);
     }
 
     public override PhaseNames Name => PhaseNames.Movement;
