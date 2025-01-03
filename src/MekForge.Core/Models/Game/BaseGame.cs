@@ -2,6 +2,7 @@ using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Phases;
+using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Utils.TechRules;
@@ -52,9 +53,10 @@ public abstract class BaseGame : IGame
 
     internal void OnPlayerJoined(JoinGameCommand joinGameCommand)
     {
-        var player = new Player(joinGameCommand.PlayerId, joinGameCommand.PlayerName);
+        var player = new Player(joinGameCommand.PlayerId, joinGameCommand.PlayerName,joinGameCommand.Tint);
         foreach (var unit in joinGameCommand.Units.Select(unitData => _mechFactory.Create(unitData)))
         {
+            unit.Owner = player;
             player.AddUnit(unit);
         }
         _players.Add(player);

@@ -3,6 +3,7 @@ using System.Windows.Input;
 using AsyncAwaitBestPractices.MVVM;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
@@ -120,7 +121,7 @@ public class NewGameViewModel : BaseViewModel
     private Task AddPlayer()
     {
         if (!CanAddPlayer) return Task.CompletedTask; 
-        var newPlayer = new Player(Guid.NewGuid(), $"Player {_players.Count + 1}");
+        var newPlayer = new Player(Guid.NewGuid(), $"Player {_players.Count + 1}", GetNextTilt());
         var playerViewModel = new PlayerViewModel(
             newPlayer,
             _availableUnits,
@@ -130,6 +131,18 @@ public class NewGameViewModel : BaseViewModel
         NotifyPropertyChanged(nameof(CanStartGame));
 
         return Task.CompletedTask;
+    }
+
+    private string GetNextTilt()
+    {
+        return Players.Count switch
+        {
+            0 => "#FFFFFF", // White
+            1 => "#FF0000", // Red
+            2 => "#0000FF", // Blue
+            3 => "#FFFF00", // Yellow
+            _ => "#FFFFFF"
+        };
     }
     
     public bool CanAddPlayer => _players.Count < 4; // Limit to 4 players for now

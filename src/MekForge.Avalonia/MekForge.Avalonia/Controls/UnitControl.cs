@@ -17,6 +17,7 @@ namespace Sanet.MekForge.Avalonia.Controls
         private readonly IImageService<Bitmap> _imageService;
         private readonly Unit _unit;
         private readonly IDisposable _subscription;
+        private readonly Border _tintBorder;
 
         public UnitControl(Unit unit, IImageService<Bitmap> imageService)
         {
@@ -34,7 +35,19 @@ namespace Sanet.MekForge.Avalonia.Controls
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
+
+            _tintBorder = new Border
+            {
+                Width = _unitImage.Width,
+                Height = _unitImage.Height,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Background = new SolidColorBrush(Colors.White), // Will be updated with player color
+                Opacity = 0.7
+            };
+            
             Children.Add(_unitImage);
+            Children.Add(_tintBorder);
 
             // Create an observable that polls the unit's position
              Observable
@@ -72,7 +85,7 @@ namespace Sanet.MekForge.Avalonia.Controls
                 _ => 0
             };
 
-            _unitImage.RenderTransform = new RotateTransform(rotationAngle, 0, 0);
+            RenderTransform = new RotateTransform(rotationAngle, 0, 0);
         }
         
         private void UpdateImage()
@@ -82,6 +95,12 @@ namespace Sanet.MekForge.Avalonia.Controls
             {
                 _unitImage.Source = image;
             }
+            
+            // Apply player's tint color if available
+            if (_unit.Owner == null) return;
+            var color = Color.Parse(_unit.Owner.Tint);
+            _tintBorder.OpacityMask = new ImageBrush { Source = image, Stretch = Stretch.Fill };
+            _tintBorder.Background = new SolidColorBrush(color);
         }
 
         public void Dispose()

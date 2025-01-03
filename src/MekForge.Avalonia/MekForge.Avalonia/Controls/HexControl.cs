@@ -13,7 +13,7 @@ using Sanet.MekForge.Core.Services;
 
 namespace Sanet.MekForge.Avalonia.Controls;
 
-public class HexControl : Grid
+public class HexControl : Panel
 {
     private readonly Polygon _hexPolygon;
     private readonly Image _terrainImage;

@@ -7,6 +7,7 @@ using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Utils.TechRules;
 using System.Reactive.Subjects;
 using System.Reactive.Linq;
+using Sanet.MekForge.Core.Models.Game.Players;
 
 namespace Sanet.MekForge.Core.Models.Game;
 
@@ -64,6 +65,7 @@ public class ClientGame : BaseGame
             PlayerId = player.Id,
             PlayerName = player.Name,
             GameOriginId = GameId,
+            Tint = player.Tint,
             Units = units
         };
         if (ValidateCommand(joinCommand))

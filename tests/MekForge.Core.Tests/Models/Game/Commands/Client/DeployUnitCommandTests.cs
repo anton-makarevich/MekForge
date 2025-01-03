@@ -3,6 +3,7 @@ using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services.Localization;

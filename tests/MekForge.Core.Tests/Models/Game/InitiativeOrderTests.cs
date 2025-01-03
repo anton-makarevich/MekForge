@@ -1,6 +1,7 @@
 using FluentAssertions;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Players;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game;
 

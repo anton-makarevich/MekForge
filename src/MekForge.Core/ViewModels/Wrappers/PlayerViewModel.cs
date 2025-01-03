@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using AsyncAwaitBestPractices.MVVM;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Players;
 
 namespace Sanet.MekForge.Core.ViewModels.Wrappers;
 

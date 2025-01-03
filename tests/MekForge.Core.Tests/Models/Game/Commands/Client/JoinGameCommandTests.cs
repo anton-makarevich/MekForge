@@ -2,6 +2,7 @@ using FluentAssertions;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Commands.Client;
@@ -25,7 +26,8 @@ public class JoinGameCommandTests : GameCommandTestBase<JoinGameCommand>
             GameOriginId = _gameId,
             PlayerId = _player1.Id,
             PlayerName = _player1.Name,
-            Units = []
+            Units = [],
+            Tint = "#FF0000"
         };
     }
 
