@@ -1,6 +1,6 @@
 ﻿using Sanet.MekForge.Core.Models.Units;
 
-namespace Sanet.MekForge.Core.Models.Game;
+namespace Sanet.MekForge.Core.Models.Game.Players;
 
 public interface IPlayer
 {
@@ -9,10 +9,6 @@ public interface IPlayer
     IReadOnlyList<Unit> Units { get; }
     
     PlayerStatus Status { get; set; }
-}
-
-public enum PlayerStatus
-{
-    Joining,
-    Playing
+    
+    string Tint { get; }
 }

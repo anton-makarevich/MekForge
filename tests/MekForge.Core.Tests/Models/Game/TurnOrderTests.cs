@@ -2,6 +2,7 @@ using FluentAssertions;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Utils.TechRules;
 

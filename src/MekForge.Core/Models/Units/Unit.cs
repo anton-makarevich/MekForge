@@ -1,3 +1,4 @@
+using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units.Components;
 
@@ -27,6 +28,8 @@ public abstract class Unit
     public string Model { get; }
     public string Name { get; }
     public int Tonnage { get; }
+    
+    public IPlayer? Owner { get; internal set; }
     
     public UnitStatus Status { get; protected set; }
 

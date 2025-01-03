@@ -5,6 +5,7 @@ using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
+using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
@@ -69,7 +70,8 @@ public class DeploymentStateTests
             PlayerName = player.Name,
             Units = [],
             GameOriginId = Guid.NewGuid(),
-            PlayerId = player.Id
+            PlayerId = player.Id,
+            Tint = "#FF0000"
         });
         _game.HandleCommand(new ChangeActivePlayerCommand
         {

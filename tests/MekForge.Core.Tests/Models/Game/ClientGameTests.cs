@@ -6,6 +6,7 @@ using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Phases;
+using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
@@ -36,7 +37,8 @@ public class ClientGameTests
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
             GameOriginId = Guid.NewGuid(),
-            Units = []
+            Units = [],
+            Tint = "#FF0000"
         };
 
         // Act
@@ -56,7 +58,8 @@ public class ClientGameTests
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
             Units = new List<UnitData>(),
-            GameOriginId = _clientGame.GameId // Set to this game's ID
+            GameOriginId = _clientGame.GameId, // Set to this game's ID
+            Tint = "#FF0000"
         };
 
         // Act
@@ -94,7 +97,8 @@ public class ClientGameTests
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
-            PlayerName = player.Name, Units = []
+            PlayerName = player.Name, Units = [],
+            Tint = "#FF0000"
         });
 
         var statusCommand = new UpdatePlayerStatusCommand
@@ -135,7 +139,8 @@ public class ClientGameTests
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
-            PlayerName = player.Name, Units = []
+            PlayerName = player.Name, Units = [],
+            Tint = "#FF0000"
         });
 
         // Act
@@ -175,7 +180,8 @@ public class ClientGameTests
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
-            PlayerName = player.Name, Units = []
+            PlayerName = player.Name, Units = [],
+            Tint = "#FF0000"
         });
         var actualPlayer = _clientGame.Players.FirstOrDefault(p => p.Id == player.Id);
         var command = new ChangeActivePlayerCommand
@@ -203,7 +209,8 @@ public class ClientGameTests
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
             GameOriginId = Guid.NewGuid(),
-            Units = new List<UnitData>()
+            Units = [],
+            Tint = "#FF0000"
         };
 
         // Act
@@ -222,8 +229,9 @@ public class ClientGameTests
         {
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
-            Units = new List<UnitData>(),
-            GameOriginId = _clientGame.GameId
+            Units = [],
+            GameOriginId = _clientGame.GameId,
+            Tint = "#FF0000"
         };
 
         // Act
@@ -242,7 +250,8 @@ public class ClientGameTests
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
             GameOriginId = Guid.NewGuid(),
-            Units = []
+            Units = [],
+            Tint = "#FF0000"
         };
         var receivedCommands = new List<GameCommand>();
         using var subscription = _clientGame.Commands.Subscribe(cmd => receivedCommands.Add(cmd));

@@ -73,6 +73,8 @@ namespace Sanet.MekForge.Avalonia.Controls
             };
 
             _unitImage.RenderTransform = new RotateTransform(rotationAngle, 0, 0);
+            if (_unit.Owner == null) return;
+            _unitImage.OpacityMask = new SolidColorBrush(Color.Parse(_unit.Owner.Tint));
         }
         
         private void UpdateImage()

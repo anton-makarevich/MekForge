@@ -5,6 +5,7 @@ using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Phases;
+using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
@@ -85,7 +86,8 @@ public class BattleMapViewModelTests
             PlayerId = player.Id,
             Units = [unitData],
             PlayerName = player.Name,
-            GameOriginId = Guid.NewGuid()
+            GameOriginId = Guid.NewGuid(),
+            Tint = "#FF0000"
         });
 
         // Act
@@ -165,7 +167,8 @@ public class BattleMapViewModelTests
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player2",
             GameOriginId = Guid.NewGuid(),
-            Units = []
+            Units = [],
+            Tint = "#FF0000"
         };
 
         // Act
@@ -194,7 +197,8 @@ public class BattleMapViewModelTests
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player2",
             GameOriginId = Guid.NewGuid(),
-            Units = []
+            Units = [],
+            Tint = "#FF0000"
         };
 
         var phaseCommand = new ChangePhaseCommand

@@ -26,7 +26,8 @@ public class BaseGameTests() : BaseGame(BattleMap.GenerateMap(5, 5, new SingleTe
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
             GameOriginId = Guid.NewGuid(),
-            Units = new List<UnitData>()
+            Units = [],
+            Tint = "#FF0000"
         };
 
         // Act

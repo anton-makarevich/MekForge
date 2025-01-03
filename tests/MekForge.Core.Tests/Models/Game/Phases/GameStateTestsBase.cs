@@ -60,7 +60,8 @@ public abstract class GameStateTestsBase
             GameOriginId = Guid.NewGuid(),
             PlayerId = playerId,
             PlayerName = playerName,
-            Units = units
+            Units = units,
+            Tint = "#FF0000"
         };
     }
 

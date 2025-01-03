@@ -113,7 +113,8 @@ public class DeploymentPhaseTests : GameStateTestsBase
             GameOriginId = Guid.NewGuid(),
             PlayerId = playerId,
             PlayerName = "Player 1",
-            Units = [unit1, unit2]
+            Units = [unit1, unit2],
+            Tint = "#FF0000"
         };
         Game.HandleCommand(joinCommand);
         Game.HandleCommand(CreateStatusCommand(playerId, PlayerStatus.Playing));
