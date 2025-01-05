@@ -6,6 +6,7 @@ using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Players;
+using Sanet.MekForge.Core.Models.Units;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
 
@@ -56,6 +57,8 @@ public class MovementPhaseTests : GameStateTestsBase
         // Act
         _sut.HandleCommand(new MoveUnitCommand
         {
+            MovementType = MovementType.Walk,
+            Direction = 1,
             GameOriginId = Game.GameId,
             PlayerId = Game.ActivePlayer!.Id,
             UnitId = _unit1Id,
@@ -77,6 +80,8 @@ public class MovementPhaseTests : GameStateTestsBase
         // Act
         _sut.HandleCommand(new MoveUnitCommand
         {
+            MovementType = MovementType.Walk,
+            Direction = 1,
             GameOriginId = Game.GameId,
             PlayerId = wrongPlayerId,
             UnitId = _unit1Id,
@@ -103,6 +108,8 @@ public class MovementPhaseTests : GameStateTestsBase
         {
             _sut.HandleCommand(new MoveUnitCommand
             {
+                MovementType = MovementType.Walk,
+                Direction = 1,
                 GameOriginId = Game.GameId,
                 PlayerId = Game.ActivePlayer!.Id,
                 UnitId = unit.Id,
@@ -129,6 +136,8 @@ public class MovementPhaseTests : GameStateTestsBase
             {
                 _sut.HandleCommand(new MoveUnitCommand
                 {
+                    MovementType = MovementType.Walk,
+                    Direction = 1,
                     GameOriginId = Game.GameId,
                     PlayerId = Game.ActivePlayer!.Id,
                     UnitId = unit.Id,

@@ -1,5 +1,6 @@
-﻿using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Map;
+using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.Models.Game.Commands.Client;
@@ -15,9 +16,11 @@ public record MoveUnitCommand: ClientCommand
         if (unit == null) return string.Empty;
         var destination = new HexCoordinates(Destination);
         var localizedTemplate = localizationService.GetString("Command_MoveUnit");
-        return string.Format(localizedTemplate, player.Name, unit.Name, destination); 
+        return string.Format(localizedTemplate, player.Name, unit.Name, destination, MovementType); 
     }
 
-    public Guid UnitId { get; init; }
-    public HexCoordinateData Destination { get; init; }
+    public required Guid UnitId { get; init; }
+    public required HexCoordinateData Destination { get; init; }
+    public required MovementType MovementType { get; init; }
+    public required int Direction { get; init; }
 }
