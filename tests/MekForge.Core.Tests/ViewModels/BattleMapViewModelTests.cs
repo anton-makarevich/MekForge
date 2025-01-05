@@ -261,7 +261,7 @@ public class BattleMapViewModelTests
         {
             if (e.PropertyName == nameof(BattleMapViewModel.UserActionLabel))
             {
-                tcs.SetResult(true); // Signal that the property has changed
+                tcs.TrySetResult(true); // Signal that the property has changed
             }
         };
 
