@@ -11,6 +11,7 @@ namespace Sanet.MekForge.Core.Tests.Models.Game.Commands.Client.Builders;
 public class MoveUnitCommandBuilderTests
 {
     private readonly MoveUnitCommandBuilder _builder;
+    private readonly Guid _gameId = Guid.NewGuid();
     private readonly Guid _playerId;
     private readonly Unit _unit;
     private readonly HexCoordinates _coordinates;
@@ -18,9 +19,105 @@ public class MoveUnitCommandBuilderTests
     public MoveUnitCommandBuilderTests()
     {
         _playerId = Guid.NewGuid();
-        _builder = new MoveUnitCommandBuilder(Guid.NewGuid(), _playerId);
+        _builder = new MoveUnitCommandBuilder(_gameId, _playerId);
         _unit = new MechFactory(new ClassicBattletechRulesProvider()).Create(MechFactoryTests.CreateDummyMechData());
         _coordinates = new HexCoordinates(1, 1);
+    }
+    
+    [Fact]
+    public void CanBuild_ReturnsFalse_WhenNoDataSet()
+    {
+        // Act & Assert
+        _builder.CanBuild.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void CanBuild_ReturnsFalse_WhenOnlyUnitSet()
+    {
+        // Arrange
+        _builder.SetUnit(_unit);
+        
+        // Act & Assert
+        _builder.CanBuild.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void CanBuild_ReturnsFalse_WhenOnlyMovementTypeSet()
+    {
+        // Arrange
+        _builder.SetMovementType(MovementType.Walk);
+        
+        // Act & Assert
+        _builder.CanBuild.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void CanBuild_ReturnsFalse_WhenOnlyDestinationSet()
+    {
+        // Arrange
+        _builder.SetDestination(_coordinates);
+        
+        // Act & Assert
+        _builder.CanBuild.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void CanBuild_ReturnsFalse_WhenOnlyDirectionSet()
+    {
+        // Arrange
+        _builder.SetDirection(HexDirection.Top);
+        
+        // Act & Assert
+        _builder.CanBuild.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void CanBuild_ReturnsFalse_WhenMissingMovementType()
+    {
+        // Arrange
+        _builder.SetUnit(_unit);
+        _builder.SetDestination(_coordinates);
+        _builder.SetDirection(HexDirection.Top);
+        
+        // Act & Assert
+        _builder.CanBuild.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void CanBuild_ReturnsFalse_WhenMissingDestination()
+    {
+        // Arrange
+        _builder.SetUnit(_unit);
+        _builder.SetMovementType(MovementType.Walk);
+        _builder.SetDirection(HexDirection.Top);
+        
+        // Act & Assert
+        _builder.CanBuild.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void CanBuild_ReturnsFalse_WhenMissingDirection()
+    {
+        // Arrange
+        _builder.SetUnit(_unit);
+        _builder.SetMovementType(MovementType.Walk);
+        _builder.SetDestination(_coordinates);
+        
+        // Act & Assert
+        _builder.CanBuild.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void CanBuild_ReturnsTrue_WhenAllDataSet()
+    {
+        // Arrange
+        _builder.SetUnit(_unit);
+        _builder.SetMovementType(MovementType.Walk);
+        _builder.SetDestination(_coordinates);
+        _builder.SetDirection(HexDirection.Top);
+        
+        // Act & Assert
+        _builder.CanBuild.Should().BeTrue();
     }
     
     [Fact]
@@ -99,7 +196,8 @@ public class MoveUnitCommandBuilderTests
         
         // Assert
         result.Should().NotBeNull();
-        result!.PlayerId.Should().Be(_playerId);
+        result!.GameOriginId.Should().Be(_gameId);
+        result.PlayerId.Should().Be(_playerId);
         result.UnitId.Should().Be(_unit.Id);
         result.MovementType.Should().Be(MovementType.Walk);
         result.Destination.Q.Should().Be(_coordinates.Q);
@@ -118,9 +216,8 @@ public class MoveUnitCommandBuilderTests
         
         // Act
         _builder.Reset();
-        var result = _builder.Build();
         
         // Assert
-        result.Should().BeNull();
+        _builder.CanBuild.Should().BeFalse();
     }
 }
