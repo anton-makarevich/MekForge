@@ -33,6 +33,8 @@ public class MoveUnitCommandTests : GameCommandTestBase<MoveUnitCommand>
     {
         return new MoveUnitCommand
         {
+            Direction =  1,
+            MovementType = MovementType.Walk,
             GameOriginId = _gameId,
             PlayerId = _player1.Id,
             UnitId = _unit.Id,
