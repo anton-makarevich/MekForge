@@ -68,13 +68,11 @@ public class InitiativeOrder
     {
         if (!HasTies()) return new List<IPlayer>();
 
-        var highestCurrentRoll = _results
-            .Where(r => r.HasRoll(_currentRollNumber))
-            .Max(r => r.GetRoll(_currentRollNumber));
-
         return _results
-            .Where(r => r.HasRoll(_currentRollNumber) && r.GetRoll(_currentRollNumber) == highestCurrentRoll)
-            .Select(r => r.Player)
+            .Where(r => r.HasRoll(_currentRollNumber))
+            .GroupBy(r => r.GetRoll(_currentRollNumber))
+            .Where(g => g.Count() > 1)
+            .SelectMany(g => g.Select(r => r.Player))
             .ToList();
     }
 

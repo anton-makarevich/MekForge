@@ -178,6 +178,24 @@ public class InitiativeOrderTests
     }
 
     [Fact]
+    public void GetTiedPlayers_WhenMultipleTies_ShouldReturnAllTiedPlayers()
+    {
+        // Arrange
+        _sut.AddResult(_player1, 4); // Tied with player 4
+        _sut.AddResult(_player2, 6);
+        _sut.AddResult(_player3, 8);
+        _sut.AddResult(_player4, 4); // Tied with player 1
+
+        // Act
+        var tiedPlayers = _sut.GetTiedPlayers();
+
+        // Assert
+        tiedPlayers.Should().HaveCount(2);
+        tiedPlayers.Should().Contain(_player1);
+        tiedPlayers.Should().Contain(_player4);
+    }
+
+    [Fact]
     public void GetOrderedPlayers_WhenEmpty_ShouldReturnEmptyList()
     {
         // Act & Assert
