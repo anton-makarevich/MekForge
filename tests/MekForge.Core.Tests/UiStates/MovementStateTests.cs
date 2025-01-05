@@ -2,6 +2,7 @@ using FluentAssertions;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Players;
@@ -21,33 +22,37 @@ public class MovementStateTests
 {
     private readonly MovementState _state;
     private readonly ClientGame _game;
+    private readonly UnitData _unitData;
     private readonly Unit _unit;
+    private readonly Player _player;
     private readonly Hex _hex1;
     private readonly Hex _hex2;
+    private readonly BattleMapViewModel _viewModel;
 
     public MovementStateTests()
     {
         var imageService = Substitute.For<IImageService>();
         var localizationService = Substitute.For<ILocalizationService>();
-        var viewModel = new BattleMapViewModel(imageService, localizationService);
+        _viewModel = new BattleMapViewModel(imageService, localizationService);
         var playerId = Guid.NewGuid();
         var builder = new MoveUnitCommandBuilder(Guid.NewGuid(),  playerId);
-        _state = new MovementState(viewModel, builder);
+        _state = new MovementState(_viewModel, builder);
         
         var rules = new ClassicBattletechRulesProvider();
-        _unit = new MechFactory(rules).Create(MechFactoryTests.CreateDummyMechData());
+        _unitData = MechFactoryTests.CreateDummyMechData();
+        _unit = new MechFactory(rules).Create(_unitData);
         
         // Create two adjacent hexes
         _hex1 = new Hex(new HexCoordinates(1, 1));
         _hex2 = new Hex(new HexCoordinates(1, 2)); 
         
         var battleMap = new BattleMap(1, 1);
-        var player = new Player(playerId, "Player1");
+         _player = new Player(playerId, "Player1");
         _game = new ClientGame(
-            battleMap, [player], rules,
+            battleMap, [_player], rules,
             Substitute.For<ICommandPublisher>());
         
-        viewModel.Game = _game;
+        _viewModel.Game = _game;
     }
 
     [Fact]
@@ -61,13 +66,29 @@ public class MovementStateTests
         _state.IsActionRequired.Should().BeTrue();
     }
 
+    private void AddPlayerUnits()
+    {
+        _game.HandleCommand(new JoinGameCommand
+        {
+            PlayerName = "Player1",
+            Units = [_unitData],
+            Tint = "#FF0000",
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = _player.Id
+        });
+        _game.HandleCommand(new UpdatePlayerStatusCommand
+        {
+            PlayerStatus = PlayerStatus.Playing,
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = _player.Id
+        });
+    }
     private void SetActivePlayer()
     {
-        var player = _game.LocalPlayers[0];
         _game.HandleCommand(new ChangeActivePlayerCommand
         {
             GameOriginId = Guid.NewGuid(),
-            PlayerId = player.Id,
+            PlayerId = _player.Id,
             UnitsToPlay = 1
         });
     }
@@ -129,5 +150,36 @@ public class MovementStateTests
         // Assert
         _state.ActionLabel.Should().Be(string.Empty);
         _state.IsActionRequired.Should().BeFalse();
+    }
+
+    [Fact]
+    public void HandleHexSelection_SelectsUnit_WhenUnitIsOnHex()
+    {
+        // Arrange
+        AddPlayerUnits();
+        var position = new HexCoordinates(1, 1);
+        var unit = _viewModel.Units.First();
+        unit.Deploy(position,HexDirection.Bottom);
+        var hex = new Hex(position);
+
+        // Act
+        _state.HandleHexSelection(hex);
+
+        // Assert
+        _state.ActionLabel.Should().Be("Select movement type");
+    }
+
+    [Fact]
+    public void HandleHexSelection_DoesNothing_WhenNoUnitOnHex()
+    {
+        // Arrange
+         var hex = new Hex(new HexCoordinates(1, 1));
+        _unit.MoveTo( new HexCoordinates(2, 2));
+
+        // Act
+        _state.HandleHexSelection(hex);
+
+        // Assert
+        _state.ActionLabel.Should().Be("Select unit to move");
     }
 }

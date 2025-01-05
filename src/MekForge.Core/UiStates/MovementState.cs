@@ -54,12 +54,24 @@ public class MovementState : IUiState
     {
         switch (_currentSubState)
         {
+            case SubState.SelectingUnit:
+                HandleUnitSelectionFromHex(hex);
+                break;
             case SubState.SelectingTargetHex:
                 HandleTargetHexSelection(hex);
                 break;
             case SubState.SelectingDirection:
                 HandleDirectionSelection(hex);
                 break;
+        }
+    }
+
+    private void HandleUnitSelectionFromHex(Hex hex)
+    {
+        var unit = _viewModel.Units.FirstOrDefault(u => u.Position == hex.Coordinates);
+        if (unit != null)
+        {
+            HandleUnitSelection(unit);
         }
     }
 
