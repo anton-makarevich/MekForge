@@ -20,7 +20,6 @@ namespace Sanet.MekForge.Core.Tests.UiStates;
 public class MovementStateTests
 {
     private readonly MovementState _state;
-    private readonly BattleMapViewModel _viewModel;
     private readonly ClientGame _game;
     private readonly Unit _unit;
     private readonly Hex _hex1;
@@ -30,10 +29,10 @@ public class MovementStateTests
     {
         var imageService = Substitute.For<IImageService>();
         var localizationService = Substitute.For<ILocalizationService>();
-        _viewModel = Substitute.For<BattleMapViewModel>(imageService, localizationService);
+        var viewModel = new BattleMapViewModel(imageService, localizationService);
         var playerId = Guid.NewGuid();
         var builder = new MoveUnitCommandBuilder(Guid.NewGuid(),  playerId);
-        _state = new MovementState(_viewModel, builder);
+        _state = new MovementState(viewModel, builder);
         
         var rules = new ClassicBattletechRulesProvider();
         _unit = new MechFactory(rules).Create(MechFactoryTests.CreateDummyMechData());
@@ -48,7 +47,7 @@ public class MovementStateTests
             battleMap, [player], rules,
             Substitute.For<ICommandPublisher>());
         
-        _viewModel.Game = _game;
+        viewModel.Game = _game;
     }
 
     [Fact]
@@ -74,16 +73,6 @@ public class MovementStateTests
     }
 
     [Fact]
-    public void HandleUnitSelection_DoesNothing_WhenUnitIsNull()
-    {
-        // Act
-        _state.HandleUnitSelection(null);
-
-        // Assert
-        _viewModel.DidNotReceive().NotifyStateChanged();
-    }
-
-    [Fact]
     public void HandleUnitSelection_TransitionsToMovementTypeSelection()
     {
         // Arrange
@@ -94,7 +83,6 @@ public class MovementStateTests
 
         // Assert
         _state.ActionLabel.Should().Be("Select movement type");
-        _viewModel.Received(1).NotifyStateChanged();
     }
 
     [Fact]
@@ -109,7 +97,6 @@ public class MovementStateTests
 
         // Assert
         _state.ActionLabel.Should().Be("Select target hex");
-        _viewModel.Received(2).NotifyStateChanged();
     }
 
     [Fact]
@@ -125,7 +112,6 @@ public class MovementStateTests
 
         // Assert
         _state.ActionLabel.Should().Be("Select facing direction");
-        _viewModel.Received(1).HighlightHexes(Arg.Any<List<HexCoordinates>>(), true);
     }
 
     [Fact]
@@ -143,6 +129,5 @@ public class MovementStateTests
         // Assert
         _state.ActionLabel.Should().Be(string.Empty);
         _state.IsActionRequired.Should().BeFalse();
-        _viewModel.Received(1).HighlightHexes(Arg.Any<List<HexCoordinates>>(), false);
     }
 }

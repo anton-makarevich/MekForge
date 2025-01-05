@@ -22,10 +22,14 @@ public class DeploymentState : IUiState
     
     private SubState _currentSubState = SubState.SelectingUnit;
 
-    public DeploymentState(BattleMapViewModel viewModel, DeploymentCommandBuilder builder)
+    public DeploymentState(BattleMapViewModel viewModel, ClientCommandBuilder builder)
     {
+        if (builder is not DeploymentCommandBuilder deploymentCommandBuilder)
+        {
+            throw new ArgumentException("Builder must be of type DeploymentCommandBuilder", nameof(builder));
+        }
         _viewModel = viewModel;
-        _builder = builder;
+        _builder = deploymentCommandBuilder;
     }
 
     public void HandleUnitSelection(Unit? unit)

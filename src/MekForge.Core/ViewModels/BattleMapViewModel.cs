@@ -18,7 +18,7 @@ public class BattleMapViewModel : BaseViewModel
     private IDisposable? _gameSubscription;
     private IDisposable? _commandSubscription;
     private IUiState _currentState;
-    private DeploymentCommandBuilder? _deploymentBuilder;
+    private ClientCommandBuilder? _commandBuilder;
     private List<Unit> _unitsToDeploy = [];
     private Unit? _selectedUnit;
     private readonly ObservableCollection<string> _commandLog = [];
@@ -83,11 +83,10 @@ public class BattleMapViewModel : BaseViewModel
             && Game is ClientGame { ActivePlayer: not null } clientGame
             && clientGame.ActivePlayer?.Units.Any(u => !u.IsDeployed) == true)
         {
-            _deploymentBuilder = new DeploymentCommandBuilder(clientGame.GameId,
+            _commandBuilder = new DeploymentCommandBuilder(clientGame.GameId,
                     clientGame.ActivePlayer.Id);
             
-            TransitionToState(new DeploymentState(this, _deploymentBuilder));
-            
+            TransitionToState(new DeploymentState(this, _commandBuilder));
             ShowUnitsToDeploy();
         }
         else
