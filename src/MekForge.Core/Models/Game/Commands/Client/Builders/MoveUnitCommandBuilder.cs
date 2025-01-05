@@ -3,20 +3,23 @@ using Sanet.MekForge.Core.Models.Units;
 
 namespace Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 
-public class MoveUnitCommandBuilder
+public class MoveUnitCommandBuilder : ClientCommandBuilder
 {
     private Guid? _unitId;
-    private readonly Guid _gameId;
     private MovementType? _movementType;
     private HexCoordinates? _destination;
     private HexDirection? _direction;
-    private readonly Guid _playerId;
 
-    public MoveUnitCommandBuilder(Guid gameId,  Guid playerId)
+    public MoveUnitCommandBuilder(Guid gameId, Guid playerId) 
+        : base(gameId, playerId)
     {
-        _gameId = gameId;
-        _playerId = playerId;
     }
+
+    public override bool CanBuild => 
+        _unitId != null 
+        && _movementType != null 
+        && _destination != null 
+        && _direction != null;
 
     public void SetUnit(Unit unit)
     {
@@ -38,19 +41,19 @@ public class MoveUnitCommandBuilder
         _direction = direction;
     }
 
-    public MoveUnitCommand? Build()
+    public override MoveUnitCommand? Build()
     {
         if (_unitId == null || _movementType == null || _destination == null || _direction == null)
             return null;
 
         return new MoveUnitCommand
         {
-            GameOriginId = _gameId,
+            GameOriginId = GameId,
+            PlayerId = PlayerId,
             UnitId = _unitId.Value,
             MovementType = _movementType.Value,
             Destination = _destination.Value.ToData(),
-            Direction = (int)_direction.Value,
-            PlayerId = _playerId
+            Direction = (int)_direction.Value
         };
     }
 
