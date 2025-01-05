@@ -33,6 +33,7 @@ public class DeploymentCommandBuilder
     public DeployUnitCommand? Build()
     {
         if (!CanBuild) return null;
+        if (_unitId == null) return null;
         
         return new DeployUnitCommand
         {

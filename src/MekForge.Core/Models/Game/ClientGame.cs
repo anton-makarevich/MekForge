@@ -83,17 +83,15 @@ public class ClientGame : BaseGame
         }
     }
 
-    public void DeployUnit(Guid id, HexCoordinates selectedHexCoordinates, HexDirection selectedDirection)
+    public void DeployUnit(DeployUnitCommand command)
     {
         if (ActivePlayer == null) return;
-        var command = new DeployUnitCommand()
-        {
-            GameOriginId = GameId,
-            PlayerId = ActivePlayer.Id,
-            UnitId = id,
-            Position = selectedHexCoordinates.ToData(),
-            Direction = (int)selectedDirection
-        };
+        CommandPublisher.PublishCommand(command);
+    }
+
+    public void MoveUnit(MoveUnitCommand command)
+    {
+        if (ActivePlayer == null) return;
         CommandPublisher.PublishCommand(command);
     }
 }

@@ -6,23 +6,25 @@ using Sanet.MekForge.Core.ViewModels;
 
 namespace Sanet.MekForge.Core.UiStates;
 
-public class DeploymentState : IUiState
+public class MovementState : IUiState
 {
     private readonly BattleMapViewModel _viewModel;
-    private readonly DeploymentCommandBuilder _builder;
+    private readonly MoveUnitCommandBuilder _builder;
     private Hex? _selectedHex;
+    private Unit? _selectedUnit;
     
     private enum SubState
     {
         SelectingUnit,
-        SelectingHex,
+        SelectingMovementType,
+        SelectingTargetHex,
         SelectingDirection,
         Completed
     }
     
     private SubState _currentSubState = SubState.SelectingUnit;
 
-    public DeploymentState(BattleMapViewModel viewModel, DeploymentCommandBuilder builder)
+    public MovementState(BattleMapViewModel viewModel, MoveUnitCommandBuilder builder)
     {
         _viewModel = viewModel;
         _builder = builder;
@@ -31,11 +33,20 @@ public class DeploymentState : IUiState
     public void HandleUnitSelection(Unit? unit)
     {
         if (_currentSubState != SubState.SelectingUnit) return;
-        
         if (unit == null) return;
         
+        _selectedUnit = unit;
         _builder.SetUnit(unit);
-        _currentSubState = SubState.SelectingHex;
+        _currentSubState = SubState.SelectingMovementType;
+        _viewModel.NotifyStateChanged();
+    }
+
+    public void HandleMovementTypeSelection(MovementType movementType)
+    {
+        if (_currentSubState != SubState.SelectingMovementType) return;
+        
+        _builder.SetMovementType(movementType);
+        _currentSubState = SubState.SelectingTargetHex;
         _viewModel.NotifyStateChanged();
     }
 
@@ -43,19 +54,20 @@ public class DeploymentState : IUiState
     {
         switch (_currentSubState)
         {
-            case SubState.SelectingHex:
-                HandleHexForDeployment(hex);
+            case SubState.SelectingTargetHex:
+                HandleTargetHexSelection(hex);
                 break;
             case SubState.SelectingDirection:
-                HandleHexForDirection(hex);
+                HandleDirectionSelection(hex);
                 break;
         }
     }
 
-    private void HandleHexForDeployment(Hex hex)
+    private void HandleTargetHexSelection(Hex hex)
     {
+        // TODO: Add validation for movement range and terrain restrictions
         _selectedHex = hex;
-        _builder.SetPosition(hex.Coordinates);
+        _builder.SetDestination(hex.Coordinates);
         _currentSubState = SubState.SelectingDirection;
         
         var adjacentCoordinates = hex.Coordinates.GetAdjacentCoordinates().ToList();
@@ -63,7 +75,7 @@ public class DeploymentState : IUiState
         _viewModel.NotifyStateChanged();
     }
 
-    private void HandleHexForDirection(Hex selectedHex)
+    private void HandleDirectionSelection(Hex selectedHex)
     {
         if (_selectedHex == null) return;
         
@@ -76,19 +88,20 @@ public class DeploymentState : IUiState
 
         _builder.SetDirection(direction);
         
-        CompleteDeployment();
+        CompleteMovement();
     }
 
-    private void CompleteDeployment()
+    private void CompleteMovement()
     {
         var command = _builder.Build();
         if (command != null && _viewModel.Game is ClientGame clientGame)
         {
-            clientGame.DeployUnit(command);
+            clientGame.MoveUnit(command);
         }
         
         _builder.Reset();
         _selectedHex = null;
+        _selectedUnit = null;
         _currentSubState = SubState.Completed;
         _viewModel.NotifyStateChanged();
     }
@@ -99,24 +112,17 @@ public class DeploymentState : IUiState
         {
             if (!IsActionRequired)
                 return string.Empty;
+
             return _currentSubState switch
             {
-                SubState.SelectingUnit => "Select Unit",
-                SubState.SelectingHex => "Select Hex",
-                SubState.SelectingDirection => "Select Direction",
+                SubState.SelectingUnit => "Select unit to move",
+                SubState.SelectingMovementType => "Select movement type",
+                SubState.SelectingTargetHex => "Select target hex",
+                SubState.SelectingDirection => "Select facing direction",
                 _ => string.Empty
             };
         }
     }
 
-    public bool IsActionRequired
-    {
-        get
-        {
-            if (_viewModel.Game is not ClientGame clientGame)
-                return false;
-            return clientGame is { ActivePlayer: not null, UnitsToPlayCurrentStep: > 0 }
-                   && clientGame.LocalPlayers.FirstOrDefault(p=>p.Id==clientGame.ActivePlayer.Id)!=null;
-        }
-    }
+    public bool IsActionRequired => _currentSubState != SubState.Completed;
 }
