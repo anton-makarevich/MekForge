@@ -156,7 +156,7 @@ public class BattleMapViewModelTests
         var playerId = Guid.NewGuid();
         var player = new Player(playerId, "Player1");
         var clientGame = new ClientGame(
-            BattleMap.GenerateMap(2, 2, new SingleTerrainGenerator(2, 2, new ClearTerrain())),
+            BattleMap.GenerateMap(2, 2, new SingleTerrainGenerator(2, 2, new ClearTerrain())) ,
             [player],
             new ClassicBattletechRulesProvider(),
             Substitute.For<ICommandPublisher>());
@@ -186,7 +186,7 @@ public class BattleMapViewModelTests
         var playerId = Guid.NewGuid();
         var player = new Player(playerId, "Player1");
         var clientGame = new ClientGame(
-            BattleMap.GenerateMap(2, 2, new SingleTerrainGenerator(2, 2, new ClearTerrain())),
+            BattleMap.GenerateMap(2, 2, new SingleTerrainGenerator(2, 2, new ClearTerrain())) ,
             [player],
             new ClassicBattletechRulesProvider(),
             Substitute.For<ICommandPublisher>());
@@ -243,5 +243,53 @@ public class BattleMapViewModelTests
         _viewModel.ToggleCommandLog();
         _viewModel.IsCommandLogExpanded.Should().BeFalse();
         propertyChangedEvents.Should().Contain(nameof(BattleMapViewModel.IsCommandLogExpanded));
+    }
+
+    [Fact]
+    public async Task MovementPhase_WithActivePlayer_ShouldShowCorrectActionLabel()
+    {
+        // Arrange
+        var player = new Player(Guid.NewGuid(), "Player1");
+        _game = new ClientGame(BattleMap.GenerateMap(2, 2,
+                new SingleTerrainGenerator(2, 2, new ClearTerrain())),
+            [player], new ClassicBattletechRulesProvider(),
+            Substitute.For<ICommandPublisher>());
+        _viewModel.Game = _game;
+        var tcs = new TaskCompletionSource<bool>();
+
+        _viewModel.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(BattleMapViewModel.UserActionLabel))
+            {
+                tcs.SetResult(true); // Signal that the property has changed
+            }
+        };
+
+        ((ClientGame)_game).HandleCommand(new ChangePhaseCommand()
+        {
+            Phase = PhaseNames.Movement,
+            GameOriginId = Guid.NewGuid()
+        });
+        ((ClientGame)_game).HandleCommand(new JoinGameCommand()
+        {
+            PlayerId = player.Id,
+            Units = [],
+            PlayerName = player.Name,
+            GameOriginId = Guid.NewGuid(),
+            Tint = "#FF0000"
+        });
+        
+        // Act
+        ((ClientGame)_game).HandleCommand(new ChangeActivePlayerCommand
+        {
+            PlayerId = player.Id,
+            GameOriginId = Guid.NewGuid(),
+            UnitsToPlay = 1
+        });
+        await tcs.Task;
+        
+        // Assert
+        _viewModel.UserActionLabel.Should().Be("Select unit to move");
+        _viewModel.IsUserActionLabelVisible.Should().BeTrue();
     }
 }
