@@ -79,19 +79,28 @@ public class BattleMapViewModel : BaseViewModel
 
     private void UpdateGamePhase()
     {
-        if (TurnPhaseNames == PhaseNames.Deployment 
-            && Game is ClientGame { ActivePlayer: not null } clientGame
-            && clientGame.ActivePlayer?.Units.Any(u => !u.IsDeployed) == true)
-        {
-            _commandBuilder = new DeploymentCommandBuilder(clientGame.GameId,
-                    clientGame.ActivePlayer.Id);
-            
-            TransitionToState(new DeploymentState(this, _commandBuilder));
-            ShowUnitsToDeploy();
-        }
-        else
+        if (Game is not ClientGame { ActivePlayer: not null } clientGame)
         {
             TransitionToState(new IdleState());
+            return;
+        }
+
+        switch (TurnPhaseNames)
+        {
+            case PhaseNames.Deployment when clientGame.ActivePlayer.Units.Any(u => !u.IsDeployed):
+                _commandBuilder = new DeploymentCommandBuilder(clientGame.GameId, clientGame.ActivePlayer.Id);
+                TransitionToState(new DeploymentState(this, (DeploymentCommandBuilder)_commandBuilder));
+                ShowUnitsToDeploy();
+                break;
+            
+            case PhaseNames.Movement when clientGame.UnitsToPlayCurrentStep > 0:
+                _commandBuilder = new MoveUnitCommandBuilder(clientGame.GameId, clientGame.ActivePlayer.Id);
+                TransitionToState(new MovementState(this, (MoveUnitCommandBuilder)_commandBuilder));
+                break;
+            
+            default:
+                TransitionToState(new IdleState());
+                break;
         }
     }
 
