@@ -5,6 +5,10 @@ using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Dice;
 using Sanet.MekForge.Core.Models.Game.Phases;
+using Sanet.MekForge.Core.Models.Map;
+using Sanet.MekForge.Core.Models.Map.Terrains;
+using Sanet.MekForge.Core.Utils.Generators;
+using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
 
@@ -279,5 +283,51 @@ public class InitiativePhaseTests : GameStateTestsBase
         Game.TurnPhase.Should().Be(PhaseNames.Movement);
         Game.InitiativeOrder[0].Should().Be(player1); // Player who rolled 8 in second round should be first
         Game.InitiativeOrder[1].Should().Be(player2); // Player who rolled 6 in second round should be second
+    }
+
+    [Fact]
+    public void HandleCommand_WhenTieOccurs_ShouldOnlyRerollTiedPlayers()
+    {
+        // Arrange
+        var battleMap = BattleMap.GenerateMap(10, 10,
+            new SingleTerrainGenerator(10,10, new ClearTerrain()));
+        var game = new ServerGame(battleMap, new ClassicBattletechRulesProvider(), CommandPublisher, DiceRoller);
+        game.IsAutoRoll = false;
+        var player3Id = Guid.NewGuid();
+        var player4Id = Guid.NewGuid();
+        var sut = new InitiativePhase(game);
+
+        // Add two players
+        game.HandleCommand(CreateJoinCommand(_player1Id, "Player 1"));
+        game.HandleCommand(CreateJoinCommand(_player2Id, "Player 2"));
+        game.HandleCommand(CreateJoinCommand(player3Id, "Player 3"));
+        game.HandleCommand(CreateJoinCommand(player4Id, "Player 4"));
+        game.HandleCommand(CreateStatusCommand(_player1Id, PlayerStatus.Playing));
+        game.HandleCommand(CreateStatusCommand(_player2Id, PlayerStatus.Playing));
+        game.HandleCommand(CreateStatusCommand(player3Id, PlayerStatus.Playing));
+        game.HandleCommand(CreateStatusCommand(player4Id, PlayerStatus.Playing));
+
+        sut.Enter();
+
+        // Act & Assert
+        // First round of rolls
+        game.ActivePlayer!.Id.Should().Be(_player1Id);
+        SetupDiceRolls(4);
+        sut.HandleCommand(new RollDiceCommand { GameOriginId = Guid.NewGuid(), PlayerId = _player1Id });
+
+        game.ActivePlayer!.Id.Should().Be(_player2Id);
+        SetupDiceRolls(6);
+        sut.HandleCommand(new RollDiceCommand { GameOriginId = Guid.NewGuid(), PlayerId = _player2Id });
+
+        game.ActivePlayer!.Id.Should().Be(player3Id);
+        SetupDiceRolls(8);
+        sut.HandleCommand(new RollDiceCommand { GameOriginId = Guid.NewGuid(), PlayerId = player3Id });
+
+        game.ActivePlayer!.Id.Should().Be(player4Id);
+        SetupDiceRolls(4);
+        sut.HandleCommand(new RollDiceCommand { GameOriginId = Guid.NewGuid(), PlayerId = player4Id });
+
+        // After tie is detected, should only activate players with tied rolls (player1 and player4)
+        game.ActivePlayer!.Id.Should().Be(_player1Id);
     }
 }
