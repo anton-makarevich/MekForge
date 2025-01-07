@@ -5,6 +5,7 @@ using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
+using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
@@ -92,6 +93,15 @@ public class MovementStateTests
             UnitsToPlay = 1
         });
     }
+    
+    private void SetPhase(PhaseNames phase)
+    {
+        _game.HandleCommand(new ChangePhaseCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            Phase = phase,
+        });
+    }
 
     [Fact]
     public void HandleUnitSelection_TransitionsToMovementTypeSelection()
@@ -157,16 +167,19 @@ public class MovementStateTests
     {
         // Arrange
         AddPlayerUnits();
+        SetPhase(PhaseNames.Movement);
+        SetActivePlayer();
+        var state = _viewModel.CurrentState;
         var position = new HexCoordinates(1, 1);
         var unit = _viewModel.Units.First();
         unit.Deploy(position,HexDirection.Bottom);
         var hex = new Hex(position);
 
         // Act
-        _state.HandleHexSelection(hex);
+        state.HandleHexSelection(hex);
 
         // Assert
-        _state.ActionLabel.Should().Be("Select movement type");
+        state.ActionLabel.Should().Be("Select movement type");
     }
 
     [Fact]
