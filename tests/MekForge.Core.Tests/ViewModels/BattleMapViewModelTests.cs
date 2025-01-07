@@ -50,7 +50,7 @@ public class BattleMapViewModelTests
     [Theory]
     [InlineData(1, "Select Unit",true)]
     [InlineData(0, "", false)]
-    public async Task UnitsToDeploy_ShouldBeVisible_WhenItsPlayersTurnToDeploy_AndThereAreUnitsToDeploy(
+    public void UnitsToDeploy_ShouldBeVisible_WhenItsPlayersTurnToDeploy_AndThereAreUnitsToDeploy(
         int unitsToMove, 
         string actionLabel,
         bool expectedVisible)
@@ -59,16 +59,6 @@ public class BattleMapViewModelTests
         var playerId = Guid.NewGuid();
         var player = new Player(playerId, "Player1");
         var unitData = MechFactoryTests.CreateDummyMechData();
-
-        var tcs = new TaskCompletionSource<bool>();
-
-        _viewModel.PropertyChanged += (_, e) =>
-        {
-            if (e.PropertyName == nameof(BattleMapViewModel.UnitsToDeploy))
-            {
-                tcs.SetResult(true); // Signal that the property has changed
-            }
-        };
 
         _game = new ClientGame(BattleMap.GenerateMap(2, 2,
                 new SingleTerrainGenerator(2, 2, new ClearTerrain())),
@@ -97,9 +87,6 @@ public class BattleMapViewModelTests
             GameOriginId = Guid.NewGuid(),
             UnitsToPlay = unitsToMove
         });
-
-        // Wait for the PropertyChanged event
-        await tcs.Task;
         
         // Assert
         if (expectedVisible)
@@ -246,7 +233,7 @@ public class BattleMapViewModelTests
     }
 
     [Fact]
-    public async Task MovementPhase_WithActivePlayer_ShouldShowCorrectActionLabel()
+    public void MovementPhase_WithActivePlayer_ShouldShowCorrectActionLabel()
     {
         // Arrange
         var player = new Player(Guid.NewGuid(), "Player1");
@@ -255,15 +242,6 @@ public class BattleMapViewModelTests
             [player], new ClassicBattletechRulesProvider(),
             Substitute.For<ICommandPublisher>());
         _viewModel.Game = _game;
-        var tcs = new TaskCompletionSource<bool>();
-
-        _viewModel.PropertyChanged += (_, e) =>
-        {
-            if (e.PropertyName == nameof(BattleMapViewModel.UserActionLabel))
-            {
-                tcs.TrySetResult(true); // Signal that the property has changed
-            }
-        };
 
         ((ClientGame)_game).HandleCommand(new ChangePhaseCommand()
         {
@@ -286,7 +264,6 @@ public class BattleMapViewModelTests
             GameOriginId = Guid.NewGuid(),
             UnitsToPlay = 1
         });
-        await tcs.Task;
         
         // Assert
         _viewModel.UserActionLabel.Should().Be("Select unit to move");

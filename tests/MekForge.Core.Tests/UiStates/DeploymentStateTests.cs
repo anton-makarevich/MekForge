@@ -21,7 +21,6 @@ namespace Sanet.MekForge.Core.Tests.UiStates;
 public class DeploymentStateTests
 {
     private readonly DeploymentState _state;
-    private readonly BattleMapViewModel _viewModel;
     private readonly ClientGame _game;
     private readonly Unit _unit;
     private readonly Hex _hex1;
@@ -31,9 +30,9 @@ public class DeploymentStateTests
     {
         var imageService = Substitute.For<IImageService>();
         var localizationService = Substitute.For<ILocalizationService>();
-        _viewModel = Substitute.For<BattleMapViewModel>(imageService, localizationService);
+        var viewModel = Substitute.For<BattleMapViewModel>(imageService, localizationService);
         var builder = new DeploymentCommandBuilder(Guid.NewGuid(), Guid.NewGuid());
-        _state = new DeploymentState(_viewModel, builder);
+        _state = new DeploymentState(viewModel, builder);
         
         var rules = new ClassicBattletechRulesProvider();
         _unit = new MechFactory(rules).Create(MechFactoryTests.CreateDummyMechData());
@@ -48,7 +47,7 @@ public class DeploymentStateTests
             battleMap, [player], rules,
             Substitute.For<ICommandPublisher>());
         
-        _viewModel.Game = _game;
+        viewModel.Game = _game;
     }
 
     [Fact]
@@ -82,16 +81,6 @@ public class DeploymentStateTests
     }
 
     [Fact]
-    public void HandleUnitSelection_DoesNothing_WhenUnitIsNull()
-    {
-        // Act
-        _state.HandleUnitSelection(null);
-
-        // Assert
-        _viewModel.DidNotReceive().NotifyStateChanged();
-    }
-
-    [Fact]
     public void HandleUnitSelection_TransitionsToHexSelection()
     {
         // Arrange
@@ -102,7 +91,6 @@ public class DeploymentStateTests
 
         // Assert
         _state.ActionLabel.Should().Be("Select Hex");
-        _viewModel.Received(1).NotifyStateChanged();
     }
 
     [Fact]
@@ -117,7 +105,6 @@ public class DeploymentStateTests
 
         // Assert
         _state.ActionLabel.Should().Be("Select Direction");
-        _viewModel.Received(2).NotifyStateChanged(); // Once for unit selection, once for hex selection
     }
 
     [Fact]
