@@ -8,6 +8,7 @@ using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.UiStates;
 using Sanet.MVVM.Core.ViewModels;
 using System.Collections.ObjectModel;
+using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.ViewModels;
@@ -59,16 +60,12 @@ public class BattleMapViewModel : BaseViewModel
                 NotifyPropertyChanged(nameof(CommandLog));
             });
         
-        _gameSubscription = Observable
-            .Interval(TimeSpan.FromMilliseconds(100))
-            .Select(_ => new
-            {
-                localGame.Turn,
-                localGame.TurnPhase,
-                localGame.ActivePlayer,
-                UnitsToMoveCurrentStep = localGame.UnitsToPlayCurrentStep
-            })
-            .DistinctUntilChanged()
+        _gameSubscription = Observable.CombineLatest<int, PhaseNames, IPlayer?, int, (int Turn, PhaseNames Phase, IPlayer? Player, int UnitsToPlay)>(
+                localGame.TurnChanges.StartWith(localGame.Turn),
+                localGame.PhaseChanges.StartWith(localGame.TurnPhase),
+                localGame.ActivePlayerChanges.StartWith(localGame.ActivePlayer),
+                localGame.UnitsToPlayChanges.StartWith(localGame.UnitsToPlayCurrentStep),
+                (turn, phase, player, units) => (turn, phase, player, units))
             .Subscribe(_ =>
             {
                 CleanSelection();

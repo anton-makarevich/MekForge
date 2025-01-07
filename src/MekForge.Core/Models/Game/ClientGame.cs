@@ -14,7 +14,7 @@ namespace Sanet.MekForge.Core.Models.Game;
 public class ClientGame : BaseGame
 {
     private readonly Subject<GameCommand> _commandSubject = new();
-    private readonly List<GameCommand> _commandLog = [];
+    private readonly List<GameCommand> _commandLog = new();
 
     public IObservable<GameCommand> Commands => _commandSubject.AsObservable();
     public IReadOnlyList<GameCommand> CommandLog => _commandLog;

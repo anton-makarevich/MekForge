@@ -1,3 +1,4 @@
+using System.Reactive.Linq;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
@@ -6,6 +7,7 @@ using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Utils.TechRules;
+using System.Reactive.Subjects;
 
 namespace Sanet.MekForge.Core.Models.Game;
 
@@ -15,23 +17,68 @@ public abstract class BaseGame : IGame
     internal readonly ICommandPublisher CommandPublisher;
     private readonly List<IPlayer> _players = [];
     private readonly MechFactory _mechFactory;
+    
     private PhaseNames _turnPhases = PhaseNames.Start;
+    private int _turn = 1;
+    private IPlayer? _activePlayer;
+    private int _unitsToPlayCurrentStep;
+
+    private readonly Subject<int> _turnSubject = new();
+    private readonly Subject<PhaseNames> _phaseSubject = new();
+    private readonly Subject<IPlayer?> _activePlayerSubject = new();
+    private readonly Subject<int> _unitsToPlaySubject = new();
+
     public Guid GameId { get; }
-    public int Turn { get; protected set; } = 1;
+    public IObservable<int> TurnChanges => _turnSubject.AsObservable();
+    public IObservable<PhaseNames> PhaseChanges => _phaseSubject.AsObservable();
+    public IObservable<IPlayer?> ActivePlayerChanges => _activePlayerSubject.AsObservable();
+    public IObservable<int> UnitsToPlayChanges => _unitsToPlaySubject.AsObservable();
+
+    public int Turn
+    {
+        get => _turn;
+        protected set
+        {
+            if (_turn == value) return;
+            _turn = value;
+            _turnSubject.OnNext(value);
+        }
+    }
 
     public virtual PhaseNames TurnPhase
     {
         get => _turnPhases;
         protected set
         {
+            if (_turnPhases == value) return;
             _turnPhases = value;
+            _phaseSubject.OnNext(value);
             ActivePlayer = null;
             UnitsToPlayCurrentStep = 0;
         }
     }
 
-    public virtual IPlayer? ActivePlayer { get; protected set; }
-    public int UnitsToPlayCurrentStep { get; protected set; }
+    public virtual IPlayer? ActivePlayer
+    {
+        get => _activePlayer;
+        protected set
+        {
+            if (_activePlayer == value) return;
+            _activePlayer = value;
+            _activePlayerSubject.OnNext(value);
+        }
+    }
+
+    public int UnitsToPlayCurrentStep
+    {
+        get => _unitsToPlayCurrentStep;
+        protected set
+        {
+            if (_unitsToPlayCurrentStep == value) return;
+            _unitsToPlayCurrentStep = value;
+            _unitsToPlaySubject.OnNext(value);
+        }
+    }
 
     protected BaseGame(
         BattleMap battleMap,
