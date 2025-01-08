@@ -18,7 +18,6 @@ public class BattleMapViewModel : BaseViewModel
     private IGame? _game;
     private IDisposable? _gameSubscription;
     private IDisposable? _commandSubscription;
-    private IUiState _currentState;
     private ClientCommandBuilder? _commandBuilder;
     private List<Unit> _unitsToDeploy = [];
     private Unit? _selectedUnit;
@@ -30,7 +29,7 @@ public class BattleMapViewModel : BaseViewModel
     {
         ImageService = imageService;
         _localizationService = localizationService;
-        _currentState = new IdleState();
+        CurrentState = new IdleState();
     }
 
     public IGame? Game
@@ -113,7 +112,7 @@ public class BattleMapViewModel : BaseViewModel
 
     private void TransitionToState(IUiState newState)
     {
-        _currentState = newState;
+        CurrentState = newState;
         NotifyStateChanged();
     }
 
@@ -147,7 +146,7 @@ public class BattleMapViewModel : BaseViewModel
         }
     }
 
-    public bool AreUnitsToDeployVisible => _currentState is DeploymentState
+    public bool AreUnitsToDeployVisible => CurrentState is DeploymentState
                                           && UnitsToDeploy.Count > 0
                                           && SelectedUnit == null;
 
@@ -166,7 +165,7 @@ public class BattleMapViewModel : BaseViewModel
         {
             if (value == _selectedUnit) return;
             SetProperty(ref _selectedUnit, value);
-            _currentState.HandleUnitSelection(value);
+            CurrentState.HandleUnitSelection(value);
             NotifyPropertyChanged(nameof(AreUnitsToDeployVisible));
         }
     }
@@ -185,7 +184,7 @@ public class BattleMapViewModel : BaseViewModel
             return;
         }
 
-        _currentState.HandleHexSelection(selectedHex);
+        CurrentState.HandleHexSelection(selectedHex);
     }
 
     private void CleanSelection()
@@ -193,8 +192,8 @@ public class BattleMapViewModel : BaseViewModel
         SelectedUnit = null;
     }
 
-    public string UserActionLabel => _currentState.ActionLabel;
-    public bool IsUserActionLabelVisible => _currentState.IsActionRequired;
+    public string UserActionLabel => CurrentState.ActionLabel;
+    public bool IsUserActionLabelVisible => CurrentState.IsActionRequired;
 
     public bool IsCommandLogExpanded
     {
@@ -208,4 +207,5 @@ public class BattleMapViewModel : BaseViewModel
     }
 
     public IEnumerable<Unit> Units => Game?.Players.SelectMany(p => p.Units) ?? [];
+    public IUiState CurrentState { get; private set; }
 }

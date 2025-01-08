@@ -71,7 +71,7 @@ public class MovementState : IUiState
         var unit = _viewModel.Units.FirstOrDefault(u => u.Position == hex.Coordinates);
         if (unit != null)
         {
-            HandleUnitSelection(unit);
+            _viewModel.SelectedUnit=unit;
         }
     }
 
