@@ -57,7 +57,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
 
         foreach (var unit in ViewModel.Units)
         {
-            var unitControl = new UnitControl(unit, (IImageService<Bitmap>)ViewModel.ImageService);
+            var unitControl = new UnitControl(unit, (IImageService<Bitmap>)ViewModel.ImageService, ViewModel);
             MapCanvas.Children.Add(unitControl);
         }
     }
