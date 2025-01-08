@@ -12,17 +12,6 @@ public class MovementState : IUiState
     private readonly MoveUnitCommandBuilder _builder;
     private Hex? _selectedHex;
     private Unit? _selectedUnit;
-    
-    private enum SubState
-    {
-        SelectingUnit,
-        SelectingMovementType,
-        SelectingTargetHex,
-        SelectingDirection,
-        Completed
-    }
-    
-    private SubState _currentSubState = SubState.SelectingUnit;
 
     public MovementState(BattleMapViewModel viewModel, MoveUnitCommandBuilder builder)
     {
@@ -32,35 +21,35 @@ public class MovementState : IUiState
 
     public void HandleUnitSelection(Unit? unit)
     {
-        if (_currentSubState != SubState.SelectingUnit) return;
+        if (CurrentMovementStep != MovementStep.SelectingUnit) return;
         if (unit == null) return;
         
         _selectedUnit = unit;
         _builder.SetUnit(unit);
-        _currentSubState = SubState.SelectingMovementType;
+        CurrentMovementStep = MovementStep.SelectingMovementType;
         _viewModel.NotifyStateChanged();
     }
 
     public void HandleMovementTypeSelection(MovementType movementType)
     {
-        if (_currentSubState != SubState.SelectingMovementType) return;
+        if (CurrentMovementStep != MovementStep.SelectingMovementType) return;
         
         _builder.SetMovementType(movementType);
-        _currentSubState = SubState.SelectingTargetHex;
+        CurrentMovementStep = MovementStep.SelectingTargetHex;
         _viewModel.NotifyStateChanged();
     }
 
     public void HandleHexSelection(Hex hex)
     {
-        switch (_currentSubState)
+        switch (CurrentMovementStep)
         {
-            case SubState.SelectingUnit:
+            case MovementStep.SelectingUnit:
                 HandleUnitSelectionFromHex(hex);
                 break;
-            case SubState.SelectingTargetHex:
+            case MovementStep.SelectingTargetHex:
                 HandleTargetHexSelection(hex);
                 break;
-            case SubState.SelectingDirection:
+            case MovementStep.SelectingDirection:
                 HandleDirectionSelection(hex);
                 break;
         }
@@ -80,7 +69,7 @@ public class MovementState : IUiState
         // TODO: Add validation for movement range and terrain restrictions
         _selectedHex = hex;
         _builder.SetDestination(hex.Coordinates);
-        _currentSubState = SubState.SelectingDirection;
+        CurrentMovementStep = MovementStep.SelectingDirection;
         
         var adjacentCoordinates = hex.Coordinates.GetAdjacentCoordinates().ToList();
         _viewModel.HighlightHexes(adjacentCoordinates, true);
@@ -114,7 +103,7 @@ public class MovementState : IUiState
         _builder.Reset();
         _selectedHex = null;
         _selectedUnit = null;
-        _currentSubState = SubState.Completed;
+        CurrentMovementStep = MovementStep.Completed;
         _viewModel.NotifyStateChanged();
     }
 
@@ -125,16 +114,18 @@ public class MovementState : IUiState
             if (!IsActionRequired)
                 return string.Empty;
 
-            return _currentSubState switch
+            return CurrentMovementStep switch
             {
-                SubState.SelectingUnit => "Select unit to move",
-                SubState.SelectingMovementType => "Select movement type",
-                SubState.SelectingTargetHex => "Select target hex",
-                SubState.SelectingDirection => "Select facing direction",
+                MovementStep.SelectingUnit => "Select unit to move",
+                MovementStep.SelectingMovementType => "Select movement type",
+                MovementStep.SelectingTargetHex => "Select target hex",
+                MovementStep.SelectingDirection => "Select facing direction",
                 _ => string.Empty
             };
         }
     }
 
-    public bool IsActionRequired => _currentSubState != SubState.Completed;
+    public bool IsActionRequired => CurrentMovementStep != MovementStep.Completed;
+    
+    public MovementStep CurrentMovementStep { get; private set; } = MovementStep.SelectingUnit;
 }

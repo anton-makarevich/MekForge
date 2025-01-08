@@ -9,6 +9,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using Avalonia;
 using Sanet.MekForge.Core.Models.Map;
+using Sanet.MekForge.Core.UiStates;
 using Sanet.MekForge.Core.ViewModels;
 
 namespace Sanet.MekForge.Avalonia.Controls
@@ -20,12 +21,13 @@ namespace Sanet.MekForge.Avalonia.Controls
         private readonly Unit _unit;
         private readonly IDisposable _subscription;
         private readonly Border _tintBorder;
+        private readonly BattleMapViewModel _viewModel;
 
         public UnitControl(Unit unit, IImageService<Bitmap> imageService, BattleMapViewModel viewModel)
         {
             _unit = unit;
             _imageService = imageService;
-            var viewModel1 = viewModel;
+            _viewModel = viewModel;
 
             Width = HexCoordinates.HexWidth;
             Height = HexCoordinates.HexHeight;
@@ -49,6 +51,23 @@ namespace Sanet.MekForge.Avalonia.Controls
                 Opacity = 0.7
             };
 
+            var movementButtons = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                IsVisible = false
+            };
+
+            var walkButton = CreateMovementButton("Walk", MovementType.Walk);
+            var runButton = CreateMovementButton("Run", MovementType.Run);
+            var jumpButton = CreateMovementButton("Jump", MovementType.Jump);
+            jumpButton.IsVisible = _unit.GetMovementPoints(MovementType.Jump)>0;
+
+            movementButtons.Children.Add(walkButton);
+            movementButtons.Children.Add(runButton);
+            movementButtons.Children.Add(jumpButton);
+
             var color = _unit.Owner!=null 
                 ?Color.Parse(_unit.Owner.Tint)
                 :Colors.Yellow;
@@ -68,6 +87,7 @@ namespace Sanet.MekForge.Avalonia.Controls
             Children.Add(selectionBorder);
             Children.Add(_unitImage);
             Children.Add(_tintBorder);
+            Children.Add(movementButtons);
 
             // Create an observable that polls the unit's position and selection state
              Observable
@@ -77,7 +97,7 @@ namespace Sanet.MekForge.Avalonia.Controls
                     _unit.Position,
                     _unit.IsDeployed,
                     _unit.Facing,
-                    viewModel1.SelectedUnit
+                    _viewModel.SelectedUnit
                 })
                 .DistinctUntilChanged()
                 .ObserveOn(SynchronizationContext.Current) // Ensure events are processed on the UI thread
@@ -85,6 +105,9 @@ namespace Sanet.MekForge.Avalonia.Controls
                 {
                     Render();
                     selectionBorder.IsVisible = state.SelectedUnit == _unit;
+                    movementButtons.IsVisible = state.SelectedUnit == _unit
+                                                && _viewModel.CurrentState is MovementState
+                                                    { CurrentMovementStep: MovementStep.SelectingMovementType };
                 });
             
             // Initial update
@@ -126,6 +149,45 @@ namespace Sanet.MekForge.Avalonia.Controls
             var color = Color.Parse(_unit.Owner.Tint);
             _tintBorder.OpacityMask = new ImageBrush { Source = image, Stretch = Stretch.Fill };
             _tintBorder.Background = new SolidColorBrush(color);
+        }
+
+        private Button CreateMovementButton(string text, MovementType type)
+        {
+            var button = new Button
+            {
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(2)
+            };
+
+            var content = new StackPanel
+            {
+                Orientation = Orientation.Vertical
+            };
+
+            content.Children.Add(new TextBlock
+            {
+                Text = text,
+                HorizontalAlignment = HorizontalAlignment.Center
+            });
+
+            content.Children.Add(new TextBlock
+            {
+                Text = $"MP: {_unit.GetMovementPoints(type)}",
+                HorizontalAlignment = HorizontalAlignment.Center
+            });
+
+            button.Content = content;
+
+            button.Click += (_, _) =>
+            {
+                if (_viewModel.CurrentState is MovementState state)
+                {
+                    state.HandleMovementTypeSelection(type);
+                }
+            };
+
+            return button;
         }
 
         public void Dispose()
