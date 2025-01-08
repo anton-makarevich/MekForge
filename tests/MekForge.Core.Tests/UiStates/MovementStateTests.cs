@@ -69,6 +69,7 @@ public class MovementStateTests
 
     private void AddPlayerUnits()
     {
+        var playerId2 = Guid.NewGuid();
         _game.HandleCommand(new JoinGameCommand
         {
             PlayerName = "Player1",
@@ -77,11 +78,25 @@ public class MovementStateTests
             GameOriginId = Guid.NewGuid(),
             PlayerId = _player.Id
         });
+        _game.HandleCommand(new JoinGameCommand
+        {
+            PlayerName = "Player2",
+            Units = [_unitData],
+            Tint = "#FFFF00",
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = playerId2
+        });
         _game.HandleCommand(new UpdatePlayerStatusCommand
         {
             PlayerStatus = PlayerStatus.Playing,
             GameOriginId = Guid.NewGuid(),
             PlayerId = _player.Id
+        });
+        _game.HandleCommand(new UpdatePlayerStatusCommand
+        {
+            PlayerStatus = PlayerStatus.Playing,
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = playerId2
         });
     }
     private void SetActivePlayer()
@@ -179,7 +194,28 @@ public class MovementStateTests
         state.HandleHexSelection(hex);
 
         // Assert
+        _viewModel.SelectedUnit.Should().Be(unit);
         state.ActionLabel.Should().Be("Select movement type");
+    }
+    
+    [Fact]
+    public void HandleHexSelection_DoesNotSelectsUnit_WhenUnitIsOnHex_ButNotOwnedByActivePlayer()
+    {
+        // Arrange
+        AddPlayerUnits();
+        SetPhase(PhaseNames.Movement);
+        SetActivePlayer();
+        var state = _viewModel.CurrentState;
+        var position = new HexCoordinates(1, 1);
+        var unit = _viewModel.Units.Last();
+        unit.Deploy(position,HexDirection.Bottom);
+        var hex = new Hex(position);
+
+        // Act
+        state.HandleHexSelection(hex);
+
+        // Assert
+        _viewModel.SelectedUnit.Should().BeNull();
     }
 
     [Fact]

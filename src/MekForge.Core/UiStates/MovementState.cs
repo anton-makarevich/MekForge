@@ -69,7 +69,7 @@ public class MovementState : IUiState
     private void HandleUnitSelectionFromHex(Hex hex)
     {
         var unit = _viewModel.Units.FirstOrDefault(u => u.Position == hex.Coordinates);
-        if (unit != null)
+        if (unit != null && unit.Owner?.Id==_viewModel.Game?.ActivePlayer?.Id)
         {
             _viewModel.SelectedUnit=unit;
         }
