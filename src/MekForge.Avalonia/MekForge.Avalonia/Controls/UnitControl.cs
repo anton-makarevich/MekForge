@@ -7,7 +7,9 @@ using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services;
 using System.Reactive.Linq;
 using System.Threading;
+using Avalonia;
 using Sanet.MekForge.Core.Models.Map;
+using Sanet.MekForge.Core.ViewModels;
 
 namespace Sanet.MekForge.Avalonia.Controls
 {
@@ -19,11 +21,12 @@ namespace Sanet.MekForge.Avalonia.Controls
         private readonly IDisposable _subscription;
         private readonly Border _tintBorder;
 
-        public UnitControl(Unit unit, IImageService<Bitmap> imageService)
+        public UnitControl(Unit unit, IImageService<Bitmap> imageService, BattleMapViewModel viewModel)
         {
             _unit = unit;
             _imageService = imageService;
-            
+            var viewModel1 = viewModel;
+
             Width = HexCoordinates.HexWidth;
             Height = HexCoordinates.HexHeight;
             
@@ -45,22 +48,44 @@ namespace Sanet.MekForge.Avalonia.Controls
                 Background = new SolidColorBrush(Colors.White), // Will be updated with player color
                 Opacity = 0.7
             };
-            
+
+            var color = _unit.Owner!=null 
+                ?Color.Parse(_unit.Owner.Tint)
+                :Colors.Yellow;
+            var selectionBorder = new Border
+            {
+                Width = Width*0.9,
+                Height = Height*0.9,
+                Opacity = 0.9,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                BorderBrush = new SolidColorBrush(color),
+                BorderThickness = new Thickness(4),
+                CornerRadius = new CornerRadius(Width/2), // Make it circular
+                IsVisible = false
+            };
+
+            Children.Add(selectionBorder);
             Children.Add(_unitImage);
             Children.Add(_tintBorder);
 
-            // Create an observable that polls the unit's position
+            // Create an observable that polls the unit's position and selection state
              Observable
                 .Interval(TimeSpan.FromMilliseconds(32)) // ~60fps
                 .Select(_ => new
                 {
                     _unit.Position,
-                    _unit.IsDeployed    ,
-                    _unit.Facing
+                    _unit.IsDeployed,
+                    _unit.Facing,
+                    viewModel1.SelectedUnit
                 })
                 .DistinctUntilChanged()
                 .ObserveOn(SynchronizationContext.Current) // Ensure events are processed on the UI thread
-                .Subscribe(_ => Render());
+                .Subscribe(state => 
+                {
+                    Render();
+                    selectionBorder.IsVisible = state.SelectedUnit == _unit;
+                });
             
             // Initial update
             Render();
