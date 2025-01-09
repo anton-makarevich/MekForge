@@ -40,37 +40,33 @@ public class BattleMap
     }
 
     /// <summary>
-    /// Finds the shortest path between hexes considering movement costs and facing changes
+    /// Finds a path between two positions, considering facing direction and movement costs
     /// </summary>
-    public List<HexPosition>? FindPath(
-        HexPosition start,
-        HexPosition target,
-        int maxMovementPoints)
+    public List<HexPosition>? FindPath(HexPosition start, HexPosition target, int maxMovementPoints)
     {
-        // First, find the shortest path without considering facing
-        var frontier = new PriorityQueue<(HexCoordinates coords, int cost), int>();
-        frontier.Enqueue((start.Coordinates, 0), 0);
-        
+        // First find the shortest path without considering facing
+        var frontier = new PriorityQueue<HexCoordinates, int>();
         var cameFrom = new Dictionary<HexCoordinates, HexCoordinates>();
-        var costSoFar = new Dictionary<HexCoordinates, int>
-        {
-            [start.Coordinates] = 0
-        };
+        var costSoFar = new Dictionary<HexCoordinates, int>();
+
+        frontier.Enqueue(start.Coordinates, 0);
+        costSoFar[start.Coordinates] = 0;
 
         while (frontier.Count > 0)
         {
-            var current = frontier.Dequeue().coords;
+            var current = frontier.Dequeue();
 
             if (current == target.Coordinates)
                 break;
 
             foreach (var next in current.GetAdjacentCoordinates())
             {
-                var nextHex = GetHex(next);
-                if (nextHex == null)
+                var hex = GetHex(next);
+                if (hex == null)
                     continue;
 
-                var newCost = costSoFar[current] + nextHex.MovementCost;
+                var newCost = costSoFar[current] + hex.MovementCost;
+                
                 if (newCost > maxMovementPoints)
                     continue;
 
@@ -78,7 +74,7 @@ public class BattleMap
                 {
                     costSoFar[next] = newCost;
                     var priority = newCost + next.DistanceTo(target.Coordinates);
-                    frontier.Enqueue((next, newCost), priority);
+                    frontier.Enqueue(next, priority);
                     cameFrom[next] = current;
                 }
             }
@@ -87,78 +83,42 @@ public class BattleMap
         if (!cameFrom.ContainsKey(target.Coordinates))
             return null;
 
-        // Reconstruct the path of coordinates
-        var coordPath = new List<HexCoordinates>();
+        // Reconstruct the path and add facing changes
+        var result = new List<HexPosition>();
+        var path = new List<HexCoordinates>();
         var currentCoord = target.Coordinates;
+
+        // Build the path in reverse
         while (currentCoord != start.Coordinates)
         {
-            coordPath.Add(currentCoord);
+            path.Add(currentCoord);
             currentCoord = cameFrom[currentCoord];
         }
-        coordPath.Add(start.Coordinates);
-        coordPath.Reverse();
+        path.Add(start.Coordinates);
+        path.Reverse();
 
-        // Now create the final path with facing changes
-        var result = new List<HexPosition>();
-        var currentFacing = start.Facing;
-        
-        // Add start position
-        result.Add(start);
+        // Add positions with proper facing
+        var currentPos = start;
+        result.Add(currentPos);
 
-        // For each coordinate except the last one
-        for (int i = 0; i < coordPath.Count - 1; i++)
+        // For each step in the path
+        for (var i = 0; i < path.Count - 1; i++)
         {
-            var current = coordPath[i];
-            var next = coordPath[i + 1];
-
-            // Get the direction we need to face to move to the next hex
-            var targetFacing = current.GetDirectionToNeighbour(next);
-
-            // Add turning positions if needed
-            AddTurningPositions(current, currentFacing, targetFacing, result);
-
-            // Add position in next hex with the target facing
-            result.Add(new HexPosition(next, targetFacing));
-            currentFacing = targetFacing;
+            var nextCoord = path[i + 1];
+            
+            // Get required facing for movement and add turning steps
+            var requiredFacing = currentPos.GetRequiredFacingToNeighbor(nextCoord);
+            result.AddRange(currentPos.GetTurningSteps(requiredFacing));
+            
+            // Move to next hex
+            currentPos = new HexPosition(nextCoord, requiredFacing);
+            result.Add(currentPos);
         }
 
-        // Finally, add any needed turning positions at the target
-        AddTurningPositions(target.Coordinates, currentFacing, target.Facing, result);
+        // Add final turning steps if needed
+        result.AddRange(currentPos.GetTurningSteps(target.Facing));
 
         return result;
-
-        // Local function to add turning positions
-        void AddTurningPositions(HexCoordinates coords, HexDirection fromFacing, HexDirection toFacing, List<HexPosition> positions)
-        {
-            if (fromFacing == toFacing)
-                return;
-
-            var currentFacingInt = (int)fromFacing;
-            var targetFacingInt = (int)toFacing;
-            
-            var clockwiseSteps = (targetFacingInt - currentFacingInt + 6) % 6;
-            var counterClockwiseSteps = (currentFacingInt - targetFacingInt + 6) % 6;
-
-            // Choose the shorter turning direction
-            if (clockwiseSteps <= counterClockwiseSteps)
-            {
-                // Turn clockwise
-                for (var step = 1; step <= clockwiseSteps; step++)
-                {
-                    var intermediateFacing = (HexDirection)((currentFacingInt + step) % 6);
-                    positions.Add(new HexPosition(coords, intermediateFacing));
-                }
-            }
-            else
-            {
-                // Turn counterclockwise
-                for (var step = 1; step <= counterClockwiseSteps; step++)
-                {
-                    var intermediateFacing = (HexDirection)((currentFacingInt - step + 6) % 6);
-                    positions.Add(new HexPosition(coords, intermediateFacing));
-                }
-            }
-        }
     }
 
     /// <summary>
