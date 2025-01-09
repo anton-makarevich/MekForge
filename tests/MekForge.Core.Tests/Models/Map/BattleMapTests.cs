@@ -90,38 +90,38 @@ public class BattleMapTests
         );
     }
 
-    // [Fact]
-    // public void FindPath_WithHeavyWoods_TakesLongerPath()
-    // {
-    //     // Arrange
-    //     var map = new BattleMap(2, 3);
-    //     var start = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
-    //     var target = new HexPosition(new HexCoordinates(2, 3), HexDirection.Top);
-    //
-    //     // Add heavy woods on col 2
-    //     for (var r = 1; r <= 3; r++)
-    //     {
-    //         var hex = new Hex(new HexCoordinates(2, r));
-    //         hex.AddTerrain(new HeavyWoodsTerrain());
-    //         map.AddHex(hex);
-    //     }
-    //
-    //     // Add clear terrain path through row 1
-    //     for (var r = 1; r <= 3; r++)
-    //     {
-    //         var hex = new Hex(new HexCoordinates(1, r));
-    //         hex.AddTerrain(new ClearTerrain());
-    //         map.AddHex(hex);
-    //     }
-    //
-    //     // Act
-    //     var path = map.FindPath(start, target, 6);
-    //
-    //     // Assert
-    //     path.Should().NotBeNull();
-    //     path!.Select(p => p.Coordinates).Should().Contain(new HexCoordinates(1, 2)); // Should go through clear terrain
-    //     path!.Select(p => p.Coordinates).Should().Contain(new HexCoordinates(1, 3)); // Should go through clear terrain
-    // }
+    [Fact]
+    public void FindPath_WithHeavyWoods_TakesLongerPath()
+    {
+        // Arrange
+        var map = new BattleMap(2, 3);
+        var start = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var target = new HexPosition(new HexCoordinates(2, 3), HexDirection.Bottom);
+    
+        // Add heavy woods on col 2
+        for (var r = 1; r <= 3; r++)
+        {
+            var hex = new Hex(new HexCoordinates(2, r));
+            hex.AddTerrain(new HeavyWoodsTerrain());
+            map.AddHex(hex);
+        }
+    
+        // Add clear terrain path through row 1
+        for (var r = 1; r <= 3; r++)
+        {
+            var hex = new Hex(new HexCoordinates(1, r));
+            hex.AddTerrain(new ClearTerrain());
+            map.AddHex(hex);
+        }
+    
+        // Act
+        var path = map.FindPath(start, target, 6);
+    
+        // Assert
+        path.Should().NotBeNull();
+        path!.Select(p => p.Coordinates).Should().Contain(new HexCoordinates(1, 2)); // Should go through clear terrain
+        path!.Select(p => p.Coordinates).Should().Contain(new HexCoordinates(1, 3)); // Should go through clear terrain
+    }
 
     [Fact]
     public void GetReachableHexes_WithClearTerrain_ReturnsCorrectHexes()
