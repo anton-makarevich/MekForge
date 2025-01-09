@@ -47,6 +47,7 @@ public class BattleMap
         HexPosition target,
         int maxMovementPoints)
     {
+        // First, find the shortest path without considering facing
         var frontier = new PriorityQueue<(HexCoordinates coords, int cost), int>();
         frontier.Enqueue((start.Coordinates, 0), 0);
         
@@ -63,7 +64,6 @@ public class BattleMap
             if (current == target.Coordinates)
                 break;
 
-            // For each adjacent hex
             foreach (var next in current.GetAdjacentCoordinates())
             {
                 var nextHex = GetHex(next);
@@ -87,7 +87,40 @@ public class BattleMap
         if (!cameFrom.ContainsKey(target.Coordinates))
             return null;
 
-        // First, reconstruct the path of coordinates
+        // Local function to add turning positions
+        void AddTurningPositions(HexCoordinates coords, HexDirection fromFacing, HexDirection toFacing, List<HexPosition> positions)
+        {
+            if (fromFacing == toFacing)
+                return;
+
+            var currentFacingInt = (int)fromFacing;
+            var targetFacingInt = (int)toFacing;
+            
+            var clockwiseSteps = (targetFacingInt - currentFacingInt + 6) % 6;
+            var counterClockwiseSteps = (currentFacingInt - targetFacingInt + 6) % 6;
+
+            // Choose the shorter turning direction
+            if (clockwiseSteps <= counterClockwiseSteps)
+            {
+                // Turn clockwise
+                for (int step = 1; step <= clockwiseSteps; step++)
+                {
+                    var intermediateFacing = (HexDirection)((currentFacingInt + step) % 6);
+                    positions.Add(new HexPosition(coords, intermediateFacing));
+                }
+            }
+            else
+            {
+                // Turn counterclockwise
+                for (int step = 1; step <= counterClockwiseSteps; step++)
+                {
+                    var intermediateFacing = (HexDirection)((currentFacingInt - step + 6) % 6);
+                    positions.Add(new HexPosition(coords, intermediateFacing));
+                }
+            }
+        }
+
+        // Reconstruct the path of coordinates
         var coordPath = new List<HexCoordinates>();
         var currentCoord = target.Coordinates;
         while (currentCoord != start.Coordinates)
@@ -111,26 +144,20 @@ public class BattleMap
             var current = coordPath[i];
             var next = coordPath[i + 1];
 
-            // First, determine the direction we need to face to move to the next hex
+            // Get the direction we need to face to move to the next hex
             var targetFacing = current.GetDirectionToNeighbour(next);
 
-            // If we need to change facing, add intermediate positions
-            if (currentFacing != targetFacing)
-            {
-                // Add position for initial facing
-                result.Add(new HexPosition(current, targetFacing));
-            }
+            // Add turning positions if needed
+            AddTurningPositions(current, currentFacing, targetFacing, result);
+            currentFacing = targetFacing;
 
             // Add position in next hex with the target facing
             result.Add(new HexPosition(next, targetFacing));
             currentFacing = targetFacing;
         }
 
-        // Finally, if we need to change facing at the target
-        if (currentFacing != target.Facing)
-        {
-            result.Add(target);
-        }
+        // Finally, add any needed turning positions at the target
+        AddTurningPositions(target.Coordinates, currentFacing, target.Facing, result);
 
         return result;
     }
