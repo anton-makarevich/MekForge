@@ -200,7 +200,7 @@ public class BattleMap
                     continue;
 
                 // If we haven't visited this hex or we found a cheaper path
-                if (visited.ContainsKey(neighborCoord) && totalCost >= visited[neighborCoord]) 
+                if (visited.TryGetValue(neighborCoord, out var value) && totalCost >= value) 
                     continue;
                 
                 visited[neighborCoord] = totalCost;

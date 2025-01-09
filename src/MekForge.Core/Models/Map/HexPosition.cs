@@ -1,5 +1,3 @@
-using Sanet.MekForge.Core.Data;
-
 namespace Sanet.MekForge.Core.Models.Map;
 
 /// <summary>
@@ -29,14 +27,4 @@ public readonly record struct HexPosition
         var diff = Math.Abs((int)targetFacing - (int)Facing);
         return Math.Min(diff, 6 - diff); // Consider both clockwise and counterclockwise turns
     }
-
-    /// <summary>
-    /// Returns a new HexPosition with the same coordinates but different facing
-    /// </summary>
-    public HexPosition WithFacing(HexDirection newFacing) => this with { Facing = newFacing };
-
-    /// <summary>
-    /// Returns a new HexPosition with the same facing but different coordinates
-    /// </summary>
-    public HexPosition WithCoordinates(HexCoordinates newCoordinates) => this with { Coordinates = newCoordinates };
 }
