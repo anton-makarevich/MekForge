@@ -87,39 +87,6 @@ public class BattleMap
         if (!cameFrom.ContainsKey(target.Coordinates))
             return null;
 
-        // Local function to add turning positions
-        void AddTurningPositions(HexCoordinates coords, HexDirection fromFacing, HexDirection toFacing, List<HexPosition> positions)
-        {
-            if (fromFacing == toFacing)
-                return;
-
-            var currentFacingInt = (int)fromFacing;
-            var targetFacingInt = (int)toFacing;
-            
-            var clockwiseSteps = (targetFacingInt - currentFacingInt + 6) % 6;
-            var counterClockwiseSteps = (currentFacingInt - targetFacingInt + 6) % 6;
-
-            // Choose the shorter turning direction
-            if (clockwiseSteps <= counterClockwiseSteps)
-            {
-                // Turn clockwise
-                for (int step = 1; step <= clockwiseSteps; step++)
-                {
-                    var intermediateFacing = (HexDirection)((currentFacingInt + step) % 6);
-                    positions.Add(new HexPosition(coords, intermediateFacing));
-                }
-            }
-            else
-            {
-                // Turn counterclockwise
-                for (int step = 1; step <= counterClockwiseSteps; step++)
-                {
-                    var intermediateFacing = (HexDirection)((currentFacingInt - step + 6) % 6);
-                    positions.Add(new HexPosition(coords, intermediateFacing));
-                }
-            }
-        }
-
         // Reconstruct the path of coordinates
         var coordPath = new List<HexCoordinates>();
         var currentCoord = target.Coordinates;
@@ -149,7 +116,6 @@ public class BattleMap
 
             // Add turning positions if needed
             AddTurningPositions(current, currentFacing, targetFacing, result);
-            currentFacing = targetFacing;
 
             // Add position in next hex with the target facing
             result.Add(new HexPosition(next, targetFacing));
@@ -160,6 +126,39 @@ public class BattleMap
         AddTurningPositions(target.Coordinates, currentFacing, target.Facing, result);
 
         return result;
+
+        // Local function to add turning positions
+        void AddTurningPositions(HexCoordinates coords, HexDirection fromFacing, HexDirection toFacing, List<HexPosition> positions)
+        {
+            if (fromFacing == toFacing)
+                return;
+
+            var currentFacingInt = (int)fromFacing;
+            var targetFacingInt = (int)toFacing;
+            
+            var clockwiseSteps = (targetFacingInt - currentFacingInt + 6) % 6;
+            var counterClockwiseSteps = (currentFacingInt - targetFacingInt + 6) % 6;
+
+            // Choose the shorter turning direction
+            if (clockwiseSteps <= counterClockwiseSteps)
+            {
+                // Turn clockwise
+                for (var step = 1; step <= clockwiseSteps; step++)
+                {
+                    var intermediateFacing = (HexDirection)((currentFacingInt + step) % 6);
+                    positions.Add(new HexPosition(coords, intermediateFacing));
+                }
+            }
+            else
+            {
+                // Turn counterclockwise
+                for (var step = 1; step <= counterClockwiseSteps; step++)
+                {
+                    var intermediateFacing = (HexDirection)((currentFacingInt - step + 6) % 6);
+                    positions.Add(new HexPosition(coords, intermediateFacing));
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -180,6 +179,7 @@ public class BattleMap
             var current = toVisit.Dequeue();
             var currentCost = visited[current.Coordinates].lowestCost;
 
+            // For each adjacent hex
             foreach (var neighborCoord in current.Coordinates.GetAdjacentCoordinates())
             {
                 // Skip if hex doesn't exist on map
@@ -187,29 +187,23 @@ public class BattleMap
                 if (neighborHex == null)
                     continue;
 
-                // Try all possible facings
-                for (int facing = 0; facing < 6; facing++)
-                {
-                    var neighborPos = new HexPosition(neighborCoord, (HexDirection)facing);
-                    
-                    // Calculate total cost including turning
-                    var turningCost = current.GetTurningCost(neighborPos.Facing);
-                    var totalCost = currentCost + neighborHex.MovementCost + turningCost;
-                    
-                    if (totalCost > maxMovementPoints) // Exceeds movement points
-                        continue;
+                // Get required facing to move to this hex
+                var requiredFacing = current.Coordinates.GetDirectionToNeighbour(neighborCoord);
+                
+                // Calculate turning cost from current facing
+                var turningCost = current.GetTurningCost(requiredFacing);
+                
+                // Calculate total cost including turning and movement
+                var totalCost = currentCost + neighborHex.MovementCost + turningCost;
+                
+                if (totalCost > maxMovementPoints) // Exceeds movement points
+                    continue;
 
-                    if (!visited.ContainsKey(neighborCoord))
-                    {
-                        visited[neighborCoord] = (neighborPos, totalCost);
-                        toVisit.Enqueue(neighborPos);
-                    }
-                    else if (totalCost < visited[neighborCoord].lowestCost)
-                    {
-                        visited[neighborCoord] = (neighborPos, totalCost);
-                        toVisit.Enqueue(neighborPos);
-                    }
-                }
+                // If we haven't visited this hex or we found a cheaper path
+                if (visited.ContainsKey(neighborCoord) && totalCost >= visited[neighborCoord].lowestCost) continue;
+                var neighborPos = new HexPosition(neighborCoord, requiredFacing);
+                visited[neighborCoord] = (neighborPos, totalCost);
+                toVisit.Enqueue(neighborPos);
             }
         }
 

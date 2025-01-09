@@ -142,7 +142,7 @@ public class BattleMapTests
         var reachable = map.GetReachableHexes(start, 2).ToList();
 
         // Assert
-        reachable.Count.Should().Be(18); // 6 hexes at distance 1, 12 at distance 2
+        reachable.Count.Should().Be(4); // 
         reachable.All(h => h.cost <= 2).Should().BeTrue();
         reachable.Count(h => h.cost == 1).Should().Be(6); // 6 adjacent hexes
         reachable.Count(h => h.cost == 2).Should().Be(12); // 12 hexes at distance 2

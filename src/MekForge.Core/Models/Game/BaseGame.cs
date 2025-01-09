@@ -98,6 +98,15 @@ public abstract class BaseGame : IGame
         return BattleMap.GetHexes();
     }
 
+    /// <summary>
+    /// Gets all valid hex coordinates that can be reached from the given position with given movement points
+    /// </summary>
+    public IEnumerable<HexCoordinates> GetReachableHexes(HexPosition start, int maxMovementPoints)
+    {
+        return BattleMap.GetReachableHexes(start, maxMovementPoints)
+            .Select(x => x.position.Coordinates);
+    }
+
     internal void OnPlayerJoined(JoinGameCommand joinGameCommand)
     {
         var player = new Player(joinGameCommand.PlayerId, joinGameCommand.PlayerName,joinGameCommand.Tint);

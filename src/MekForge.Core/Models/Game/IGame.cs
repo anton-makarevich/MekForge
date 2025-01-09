@@ -18,4 +18,9 @@ public interface IGame
     IObservable<PhaseNames> PhaseChanges { get; }
     IObservable<IPlayer?> ActivePlayerChanges { get; }
     IObservable<int> UnitsToPlayChanges { get; }
+
+    /// <summary>
+    /// Gets all valid hex coordinates that can be reached from the given position with given movement points
+    /// </summary>
+    IEnumerable<HexCoordinates> GetReachableHexes(HexPosition start, int maxMovementPoints);
 }
