@@ -54,10 +54,12 @@ namespace Sanet.MekForge.Avalonia.Controls
             
             _movementButtons = new StackPanel
             {
-                Orientation = Orientation.Horizontal,
+                Orientation = Orientation.Vertical,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                IsVisible = false
+                IsVisible = false,
+                Spacing = 4,
+                Margin = new Thickness(4)
             };
 
             var walkButton = CreateMovementButton("Walk", MovementType.Walk);
@@ -86,8 +88,8 @@ namespace Sanet.MekForge.Avalonia.Controls
             };
 
             Children.Add(selectionBorder);
-            Children.Add(_tintBorder);
             Children.Add(_unitImage);
+            Children.Add(_tintBorder);
 
             // Create an observable that polls the unit's position and selection state
              Observable
@@ -168,27 +170,17 @@ namespace Sanet.MekForge.Avalonia.Controls
         {
             var button = new Button
             {
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(2)
+                Background = new SolidColorBrush(Colors.Aqua),
+                Padding = new Thickness(8, 4),
+                CornerRadius = new CornerRadius(4),
+                HorizontalAlignment = HorizontalAlignment.Stretch,
             };
 
-            var content = new StackPanel
+            var content = new TextBlock
             {
-                Orientation = Orientation.Vertical
+                Text = $"{text} | MP: {_unit.GetMovementPoints(type)}",
+                HorizontalAlignment = HorizontalAlignment.Center
             };
-
-            content.Children.Add(new TextBlock
-            {
-                Text = text,
-                HorizontalAlignment = HorizontalAlignment.Center
-            });
-
-            content.Children.Add(new TextBlock
-            {
-                Text = $"MP: {_unit.GetMovementPoints(type)}",
-                HorizontalAlignment = HorizontalAlignment.Center
-            });
 
             button.Content = content;
 
