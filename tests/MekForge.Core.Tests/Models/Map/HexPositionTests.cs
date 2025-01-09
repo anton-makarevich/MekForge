@@ -58,30 +58,64 @@ public class HexPositionTests
         cost.Should().Be(expectedCost);
     }
 
+    [Theory]
+    [InlineData(HexDirection.Top, HexDirection.TopRight, 1)] // One step clockwise
+    [InlineData(HexDirection.Top, HexDirection.BottomRight, 2)] // Two steps clockwise
+    [InlineData(HexDirection.Top, HexDirection.Bottom, 3)] // Three steps either way
+    public void GetTurningSteps_ReturnsCorrectNumberOfSteps(HexDirection from, HexDirection to, int expectedSteps)
+    {
+        // Arrange
+        var position = new HexPosition(new HexCoordinates(1, 1), from);
+
+        // Act
+        var steps = position.GetTurningSteps(to).ToList();
+
+        // Assert
+        steps.Count.Should().Be(expectedSteps);
+        steps.All(p => p.Coordinates == position.Coordinates).Should().BeTrue(); // All steps are in same hex
+    }
+
     [Fact]
-    public void GetTurningCost_FromTopToBottomLeft_ReturnsShorterPath()
+    public void GetTurningSteps_NoTurnNeeded_ReturnsEmptySequence()
     {
         // Arrange
         var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
 
         // Act
-        var cost = position.GetTurningCost(HexDirection.BottomLeft);
+        var steps = position.GetTurningSteps(HexDirection.Top).ToList();
 
         // Assert
-        cost.Should().Be(2); // Should take counterclockwise path (2 steps) instead of clockwise (4 steps)
+        steps.Should().BeEmpty();
     }
 
     [Fact]
-    public void GetTurningCost_FromBottomToTopRight_ReturnsShorterPath()
+    public void GetTurningSteps_FromTopToRight_ReturnsCorrectSequence()
     {
         // Arrange
-        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
 
         // Act
-        var cost = position.GetTurningCost(HexDirection.TopRight);
+        var steps = position.GetTurningSteps(HexDirection.BottomRight).ToList();
 
         // Assert
-        cost.Should().Be(2); // Should take clockwise path (2 steps) instead of counterclockwise (4 steps)
+        steps.Count.Should().Be(2);
+        steps[0].Facing.Should().Be(HexDirection.TopRight);
+        steps[1].Facing.Should().Be(HexDirection.BottomRight);
+    }
+
+    [Fact]
+    public void GetTurningSteps_FromTopToLeft_ReturnsShorterCounterclockwisePath()
+    {
+        // Arrange
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
+
+        // Act
+        var steps = position.GetTurningSteps(HexDirection.BottomLeft).ToList();
+
+        // Assert
+        steps.Count.Should().Be(2); // Should take 2 steps counterclockwise instead of 4 clockwise
+        steps[0].Facing.Should().Be(HexDirection.TopLeft);
+        steps[1].Facing.Should().Be(HexDirection.BottomLeft);
     }
 
     [Fact]

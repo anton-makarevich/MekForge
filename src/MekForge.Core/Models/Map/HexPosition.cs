@@ -62,12 +62,4 @@ public readonly record struct HexPosition
             }
         }
     }
-
-    /// <summary>
-    /// Gets the required facing direction to move to a neighbor hex
-    /// </summary>
-    public HexDirection GetRequiredFacingToNeighbor(HexCoordinates neighborCoord)
-    {
-        return Coordinates.GetDirectionToNeighbour(neighborCoord);
-    }
 }

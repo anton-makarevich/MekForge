@@ -107,7 +107,7 @@ public class BattleMap
             var nextCoord = path[i + 1];
             
             // Get required facing for movement and add turning steps
-            var requiredFacing = currentPos.GetRequiredFacingToNeighbor(nextCoord);
+            var requiredFacing = currentPos.Coordinates.GetDirectionToNeighbour(nextCoord);
             result.AddRange(currentPos.GetTurningSteps(requiredFacing));
             
             // Move to next hex
