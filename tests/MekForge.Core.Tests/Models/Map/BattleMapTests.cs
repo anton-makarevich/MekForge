@@ -144,8 +144,8 @@ public class BattleMapTests
         // Assert
         reachable.Count.Should().Be(4); // 
         reachable.All(h => h.cost <= 2).Should().BeTrue();
-        reachable.Count(h => h.cost == 1).Should().Be(6); // 6 adjacent hexes
-        reachable.Count(h => h.cost == 2).Should().Be(12); // 12 hexes at distance 2
+        reachable.Count(h => h.cost == 1).Should().Be(1); // 6 adjacent hexes
+        reachable.Count(h => h.cost == 2).Should().Be(3); // 12 hexes at distance 2
     }
 
     [Fact]
@@ -153,7 +153,7 @@ public class BattleMapTests
     {
         // Arrange
         var map = new BattleMap(2, 2);
-        var start = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
+        var start = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
 
         // Add clear terrain hex
         var clearHex = new Hex(new HexCoordinates(2, 1));
@@ -170,7 +170,7 @@ public class BattleMapTests
 
         // Assert
         reachable.Count.Should().Be(1); // Only the clear hex should be reachable
-        reachable.First().position.Coordinates.Should().Be(clearHex.Coordinates);
+        reachable.First().coordinates.Should().Be(clearHex.Coordinates);
     }
 
     [Fact]

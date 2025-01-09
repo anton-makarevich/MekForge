@@ -104,7 +104,7 @@ public abstract class BaseGame : IGame
     public IEnumerable<HexCoordinates> GetReachableHexes(HexPosition start, int maxMovementPoints)
     {
         return BattleMap.GetReachableHexes(start, maxMovementPoints)
-            .Select(x => x.position.Coordinates);
+            .Select(x => x.coordinates);
     }
 
     internal void OnPlayerJoined(JoinGameCommand joinGameCommand)

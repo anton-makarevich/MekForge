@@ -164,20 +164,20 @@ public class BattleMap
     /// <summary>
     /// Gets all valid hexes that can be reached with given movement points, considering facing
     /// </summary>
-    public IEnumerable<(HexPosition position, int cost)> GetReachableHexes(
+    public IEnumerable<(HexCoordinates coordinates, int cost)> GetReachableHexes(
         HexPosition start,
         int maxMovementPoints)
     {
-        var visited = new Dictionary<HexCoordinates, (HexPosition bestPos, int lowestCost)>();
+        var visited = new Dictionary<HexCoordinates, int>();
         var toVisit = new Queue<HexPosition>();
         
-        visited[start.Coordinates] = (start, 0);
+        visited[start.Coordinates] = 0;
         toVisit.Enqueue(start);
 
         while (toVisit.Count > 0)
         {
             var current = toVisit.Dequeue();
-            var currentCost = visited[current.Coordinates].lowestCost;
+            var currentCost = visited[current.Coordinates];
 
             // For each adjacent hex
             foreach (var neighborCoord in current.Coordinates.GetAdjacentCoordinates())
@@ -200,16 +200,17 @@ public class BattleMap
                     continue;
 
                 // If we haven't visited this hex or we found a cheaper path
-                if (visited.ContainsKey(neighborCoord) && totalCost >= visited[neighborCoord].lowestCost) continue;
-                var neighborPos = new HexPosition(neighborCoord, requiredFacing);
-                visited[neighborCoord] = (neighborPos, totalCost);
-                toVisit.Enqueue(neighborPos);
+                if (visited.ContainsKey(neighborCoord) && totalCost >= visited[neighborCoord]) 
+                    continue;
+                
+                visited[neighborCoord] = totalCost;
+                toVisit.Enqueue(new HexPosition(neighborCoord, requiredFacing));
             }
         }
 
         return visited
             .Where(v => v.Key != start.Coordinates)
-            .Select(v => (v.Value.bestPos, v.Value.lowestCost));
+            .Select(v => (v.Key, v.Value));
     }
 
     /// <summary>
