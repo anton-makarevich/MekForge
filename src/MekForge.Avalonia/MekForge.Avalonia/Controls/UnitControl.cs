@@ -9,6 +9,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using Avalonia;
 using Sanet.MekForge.Core.Models.Map;
+using Sanet.MekForge.Core.UiStates;
 using Sanet.MekForge.Core.ViewModels;
 
 namespace Sanet.MekForge.Avalonia.Controls
@@ -20,12 +21,14 @@ namespace Sanet.MekForge.Avalonia.Controls
         private readonly Unit _unit;
         private readonly IDisposable _subscription;
         private readonly Border _tintBorder;
+        private readonly BattleMapViewModel _viewModel;
+        private readonly StackPanel _movementButtons;
 
         public UnitControl(Unit unit, IImageService<Bitmap> imageService, BattleMapViewModel viewModel)
         {
             _unit = unit;
             _imageService = imageService;
-            var viewModel1 = viewModel;
+            _viewModel = viewModel;
 
             Width = HexCoordinates.HexWidth;
             Height = HexCoordinates.HexHeight;
@@ -45,9 +48,28 @@ namespace Sanet.MekForge.Avalonia.Controls
                 Height = _unitImage.Height,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                Background = new SolidColorBrush(Colors.White), // Will be updated with player color
+                Background = new SolidColorBrush(Colors.White),
                 Opacity = 0.7
             };
+            
+            _movementButtons = new StackPanel
+            {
+                Orientation = Orientation.Vertical,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                IsVisible = false,
+                Spacing = 4,
+                Margin = new Thickness(4)
+            };
+
+            var walkButton = CreateMovementButton("Walk", MovementType.Walk);
+            var runButton = CreateMovementButton("Run", MovementType.Run);
+            var jumpButton = CreateMovementButton("Jump", MovementType.Jump);
+            jumpButton.IsVisible = _unit.GetMovementPoints(MovementType.Jump)>0;
+
+            _movementButtons.Children.Add(walkButton);
+            _movementButtons.Children.Add(runButton);
+            _movementButtons.Children.Add(jumpButton);
 
             var color = _unit.Owner!=null 
                 ?Color.Parse(_unit.Owner.Tint)
@@ -61,7 +83,7 @@ namespace Sanet.MekForge.Avalonia.Controls
                 VerticalAlignment = VerticalAlignment.Center,
                 BorderBrush = new SolidColorBrush(color),
                 BorderThickness = new Thickness(4),
-                CornerRadius = new CornerRadius(Width/2), // Make it circular
+                CornerRadius = new CornerRadius(Width/2),
                 IsVisible = false
             };
 
@@ -77,7 +99,7 @@ namespace Sanet.MekForge.Avalonia.Controls
                     _unit.Position,
                     _unit.IsDeployed,
                     _unit.Facing,
-                    viewModel1.SelectedUnit
+                    _viewModel.SelectedUnit
                 })
                 .DistinctUntilChanged()
                 .ObserveOn(SynchronizationContext.Current) // Ensure events are processed on the UI thread
@@ -85,6 +107,9 @@ namespace Sanet.MekForge.Avalonia.Controls
                 {
                     Render();
                     selectionBorder.IsVisible = state.SelectedUnit == _unit;
+                    _movementButtons.IsVisible = state.SelectedUnit == _unit
+                                                && _viewModel.CurrentState is MovementState
+                                                    { CurrentMovementStep: MovementStep.SelectingMovementType };
                 });
             
             // Initial update
@@ -97,8 +122,21 @@ namespace Sanet.MekForge.Avalonia.Controls
             IsVisible = _unit.IsDeployed;
             if (_unit.Position == null) return;
             var hexPosition = _unit.Position;
-            SetValue(Canvas.LeftProperty, hexPosition.Value.H);
-            SetValue(Canvas.TopProperty, _unit.Position.Value.V);
+            
+            var leftPos = hexPosition.Value.H;
+            var topPos = hexPosition.Value.V;
+            
+            SetValue(Canvas.LeftProperty, leftPos);
+            SetValue(Canvas.TopProperty, topPos);
+            
+            // Update buttons position to follow the unit
+            if (_movementButtons.Parent == null && Parent is Canvas canvas)
+            {
+                canvas.Children.Add(_movementButtons);
+            }
+            Canvas.SetLeft(_movementButtons, leftPos);
+            Canvas.SetTop(_movementButtons, topPos + Height);
+            
             double rotationAngle = _unit.Facing switch
             {
                 HexDirection.Top => 0,
@@ -126,6 +164,35 @@ namespace Sanet.MekForge.Avalonia.Controls
             var color = Color.Parse(_unit.Owner.Tint);
             _tintBorder.OpacityMask = new ImageBrush { Source = image, Stretch = Stretch.Fill };
             _tintBorder.Background = new SolidColorBrush(color);
+        }
+
+        private Button CreateMovementButton(string text, MovementType type)
+        {
+            var button = new Button
+            {
+                Background = new SolidColorBrush(Colors.Aqua),
+                Padding = new Thickness(8, 4),
+                CornerRadius = new CornerRadius(4),
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+            };
+
+            var content = new TextBlock
+            {
+                Text = $"{text} | MP: {_unit.GetMovementPoints(type)}",
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+
+            button.Content = content;
+
+            button.Click += (_, _) =>
+            {
+                if (_viewModel.CurrentState is MovementState state)
+                {
+                    state.HandleMovementTypeSelection(type);
+                }
+            };
+
+            return button;
         }
 
         public void Dispose()
