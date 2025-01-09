@@ -98,7 +98,6 @@ namespace Sanet.MekForge.Avalonia.Controls
                 {
                     _unit.Position,
                     _unit.IsDeployed,
-                    _unit.Facing,
                     _viewModel.SelectedUnit
                 })
                 .DistinctUntilChanged()
@@ -123,8 +122,8 @@ namespace Sanet.MekForge.Avalonia.Controls
             if (_unit.Position == null) return;
             var hexPosition = _unit.Position;
             
-            var leftPos = hexPosition.Value.H;
-            var topPos = hexPosition.Value.V;
+            var leftPos = hexPosition.Value.Coordinates.H;
+            var topPos = hexPosition.Value.Coordinates.V;
             
             SetValue(Canvas.LeftProperty, leftPos);
             SetValue(Canvas.TopProperty, topPos);
@@ -137,7 +136,7 @@ namespace Sanet.MekForge.Avalonia.Controls
             Canvas.SetLeft(_movementButtons, leftPos);
             Canvas.SetTop(_movementButtons, topPos + Height);
             
-            double rotationAngle = _unit.Facing switch
+            double rotationAngle = _unit.Position.Value.Facing switch
             {
                 HexDirection.Top => 0,
                 HexDirection.TopRight => 60,
@@ -186,10 +185,9 @@ namespace Sanet.MekForge.Avalonia.Controls
 
             button.Click += (_, _) =>
             {
-                if (_viewModel.CurrentState is MovementState state)
-                {
-                    state.HandleMovementTypeSelection(type);
-                }
+                if (_viewModel.CurrentState is not MovementState state) return;
+                state.HandleMovementTypeSelection(type);
+                _movementButtons.IsVisible = false;
             };
 
             return button;

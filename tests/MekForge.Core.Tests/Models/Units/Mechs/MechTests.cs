@@ -66,13 +66,13 @@ public class MechTests
     {
         // Arrange
         var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
-        var newCoordinates = new HexCoordinates(1, 2); // Replace with actual coordinates
+        var newCoordinates =new HexPosition(new HexCoordinates(1, 2), HexDirection.BottomLeft);
 
         // Act
         mech.MoveTo(newCoordinates);
 
         // Assert
-        Assert.Equal(newCoordinates, mech.Position);
+        mech.Position.Should().Be(newCoordinates);
     }
 
     [Fact]
@@ -261,12 +261,12 @@ public class MechTests
         var coordinate = new HexCoordinates(1, 1);
 
         // Act
-        mech.Deploy(coordinate, HexDirection.Bottom);
+        mech.Deploy(new HexPosition(coordinate, HexDirection.Bottom));
 
         // Assert
-        mech.Position.Should().Be(coordinate);
+        mech.Position?.Coordinates.Should().Be(coordinate);
+        mech.Position?.Facing.Should().Be(HexDirection.Bottom);
         mech.IsDeployed.Should().BeTrue();
-        mech.Facing.Should().Be(HexDirection.Bottom);
     }
 
     [Fact]
@@ -275,10 +275,10 @@ public class MechTests
         // Arrange
         var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
         var coordinate = new HexCoordinates(1, 1);
-        mech.Deploy(coordinate, HexDirection.Bottom);
+        mech.Deploy( new HexPosition(coordinate, HexDirection.Bottom));
 
         // Act
-        var act = () => mech.Deploy(new HexCoordinates(2, 2), HexDirection.Bottom);
+        var act = () => mech.Deploy(new HexPosition(new HexCoordinates(2, 2), HexDirection.Bottom));
 
         // Assert
         act.Should().Throw<InvalidOperationException>().WithMessage("Test TST-1A is already deployed.");

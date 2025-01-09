@@ -61,8 +61,8 @@ public class BattleMapTests
     {
         // Arrange
         var map = new BattleMap(3, 1);
-        var start = new HexCoordinates(1, 1);
-        var target = new HexCoordinates(3, 1);
+        var start = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
+        var target = new HexPosition(new HexCoordinates(3, 1), HexDirection.Top);
 
         // Add hexes with clear terrain
         for (var q = 1; q <= 3; q++)
@@ -78,10 +78,35 @@ public class BattleMapTests
         // Assert
         path.Should().NotBeNull();
         path!.Count.Should().Be(2); // Should be [2,1] and [3,1]
-        path.Should().ContainInOrder(
+        path.Select(p => p.Coordinates).Should().ContainInOrder(
             new HexCoordinates(2, 1),
             new HexCoordinates(3, 1)
         );
+    }
+
+    [Fact]
+    public void FindPath_WithFacingChanges_ConsidersTurningCost()
+    {
+        // Arrange
+        var map = new BattleMap(3, 1);
+        var start = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
+        var target = new HexPosition(new HexCoordinates(3, 1), HexDirection.Bottom);
+
+        // Add hexes with clear terrain
+        for (var q = 1; q <= 3; q++)
+        {
+            var hex = new Hex(new HexCoordinates(q, 1));
+            hex.AddTerrain(new ClearTerrain());
+            map.AddHex(hex);
+        }
+
+        // Act
+        var path = map.FindPath(start, target, 10);
+
+        // Assert
+        path.Should().NotBeNull();
+        path!.Count.Should().Be(2);
+        path.Last().Facing.Should().Be(HexDirection.Bottom); // Should end with correct facing
     }
 
     [Fact]
@@ -89,8 +114,8 @@ public class BattleMapTests
     {
         // Arrange
         var map = new BattleMap(2, 3);
-        var start = new HexCoordinates(1, 1);
-        var target = new HexCoordinates(2, 3);
+        var start = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
+        var target = new HexPosition(new HexCoordinates(2, 3), HexDirection.Top);
 
         // Add heavy woods on col 2
         for (var r = 1; r <= 3; r++)
@@ -113,8 +138,8 @@ public class BattleMapTests
 
         // Assert
         path.Should().NotBeNull();
-        path!.Should().Contain(new HexCoordinates(1, 2)); // Should go through clear terrain
-        path!.Should().Contain(new HexCoordinates(1, 3)); // Should go through clear terrain
+        path!.Select(p => p.Coordinates).Should().Contain(new HexCoordinates(1, 2)); // Should go through clear terrain
+        path!.Select(p => p.Coordinates).Should().Contain(new HexCoordinates(1, 3)); // Should go through clear terrain
     }
 
     [Fact]
@@ -122,10 +147,10 @@ public class BattleMapTests
     {
         // Arrange
         var map = new BattleMap(5, 5);
-        var start = new HexCoordinates(3, 3);
+        var start = new HexPosition(new HexCoordinates(3, 3), HexDirection.Top);
 
         // Add clear terrain in a 2-hex radius
-        foreach (var hex in start.GetCoordinatesInRange(2))
+        foreach (var hex in start.Coordinates.GetCoordinatesInRange(2))
         {
             var mapHex = new Hex(hex);
             mapHex.AddTerrain(new ClearTerrain());
@@ -147,7 +172,7 @@ public class BattleMapTests
     {
         // Arrange
         var map = new BattleMap(2, 2);
-        var start = new HexCoordinates(1, 1);
+        var start = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
 
         // Add clear terrain hex
         var clearHex = new Hex(new HexCoordinates(2, 1));
@@ -164,7 +189,7 @@ public class BattleMapTests
 
         // Assert
         reachable.Count.Should().Be(1); // Only the clear hex should be reachable
-        reachable.First().coordinates.Should().Be(clearHex.Coordinates);
+        reachable.First().position.Coordinates.Should().Be(clearHex.Coordinates);
     }
 
     [Fact]

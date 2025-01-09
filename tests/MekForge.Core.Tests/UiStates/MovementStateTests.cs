@@ -185,10 +185,10 @@ public class MovementStateTests
         SetPhase(PhaseNames.Movement);
         SetActivePlayer();
         var state = _viewModel.CurrentState;
-        var position = new HexCoordinates(1, 1);
+        var position = new HexPosition(new HexCoordinates(1, 1),HexDirection.Bottom);
         var unit = _viewModel.Units.First();
-        unit.Deploy(position,HexDirection.Bottom);
-        var hex = new Hex(position);
+        unit.Deploy(position);
+        var hex = new Hex(position.Coordinates);
 
         // Act
         state.HandleHexSelection(hex);
@@ -208,7 +208,7 @@ public class MovementStateTests
         var state = _viewModel.CurrentState;
         var position = new HexCoordinates(1, 1);
         var unit = _viewModel.Units.Last();
-        unit.Deploy(position,HexDirection.Bottom);
+        unit.Deploy(new HexPosition(position,HexDirection.Bottom));
         var hex = new Hex(position);
 
         // Act
@@ -223,7 +223,7 @@ public class MovementStateTests
     {
         // Arrange
          var hex = new Hex(new HexCoordinates(1, 1));
-        _unit.MoveTo( new HexCoordinates(2, 2));
+        _unit.MoveTo(new HexPosition(new HexCoordinates(2, 2),0));
 
         // Act
         _state.HandleHexSelection(hex);

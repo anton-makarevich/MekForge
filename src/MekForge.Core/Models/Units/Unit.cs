@@ -60,19 +60,17 @@ public abstract class Unit
     }
 
     // Location and facing
-    public HexCoordinates? Position { get; private set; }
-    public HexDirection Facing { get; set; } // 0-5 for hex facings
+    public HexPosition? Position { get; private set; }
 
     public bool IsDeployed => Position != null;
 
-    public void Deploy(HexCoordinates coordinate, HexDirection direction)
+    public void Deploy(HexPosition position)
     {
         if (Position != null)
         {
             throw new InvalidOperationException($"{Name} is already deployed.");
         }
-        Position = coordinate;
-        Facing = direction;
+        Position = position;
     }
 
     // Heat management
@@ -135,8 +133,8 @@ public abstract class Unit
         return GetAllComponents<T>().Any(c => c.IsActive && !c.IsDestroyed);
     }
 
-    public void MoveTo(HexCoordinates coordinates)
+    public void MoveTo(HexPosition position)
     {
-        Position = coordinates;
+        Position = position;
     }
 }

@@ -67,7 +67,7 @@ public class MovementPhaseTests : GameStateTestsBase
     
         // Assert
         var unit = Game.ActivePlayer.Units.Single(u => u.Id == _unit1Id);
-        unit.Position.ToString().Should().Be("0301");
+        unit.Position?.Coordinates.ToString().Should().Be("0301");
     }
 
     [Fact]

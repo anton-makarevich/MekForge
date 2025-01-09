@@ -36,6 +36,8 @@ public class MovementState : IUiState
         
         _builder.SetMovementType(movementType);
         CurrentMovementStep = MovementStep.SelectingTargetHex;
+        var mp = _selectedUnit?.GetMovementPoints(movementType) ?? 0;
+        // TODO: highlight movement range
         _viewModel.NotifyStateChanged();
     }
 
@@ -57,7 +59,7 @@ public class MovementState : IUiState
 
     private void HandleUnitSelectionFromHex(Hex hex)
     {
-        var unit = _viewModel.Units.FirstOrDefault(u => u.Position == hex.Coordinates);
+        var unit = _viewModel.Units.FirstOrDefault(u => u.Position?.Coordinates == hex.Coordinates);
         if (unit != null && unit.Owner?.Id==_viewModel.Game?.ActivePlayer?.Id)
         {
             _viewModel.SelectedUnit=unit;

@@ -121,7 +121,7 @@ public abstract class BaseGame : IGame
         var player = _players.FirstOrDefault(p => p.Id == command.PlayerId);
         if (player == null) return;
         var unit = player.Units.FirstOrDefault(u => u.Id == command.UnitId && !u.IsDeployed);
-        unit?.Deploy(new HexCoordinates(command.Position), (HexDirection)command.Direction);
+        unit?.Deploy(new HexPosition(new HexCoordinates(command.Position), (HexDirection)command.Direction));
     }
     
     public void OnMoveUnit(MoveUnitCommand moveCommand)
@@ -129,7 +129,7 @@ public abstract class BaseGame : IGame
         var player = _players.FirstOrDefault(p => p.Id == moveCommand.PlayerId);
         if (player == null) return;
         var unit = player.Units.FirstOrDefault(u => u.Id == moveCommand.UnitId);
-        unit?.MoveTo(new HexCoordinates(moveCommand.Destination));
+        unit?.MoveTo(new HexPosition(new HexCoordinates(moveCommand.Destination),0));
     }
     
     protected bool ValidateCommand(GameCommand command)
