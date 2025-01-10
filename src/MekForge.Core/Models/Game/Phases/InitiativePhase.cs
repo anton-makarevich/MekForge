@@ -39,7 +39,7 @@ public class InitiativePhase : GamePhase
 
                 Game.CommandPublisher.PublishCommand(new DiceRolledCommand
                 {
-                    GameOriginId = Game.GameId,
+                    GameOriginId = Game.Id,
                     PlayerId = player.Id,
                     Roll = roll
                 });
@@ -67,7 +67,7 @@ public class InitiativePhase : GamePhase
         // Publish the roll result
         Game.CommandPublisher.PublishCommand(new DiceRolledCommand
         {
-            GameOriginId = Game.GameId,
+            GameOriginId = Game.Id,
             PlayerId = Game.ActivePlayer.Id,
             Roll = roll
         });

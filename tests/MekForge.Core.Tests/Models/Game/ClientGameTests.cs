@@ -58,7 +58,7 @@ public class ClientGameTests
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
             Units = new List<UnitData>(),
-            GameOriginId = _clientGame.GameId, // Set to this game's ID
+            GameOriginId = _clientGame.Id, // Set to this game's ID
             Tint = "#FF0000"
         };
 
@@ -150,7 +150,7 @@ public class ClientGameTests
         _commandPublisher.Received(1).PublishCommand(Arg.Is<UpdatePlayerStatusCommand>(cmd => 
             cmd.PlayerId == player.Id && 
             cmd.PlayerStatus == PlayerStatus.Playing &&
-            cmd.GameOriginId == _clientGame.GameId
+            cmd.GameOriginId == _clientGame.Id
         ));
     }
 
@@ -230,7 +230,7 @@ public class ClientGameTests
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
             Units = [],
-            GameOriginId = _clientGame.GameId,
+            GameOriginId = _clientGame.Id,
             Tint = "#FF0000"
         };
 

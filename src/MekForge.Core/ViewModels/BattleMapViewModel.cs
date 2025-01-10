@@ -18,7 +18,6 @@ public class BattleMapViewModel : BaseViewModel
     private IGame? _game;
     private IDisposable? _gameSubscription;
     private IDisposable? _commandSubscription;
-    private ClientCommandBuilder? _commandBuilder;
     private List<Unit> _unitsToDeploy = [];
     private Unit? _selectedUnit;
     private readonly ObservableCollection<string> _commandLog = [];
@@ -84,14 +83,12 @@ public class BattleMapViewModel : BaseViewModel
         switch (TurnPhaseNames)
         {
             case PhaseNames.Deployment when clientGame.ActivePlayer.Units.Any(u => !u.IsDeployed):
-                _commandBuilder = new DeploymentCommandBuilder(clientGame.GameId, clientGame.ActivePlayer.Id);
-                TransitionToState(new DeploymentState(this, (DeploymentCommandBuilder)_commandBuilder));
+                TransitionToState(new DeploymentState(this));
                 ShowUnitsToDeploy();
                 break;
             
             case PhaseNames.Movement when clientGame.UnitsToPlayCurrentStep > 0:
-                _commandBuilder = new MoveUnitCommandBuilder(clientGame.GameId, clientGame.ActivePlayer.Id);
-                TransitionToState(new MovementState(this, (MoveUnitCommandBuilder)_commandBuilder));
+                TransitionToState(new MovementState(this));
                 break;
             
             default:

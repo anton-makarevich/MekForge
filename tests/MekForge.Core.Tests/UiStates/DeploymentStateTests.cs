@@ -3,7 +3,6 @@ using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
-using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
@@ -31,8 +30,7 @@ public class DeploymentStateTests
         var imageService = Substitute.For<IImageService>();
         var localizationService = Substitute.For<ILocalizationService>();
         var viewModel = Substitute.For<BattleMapViewModel>(imageService, localizationService);
-        var builder = new DeploymentCommandBuilder(Guid.NewGuid(), Guid.NewGuid());
-        _state = new DeploymentState(viewModel, builder);
+        
         
         var rules = new ClassicBattletechRulesProvider();
         _unit = new MechFactory(rules).Create(MechFactoryTests.CreateDummyMechData());
@@ -48,22 +46,20 @@ public class DeploymentStateTests
             Substitute.For<ICommandPublisher>());
         
         viewModel.Game = _game;
+        SetActivePlayer(player);
+        _state = new DeploymentState(viewModel);
     }
 
     [Fact]
     public void InitialState_HasSelectUnitAction()
     {
-        // Arrange
-        SetActivePlayer();
-
         // Assert
         _state.ActionLabel.Should().Be("Select Unit");
         _state.IsActionRequired.Should().BeTrue();
     }
 
-    private void SetActivePlayer()
+    private void SetActivePlayer(Player player)
     {
-        var player = _game.LocalPlayers[0];
         _game.HandleCommand(new JoinGameCommand
         {
             PlayerName = player.Name,
@@ -83,9 +79,6 @@ public class DeploymentStateTests
     [Fact]
     public void HandleUnitSelection_TransitionsToHexSelection()
     {
-        // Arrange
-        SetActivePlayer();
-        
         // Act
         _state.HandleUnitSelection(_unit);
 
@@ -97,9 +90,8 @@ public class DeploymentStateTests
     public void HandleHexSelection_ForDeployment_SetsPositionAndHighlightsAdjacent()
     {
         // Arrange
-        SetActivePlayer();
-        _state.HandleUnitSelection(_unit); // Move to hex selection state
-
+        _state.HandleUnitSelection(_unit);
+        
         // Act
         _state.HandleHexSelection(_hex1);
 
@@ -125,7 +117,6 @@ public class DeploymentStateTests
     public void HandleHexSelection_ForDirection_DoesNothing_WhenHexIsNotAdjacent()
     {
         // Arrange
-        SetActivePlayer();
         var nonAdjacentHex = new Hex(new HexCoordinates(5, 5));
         _state.HandleUnitSelection(_unit);
         _state.HandleHexSelection(_hex1);

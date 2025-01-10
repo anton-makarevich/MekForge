@@ -59,7 +59,7 @@ public class MovementPhaseTests : GameStateTestsBase
         {
             MovementType = MovementType.Walk,
             Direction = 1,
-            GameOriginId = Game.GameId,
+            GameOriginId = Game.Id,
             PlayerId = Game.ActivePlayer!.Id,
             UnitId = _unit1Id,
             Destination = newPosition
@@ -82,7 +82,7 @@ public class MovementPhaseTests : GameStateTestsBase
         {
             MovementType = MovementType.Walk,
             Direction = 1,
-            GameOriginId = Game.GameId,
+            GameOriginId = Game.Id,
             PlayerId = wrongPlayerId,
             UnitId = _unit1Id,
             Destination = new HexCoordinateData(1, 1)
@@ -110,7 +110,7 @@ public class MovementPhaseTests : GameStateTestsBase
             {
                 MovementType = MovementType.Walk,
                 Direction = 1,
-                GameOriginId = Game.GameId,
+                GameOriginId = Game.Id,
                 PlayerId = Game.ActivePlayer!.Id,
                 UnitId = unit.Id,
                 Destination = new HexCoordinateData(1, 1)
@@ -119,7 +119,7 @@ public class MovementPhaseTests : GameStateTestsBase
 
         // Assert
         CommandPublisher.Received().PublishCommand(Arg.Is<ChangeActivePlayerCommand>(cmd =>
-        cmd.GameOriginId == Game.GameId &&
+        cmd.GameOriginId == Game.Id &&
         cmd.PlayerId == player2.Id ));
     }
 
@@ -138,7 +138,7 @@ public class MovementPhaseTests : GameStateTestsBase
                 {
                     MovementType = MovementType.Walk,
                     Direction = 1,
-                    GameOriginId = Game.GameId,
+                    GameOriginId = Game.Id,
                     PlayerId = Game.ActivePlayer!.Id,
                     UnitId = unit.Id,
                     Destination= new HexCoordinateData(1, 1)

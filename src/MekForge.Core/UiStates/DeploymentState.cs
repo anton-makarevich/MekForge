@@ -22,14 +22,18 @@ public class DeploymentState : IUiState
     
     private SubState _currentSubState = SubState.SelectingUnit;
 
-    public DeploymentState(BattleMapViewModel viewModel, ClientCommandBuilder builder)
+    public DeploymentState(BattleMapViewModel viewModel)
     {
-        if (builder is not DeploymentCommandBuilder deploymentCommandBuilder)
-        {
-            throw new ArgumentException("Builder must be of type DeploymentCommandBuilder", nameof(builder));
-        }
         _viewModel = viewModel;
-        _builder = deploymentCommandBuilder;
+        if (_viewModel.Game == null)
+        {
+            throw new InvalidOperationException("Game is null"); 
+        }
+        if (_viewModel.Game.ActivePlayer == null)
+        {
+            throw new InvalidOperationException("Active player is null"); 
+        }
+        _builder = new DeploymentCommandBuilder(_viewModel.Game.Id, _viewModel.Game.ActivePlayer.Id);
     }
 
     public void HandleUnitSelection(Unit? unit)

@@ -64,7 +64,7 @@ public class ClientGame : BaseGame
         {
             PlayerId = player.Id,
             PlayerName = player.Name,
-            GameOriginId = GameId,
+            GameOriginId = Id,
             Tint = player.Tint,
             Units = units
         };
@@ -76,7 +76,7 @@ public class ClientGame : BaseGame
     
     public void SetPlayerReady(IPlayer player)
     {
-        var readyCommand = new UpdatePlayerStatusCommand() { PlayerId = player.Id, GameOriginId = GameId, PlayerStatus = PlayerStatus.Playing };
+        var readyCommand = new UpdatePlayerStatusCommand() { PlayerId = player.Id, GameOriginId = Id, PlayerStatus = PlayerStatus.Playing };
         if (ValidateCommand(readyCommand))
         {
             CommandPublisher.PublishCommand(readyCommand);

@@ -34,7 +34,7 @@ public abstract class GameStateTestsBase
         CommandPublisher.Received(1).PublishCommand(
             Arg.Is<ChangePhaseCommand>(cmd => 
                 cmd.Phase == expectedPhaseNames && 
-                cmd.GameOriginId == Game.GameId));
+                cmd.GameOriginId == Game.Id));
     }
 
     protected void VerifyActivePlayerChange(Guid? expectedPlayerId)
@@ -42,7 +42,7 @@ public abstract class GameStateTestsBase
         CommandPublisher.Received(1).PublishCommand(
             Arg.Is<ChangeActivePlayerCommand>(cmd => 
                 cmd.PlayerId == expectedPlayerId && 
-                cmd.GameOriginId == Game.GameId));
+                cmd.GameOriginId == Game.Id));
     }
 
     protected JoinGameCommand CreateJoinCommand(Guid playerId, string playerName, int unitsCount=1)
@@ -79,7 +79,7 @@ public abstract class GameStateTestsBase
     {
         return new DeployUnitCommand
         {
-            GameOriginId = Game.GameId,
+            GameOriginId = Game.Id,
             PlayerId = playerId,
             UnitId = unitId,
             Position = new HexCoordinateData(q,r),

@@ -3,7 +3,6 @@ using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
-using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Players;
@@ -38,8 +37,7 @@ public class MovementStateTests
         var localizationService = Substitute.For<ILocalizationService>();
         _viewModel = new BattleMapViewModel(imageService, localizationService);
         var playerId = Guid.NewGuid();
-        var builder = new MoveUnitCommandBuilder(Guid.NewGuid(),  playerId);
-        _state = new MovementState(_viewModel, builder);
+        
         
         var rules = new ClassicBattletechRulesProvider();
         _unitData = MechFactoryTests.CreateDummyMechData();
@@ -58,14 +56,14 @@ public class MovementStateTests
             Substitute.For<ICommandPublisher>());
         
         _viewModel.Game = _game;
+        AddPlayerUnits();
+        SetActivePlayer();
+        _state = new MovementState(_viewModel);
     }
 
     [Fact]
     public void InitialState_HasSelectUnitAction()
     {
-        // Arrange
-        SetActivePlayer();
-
         // Assert
         _state.ActionLabel.Should().Be("Select unit to move");
         _state.IsActionRequired.Should().BeTrue();
@@ -125,9 +123,6 @@ public class MovementStateTests
     [Fact]
     public void HandleUnitSelection_TransitionsToMovementTypeSelection()
     {
-        // Arrange
-        SetActivePlayer();
-        
         // Act
         _state.HandleUnitSelection(_unit);
 
@@ -139,7 +134,6 @@ public class MovementStateTests
     public void HandleMovementTypeSelection_TransitionsToHexSelection()
     {
         // Arrange
-        SetActivePlayer();
         _state.HandleUnitSelection(_unit);
         
         // Act
@@ -153,7 +147,6 @@ public class MovementStateTests
     public void HandleHexSelection_TransitionsToDirectionSelection()
     {
         // Arrange
-        SetActivePlayer();
         _state.HandleUnitSelection(_unit);
         _state.HandleMovementTypeSelection(MovementType.Walk);
         
@@ -168,7 +161,6 @@ public class MovementStateTests
     public void HandleHexSelection_CompletesMovement_WhenDirectionSelected()
     {
         // Arrange
-        SetActivePlayer();
         _state.HandleUnitSelection(_unit);
         _state.HandleMovementTypeSelection(MovementType.Walk);
         _state.HandleHexSelection(_hex1);
@@ -185,7 +177,6 @@ public class MovementStateTests
     public void HandleHexSelection_SelectsUnit_WhenUnitIsOnHex()
     {
         // Arrange
-        AddPlayerUnits();
         SetPhase(PhaseNames.Movement);
         SetActivePlayer();
         var state = _viewModel.CurrentState;
@@ -206,7 +197,6 @@ public class MovementStateTests
     public void HandleHexSelection_DoesNotSelectsUnit_WhenUnitIsOnHex_ButNotOwnedByActivePlayer()
     {
         // Arrange
-        AddPlayerUnits();
         SetPhase(PhaseNames.Movement);
         SetActivePlayer();
         var state = _viewModel.CurrentState;
@@ -226,7 +216,6 @@ public class MovementStateTests
     public void HandleMovementTypeSelection_HighlightsHexs()
     {
         // Arrange
-        AddPlayerUnits();
         SetPhase(PhaseNames.Movement);
         SetActivePlayer();
         var state = _viewModel.CurrentState as MovementState;

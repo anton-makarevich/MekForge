@@ -14,10 +14,18 @@ public class MovementState : IUiState
     private Unit? _selectedUnit;
     private List<HexCoordinates> _reachableHexes = [];
 
-    public MovementState(BattleMapViewModel viewModel, MoveUnitCommandBuilder builder)
+    public MovementState(BattleMapViewModel viewModel)
     {
         _viewModel = viewModel;
-        _builder = builder;
+        if (_viewModel.Game == null)
+        {
+            throw new InvalidOperationException("Game is null"); 
+        }
+        if (_viewModel.Game.ActivePlayer == null)
+        {
+            throw new InvalidOperationException("Active player is null"); 
+        }
+        _builder = new MoveUnitCommandBuilder(_viewModel.Game.Id, _viewModel.Game.ActivePlayer.Id);
     }
 
     public void HandleUnitSelection(Unit? unit)
