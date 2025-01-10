@@ -12,6 +12,7 @@ public class MovementState : IUiState
     private readonly MoveUnitCommandBuilder _builder;
     private Hex? _selectedHex;
     private Unit? _selectedUnit;
+    private List<HexCoordinates> _reachableHexes = [];
 
     public MovementState(BattleMapViewModel viewModel, MoveUnitCommandBuilder builder)
     {
@@ -36,6 +37,17 @@ public class MovementState : IUiState
         
         _builder.SetMovementType(movementType);
         CurrentMovementStep = MovementStep.SelectingTargetHex;
+        var mp = _selectedUnit?.GetMovementPoints(movementType) ?? 0;
+
+        // Get reachable hexes and highlight them
+        if (_selectedUnit?.Position != null && _viewModel.Game != null)
+        {
+            _reachableHexes = _viewModel.Game.BattleMap.GetReachableHexes(_selectedUnit.Position.Value, mp)
+                .Select(x=>x.coordinates)
+                .ToList();
+            _viewModel.HighlightHexes(_reachableHexes, true);
+        }
+
         _viewModel.NotifyStateChanged();
     }
 
@@ -57,7 +69,7 @@ public class MovementState : IUiState
 
     private void HandleUnitSelectionFromHex(Hex hex)
     {
-        var unit = _viewModel.Units.FirstOrDefault(u => u.Position == hex.Coordinates);
+        var unit = _viewModel.Units.FirstOrDefault(u => u.Position?.Coordinates == hex.Coordinates);
         if (unit != null && unit.Owner?.Id==_viewModel.Game?.ActivePlayer?.Id)
         {
             _viewModel.SelectedUnit=unit;
@@ -70,6 +82,12 @@ public class MovementState : IUiState
         _selectedHex = hex;
         _builder.SetDestination(hex.Coordinates);
         CurrentMovementStep = MovementStep.SelectingDirection;
+        
+        // Clear movement range highlight and highlight adjacent hexes for direction selection
+        if (_selectedUnit != null && _viewModel.Game != null)
+        {
+            _viewModel.HighlightHexes(_reachableHexes, false);
+        }
         
         var adjacentCoordinates = hex.Coordinates.GetAdjacentCoordinates().ToList();
         _viewModel.HighlightHexes(adjacentCoordinates, true);

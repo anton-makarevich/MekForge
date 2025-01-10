@@ -9,11 +9,13 @@ using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
+using Sanet.MekForge.Core.Models.Map.Terrains;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.Services.Localization;
 using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.UiStates;
+using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MekForge.Core.Utils.TechRules;
 using Sanet.MekForge.Core.ViewModels;
 
@@ -47,7 +49,9 @@ public class MovementStateTests
         _hex1 = new Hex(new HexCoordinates(1, 1));
         _hex2 = new Hex(new HexCoordinates(1, 2)); 
         
-        var battleMap = new BattleMap(1, 1);
+        var battleMap = BattleMap.GenerateMap(
+            2, 2,
+            new SingleTerrainGenerator(2,2, new ClearTerrain()));
          _player = new Player(playerId, "Player1");
         _game = new ClientGame(
             battleMap, [_player], rules,
@@ -185,10 +189,10 @@ public class MovementStateTests
         SetPhase(PhaseNames.Movement);
         SetActivePlayer();
         var state = _viewModel.CurrentState;
-        var position = new HexCoordinates(1, 1);
+        var position = new HexPosition(new HexCoordinates(1, 1),HexDirection.Bottom);
         var unit = _viewModel.Units.First();
-        unit.Deploy(position,HexDirection.Bottom);
-        var hex = new Hex(position);
+        unit.Deploy(position);
+        var hex = new Hex(position.Coordinates);
 
         // Act
         state.HandleHexSelection(hex);
@@ -208,7 +212,7 @@ public class MovementStateTests
         var state = _viewModel.CurrentState;
         var position = new HexCoordinates(1, 1);
         var unit = _viewModel.Units.Last();
-        unit.Deploy(position,HexDirection.Bottom);
+        unit.Deploy(new HexPosition(position,HexDirection.Bottom));
         var hex = new Hex(position);
 
         // Act
@@ -217,13 +221,35 @@ public class MovementStateTests
         // Assert
         _viewModel.SelectedUnit.Should().BeNull();
     }
+    
+    [Fact]
+    public void HandleMovementTypeSelection_HighlightsHexs()
+    {
+        // Arrange
+        AddPlayerUnits();
+        SetPhase(PhaseNames.Movement);
+        SetActivePlayer();
+        var state = _viewModel.CurrentState as MovementState;
+        var position = new HexPosition(new HexCoordinates(1, 1),HexDirection.Bottom);
+        var unit = _viewModel.Units.First();
+        unit.Deploy(position);
+        var hex = new Hex(position.Coordinates);
+        state?.HandleHexSelection(hex);
+        
+        // Act
+        state?.HandleMovementTypeSelection(MovementType.Walk);
+
+        // Assert
+        var hexBelow = _viewModel.Game.BattleMap.GetHexes().First(x => x.Coordinates == new HexCoordinates(1, 2));
+        hexBelow.IsHighlighted.Should().BeTrue();
+    }
 
     [Fact]
     public void HandleHexSelection_DoesNothing_WhenNoUnitOnHex()
     {
         // Arrange
          var hex = new Hex(new HexCoordinates(1, 1));
-        _unit.MoveTo( new HexCoordinates(2, 2));
+        _unit.MoveTo(new HexPosition(new HexCoordinates(2, 2),0));
 
         // Act
         _state.HandleHexSelection(hex);

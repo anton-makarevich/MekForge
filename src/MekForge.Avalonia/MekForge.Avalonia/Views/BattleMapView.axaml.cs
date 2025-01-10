@@ -49,7 +49,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
     {
         MapCanvas.Children.Clear();
 
-        foreach (var hex in game.GetHexes())
+        foreach (var hex in game.BattleMap.GetHexes())
         {
             var hexControl = new HexControl(hex, imageService);
             MapCanvas.Children.Add(hexControl);

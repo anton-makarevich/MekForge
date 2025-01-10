@@ -13,7 +13,7 @@ namespace Sanet.MekForge.Core.Models.Game;
 
 public abstract class BaseGame : IGame
 {
-    protected readonly BattleMap BattleMap;
+    
     internal readonly ICommandPublisher CommandPublisher;
     private readonly List<IPlayer> _players = [];
     private readonly MechFactory _mechFactory;
@@ -33,7 +33,7 @@ public abstract class BaseGame : IGame
     public IObservable<PhaseNames> PhaseChanges => _phaseSubject.AsObservable();
     public IObservable<IPlayer?> ActivePlayerChanges => _activePlayerSubject.AsObservable();
     public IObservable<int> UnitsToPlayChanges => _unitsToPlaySubject.AsObservable();
-
+    public BattleMap BattleMap { get; }
     public int Turn
     {
         get => _turn;
@@ -93,10 +93,6 @@ public abstract class BaseGame : IGame
     }
 
     public IReadOnlyList<IPlayer> Players => _players;
-    public IEnumerable<Hex> GetHexes()
-    {
-        return BattleMap.GetHexes();
-    }
 
     internal void OnPlayerJoined(JoinGameCommand joinGameCommand)
     {
@@ -121,7 +117,7 @@ public abstract class BaseGame : IGame
         var player = _players.FirstOrDefault(p => p.Id == command.PlayerId);
         if (player == null) return;
         var unit = player.Units.FirstOrDefault(u => u.Id == command.UnitId && !u.IsDeployed);
-        unit?.Deploy(new HexCoordinates(command.Position), (HexDirection)command.Direction);
+        unit?.Deploy(new HexPosition(new HexCoordinates(command.Position), (HexDirection)command.Direction));
     }
     
     public void OnMoveUnit(MoveUnitCommand moveCommand)
@@ -129,7 +125,7 @@ public abstract class BaseGame : IGame
         var player = _players.FirstOrDefault(p => p.Id == moveCommand.PlayerId);
         if (player == null) return;
         var unit = player.Units.FirstOrDefault(u => u.Id == moveCommand.UnitId);
-        unit?.MoveTo(new HexCoordinates(moveCommand.Destination));
+        unit?.MoveTo(new HexPosition(new HexCoordinates(moveCommand.Destination),0));
     }
     
     protected bool ValidateCommand(GameCommand command)

@@ -70,7 +70,7 @@ public class NewGameViewModelTests
         await ((IAsyncCommand)_sut.StartGameCommand).ExecuteAsync();
 
         _battleMapViewModel.Game.Should().NotBeNull();
-        var hex = _battleMapViewModel.Game!.GetHexes().First();
+        var hex = _battleMapViewModel.Game!.BattleMap.GetHexes().First();
         hex.GetTerrains().Should().HaveCount(1);
         hex.GetTerrains().First().Should().BeOfType<ClearTerrain>();
     }
@@ -83,7 +83,7 @@ public class NewGameViewModelTests
         await ((IAsyncCommand)_sut.StartGameCommand).ExecuteAsync();
 
         _battleMapViewModel.Game.Should().NotBeNull();
-        var hexes = _battleMapViewModel.Game!.GetHexes().ToList();
+        var hexes = _battleMapViewModel.Game!.BattleMap.GetHexes().ToList();
         hexes.Should().Contain(h => h.GetTerrains().Any(t => t is LightWoodsTerrain));
     }
 

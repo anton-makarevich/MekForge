@@ -57,12 +57,12 @@ public class BattleMapTests
     }
 
     [Fact]
-    public void FindPath_WithClearTerrain_FindsShortestPath()
+    public void FindPath_WithFacingChanges_ConsidersTurningCost()
     {
         // Arrange
         var map = new BattleMap(3, 1);
-        var start = new HexCoordinates(1, 1);
-        var target = new HexCoordinates(3, 1);
+        var start = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
+        var target = new HexPosition(new HexCoordinates(3, 1), HexDirection.Bottom);
 
         // Add hexes with clear terrain
         for (var q = 1; q <= 3; q++)
@@ -77,10 +77,16 @@ public class BattleMapTests
 
         // Assert
         path.Should().NotBeNull();
-        path!.Count.Should().Be(2); // Should be [2,1] and [3,1]
-        path.Should().ContainInOrder(
-            new HexCoordinates(2, 1),
-            new HexCoordinates(3, 1)
+        path!.Count.Should().Be(8); // Should include direction changes
+        path.Select(p => (p.Coordinates, p.Facing)).Should().ContainInOrder(
+            (new HexCoordinates(1, 1), HexDirection.Top),
+            (new HexCoordinates(1, 1), HexDirection.TopRight),
+            (new HexCoordinates(1, 1), HexDirection.BottomRight),
+            (new HexCoordinates(2, 1), HexDirection.BottomRight),
+            (new HexCoordinates(2, 1), HexDirection.TopRight),
+            (new HexCoordinates(3, 1), HexDirection.TopRight),
+            (new HexCoordinates(3, 1), HexDirection.BottomRight),
+            (new HexCoordinates(3, 1), HexDirection.Bottom)
         );
     }
 
@@ -89,9 +95,9 @@ public class BattleMapTests
     {
         // Arrange
         var map = new BattleMap(2, 3);
-        var start = new HexCoordinates(1, 1);
-        var target = new HexCoordinates(2, 3);
-
+        var start = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var target = new HexPosition(new HexCoordinates(2, 3), HexDirection.Bottom);
+    
         // Add heavy woods on col 2
         for (var r = 1; r <= 3; r++)
         {
@@ -99,7 +105,7 @@ public class BattleMapTests
             hex.AddTerrain(new HeavyWoodsTerrain());
             map.AddHex(hex);
         }
-
+    
         // Add clear terrain path through row 1
         for (var r = 1; r <= 3; r++)
         {
@@ -107,14 +113,14 @@ public class BattleMapTests
             hex.AddTerrain(new ClearTerrain());
             map.AddHex(hex);
         }
-
+    
         // Act
         var path = map.FindPath(start, target, 6);
-
+    
         // Assert
         path.Should().NotBeNull();
-        path!.Should().Contain(new HexCoordinates(1, 2)); // Should go through clear terrain
-        path!.Should().Contain(new HexCoordinates(1, 3)); // Should go through clear terrain
+        path!.Select(p => p.Coordinates).Should().Contain(new HexCoordinates(1, 2)); // Should go through clear terrain
+        path!.Select(p => p.Coordinates).Should().Contain(new HexCoordinates(1, 3)); // Should go through clear terrain
     }
 
     [Fact]
@@ -122,10 +128,10 @@ public class BattleMapTests
     {
         // Arrange
         var map = new BattleMap(5, 5);
-        var start = new HexCoordinates(3, 3);
+        var start = new HexPosition(new HexCoordinates(3, 3), HexDirection.Top);
 
         // Add clear terrain in a 2-hex radius
-        foreach (var hex in start.GetCoordinatesInRange(2))
+        foreach (var hex in start.Coordinates.GetCoordinatesInRange(2))
         {
             var mapHex = new Hex(hex);
             mapHex.AddTerrain(new ClearTerrain());
@@ -136,10 +142,10 @@ public class BattleMapTests
         var reachable = map.GetReachableHexes(start, 2).ToList();
 
         // Assert
-        reachable.Count.Should().Be(18); // 6 hexes at distance 1, 12 at distance 2
+        reachable.Count.Should().Be(4); // 
         reachable.All(h => h.cost <= 2).Should().BeTrue();
-        reachable.Count(h => h.cost == 1).Should().Be(6); // 6 adjacent hexes
-        reachable.Count(h => h.cost == 2).Should().Be(12); // 12 hexes at distance 2
+        reachable.Count(h => h.cost == 1).Should().Be(1); // 6 adjacent hexes
+        reachable.Count(h => h.cost == 2).Should().Be(3); // 12 hexes at distance 2
     }
 
     [Fact]
@@ -147,7 +153,7 @@ public class BattleMapTests
     {
         // Arrange
         var map = new BattleMap(2, 2);
-        var start = new HexCoordinates(1, 1);
+        var start = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
 
         // Add clear terrain hex
         var clearHex = new Hex(new HexCoordinates(2, 1));

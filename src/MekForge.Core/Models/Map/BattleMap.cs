@@ -40,108 +40,137 @@ public class BattleMap
     }
 
     /// <summary>
-    /// Finds the shortest path between hexes considering movement costs
+    /// Finds a path between two positions, considering facing direction and movement costs
     /// </summary>
-    public List<HexCoordinates>? FindPath(
-        HexCoordinates start,
-        HexCoordinates target,
-        int maxMovementPoints)
+    public List<HexPosition>? FindPath(HexPosition start, HexPosition target, int maxMovementPoints)
     {
-        var frontier = new PriorityQueue<(HexCoordinates pos, int cost), int>();
-        frontier.Enqueue((start, 0), 0);
-        
+        // First find the shortest path without considering facing
+        var frontier = new PriorityQueue<HexCoordinates, int>();
         var cameFrom = new Dictionary<HexCoordinates, HexCoordinates>();
-        var costSoFar = new Dictionary<HexCoordinates, int>
-        {
-            [start] = 0
-        };
+        var costSoFar = new Dictionary<HexCoordinates, int>();
+
+        frontier.Enqueue(start.Coordinates, 0);
+        costSoFar[start.Coordinates] = 0;
 
         while (frontier.Count > 0)
         {
-            var current = frontier.Dequeue().pos;
-            
-            if (current == target)
+            var current = frontier.Dequeue();
+
+            if (current == target.Coordinates)
                 break;
 
             foreach (var next in current.GetAdjacentCoordinates())
             {
-                // Skip if hex doesn't exist on map
-                var nextHex = GetHex(next);
-                if (nextHex == null)
+                var hex = GetHex(next);
+                if (hex == null)
                     continue;
 
-                var newCost = costSoFar[current] + nextHex.MovementCost;
-                if (newCost > maxMovementPoints) // Exceeds movement points
+                var newCost = costSoFar[current] + hex.MovementCost;
+                
+                if (newCost > maxMovementPoints)
                     continue;
 
                 if (!costSoFar.ContainsKey(next) || newCost < costSoFar[next])
                 {
                     costSoFar[next] = newCost;
-                    var priority = newCost + next.DistanceTo(target); // A* heuristic
-                    frontier.Enqueue((next, newCost), priority);
+                    var priority = newCost + next.DistanceTo(target.Coordinates);
+                    frontier.Enqueue(next, priority);
                     cameFrom[next] = current;
                 }
             }
         }
 
-        // If we didn't reach the target
-        if (!cameFrom.ContainsKey(target))
+        if (!cameFrom.ContainsKey(target.Coordinates))
             return null;
 
-        // Reconstruct path
+        // Reconstruct the path and add facing changes
+        var result = new List<HexPosition>();
         var path = new List<HexCoordinates>();
-        var currentCoordinates = target;
-        while (currentCoordinates != start)
+        var currentCoord = target.Coordinates;
+
+        // Build the path in reverse
+        while (currentCoord != start.Coordinates)
         {
-            path.Add(currentCoordinates);
-            currentCoordinates = cameFrom[currentCoordinates];
+            path.Add(currentCoord);
+            currentCoord = cameFrom[currentCoord];
         }
+        path.Add(start.Coordinates);
         path.Reverse();
-        return path;
+
+        // Add positions with proper facing
+        var currentPos = start;
+        result.Add(currentPos);
+
+        // For each step in the path
+        for (var i = 0; i < path.Count - 1; i++)
+        {
+            var nextCoord = path[i + 1];
+            
+            // Get required facing for movement and add turning steps
+            var requiredFacing = currentPos.Coordinates.GetDirectionToNeighbour(nextCoord);
+            result.AddRange(currentPos.GetTurningSteps(requiredFacing));
+            
+            // Move to next hex
+            currentPos = new HexPosition(nextCoord, requiredFacing);
+            result.Add(currentPos);
+        }
+
+        // Add final turning steps if needed
+        result.AddRange(currentPos.GetTurningSteps(target.Facing));
+
+        return result;
     }
 
     /// <summary>
-    /// Gets all valid hexes that can be reached with given movement points
+    /// Gets all valid hexes that can be reached with given movement points, considering facing
     /// </summary>
     public IEnumerable<(HexCoordinates coordinates, int cost)> GetReachableHexes(
-        HexCoordinates start,
+        HexPosition start,
         int maxMovementPoints)
     {
         var visited = new Dictionary<HexCoordinates, int>();
-        var toVisit = new Queue<HexCoordinates>();
+        var toVisit = new Queue<HexPosition>();
         
-        visited[start] = 0;
+        visited[start.Coordinates] = 0;
         toVisit.Enqueue(start);
 
         while (toVisit.Count > 0)
         {
             var current = toVisit.Dequeue();
-            var currentCost = visited[current];
+            var currentCost = visited[current.Coordinates];
 
-            foreach (var neighbor in current.GetAdjacentCoordinates())
+            // For each adjacent hex
+            foreach (var neighborCoord in current.Coordinates.GetAdjacentCoordinates())
             {
                 // Skip if hex doesn't exist on map
-                var neighborHex = GetHex(neighbor);
+                var neighborHex = GetHex(neighborCoord);
                 if (neighborHex == null)
                     continue;
 
-                var totalCost = currentCost + neighborHex.MovementCost;
+                // Get required facing to move to this hex
+                var requiredFacing = current.Coordinates.GetDirectionToNeighbour(neighborCoord);
+                
+                // Calculate turning cost from current facing
+                var turningCost = current.GetTurningCost(requiredFacing);
+                
+                // Calculate total cost including turning and movement
+                var totalCost = currentCost + neighborHex.MovementCost + turningCost;
+                
                 if (totalCost > maxMovementPoints) // Exceeds movement points
                     continue;
 
-                if (visited.TryAdd(neighbor, totalCost))
-                {
-                    toVisit.Enqueue(neighbor);
-                }
-                else if (totalCost < visited[neighbor])
-                {
-                    visited[neighbor] = totalCost;
-                    toVisit.Enqueue(neighbor);
-                }
+                // If we haven't visited this hex or we found a cheaper path
+                if (visited.TryGetValue(neighborCoord, out var value) && totalCost >= value) 
+                    continue;
+                
+                visited[neighborCoord] = totalCost;
+                toVisit.Enqueue(new HexPosition(neighborCoord, requiredFacing));
             }
         }
 
-        return visited.Select(v => (v.Key, v.Value)).Where(x => x.Key != start);
+        return visited
+            .Where(v => v.Key != start.Coordinates)
+            .Select(v => (v.Key, v.Value));
     }
 
     /// <summary>

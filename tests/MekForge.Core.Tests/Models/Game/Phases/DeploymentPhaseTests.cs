@@ -64,8 +64,8 @@ public class DeploymentPhaseTests : GameStateTestsBase
         var unit = player.Units[0];
         unit.IsDeployed.Should().BeTrue();
         unit.Position.HasValue.Should().BeTrue();
-        unit.Position.Value.Q.Should().Be(1);
-        unit.Position.Value.R.Should().Be(1);
+        unit.Position.Value.Coordinates.Q.Should().Be(1);
+        unit.Position.Value.Coordinates.R.Should().Be(1);
     }
 
     [Fact]
