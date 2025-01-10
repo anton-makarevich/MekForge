@@ -42,7 +42,8 @@ public class MovementState : IUiState
         // Get reachable hexes and highlight them
         if (_selectedUnit?.Position != null && _viewModel.Game != null)
         {
-            _reachableHexes = _viewModel.Game.GetReachableHexes(_selectedUnit.Position.Value, mp)
+            _reachableHexes = _viewModel.Game.BattleMap.GetReachableHexes(_selectedUnit.Position.Value, mp)
+                .Select(x=>x.coordinates)
                 .ToList();
             _viewModel.HighlightHexes(_reachableHexes, true);
         }

@@ -240,7 +240,7 @@ public class MovementStateTests
         state?.HandleMovementTypeSelection(MovementType.Walk);
 
         // Assert
-        var hexBelow = _viewModel.Game.GetHexes().First(x => x.Coordinates == new HexCoordinates(1, 2));
+        var hexBelow = _viewModel.Game.BattleMap.GetHexes().First(x => x.Coordinates == new HexCoordinates(1, 2));
         hexBelow.IsHighlighted.Should().BeTrue();
     }
 

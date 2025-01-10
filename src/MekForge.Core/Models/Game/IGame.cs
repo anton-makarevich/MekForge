@@ -8,7 +8,6 @@ namespace Sanet.MekForge.Core.Models.Game;
 public interface IGame
 {
     IReadOnlyList<IPlayer> Players { get; }
-    IEnumerable<Hex> GetHexes();
     int Turn { get; }
     PhaseNames TurnPhase { get; }
     IPlayer? ActivePlayer { get; }
@@ -18,9 +17,6 @@ public interface IGame
     IObservable<PhaseNames> PhaseChanges { get; }
     IObservable<IPlayer?> ActivePlayerChanges { get; }
     IObservable<int> UnitsToPlayChanges { get; }
-
-    /// <summary>
-    /// Gets all valid hex coordinates that can be reached from the given position with given movement points
-    /// </summary>
-    IEnumerable<HexCoordinates> GetReachableHexes(HexPosition start, int maxMovementPoints);
+    
+    BattleMap BattleMap { get; }
 }

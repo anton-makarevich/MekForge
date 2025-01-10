@@ -13,7 +13,7 @@ namespace Sanet.MekForge.Core.Models.Game;
 
 public abstract class BaseGame : IGame
 {
-    protected readonly BattleMap BattleMap;
+    
     internal readonly ICommandPublisher CommandPublisher;
     private readonly List<IPlayer> _players = [];
     private readonly MechFactory _mechFactory;
@@ -33,7 +33,7 @@ public abstract class BaseGame : IGame
     public IObservable<PhaseNames> PhaseChanges => _phaseSubject.AsObservable();
     public IObservable<IPlayer?> ActivePlayerChanges => _activePlayerSubject.AsObservable();
     public IObservable<int> UnitsToPlayChanges => _unitsToPlaySubject.AsObservable();
-
+    public BattleMap BattleMap { get; }
     public int Turn
     {
         get => _turn;
@@ -93,19 +93,6 @@ public abstract class BaseGame : IGame
     }
 
     public IReadOnlyList<IPlayer> Players => _players;
-    public IEnumerable<Hex> GetHexes()
-    {
-        return BattleMap.GetHexes();
-    }
-
-    /// <summary>
-    /// Gets all valid hex coordinates that can be reached from the given position with given movement points
-    /// </summary>
-    public IEnumerable<HexCoordinates> GetReachableHexes(HexPosition start, int maxMovementPoints)
-    {
-        return BattleMap.GetReachableHexes(start, maxMovementPoints)
-            .Select(x => x.coordinates);
-    }
 
     internal void OnPlayerJoined(JoinGameCommand joinGameCommand)
     {
