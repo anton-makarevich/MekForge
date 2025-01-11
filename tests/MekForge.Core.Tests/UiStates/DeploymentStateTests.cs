@@ -137,7 +137,7 @@ public class DeploymentStateTests
         // Arrange
         _viewModel.Game=null;
         // Act
-        var action = () => new MovementState(_viewModel);
+        var action = () => new DeploymentState(_viewModel);
         // Assert
         action.Should().Throw<InvalidOperationException>();
     }
@@ -152,7 +152,7 @@ public class DeploymentStateTests
             Phase = PhaseNames.Attack,
         });
         // Act
-        var action = () => new MovementState(_viewModel);
+        var action = () => new DeploymentState(_viewModel);
         // Assert
         action.Should().Throw<InvalidOperationException>();
     }
