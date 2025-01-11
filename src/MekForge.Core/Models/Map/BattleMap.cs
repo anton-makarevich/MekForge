@@ -128,16 +128,18 @@ public class BattleMap
         HexPosition start,
         int maxMovementPoints)
     {
-        var visited = new Dictionary<HexCoordinates, int>();
+        var visited = new Dictionary<(HexCoordinates coords, HexDirection facing), int>();
+        var bestCosts = new Dictionary<HexCoordinates, int>();
         var toVisit = new Queue<HexPosition>();
         
-        visited[start.Coordinates] = 0;
+        visited[(start.Coordinates, start.Facing)] = 0;
+        bestCosts[start.Coordinates] = 0;
         toVisit.Enqueue(start);
 
         while (toVisit.Count > 0)
         {
             var current = toVisit.Dequeue();
-            var currentCost = visited[current.Coordinates];
+            var currentCost = visited[(current.Coordinates, current.Facing)];
 
             // For each adjacent hex
             foreach (var neighborCoord in current.Coordinates.GetAdjacentCoordinates())
@@ -159,16 +161,24 @@ public class BattleMap
                 if (totalCost > maxMovementPoints) // Exceeds movement points
                     continue;
 
-                // If we haven't visited this hex or we found a cheaper path
-                if (visited.TryGetValue(neighborCoord, out var value) && totalCost >= value) 
+                var neighborKey = (neighborCoord, requiredFacing);
+                
+                // Skip if we've visited this hex+facing combination with a lower cost
+                if (visited.TryGetValue(neighborKey, out var visitedCost) && totalCost >= visitedCost)
                     continue;
                 
-                visited[neighborCoord] = totalCost;
+                // Update both visited and best costs
+                visited[neighborKey] = totalCost;
+                if (!bestCosts.TryGetValue(neighborCoord, out var bestCost) || totalCost < bestCost)
+                {
+                    bestCosts[neighborCoord] = totalCost;
+                }
+                
                 toVisit.Enqueue(new HexPosition(neighborCoord, requiredFacing));
             }
         }
 
-        return visited
+        return bestCosts
             .Where(v => v.Key != start.Coordinates)
             .Select(v => (v.Key, v.Value));
     }
