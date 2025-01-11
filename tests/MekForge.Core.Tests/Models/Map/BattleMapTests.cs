@@ -313,4 +313,69 @@ public class BattleMapTests
             clonedHex.GetTerrainTypes().Should().BeEquivalentTo(hex.GetTerrainTypes());
         }
     }
+
+    [Fact]
+    public void GetReachableHexes_WithComplexTerrainAndFacing_ReachesHexThroughClearPath()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(11, 9,
+            new SingleTerrainGenerator(11,9, new ClearTerrain())); // Size to fit all hexes (0-10, 0-8)
+
+        // Heavy Woods
+        var heavyWoodsCoords = new[]
+        {
+            (4, 7), (5, 7), (6, 8),
+            (8, 3), (9, 3), (8, 4), (9, 4),
+            (9, 8), (10, 6)
+        };
+        foreach (var (q, r) in heavyWoodsCoords)
+        {
+            var hex = map.GetHex(new HexCoordinates(q, r));
+            hex!.RemoveTerrain("Clear");
+            hex.AddTerrain(new HeavyWoodsTerrain());
+        }
+
+        // Light Woods
+        var lightWoodsCoords = new[]
+        {
+            (4, 6), (9, 6), (9, 7), (10, 7)
+        };
+        foreach (var (q, r) in lightWoodsCoords)
+        {
+            var hex = map.GetHex(new HexCoordinates(q, r));
+            hex!.RemoveTerrain("Clear");
+            hex.AddTerrain(new LightWoodsTerrain());
+        }
+
+        // Starting position: 9,5 facing bottom-left (direction 4)
+        var start = new HexPosition(new HexCoordinates(9, 5), HexDirection.BottomLeft);
+        const int maxMp = 5;
+
+        // Act
+        var reachableHexes = map.GetReachableHexes(start, maxMp).ToList();
+
+        // Assert
+        var targetHex = new HexCoordinates(7, 8);
+        reachableHexes.Should().Contain(x => x.coordinates == targetHex,
+            "Hex (7,8) should be reachable through path: (9,5)->(8,5)->(7,6)->[turn]->(7,7)->(7,8)");
+
+        // Verify the path exists and respects movement points
+        var path = map.FindPath(
+            start,
+            new HexPosition(targetHex, HexDirection.Bottom),
+            maxMp);
+
+        path.Should().NotBeNull("A valid path should exist to reach (7,8)");
+        if (path != null)
+        {
+            path.Count.Should().BeLessOrEqualTo(maxMp + 1, 
+                "Path length should not exceed maxMP + 1 (including start position)");
+
+            var pathCoords = path.Select(p => p.Coordinates).Distinct().ToList();
+            pathCoords.Should().Contain(new HexCoordinates(8, 5), "Path should go through (8,5)");
+            pathCoords.Should().Contain(new HexCoordinates(7, 6), "Path should go through (7,6)");
+            pathCoords.Should().Contain(new HexCoordinates(7, 7), "Path should go through (7,7)");
+            pathCoords.Should().Contain(targetHex, "Path should reach (7,8)");
+        }
+    }
 }
