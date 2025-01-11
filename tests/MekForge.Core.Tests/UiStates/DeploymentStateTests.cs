@@ -3,8 +3,8 @@ using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
-using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
+using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
@@ -25,15 +25,16 @@ public class DeploymentStateTests
     private readonly Unit _unit;
     private readonly Hex _hex1;
     private readonly Hex _hex2;
+    private readonly BattleMapViewModel _viewModel;
 
     public DeploymentStateTests()
     {
         var imageService = Substitute.For<IImageService>();
         var localizationService = Substitute.For<ILocalizationService>();
-        var viewModel = Substitute.For<BattleMapViewModel>(imageService, localizationService);
-        var builder = new DeploymentCommandBuilder(Guid.NewGuid(), Guid.NewGuid());
-        _state = new DeploymentState(viewModel, builder);
         
+        _viewModel = new BattleMapViewModel(imageService, localizationService);
+
+
         var rules = new ClassicBattletechRulesProvider();
         _unit = new MechFactory(rules).Create(MechFactoryTests.CreateDummyMechData());
         
@@ -47,23 +48,21 @@ public class DeploymentStateTests
             battleMap, [player], rules,
             Substitute.For<ICommandPublisher>());
         
-        viewModel.Game = _game;
+        _viewModel.Game = _game;
+        SetActivePlayer(player);
+        _state = new DeploymentState(_viewModel);
     }
 
     [Fact]
     public void InitialState_HasSelectUnitAction()
     {
-        // Arrange
-        SetActivePlayer();
-
         // Assert
         _state.ActionLabel.Should().Be("Select Unit");
         _state.IsActionRequired.Should().BeTrue();
     }
 
-    private void SetActivePlayer()
+    private void SetActivePlayer(Player player)
     {
-        var player = _game.LocalPlayers[0];
         _game.HandleCommand(new JoinGameCommand
         {
             PlayerName = player.Name,
@@ -83,9 +82,6 @@ public class DeploymentStateTests
     [Fact]
     public void HandleUnitSelection_TransitionsToHexSelection()
     {
-        // Arrange
-        SetActivePlayer();
-        
         // Act
         _state.HandleUnitSelection(_unit);
 
@@ -97,9 +93,8 @@ public class DeploymentStateTests
     public void HandleHexSelection_ForDeployment_SetsPositionAndHighlightsAdjacent()
     {
         // Arrange
-        SetActivePlayer();
-        _state.HandleUnitSelection(_unit); // Move to hex selection state
-
+        _state.HandleUnitSelection(_unit);
+        
         // Act
         _state.HandleHexSelection(_hex1);
 
@@ -125,7 +120,6 @@ public class DeploymentStateTests
     public void HandleHexSelection_ForDirection_DoesNothing_WhenHexIsNotAdjacent()
     {
         // Arrange
-        SetActivePlayer();
         var nonAdjacentHex = new Hex(new HexCoordinates(5, 5));
         _state.HandleUnitSelection(_unit);
         _state.HandleHexSelection(_hex1);
@@ -135,5 +129,31 @@ public class DeploymentStateTests
 
         // Assert
         _state.ActionLabel.Should().Be("Select Direction");
+    }
+    
+    [Fact]
+    public void Constructor_ShouldThrow_IfGameNull()
+    {
+        // Arrange
+        _viewModel.Game=null;
+        // Act
+        var action = () => new DeploymentState(_viewModel);
+        // Assert
+        action.Should().Throw<InvalidOperationException>();
+    }
+    
+    [Fact]
+    public void Constructor_ShouldThrow_IfActivePlayerNull()
+    {
+        // Arrange
+        _game.HandleCommand(new ChangePhaseCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            Phase = PhaseNames.Attack,
+        });
+        // Act
+        var action = () => new DeploymentState(_viewModel);
+        // Assert
+        action.Should().Throw<InvalidOperationException>();
     }
 }

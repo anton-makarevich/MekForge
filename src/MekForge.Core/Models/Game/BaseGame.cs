@@ -28,7 +28,7 @@ public abstract class BaseGame : IGame
     private readonly Subject<IPlayer?> _activePlayerSubject = new();
     private readonly Subject<int> _unitsToPlaySubject = new();
 
-    public Guid GameId { get; }
+    public Guid Id { get; }
     public IObservable<int> TurnChanges => _turnSubject.AsObservable();
     public IObservable<PhaseNames> PhaseChanges => _phaseSubject.AsObservable();
     public IObservable<IPlayer?> ActivePlayerChanges => _activePlayerSubject.AsObservable();
@@ -85,7 +85,7 @@ public abstract class BaseGame : IGame
         IRulesProvider rulesProvider,
         ICommandPublisher commandPublisher)
     {
-        GameId = Guid.NewGuid(); 
+        Id = Guid.NewGuid(); 
         BattleMap = battleMap;
         CommandPublisher = commandPublisher;
         _mechFactory = new MechFactory(rulesProvider);
@@ -147,7 +147,7 @@ public abstract class BaseGame : IGame
 
     protected bool ShouldHandleCommand(GameCommand command)
     {
-        return command.GameOriginId != GameId && command.GameOriginId != Guid.Empty;
+        return command.GameOriginId != Id && command.GameOriginId != Guid.Empty;
     }
 
     private bool ValidateJoinCommand(JoinGameCommand joinCommand)

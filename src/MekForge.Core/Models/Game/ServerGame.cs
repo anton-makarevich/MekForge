@@ -51,7 +51,7 @@ public class ServerGame : BaseGame
         if (!ValidateCommand(command)) return;
 
         // Clone the command before broadcasting with server's GameId
-        var broadcastCommand = command.CloneWithGameId(GameId);
+        var broadcastCommand = command.CloneWithGameId(Id);
         CommandPublisher.PublishCommand(broadcastCommand);
         
         _currentPhase.HandleCommand(command);
@@ -65,7 +65,7 @@ public class ServerGame : BaseGame
         {
             CommandPublisher.PublishCommand(new ChangeActivePlayerCommand
             {
-                GameOriginId = GameId,
+                GameOriginId = Id,
                 PlayerId = player.Id,
                 UnitsToPlay = unitsToMove
             });
@@ -77,7 +77,7 @@ public class ServerGame : BaseGame
         TurnPhase = phase;
         CommandPublisher.PublishCommand(new ChangePhaseCommand
         {
-            GameOriginId = GameId,
+            GameOriginId = Id,
             Phase = phase
         });
     }

@@ -19,4 +19,6 @@ public interface IGame
     IObservable<int> UnitsToPlayChanges { get; }
     
     BattleMap BattleMap { get; }
+    
+    Guid Id { get; }
 }

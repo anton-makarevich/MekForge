@@ -71,7 +71,7 @@ public class ServerGameTests
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
             Units = [],
-            GameOriginId = _serverGame.GameId, // Set to this game's ID
+            GameOriginId = _serverGame.Id, // Set to this game's ID
             Tint = "#FF0000"
         };
 
@@ -137,7 +137,7 @@ public class ServerGameTests
         _serverGame.TurnPhase.Should().Be(PhaseNames.Deployment);
         _commandPublisher.Received(1).PublishCommand(Arg.Is<ChangePhaseCommand>(cmd => 
             cmd.Phase == PhaseNames.Deployment &&
-            cmd.GameOriginId == _serverGame.GameId
+            cmd.GameOriginId == _serverGame.Id
         ));
     }
     

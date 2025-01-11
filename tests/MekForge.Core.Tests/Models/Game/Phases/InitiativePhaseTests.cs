@@ -76,7 +76,7 @@ public class InitiativePhaseTests : GameStateTestsBase
         // Assert
         CommandPublisher.Received().PublishCommand(Arg.Do<DiceRolledCommand>(cmd =>
         {
-            cmd.GameOriginId.Should().Be(Game.GameId);
+            cmd.GameOriginId.Should().Be(Game.Id);
             cmd.PlayerId.Should().Be(Game.ActivePlayer!.Id);
             cmd.Roll.Should().Be(7);
         }));
