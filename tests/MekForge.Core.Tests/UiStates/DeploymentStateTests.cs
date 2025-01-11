@@ -4,6 +4,7 @@ using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
+using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
@@ -24,14 +25,16 @@ public class DeploymentStateTests
     private readonly Unit _unit;
     private readonly Hex _hex1;
     private readonly Hex _hex2;
+    private readonly BattleMapViewModel _viewModel;
 
     public DeploymentStateTests()
     {
         var imageService = Substitute.For<IImageService>();
         var localizationService = Substitute.For<ILocalizationService>();
-        var viewModel = Substitute.For<BattleMapViewModel>(imageService, localizationService);
         
-        
+        _viewModel = new BattleMapViewModel(imageService, localizationService);
+
+
         var rules = new ClassicBattletechRulesProvider();
         _unit = new MechFactory(rules).Create(MechFactoryTests.CreateDummyMechData());
         
@@ -45,9 +48,9 @@ public class DeploymentStateTests
             battleMap, [player], rules,
             Substitute.For<ICommandPublisher>());
         
-        viewModel.Game = _game;
+        _viewModel.Game = _game;
         SetActivePlayer(player);
-        _state = new DeploymentState(viewModel);
+        _state = new DeploymentState(_viewModel);
     }
 
     [Fact]
@@ -126,5 +129,31 @@ public class DeploymentStateTests
 
         // Assert
         _state.ActionLabel.Should().Be("Select Direction");
+    }
+    
+    [Fact]
+    public void Constructor_ShouldThrow_IfGameNull()
+    {
+        // Arrange
+        _viewModel.Game=null;
+        // Act
+        var action = () => new MovementState(_viewModel);
+        // Assert
+        action.Should().Throw<InvalidOperationException>();
+    }
+    
+    [Fact]
+    public void Constructor_ShouldThrow_IfActivePlayerNull()
+    {
+        // Arrange
+        _game.HandleCommand(new ChangePhaseCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            Phase = PhaseNames.Attack,
+        });
+        // Act
+        var action = () => new MovementState(_viewModel);
+        // Assert
+        action.Should().Throw<InvalidOperationException>();
     }
 }

@@ -246,4 +246,26 @@ public class MovementStateTests
         // Assert
         _state.ActionLabel.Should().Be("Select unit to move");
     }
+
+    [Fact]
+    public void Constructor_ShouldThrow_IfGameNull()
+    {
+        // Arrange
+        _viewModel.Game=null;
+        // Act
+        var action = () => new MovementState(_viewModel);
+        // Assert
+        action.Should().Throw<InvalidOperationException>();
+    }
+    
+    [Fact]
+    public void Constructor_ShouldThrow_IfActivePlayerNull()
+    {
+        // Arrange
+        SetPhase(PhaseNames.Attack);
+        // Act
+        var action = () => new MovementState(_viewModel);
+        // Assert
+        action.Should().Throw<InvalidOperationException>();
+    }
 }
