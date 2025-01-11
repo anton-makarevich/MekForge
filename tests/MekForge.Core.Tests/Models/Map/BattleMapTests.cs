@@ -359,7 +359,7 @@ public class BattleMapTests
         reachableHexes.Should().Contain(x => x.coordinates == targetHex,
             "Hex (7,8) should be reachable through path: (9,5)->(8,5)->(7,6)->[turn]->(7,7)->(7,8)");
 
-        // Verify the path exists
+        // Verify the path exists and respects movement points
         var path = map.FindPath(
             start,
             new HexPosition(targetHex, HexDirection.Bottom),
@@ -368,6 +368,9 @@ public class BattleMapTests
         path.Should().NotBeNull("A valid path should exist to reach (7,8)");
         if (path != null)
         {
+            path.Count.Should().BeLessOrEqualTo(maxMp + 1, 
+                "Path length should not exceed maxMP + 1 (including start position)");
+
             var pathCoords = path.Select(p => p.Coordinates).Distinct().ToList();
             pathCoords.Should().Contain(new HexCoordinates(8, 5), "Path should go through (8,5)");
             pathCoords.Should().Contain(new HexCoordinates(7, 6), "Path should go through (7,6)");

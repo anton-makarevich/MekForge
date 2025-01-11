@@ -44,81 +44,70 @@ public class BattleMap
     /// </summary>
     public List<HexPosition>? FindPath(HexPosition start, HexPosition target, int maxMovementPoints)
     {
-        // First find the shortest path without considering facing
-        var frontier = new PriorityQueue<HexCoordinates, int>();
-        var cameFrom = new Dictionary<HexCoordinates, HexCoordinates>();
-        var costSoFar = new Dictionary<HexCoordinates, int>();
-
-        frontier.Enqueue(start.Coordinates, 0);
-        costSoFar[start.Coordinates] = 0;
+        var frontier = new PriorityQueue<(HexPosition pos, List<HexPosition> path), int>();
+        var visited = new HashSet<(HexCoordinates coords, HexDirection facing)>();
+        
+        frontier.Enqueue((start, [start]), 0);
+        visited.Add((start.Coordinates, start.Facing));
 
         while (frontier.Count > 0)
         {
-            var current = frontier.Dequeue();
-
-            if (current == target.Coordinates)
-                break;
-
-            foreach (var next in current.GetAdjacentCoordinates())
+            var (current, path) = frontier.Dequeue();
+            
+            // Check if we've reached the target
+            if (current.Coordinates == target.Coordinates && current.Facing == target.Facing)
             {
-                var hex = GetHex(next);
+                return path;
+            }
+
+            // For each adjacent hex
+            foreach (var nextCoord in current.Coordinates.GetAdjacentCoordinates())
+            {
+                var hex = GetHex(nextCoord);
                 if (hex == null)
                     continue;
 
-                var newCost = costSoFar[current] + hex.MovementCost;
+                // Get required facing for movement
+                var requiredFacing = current.Coordinates.GetDirectionToNeighbour(nextCoord);
                 
-                if (newCost > maxMovementPoints)
+                // Calculate turning steps if needed
+                var turningSteps = current.GetTurningSteps(requiredFacing).ToList();
+                var newPath = new List<HexPosition>(path);
+                newPath.AddRange(turningSteps);
+                
+                // Add the movement step
+                var nextPos = new HexPosition(nextCoord, requiredFacing);
+                newPath.Add(nextPos);
+                
+                // Calculate total cost
+                var totalSteps = newPath.Count - 1; // -1 because start position doesn't count as a step
+                
+                if (totalSteps > maxMovementPoints)
                     continue;
-
-                if (!costSoFar.ContainsKey(next) || newCost < costSoFar[next])
+                    
+                // Skip if we've already visited this state
+                if (!visited.Add((nextCoord, requiredFacing)))
+                    continue;
+                
+                // Calculate priority based on remaining distance plus current cost
+                var priority = totalSteps + nextCoord.DistanceTo(target.Coordinates);
+                
+                // If we're at target coordinates but wrong facing, add turning steps to target facing
+                if (nextCoord == target.Coordinates && requiredFacing != target.Facing)
                 {
-                    costSoFar[next] = newCost;
-                    var priority = newCost + next.DistanceTo(target.Coordinates);
-                    frontier.Enqueue(next, priority);
-                    cameFrom[next] = current;
+                    var finalTurningSteps = nextPos.GetTurningSteps(target.Facing).ToList();
+                    if (totalSteps + finalTurningSteps.Count > maxMovementPoints) continue;
+                    newPath.AddRange(finalTurningSteps);
+                    frontier.Enqueue((new HexPosition(nextCoord, target.Facing), newPath), priority);
+                }
+                else
+                {
+                    frontier.Enqueue((nextPos, newPath), priority);
                 }
             }
         }
 
-        if (!cameFrom.ContainsKey(target.Coordinates))
-            return null;
-
-        // Reconstruct the path and add facing changes
-        var result = new List<HexPosition>();
-        var path = new List<HexCoordinates>();
-        var currentCoord = target.Coordinates;
-
-        // Build the path in reverse
-        while (currentCoord != start.Coordinates)
-        {
-            path.Add(currentCoord);
-            currentCoord = cameFrom[currentCoord];
-        }
-        path.Add(start.Coordinates);
-        path.Reverse();
-
-        // Add positions with proper facing
-        var currentPos = start;
-        result.Add(currentPos);
-
-        // For each step in the path
-        for (var i = 0; i < path.Count - 1; i++)
-        {
-            var nextCoord = path[i + 1];
-            
-            // Get required facing for movement and add turning steps
-            var requiredFacing = currentPos.Coordinates.GetDirectionToNeighbour(nextCoord);
-            result.AddRange(currentPos.GetTurningSteps(requiredFacing));
-            
-            // Move to next hex
-            currentPos = new HexPosition(nextCoord, requiredFacing);
-            result.Add(currentPos);
-        }
-
-        // Add final turning steps if needed
-        result.AddRange(currentPos.GetTurningSteps(target.Facing));
-
-        return result;
+        return null;
     }
 
     /// <summary>
