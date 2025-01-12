@@ -222,6 +222,9 @@ public class MovementStateTests
         var position = new HexPosition(new HexCoordinates(1, 1),HexDirection.Bottom);
         var unit = _viewModel.Units.First();
         unit.Deploy(position);
+        var position2 = new HexPosition(new HexCoordinates(2, 2),HexDirection.Bottom);
+        var unit2 = _viewModel.Units.Last();
+        unit2.Deploy(position2);
         var hex = new Hex(position.Coordinates);
         state?.HandleHexSelection(hex);
         
@@ -231,6 +234,8 @@ public class MovementStateTests
         // Assert
         var hexBelow = _viewModel.Game.BattleMap.GetHexes().First(x => x.Coordinates == new HexCoordinates(1, 2));
         hexBelow.IsHighlighted.Should().BeTrue();
+        var occupiedHex = _viewModel.Game.BattleMap.GetHexes().First(x => x.Coordinates == position2.Coordinates);
+        occupiedHex.IsHighlighted.Should().BeFalse();
     }
 
     [Fact]
