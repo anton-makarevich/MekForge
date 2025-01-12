@@ -50,7 +50,12 @@ public class MovementState : IUiState
         // Get reachable hexes and highlight them
         if (_selectedUnit?.Position != null && _viewModel.Game != null)
         {
-            _reachableHexes = _viewModel.Game.BattleMap.GetReachableHexes(_selectedUnit.Position.Value, mp)
+            var prohibitedHexes = _viewModel.Units
+                .Where(u=>u.Owner?.Id != _viewModel.Game.ActivePlayer?.Id)
+                .Where(u=> u.Position != null)
+                .Select(u => u.Position.Value.Coordinates)
+                .ToList();
+            _reachableHexes = _viewModel.Game.BattleMap.GetReachableHexes(_selectedUnit.Position.Value, mp, prohibitedHexes)
                 .Select(x=>x.coordinates)
                 .ToList();
             _viewModel.HighlightHexes(_reachableHexes, true);

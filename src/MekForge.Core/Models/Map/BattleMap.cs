@@ -121,7 +121,7 @@ public class BattleMap
         var visited = new Dictionary<(HexCoordinates coords, HexDirection facing), int>();
         var bestCosts = new Dictionary<HexCoordinates, int>();
         var toVisit = new Queue<HexPosition>();
-        var prohibited = prohibitedHexes?.ToHashSet() ?? new HashSet<HexCoordinates>();
+        var prohibited = prohibitedHexes?.ToHashSet() ?? [];
         
         visited[(start.Coordinates, start.Facing)] = 0;
         bestCosts[start.Coordinates] = 0;
