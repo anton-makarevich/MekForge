@@ -38,6 +38,11 @@ namespace Sanet.MekForge.Avalonia.Controls
             {
                 SetAndRaise(EnabledDirectionsProperty, ref _enabledDirections, value);
                 TopButton.IsEnabled = value?.Contains(HexDirection.Top) ?? false;
+                TopRightButton.IsEnabled = value?.Contains(HexDirection.TopRight) ?? false;
+                BottomRightButton.IsEnabled = value?.Contains(HexDirection.BottomRight) ?? false;
+                BottomButton.IsEnabled = value?.Contains(HexDirection.Bottom) ?? false;
+                BottomLeftButton.IsEnabled = value?.Contains(HexDirection.BottomLeft) ?? false;
+                TopLeftButton.IsEnabled = value?.Contains(HexDirection.TopLeft) ?? false;
             }
         }
 
