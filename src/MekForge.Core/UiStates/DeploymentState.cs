@@ -49,34 +49,28 @@ public class DeploymentState : IUiState
 
     public void HandleHexSelection(Hex hex)
     {
-        switch (_currentSubState)
-        {
-            case SubState.SelectingHex:
-                HandleHexForDeployment(hex);
-                break;
-        }
+        if (_currentSubState == SubState.SelectingHex) HandleHexForDeployment(hex);
     }
 
     public void HandleFacingSelection(HexDirection direction)
     {
-        if (_currentSubState == SubState.SelectingDirection)
-        {
-            _builder.SetDirection(direction);
-            CompleteDeployment();
-        }
+        if (_currentSubState != SubState.SelectingDirection) return;
+        _builder.SetDirection(direction);
+        _viewModel.HideDirectionSelector();
+        CompleteDeployment();
     }
 
     private static IEnumerable<HexDirection> GetAllDirections()
     {
-        return new[]
-        {
+        return
+        [
             HexDirection.Top,
             HexDirection.TopRight,
             HexDirection.BottomRight,
             HexDirection.Bottom,
             HexDirection.BottomLeft,
             HexDirection.TopLeft
-        };
+        ];
     }
 
     private void HandleHexForDeployment(Hex hex)

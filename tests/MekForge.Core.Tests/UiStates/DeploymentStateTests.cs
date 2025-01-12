@@ -34,7 +34,6 @@ public class DeploymentStateTests
         
         _viewModel = new BattleMapViewModel(imageService, localizationService);
 
-
         var rules = new ClassicBattletechRulesProvider();
         _unit = new MechFactory(rules).Create(MechFactoryTests.CreateDummyMechData());
         
@@ -90,42 +89,13 @@ public class DeploymentStateTests
     }
 
     [Fact]
-    public void HandleHexSelection_ForDeployment_SetsPositionAndHighlightsAdjacent()
+    public void HandleHexSelection_ForDeployment_UpdatesStepToSelectDirection()
     {
         // Arrange
         _state.HandleUnitSelection(_unit);
         
         // Act
         _state.HandleHexSelection(_hex1);
-
-        // Assert
-        _state.ActionLabel.Should().Be("Select Direction");
-    }
-
-    [Fact]
-    public void HandleHexSelection_ForDirection_CompletesDeployment_WhenHexIsAdjacent()
-    {
-        // Arrange
-        _state.HandleUnitSelection(_unit);
-        _state.HandleHexSelection(_hex1);
-
-        // Act
-        _state.HandleHexSelection(_hex2);
-
-        // Assert
-        _state.ActionLabel.Should().Be("");
-    }
-
-    [Fact]
-    public void HandleHexSelection_ForDirection_DoesNothing_WhenHexIsNotAdjacent()
-    {
-        // Arrange
-        var nonAdjacentHex = new Hex(new HexCoordinates(5, 5));
-        _state.HandleUnitSelection(_unit);
-        _state.HandleHexSelection(_hex1);
-
-        // Act
-        _state.HandleHexSelection(nonAdjacentHex);
 
         // Assert
         _state.ActionLabel.Should().Be("Select Direction");
@@ -155,5 +125,49 @@ public class DeploymentStateTests
         var action = () => new DeploymentState(_viewModel);
         // Assert
         action.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void HandleHexSelection_WhenSelectingHex_ShowsDirectionSelector()
+    {
+        // Arrange
+        _state.HandleUnitSelection(_unit);
+        
+        // Act
+        _state.HandleHexSelection(_hex1);
+
+        // Assert
+        _viewModel.DirectionSelectorPosition.Should().Be(_hex1.Coordinates);
+        _viewModel.IsDirectionSelectorVisible.Should().BeTrue();
+        _viewModel.AvailableDirections.Should().HaveCount(6);
+    }
+    
+    [Fact]
+    public void HandleFacingSelection_WhenDirectionSelected_CompletesDeployment()
+    {
+        // Arrange
+        _state.HandleUnitSelection(_unit);
+        _state.HandleHexSelection(_hex1);
+    
+        // Act
+        _state.HandleFacingSelection(HexDirection.Top);
+    
+        // Assert
+        _state.ActionLabel.Should().Be("");
+        _viewModel.IsDirectionSelectorVisible.Should().BeFalse();
+    }
+
+    [Fact]
+    public void HandleFacingSelection_AfterSelection_HidesDirectionSelector()
+    {
+        // Arrange
+        var hex = new Hex(new HexCoordinates(1, 1));
+        _state.HandleHexSelection(hex);
+
+        // Act
+        _state.HandleFacingSelection(HexDirection.Top);
+
+        // Assert
+        _viewModel.IsDirectionSelectorVisible.Should().BeFalse();
     }
 }

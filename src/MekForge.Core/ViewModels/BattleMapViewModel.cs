@@ -46,7 +46,6 @@ public class BattleMapViewModel : BaseViewModel
     public void DirectionSelectedCommand(HexDirection direction) 
     {
         CurrentState?.HandleFacingSelection(direction);
-        HideDirectionSelector();
     }
 
     public BattleMapViewModel(IImageService imageService, ILocalizationService localizationService)
@@ -238,7 +237,7 @@ public class BattleMapViewModel : BaseViewModel
         IsDirectionSelectorVisible = true;
     }
 
-    private void HideDirectionSelector()
+    public void HideDirectionSelector()
     {
         IsDirectionSelectorVisible = false;
         AvailableDirections = null;
