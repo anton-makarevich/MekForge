@@ -5,6 +5,7 @@
              xmlns:viewModels="clr-namespace:Sanet.MekForge.Core.ViewModels;assembly=Sanet.MekForge.Core"
              xmlns:i="using:Avalonia.Xaml.Interactivity"
              xmlns:behaviors="using:Sanet.MekForge.Avalonia.Behaviors"
+             xmlns:controls="clr-namespace:Sanet.MekForge.Avalonia.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Sanet.MekForge.Avalonia.Views.BattleMapView"
              x:CompileBindings="True"
@@ -12,6 +13,17 @@
     <Grid>
         <Canvas x:Name="MapCanvas" 
                 Background="Transparent">
+            <controls:DirectionSelector
+                x:Name="DirectionSelector"
+                Canvas.Left="100"
+                Canvas.Top="100"
+                IsVisible="True"
+                Width="200"
+                Height="200"
+                EnabledDirections="{Binding AvailableDirections}"
+                DirectionSelectedCommand="{Binding DirectionSelectedCommand}"/>
+            <!-- IsVisible="{Binding IsDirectionSelectorVisible}"Canvas.Left="{Binding DirectionSelectorPosition.X}"
+                                                                                 Canvas.Top="{Binding DirectionSelectorPosition.Y}" -->
         </Canvas>
         
         <StackPanel x:Name="TurnStatus"

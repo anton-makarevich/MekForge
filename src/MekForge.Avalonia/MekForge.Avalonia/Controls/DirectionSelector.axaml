@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Sanet.MekForge.Avalonia.Controls.DirectionSelector">
+    <Canvas Width="100" Height="100">
+        <!-- Top button -->
+        <Button x:Name="TopButton" Canvas.Left="35" Canvas.Top="0" Width="30" Height="30"
+                Click="TopButton_Click">
+            <Path Data="M 15,5 L 5,25 L 25,25 Z" Fill="White"/>
+        </Button>
+        
+        <!-- Top Right button -->
+        <Button x:Name="TopRightButton" Canvas.Left="70" Canvas.Top="17" Width="30" Height="30"
+                Click="TopRightButton_OnClick">
+            <Path Data="M 5,5 L 5,25 L 25,15 Z" Fill="White"/>
+        </Button>
+        
+        <!-- Bottom Right button -->
+        <Button x:Name="BottomRightButton" Canvas.Left="70" Canvas.Top="53" Width="30" Height="30"
+                Click="BottomRightButton_OnClick">
+            <Path Data="M 5,15 L 5,5 L 25,25 Z" Fill="White"/>
+        </Button>
+        
+        <!-- Bottom button -->
+        <Button x:Name="BottomButton" Canvas.Left="35" Canvas.Top="70" Width="30" Height="30"
+                Click="BottomButton_OnClick">
+            <Path Data="M 15,25 L 25,5 L 5,5 Z" Fill="White"/>
+        </Button>
+        
+        <!-- Bottom Left button -->
+        <Button x:Name="BottomLeftButton" Canvas.Left="0" Canvas.Top="53" Width="30" Height="30"
+                Click="BottomLeftButton_OnClick">
+            <Path Data="M 25,15 L 25,5 L 5,25 Z" Fill="White"/>
+        </Button>
+        
+        <!-- Top Left button -->
+        <Button x:Name="TopLeftButton" Canvas.Left="0" Canvas.Top="17" Width="30" Height="30"
+                Click="TopLeftButton_OnClick">
+            <Path Data="M 25,5 L 25,25 L 5,15 Z" Fill="White"/>
+        </Button>
+    </Canvas>
+</UserControl>
