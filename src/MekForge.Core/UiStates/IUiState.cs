@@ -7,6 +7,7 @@ public interface IUiState
 {
     void HandleUnitSelection(Unit? unit);
     void HandleHexSelection(Hex hex);
+    void HandleFacingSelection(HexDirection direction);
     string ActionLabel { get; }
     bool IsActionRequired { get; }
 }

@@ -39,12 +39,12 @@ namespace Sanet.MekForge.Avalonia.Controls
             set
             {
                 SetAndRaise(EnabledDirectionsProperty, ref _enabledDirections, value);
-                TopButton.IsVisible = true;//value?.Contains(HexDirection.Top) ?? false;
-                TopRightButton.IsVisible = true;//value?.Contains(HexDirection.TopRight) ?? false;
-                BottomRightButton.IsVisible = true;//value?.Contains(HexDirection.BottomRight) ?? false;
-                BottomButton.IsVisible = true;//value?.Contains(HexDirection.Bottom) ?? false;
-                BottomLeftButton.IsVisible = true;//v/alue?.Contains(HexDirection.BottomLeft) ?? false;
-                TopLeftButton.IsVisible = true; //value?.Contains(HexDirection.TopLeft) ?? false;
+                TopButton.IsVisible = value?.Contains(HexDirection.Top) ?? false;
+                TopRightButton.IsVisible = value?.Contains(HexDirection.TopRight) ?? false;
+                BottomRightButton.IsVisible = value?.Contains(HexDirection.BottomRight) ?? false;
+                BottomButton.IsVisible = value?.Contains(HexDirection.Bottom) ?? false;
+                BottomLeftButton.IsVisible = value?.Contains(HexDirection.BottomLeft) ?? false;
+                TopLeftButton.IsVisible = value?.Contains(HexDirection.TopLeft) ?? false;
             }
         }
 

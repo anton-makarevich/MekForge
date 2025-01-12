@@ -45,7 +45,7 @@ public class BattleMapViewModel : BaseViewModel
 
     public void DirectionSelectedCommand(HexDirection direction) 
     {
-        //CurrentState?.HandleFacingSelection(direction);
+        CurrentState?.HandleFacingSelection(direction);
         HideDirectionSelector();
     }
 

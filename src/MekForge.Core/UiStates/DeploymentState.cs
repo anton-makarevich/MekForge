@@ -54,10 +54,29 @@ public class DeploymentState : IUiState
             case SubState.SelectingHex:
                 HandleHexForDeployment(hex);
                 break;
-            case SubState.SelectingDirection:
-                HandleHexForDirection(hex);
-                break;
         }
+    }
+
+    public void HandleFacingSelection(HexDirection direction)
+    {
+        if (_currentSubState == SubState.SelectingDirection)
+        {
+            _builder.SetDirection(direction);
+            CompleteDeployment();
+        }
+    }
+
+    private static IEnumerable<HexDirection> GetAllDirections()
+    {
+        return new[]
+        {
+            HexDirection.Top,
+            HexDirection.TopRight,
+            HexDirection.BottomRight,
+            HexDirection.Bottom,
+            HexDirection.BottomLeft,
+            HexDirection.TopLeft
+        };
     }
 
     private void HandleHexForDeployment(Hex hex)
@@ -66,25 +85,7 @@ public class DeploymentState : IUiState
         _builder.SetPosition(hex.Coordinates);
         _currentSubState = SubState.SelectingDirection;
         
-        var adjacentCoordinates = hex.Coordinates.GetAdjacentCoordinates().ToList();
-        _viewModel.HighlightHexes(adjacentCoordinates, true);
-        _viewModel.NotifyStateChanged();
-    }
-
-    private void HandleHexForDirection(Hex selectedHex)
-    {
-        if (_selectedHex == null) return;
-        
-        var adjacentCoordinates = _selectedHex.Coordinates.GetAdjacentCoordinates().ToList();
-        if (!adjacentCoordinates.Contains(selectedHex.Coordinates)) return;
-
-        _viewModel.HighlightHexes(adjacentCoordinates, false);
-
-        var direction = _selectedHex.Coordinates.GetDirectionToNeighbour(selectedHex.Coordinates);
-
-        _builder.SetDirection(direction);
-        
-        CompleteDeployment();
+        _viewModel.ShowDirectionSelector(_selectedHex.Coordinates, GetAllDirections());
     }
 
     private void CompleteDeployment()
