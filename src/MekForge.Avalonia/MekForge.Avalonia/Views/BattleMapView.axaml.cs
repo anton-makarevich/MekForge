@@ -47,6 +47,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
 
     private void RenderMap(IGame game, IImageService<Bitmap> imageService)
     {
+        var directionSelector = DirectionSelector;
         MapCanvas.Children.Clear();
 
         foreach (var hex in game.BattleMap.GetHexes())
@@ -60,6 +61,9 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
             var unitControl = new UnitControl(unit, (IImageService<Bitmap>)ViewModel.ImageService, ViewModel);
             MapCanvas.Children.Add(unitControl);
         }
+
+        // Ensure DirectionSelector stays on top
+        MapCanvas.Children.Add(directionSelector);
     }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)

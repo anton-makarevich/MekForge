@@ -1,6 +1,5 @@
 using System.Reactive.Linq;
 using Sanet.MekForge.Core.Models.Game;
-using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
@@ -23,6 +22,31 @@ public class BattleMapViewModel : BaseViewModel
     private readonly ObservableCollection<string> _commandLog = [];
     private bool _isCommandLogExpanded;
     private readonly ILocalizationService _localizationService;
+    private HexCoordinates _directionSelectorPosition;
+    public HexCoordinates DirectionSelectorPosition
+    {
+        get => _directionSelectorPosition;
+        private set => SetProperty(ref _directionSelectorPosition, value);
+    }
+
+    private bool _isDirectionSelectorVisible;
+    public bool IsDirectionSelectorVisible
+    {
+        get => _isDirectionSelectorVisible;
+        private set => SetProperty(ref _isDirectionSelectorVisible, value);
+    }
+
+    private IEnumerable<HexDirection>? _availableDirections;
+    public IEnumerable<HexDirection>? AvailableDirections
+    {
+        get => _availableDirections;
+        private set => SetProperty(ref _availableDirections, value);
+    }
+
+    public void DirectionSelectedCommand(HexDirection direction) 
+    {
+        CurrentState?.HandleFacingSelection(direction);
+    }
 
     public BattleMapViewModel(IImageService imageService, ILocalizationService localizationService)
     {
@@ -118,6 +142,7 @@ public class BattleMapViewModel : BaseViewModel
         NotifyPropertyChanged(nameof(Turn));
         NotifyPropertyChanged(nameof(TurnPhaseNames));
         NotifyPropertyChanged(nameof(ActivePlayerName));
+        NotifyPropertyChanged(nameof(ActivePlayerTint));
         NotifyPropertyChanged(nameof(UserActionLabel));
         NotifyPropertyChanged(nameof(IsUserActionLabelVisible));
         NotifyPropertyChanged(nameof(AreUnitsToDeployVisible));
@@ -152,6 +177,8 @@ public class BattleMapViewModel : BaseViewModel
     public PhaseNames TurnPhaseNames => Game?.TurnPhase ?? PhaseNames.Start;
     
     public string ActivePlayerName => Game?.ActivePlayer?.Name ?? string.Empty;
+
+    public string ActivePlayerTint => Game?.ActivePlayer?.Tint ?? "#FFFFFF";
 
     public IImageService ImageService { get; }
 
@@ -205,4 +232,17 @@ public class BattleMapViewModel : BaseViewModel
 
     public IEnumerable<Unit> Units => Game?.Players.SelectMany(p => p.Units) ?? [];
     public IUiState CurrentState { get; private set; }
+
+    public void ShowDirectionSelector(HexCoordinates position, IEnumerable<HexDirection> availableDirections)
+    {
+        DirectionSelectorPosition = position;
+        AvailableDirections = availableDirections;
+        IsDirectionSelectorVisible = true;
+    }
+
+    public void HideDirectionSelector()
+    {
+        IsDirectionSelectorVisible = false;
+        AvailableDirections = null;
+    }
 }

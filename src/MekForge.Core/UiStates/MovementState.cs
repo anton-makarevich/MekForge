@@ -75,6 +75,11 @@ public class MovementState : IUiState
         }
     }
 
+    public void HandleFacingSelection(HexDirection direction)
+    {
+        throw new NotImplementedException();
+    }
+
     private void HandleUnitSelectionFromHex(Hex hex)
     {
         var unit = _viewModel.Units.FirstOrDefault(u => u.Position?.Coordinates == hex.Coordinates);

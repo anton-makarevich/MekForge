@@ -43,8 +43,9 @@ public class BattleMapViewModelTests
         _viewModel.Turn.Should().Be(1);
         _game.TurnPhase.Returns(PhaseNames.Start);
         _viewModel.TurnPhaseNames.Should().Be(PhaseNames.Start);
-        _game.ActivePlayer.Returns(new Player(Guid.Empty, "Player1"));
+        _game.ActivePlayer.Returns(new Player(Guid.Empty, "Player1", "#FF0000"));
         _viewModel.ActivePlayerName.Should().Be("Player1");
+        _viewModel.ActivePlayerTint.Should().Be("#FF0000");
     }
 
     [Theory]
@@ -268,5 +269,37 @@ public class BattleMapViewModelTests
         // Assert
         _viewModel.UserActionLabel.Should().Be("Select unit to move");
         _viewModel.IsUserActionLabelVisible.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ShowDirectionSelector_SetsPositionAndDirections()
+    {
+        // Arrange
+        var position = new HexCoordinates(1, 1);
+        var directions = new[] { HexDirection.Top, HexDirection.Bottom };
+
+        // Act
+        _viewModel.ShowDirectionSelector(position, directions);
+
+        // Assert
+        _viewModel.DirectionSelectorPosition.Should().Be(position);
+        _viewModel.IsDirectionSelectorVisible.Should().BeTrue();
+        _viewModel.AvailableDirections.Should().BeEquivalentTo(directions);
+    }
+
+    [Fact]
+    public void HideDirectionSelector_ClearsDirectionsAndVisibility()
+    {
+        // Arrange
+        var position = new HexCoordinates(1, 1);
+        var directions = new[] { HexDirection.Top, HexDirection.Bottom };
+        _viewModel.ShowDirectionSelector(position, directions);
+
+        // Act
+        _viewModel.HideDirectionSelector();
+
+        // Assert
+        _viewModel.IsDirectionSelectorVisible.Should().BeFalse();
+        _viewModel.AvailableDirections.Should().BeNull();
     }
 }
