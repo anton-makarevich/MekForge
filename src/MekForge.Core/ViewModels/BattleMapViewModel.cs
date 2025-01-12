@@ -7,7 +7,6 @@ using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.UiStates;
 using Sanet.MVVM.Core.ViewModels;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Services.Localization;
 
@@ -23,8 +22,8 @@ public class BattleMapViewModel : BaseViewModel
     private readonly ObservableCollection<string> _commandLog = [];
     private bool _isCommandLogExpanded;
     private readonly ILocalizationService _localizationService;
-    private Point _directionSelectorPosition;
-    public Point DirectionSelectorPosition
+    private HexCoordinates _directionSelectorPosition;
+    public HexCoordinates DirectionSelectorPosition
     {
         get => _directionSelectorPosition;
         private set => SetProperty(ref _directionSelectorPosition, value);
@@ -44,11 +43,11 @@ public class BattleMapViewModel : BaseViewModel
         private set => SetProperty(ref _availableDirections, value);
     }
 
-    public void DirectionSelectedCommand() 
-        {
-            //CurrentState?.HandleFacingSelection(direction);
-            HideDirectionSelector();
-        }
+    public void DirectionSelectedCommand(HexDirection direction) 
+    {
+        //CurrentState?.HandleFacingSelection(direction);
+        HideDirectionSelector();
+    }
 
     public BattleMapViewModel(IImageService imageService, ILocalizationService localizationService)
     {
@@ -232,7 +231,7 @@ public class BattleMapViewModel : BaseViewModel
     public IEnumerable<Unit> Units => Game?.Players.SelectMany(p => p.Units) ?? [];
     public IUiState CurrentState { get; private set; }
 
-    public void ShowDirectionSelector(Point position, IEnumerable<HexDirection> availableDirections)
+    public void ShowDirectionSelector(HexCoordinates position, IEnumerable<HexDirection> availableDirections)
     {
         DirectionSelectorPosition = position;
         AvailableDirections = availableDirections;

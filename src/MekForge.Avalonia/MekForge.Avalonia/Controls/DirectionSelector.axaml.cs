@@ -13,6 +13,8 @@ namespace Sanet.MekForge.Avalonia.Controls
         public DirectionSelector()
         {
             InitializeComponent();
+            Width = HexCoordinates.HexWidth*1.65;
+            Height = HexCoordinates.HexHeight*1.9;
         }
         
         public static readonly StyledProperty<ICommand?> DirectionSelectedCommandProperty =
@@ -37,26 +39,31 @@ namespace Sanet.MekForge.Avalonia.Controls
             set
             {
                 SetAndRaise(EnabledDirectionsProperty, ref _enabledDirections, value);
-                TopButton.IsEnabled = value?.Contains(HexDirection.Top) ?? false;
-                TopRightButton.IsEnabled = value?.Contains(HexDirection.TopRight) ?? false;
-                BottomRightButton.IsEnabled = value?.Contains(HexDirection.BottomRight) ?? false;
-                BottomButton.IsEnabled = value?.Contains(HexDirection.Bottom) ?? false;
-                BottomLeftButton.IsEnabled = value?.Contains(HexDirection.BottomLeft) ?? false;
-                TopLeftButton.IsEnabled = value?.Contains(HexDirection.TopLeft) ?? false;
+                TopButton.IsVisible = true;//value?.Contains(HexDirection.Top) ?? false;
+                TopRightButton.IsVisible = true;//value?.Contains(HexDirection.TopRight) ?? false;
+                BottomRightButton.IsVisible = true;//value?.Contains(HexDirection.BottomRight) ?? false;
+                BottomButton.IsVisible = true;//value?.Contains(HexDirection.Bottom) ?? false;
+                BottomLeftButton.IsVisible = true;//v/alue?.Contains(HexDirection.BottomLeft) ?? false;
+                TopLeftButton.IsVisible = true; //value?.Contains(HexDirection.TopLeft) ?? false;
             }
         }
 
-        public static readonly DirectProperty<DirectionSelector,Point> PositionProperty =
-            AvaloniaProperty.RegisterDirect<DirectionSelector, Point>(
+        public static readonly DirectProperty<DirectionSelector,HexCoordinates> PositionProperty =
+            AvaloniaProperty.RegisterDirect<DirectionSelector, HexCoordinates>(
                 nameof(Position),
                 o => o.Position,
                 (o, v) => o.Position = v);
 
-        private Point _position;
-        public Point Position
+        private HexCoordinates _position;
+        public HexCoordinates Position
         {
             get => _position;
-            set => SetAndRaise(PositionProperty, ref _position, value);
+            set
+            {
+                SetAndRaise(PositionProperty, ref _position, value);
+                Canvas.SetLeft(this, value.H-35);
+                Canvas.SetTop(this, value.V-38.5);
+            }
         }
 
         private void TopButton_Click(object? sender, RoutedEventArgs e)

@@ -15,15 +15,10 @@
                 Background="Transparent">
             <controls:DirectionSelector
                 x:Name="DirectionSelector"
-                Canvas.Left="100"
-                Canvas.Top="100"
-                IsVisible="True"
-                Width="200"
-                Height="200"
+                IsVisible="{Binding IsDirectionSelectorVisible}"
                 EnabledDirections="{Binding AvailableDirections}"
+                Position="{Binding DirectionSelectorPosition}"
                 DirectionSelectedCommand="{Binding DirectionSelectedCommand}"/>
-            <!-- IsVisible="{Binding IsDirectionSelectorVisible}"Canvas.Left="{Binding DirectionSelectorPosition.X}"
-                                                                                 Canvas.Top="{Binding DirectionSelectorPosition.Y}" -->
         </Canvas>
         
         <StackPanel x:Name="TurnStatus"
