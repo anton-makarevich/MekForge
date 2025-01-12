@@ -269,4 +269,36 @@ public class BattleMapViewModelTests
         _viewModel.UserActionLabel.Should().Be("Select unit to move");
         _viewModel.IsUserActionLabelVisible.Should().BeTrue();
     }
+
+    [Fact]
+    public void ShowDirectionSelector_SetsPositionAndDirections()
+    {
+        // Arrange
+        var position = new HexCoordinates(1, 1);
+        var directions = new[] { HexDirection.Top, HexDirection.Bottom };
+
+        // Act
+        _viewModel.ShowDirectionSelector(position, directions);
+
+        // Assert
+        _viewModel.DirectionSelectorPosition.Should().Be(position);
+        _viewModel.IsDirectionSelectorVisible.Should().BeTrue();
+        _viewModel.AvailableDirections.Should().BeEquivalentTo(directions);
+    }
+
+    [Fact]
+    public void HideDirectionSelector_ClearsDirectionsAndVisibility()
+    {
+        // Arrange
+        var position = new HexCoordinates(1, 1);
+        var directions = new[] { HexDirection.Top, HexDirection.Bottom };
+        _viewModel.ShowDirectionSelector(position, directions);
+
+        // Act
+        _viewModel.HideDirectionSelector();
+
+        // Assert
+        _viewModel.IsDirectionSelectorVisible.Should().BeFalse();
+        _viewModel.AvailableDirections.Should().BeNull();
+    }
 }
