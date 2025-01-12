@@ -18,7 +18,8 @@
                 IsVisible="{Binding IsDirectionSelectorVisible}"
                 EnabledDirections="{Binding AvailableDirections}"
                 Position="{Binding DirectionSelectorPosition}"
-                DirectionSelectedCommand="{Binding DirectionSelectedCommand}"/>
+                DirectionSelectedCommand="{Binding DirectionSelectedCommand}"
+                Foreground="{Binding ActivePlayerTint}"/>
         </Canvas>
         
         <StackPanel x:Name="TurnStatus"

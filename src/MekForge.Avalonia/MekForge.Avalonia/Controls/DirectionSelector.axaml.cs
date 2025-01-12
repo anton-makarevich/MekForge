@@ -3,7 +3,9 @@ using System.Linq;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Sanet.MekForge.Core.Models.Map;
 
 namespace Sanet.MekForge.Avalonia.Controls
@@ -64,6 +66,43 @@ namespace Sanet.MekForge.Avalonia.Controls
                 Canvas.SetLeft(this, value.H-35);
                 Canvas.SetTop(this, value.V-38.5);
             }
+        }
+
+        public static readonly DirectProperty<DirectionSelector,string> ForegroundProperty =
+            AvaloniaProperty.RegisterDirect<DirectionSelector, string>(
+                nameof(Foreground),
+                o=> o.Foreground,
+                (o, v) => o.Foreground = v);
+
+        private string _foreground; 
+        public string Foreground
+        {
+            get => _foreground;
+            set => SetAndRaise(ForegroundProperty, ref _foreground, value);
+        }
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+
+            if (change.Property != ForegroundProperty) return;
+            if (string.IsNullOrEmpty(Foreground)) return;
+       
+            var color = Color.Parse(Foreground);
+            var brush = new SolidColorBrush(color);
+            
+            if (TopButton?.Content is Path topPath)
+                topPath.Fill = brush;
+            if (TopRightButton?.Content is Path topRightPath)
+                topRightPath.Fill = brush;
+            if (BottomRightButton?.Content is Path bottomRightPath)
+                bottomRightPath.Fill = brush;
+            if (BottomButton?.Content is Path bottomPath)
+                bottomPath.Fill = brush;
+            if (BottomLeftButton?.Content is Path bottomLeftPath)
+                bottomLeftPath.Fill = brush;
+            if (TopLeftButton?.Content is Path topLeftPath)
+                topLeftPath.Fill = brush;
         }
 
         private void TopButton_Click(object? sender, RoutedEventArgs e)

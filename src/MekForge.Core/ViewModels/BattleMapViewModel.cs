@@ -142,6 +142,7 @@ public class BattleMapViewModel : BaseViewModel
         NotifyPropertyChanged(nameof(Turn));
         NotifyPropertyChanged(nameof(TurnPhaseNames));
         NotifyPropertyChanged(nameof(ActivePlayerName));
+        NotifyPropertyChanged(nameof(ActivePlayerTint));
         NotifyPropertyChanged(nameof(UserActionLabel));
         NotifyPropertyChanged(nameof(IsUserActionLabelVisible));
         NotifyPropertyChanged(nameof(AreUnitsToDeployVisible));
@@ -176,6 +177,8 @@ public class BattleMapViewModel : BaseViewModel
     public PhaseNames TurnPhaseNames => Game?.TurnPhase ?? PhaseNames.Start;
     
     public string ActivePlayerName => Game?.ActivePlayer?.Name ?? string.Empty;
+
+    public string ActivePlayerTint => Game?.ActivePlayer?.Tint ?? "#FFFFFF";
 
     public IImageService ImageService { get; }
 
