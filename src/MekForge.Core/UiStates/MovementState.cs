@@ -60,8 +60,7 @@ public class MovementState : IUiState
             _reachableHexes = _viewModel.Game.BattleMap.GetReachableHexes(_selectedUnit.Position.Value, mp, prohibitedHexes)
                 .Select(x=>x.coordinates)
                 .Where(hex => _viewModel.Units.Where(u => u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id) // exclude allied positions from end results
-                                    .Where(u => u.Position != null)
-                                    .All(u => u.Position!.Value.Coordinates != hex))
+                                    .All(u => u.Position?.Coordinates != hex))
                 .ToList();
 
             _viewModel.HighlightHexes(_reachableHexes, true);
