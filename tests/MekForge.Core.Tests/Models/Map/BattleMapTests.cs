@@ -402,4 +402,31 @@ public class BattleMapTests
         reachable.Should().NotContain(h => prohibitedHexes.Contains(h.coordinates), 
             "Prohibited hexes should not be included in reachable hexes");
     }
+
+    [Fact]
+    public void FindPath_WithProhibitedHexes_FindsAlternativePath()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(3, 3,
+            new SingleTerrainGenerator(3,3, new ClearTerrain()));
+        var start = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var target = new HexPosition(new HexCoordinates(3, 3), HexDirection.Bottom);
+        
+        // Create prohibited hexes that block the direct path
+        var prohibitedHexes = new[]
+        {
+            new HexCoordinates(2, 2),
+            new HexCoordinates(3, 2)
+        };
+
+        // Act
+        var path = map.FindPath(start, target, 10, prohibitedHexes);
+
+        // Assert
+        path.Should().NotBeNull();
+        var pathCoordinates = path!.Select(p => p.Coordinates).ToList();
+        pathCoordinates.Should().NotContain(prohibitedHexes);
+        pathCoordinates.Should().Contain(new HexCoordinates(1, 2)); // Should go around through the left side
+        pathCoordinates.Should().Contain(new HexCoordinates(2, 3));
+    }
 }
