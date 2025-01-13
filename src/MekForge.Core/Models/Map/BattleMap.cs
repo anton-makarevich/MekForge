@@ -42,10 +42,11 @@ public class BattleMap
     /// <summary>
     /// Finds a path between two positions, considering facing direction and movement costs
     /// </summary>
-    public List<HexPosition>? FindPath(HexPosition start, HexPosition target, int maxMovementPoints)
+    public List<HexPosition>? FindPath(HexPosition start, HexPosition target, int maxMovementPoints, IEnumerable<HexCoordinates>? prohibitedHexes = null)
     {
         var frontier = new PriorityQueue<(HexPosition pos, List<HexPosition> path), int>();
         var visited = new HashSet<(HexCoordinates coords, HexDirection facing)>();
+        var prohibited = prohibitedHexes?.ToHashSet() ?? new HashSet<HexCoordinates>();
         
         frontier.Enqueue((start, [start]), 0);
         visited.Add((start.Coordinates, start.Facing));
@@ -64,7 +65,7 @@ public class BattleMap
             foreach (var nextCoord in current.Coordinates.GetAdjacentCoordinates())
             {
                 var hex = GetHex(nextCoord);
-                if (hex == null)
+                if (hex == null || prohibited.Contains(nextCoord))
                     continue;
 
                 // Get required facing for movement
