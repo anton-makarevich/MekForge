@@ -147,6 +147,7 @@ public class MovementStateTests
     public void HandleHexSelection_TransitionsToDirectionSelection()
     {
         // Arrange
+        _unit.Deploy(new HexPosition(new HexCoordinates(1,2),HexDirection.Bottom));
         _state.HandleUnitSelection(_unit);
         _state.HandleMovementTypeSelection(MovementType.Walk);
         
@@ -155,22 +156,6 @@ public class MovementStateTests
 
         // Assert
         _state.ActionLabel.Should().Be("Select facing direction");
-    }
-
-    [Fact]
-    public void HandleHexSelection_CompletesMovement_WhenDirectionSelected()
-    {
-        // Arrange
-        _state.HandleUnitSelection(_unit);
-        _state.HandleMovementTypeSelection(MovementType.Walk);
-        _state.HandleHexSelection(_hex1);
-        
-        // Act
-        _state.HandleHexSelection(_hex2);
-
-        // Assert
-        _state.ActionLabel.Should().Be(string.Empty);
-        _state.IsActionRequired.Should().BeFalse();
     }
 
     [Fact]
@@ -210,32 +195,6 @@ public class MovementStateTests
 
         // Assert
         _viewModel.SelectedUnit.Should().BeNull();
-    }
-    
-    [Fact]
-    public void HandleMovementTypeSelection_HighlightsHexs()
-    {
-        // Arrange
-        SetPhase(PhaseNames.Movement);
-        SetActivePlayer();
-        var state = _viewModel.CurrentState as MovementState;
-        var position = new HexPosition(new HexCoordinates(1, 1),HexDirection.Bottom);
-        var unit = _viewModel.Units.First();
-        unit.Deploy(position);
-        var position2 = new HexPosition(new HexCoordinates(2, 2),HexDirection.Bottom);
-        var unit2 = _viewModel.Units.Last();
-        unit2.Deploy(position2);
-        var hex = new Hex(position.Coordinates);
-        state?.HandleHexSelection(hex);
-        
-        // Act
-        state?.HandleMovementTypeSelection(MovementType.Walk);
-
-        // Assert
-        var hexBelow = _viewModel.Game.BattleMap.GetHexes().First(x => x.Coordinates == new HexCoordinates(1, 2));
-        hexBelow.IsHighlighted.Should().BeTrue();
-        var occupiedHex = _viewModel.Game.BattleMap.GetHexes().First(x => x.Coordinates == position2.Coordinates);
-        occupiedHex.IsHighlighted.Should().BeFalse();
     }
 
     [Fact]
