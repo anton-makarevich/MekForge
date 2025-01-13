@@ -10,7 +10,7 @@ public class MovementState : IUiState
 {
     private readonly BattleMapViewModel _viewModel;
     private readonly MoveUnitCommandBuilder _builder;
-    private Hex? _selectedHex;
+    private Hex? _targetHex;
     private Unit? _selectedUnit;
     private List<HexCoordinates> _reachableHexes = [];
 
@@ -102,7 +102,7 @@ public class MovementState : IUiState
     private void HandleTargetHexSelection(Hex hex)
     {
         // TODO: Add validation for movement range and terrain restrictions
-        _selectedHex = hex;
+        _targetHex = hex;
         _builder.SetDestination(hex.Coordinates);
         CurrentMovementStep = MovementStep.SelectingDirection;
         
@@ -119,14 +119,14 @@ public class MovementState : IUiState
 
     private void HandleDirectionSelection(Hex selectedHex)
     {
-        if (_selectedHex == null) return;
+        if (_targetHex == null) return;
         
-        var adjacentCoordinates = _selectedHex.Coordinates.GetAdjacentCoordinates().ToList();
+        var adjacentCoordinates = _targetHex.Coordinates.GetAdjacentCoordinates().ToList();
         if (!adjacentCoordinates.Contains(selectedHex.Coordinates)) return;
 
         _viewModel.HighlightHexes(adjacentCoordinates, false);
 
-        var direction = _selectedHex.Coordinates.GetDirectionToNeighbour(selectedHex.Coordinates);
+        var direction = _targetHex.Coordinates.GetDirectionToNeighbour(selectedHex.Coordinates);
 
         _builder.SetDirection(direction);
         
@@ -142,7 +142,7 @@ public class MovementState : IUiState
         }
         
         _builder.Reset();
-        _selectedHex = null;
+        _targetHex = null;
         _selectedUnit = null;
         CurrentMovementStep = MovementStep.Completed;
         _viewModel.NotifyStateChanged();
