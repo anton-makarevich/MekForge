@@ -54,6 +54,9 @@ public class ClientGame : BaseGame
             case DeployUnitCommand deployUnitCommand:
                 OnDeployUnit(deployUnitCommand);
                 break;
+            case MoveUnitCommand moveUnitCommand:
+                OnMoveUnit(moveUnitCommand);
+                break;
         }
     }
     

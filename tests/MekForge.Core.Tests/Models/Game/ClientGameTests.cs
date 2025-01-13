@@ -10,6 +10,8 @@ using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
+using Sanet.MekForge.Core.Models.Units;
+using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MekForge.Core.Utils.TechRules;
 
@@ -24,7 +26,7 @@ public class ClientGameTests
     {
         var battleState = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5,5, new ClearTerrain()));
         _commandPublisher = Substitute.For<ICommandPublisher>();
-        var rulesProvider = Substitute.For<IRulesProvider>();
+        var rulesProvider = new ClassicBattletechRulesProvider();
         _clientGame = new ClientGame(battleState,[], rulesProvider, _commandPublisher);
     }
 
@@ -57,7 +59,7 @@ public class ClientGameTests
         {
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
-            Units = new List<UnitData>(),
+            Units = [],
             GameOriginId = _clientGame.Id, // Set to this game's ID
             Tint = "#FF0000"
         };
@@ -139,7 +141,8 @@ public class ClientGameTests
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
-            PlayerName = player.Name, Units = [],
+            PlayerName = player.Name,
+            Units = [],
             Tint = "#FF0000"
         });
 
@@ -180,7 +183,8 @@ public class ClientGameTests
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
-            PlayerName = player.Name, Units = [],
+            PlayerName = player.Name,
+            Units = [],
             Tint = "#FF0000"
         });
         var actualPlayer = _clientGame.Players.FirstOrDefault(p => p.Id == player.Id);
@@ -262,5 +266,288 @@ public class ClientGameTests
         // Assert
         receivedCommands.Should().HaveCount(1);
         receivedCommands.First().Should().BeEquivalentTo(joinCommand);
+    }
+
+    [Fact]
+    public void DeployUnit_ShouldPublishCommand_WhenActivePlayerExists()
+    {
+        // Arrange
+        var player = new Player(Guid.NewGuid(), "Player1");
+        var unitData = MechFactoryTests.CreateDummyMechData();
+        unitData.Id= Guid.NewGuid();
+        _clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = player.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = player.Name,
+            Units = [unitData],
+            Tint = "#FF0000"
+        });
+        _clientGame.HandleCommand(new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id,
+            UnitsToPlay = 1
+        });
+
+        var deployCommand = new DeployUnitCommand
+        {
+            GameOriginId = _clientGame.Id,
+            PlayerId = player.Id,
+            Position = new  HexCoordinateData(1, 1), 
+            Direction = 0,
+            UnitId = unitData.Id.Value
+        };
+
+        // Act
+        _clientGame.DeployUnit(deployCommand);
+
+        // Assert
+        _commandPublisher.Received(1).PublishCommand(Arg.Is<DeployUnitCommand>(cmd =>
+            cmd.PlayerId == player.Id &&
+            cmd.Position == deployCommand.Position &&
+            cmd.GameOriginId == _clientGame.Id));
+    }
+
+    [Fact]
+    public void DeployUnit_ShouldNotPublishCommand_WhenNoActivePlayer()
+    {
+        // Arrange
+        var deployCommand = new DeployUnitCommand
+        {
+            GameOriginId = _clientGame.Id,
+            PlayerId = Guid.NewGuid(),
+            Position = new HexCoordinateData(1,1),
+            Direction = 0,
+            UnitId = Guid.NewGuid()
+        };
+    
+        // Act
+        _clientGame.DeployUnit(deployCommand);
+    
+        // Assert
+        _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<DeployUnitCommand>());
+    }
+    
+    [Fact]
+    public void MoveUnit_ShouldPublishCommand_WhenActivePlayerExists()
+    {
+        // Arrange
+        var player = new Player(Guid.NewGuid(), "Player1");
+        var unitData = MechFactoryTests.CreateDummyMechData();
+        unitData.Id= Guid.NewGuid();
+        _clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = player.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = player.Name,
+            Units = [unitData],
+            Tint = "#FF0000"
+        });
+        _clientGame.HandleCommand(new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id,
+            UnitsToPlay = 1
+        });
+    
+        var moveCommand = new MoveUnitCommand
+        {
+            GameOriginId = _clientGame.Id,
+            PlayerId = player.Id,
+            MovementType = MovementType.Walk,
+            Direction = 0,
+            Destination = new HexCoordinateData(2, 2),
+            UnitId = unitData.Id.Value
+        };
+    
+        // Act
+        _clientGame.MoveUnit(moveCommand);
+    
+        // Assert
+        _commandPublisher.Received(1).PublishCommand(Arg.Is<MoveUnitCommand>(cmd =>
+            cmd.PlayerId == player.Id &&
+            cmd.MovementType == moveCommand.MovementType &&
+            cmd.Direction == moveCommand.Direction &&
+            cmd.Destination == moveCommand.Destination &&
+            cmd.GameOriginId == _clientGame.Id));
+    }
+    
+    [Fact]
+    public void MoveUnit_ShouldNotPublishCommand_WhenNoActivePlayer()
+    {
+        // Arrange
+        var moveCommand = new MoveUnitCommand
+        {
+            GameOriginId = _clientGame.Id,
+            PlayerId = Guid.NewGuid(),
+            MovementType = MovementType.Walk,
+            Direction = 0,
+            Destination = new HexCoordinateData(2, 2),
+            UnitId = Guid.NewGuid()
+        };
+    
+        // Act
+        _clientGame.MoveUnit(moveCommand);
+    
+        // Assert
+        _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<MoveUnitCommand>());
+    }
+
+    [Fact]
+    public void HandleCommand_ShouldDeployUnit_WhenDeployUnitCommandIsReceived()
+    {
+        // Arrange
+        var player = new Player(Guid.NewGuid(), "Player1");
+        var unitData = MechFactoryTests.CreateDummyMechData();
+        unitData.Id = Guid.NewGuid();
+        _clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = player.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = player.Name,
+            Units = [unitData],
+            Tint = "#FF0000"
+        });
+
+        var deployCommand = new DeployUnitCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id,
+            Position = new HexCoordinateData(1, 1),
+            Direction = 0,
+            UnitId = unitData.Id.Value
+        };
+
+        // Act
+        _clientGame.HandleCommand(deployCommand);
+
+        // Assert
+        var deployedUnit = _clientGame.Players.First().Units.First();
+        deployedUnit.IsDeployed.Should().BeTrue();
+        deployedUnit.Position.Value.Coordinates.Q.Should().Be(1);
+        deployedUnit.Position.Value.Coordinates.R.Should().Be(1);
+        deployedUnit.Position.Value.Facing.Should().Be(HexDirection.Top);
+    }
+
+    [Fact]
+    public void HandleCommand_ShouldNotDeployUnit_WhenUnitIsAlreadyDeployed()
+    {
+        // Arrange
+        var player = new Player(Guid.NewGuid(), "Player1");
+        var unitData = MechFactoryTests.CreateDummyMechData();
+        unitData.Id = Guid.NewGuid();
+        _clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = player.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = player.Name,
+            Units = [unitData],
+            Tint = "#FF0000"
+        });
+
+        var firstDeployCommand = new DeployUnitCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id,
+            Position = new HexCoordinateData(1, 1),
+            Direction = 0,
+            UnitId = unitData.Id.Value
+        };
+        _clientGame.HandleCommand(firstDeployCommand);
+
+        var initialPosition = _clientGame.Players.First().Units.First().Position;
+
+        var secondDeployCommand = new DeployUnitCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id,
+            Position = new HexCoordinateData(2, 2),
+            Direction = 1,
+            UnitId = unitData.Id.Value
+        };
+
+        // Act
+        _clientGame.HandleCommand(secondDeployCommand);
+
+        // Assert
+        var unit = _clientGame.Players.First().Units.First();
+        unit.Position.Should().Be(initialPosition);
+    }
+
+    [Fact]
+    public void HandleCommand_ShouldMoveUnit_WhenMoveUnitCommandIsReceived()
+    {
+        // Arrange
+        var player = new Player(Guid.NewGuid(), "Player1");
+        var unitData = MechFactoryTests.CreateDummyMechData();
+        unitData.Id = Guid.NewGuid();
+        _clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = player.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = player.Name,
+            Units = [unitData],
+            Tint = "#FF0000"
+        });
+
+        // First deploy the unit
+        var deployCommand = new DeployUnitCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id,
+            Position = new HexCoordinateData(1, 1),
+            Direction = 0,
+            UnitId = unitData.Id.Value
+        };
+        _clientGame.HandleCommand(deployCommand);
+
+        var moveCommand = new MoveUnitCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id,
+            MovementType = MovementType.Walk,
+            Direction = 1,
+            Destination = new HexCoordinateData(2, 2),
+            UnitId = unitData.Id.Value
+        };
+
+        // Act
+        _clientGame.HandleCommand(moveCommand);
+
+        // Assert
+        var movedUnit = _clientGame.Players.First().Units.First();
+        movedUnit.Position.Value.Coordinates.Q.Should().Be(2);
+        movedUnit.Position.Value.Coordinates.R.Should().Be(2);
+        movedUnit.Position.Value.Facing.Should().Be(HexDirection.TopRight);
+    }
+
+    [Fact]
+    public void HandleCommand_ShouldNotMoveUnit_WhenUnitDoesNotExist()
+    {
+        // Arrange
+        var player = new Player(Guid.NewGuid(), "Player1");
+        _clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = player.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = player.Name,
+            Units = [],
+            Tint = "#FF0000"
+        });
+
+        var moveCommand = new MoveUnitCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id,
+            MovementType = MovementType.Walk,
+            Direction = 0,
+            Destination = new HexCoordinateData(2, 2),
+            UnitId = Guid.NewGuid()
+        };
+
+        // Act & Assert
+        _clientGame.Invoking(g => g.HandleCommand(moveCommand))
+            .Should().NotThrow();
     }
 }
