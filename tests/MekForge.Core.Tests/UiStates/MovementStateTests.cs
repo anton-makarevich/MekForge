@@ -273,4 +273,52 @@ public class MovementStateTests
         // Assert
         action.Should().Throw<InvalidOperationException>();
     }
+
+    [Fact]
+    public void HandleTargetHexSelection_ShowsDirectionSelector_WithPossibleDirections()
+    {
+        // Arrange
+        SetPhase(PhaseNames.Movement);
+        SetActivePlayer();
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var unit = _viewModel.Units.First();
+        unit.Deploy(position);
+        _state.HandleUnitSelection(unit);
+        _state.HandleMovementTypeSelection(MovementType.Walk);
+        
+        var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 2))!;
+        
+        // Act
+        _state.HandleHexSelection(targetHex);
+        
+        // Assert
+        _viewModel.IsDirectionSelectorVisible.Should().BeTrue();
+        _viewModel.DirectionSelectorPosition.Should().Be(targetHex.Coordinates);
+        _viewModel.AvailableDirections.Should().NotBeEmpty();
+        // All directions should be available for adjacent hex with clear terrain
+        _viewModel.AvailableDirections.Should().HaveCount(6);
+    }
+
+    [Fact]
+    public void HandleTargetHexSelection_DoesNotShowDirectionSelector_ForUnreachableHex()
+    {
+        // Arrange
+        SetPhase(PhaseNames.Movement);
+        SetActivePlayer();
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var unit = _viewModel.Units.First();
+        unit.Deploy(position);
+        _state.HandleUnitSelection(unit);
+        _state.HandleMovementTypeSelection(MovementType.Walk);
+        
+        // Create a hex that is too far to reach
+        var unreachableHex = new Hex(new HexCoordinates(10, 10));
+        
+        // Act
+        _state.HandleHexSelection(unreachableHex);
+        
+        // Assert
+        _viewModel.IsDirectionSelectorVisible.Should().BeFalse();
+        _viewModel.AvailableDirections.Should().BeNull();
+    }
 }
