@@ -10,9 +10,11 @@ public class MovementState : IUiState
 {
     private readonly BattleMapViewModel _viewModel;
     private readonly MoveUnitCommandBuilder _builder;
-    private Hex? _selectedHex;
+    private Hex? _targetHex;
     private Unit? _selectedUnit;
     private List<HexCoordinates> _reachableHexes = [];
+    private readonly List<HexCoordinates> _prohibitedHexes;
+    private int _movementPoints;
 
     public MovementState(BattleMapViewModel viewModel)
     {
@@ -26,6 +28,12 @@ public class MovementState : IUiState
             throw new InvalidOperationException("Active player is null"); 
         }
         _builder = new MoveUnitCommandBuilder(_viewModel.Game.Id, _viewModel.Game.ActivePlayer.Id);
+        
+        // Get hexes with enemy units - these will be excluded from pathfinding
+        _prohibitedHexes = _viewModel.Units
+            .Where(u=>u.Owner?.Id != _viewModel.Game.ActivePlayer?.Id && u.Position.HasValue)
+            .Select(u => u.Position.Value.Coordinates)
+            .ToList();
     }
 
     public void HandleUnitSelection(Unit? unit)
@@ -45,19 +53,14 @@ public class MovementState : IUiState
         
         _builder.SetMovementType(movementType);
         CurrentMovementStep = MovementStep.SelectingTargetHex;
-        var mp = _selectedUnit?.GetMovementPoints(movementType) ?? 0;
+        
+        _movementPoints = _selectedUnit?.GetMovementPoints(movementType) ?? 0;
 
         // Get reachable hexes and highlight them
         if (_selectedUnit?.Position != null && _viewModel.Game != null)
         {
-            // Get hexes with enemy units - these will be excluded from pathfinding
-            var prohibitedHexes = _viewModel.Units
-                .Where(u=>u.Owner?.Id != _viewModel.Game.ActivePlayer?.Id && u.Position != null)
-                .Select(u => u.Position.Value.Coordinates)
-                .ToList();
-
             // Get all reachable hexes, excluding enemy positions from pathfinding
-            _reachableHexes = _viewModel.Game.BattleMap.GetReachableHexes(_selectedUnit.Position.Value, mp, prohibitedHexes)
+            _reachableHexes = _viewModel.Game.BattleMap.GetReachableHexes(_selectedUnit.Position.Value, _movementPoints, _prohibitedHexes)
                 .Select(x=>x.coordinates)
                 .Where(hex => !_viewModel.Units
                     .Any(u => u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id && u.Position?.Coordinates == hex))
@@ -77,17 +80,19 @@ public class MovementState : IUiState
                 HandleUnitSelectionFromHex(hex);
                 break;
             case MovementStep.SelectingTargetHex:
-                HandleTargetHexSelection(hex);
-                break;
             case MovementStep.SelectingDirection:
-                HandleDirectionSelection(hex);
+                HandleTargetHexSelection(hex);
                 break;
         }
     }
 
     public void HandleFacingSelection(HexDirection direction)
     {
-        throw new NotImplementedException();
+        if (CurrentMovementStep != MovementStep.SelectingDirection) return;
+        
+        _builder.SetDirection(direction);
+        _viewModel.HideDirectionSelector();
+        CompleteMovement();
     }
 
     private void HandleUnitSelectionFromHex(Hex hex)
@@ -101,38 +106,43 @@ public class MovementState : IUiState
 
     private void HandleTargetHexSelection(Hex hex)
     {
-        // TODO: Add validation for movement range and terrain restrictions
-        _selectedHex = hex;
+        // Check if the hex is actually reachable
+        if (_reachableHexes.All(h => h != hex.Coordinates))
+        {
+            return;
+        }
+
+        _targetHex = hex;
         _builder.SetDestination(hex.Coordinates);
         CurrentMovementStep = MovementStep.SelectingDirection;
         
-        // Clear movement range highlight and highlight adjacent hexes for direction selection
-        if (_selectedUnit != null && _viewModel.Game != null)
+        if (_selectedUnit != null && _viewModel.Game != null && _selectedUnit.Position !=null)
         {
-            _viewModel.HighlightHexes(_reachableHexes, false);
+            // Find all possible facing directions
+            var possibleDirections = new List<HexDirection>();
+            var startPosition = new HexPosition(_selectedUnit.Position.Value.Coordinates, _selectedUnit.Position.Value.Facing);
+            
+            foreach (var direction in Enum.GetValues<HexDirection>())
+            {
+                var targetPosition = new HexPosition(hex.Coordinates, direction);
+                var path = _viewModel.Game.BattleMap.FindPath(startPosition, targetPosition, _movementPoints, _prohibitedHexes);
+                
+                if (path != null)
+                {
+                    possibleDirections.Add(direction);
+                }
+            }
+            
+            // Show direction selector if there are any possible directions
+            if (possibleDirections.Count != 0)
+            {
+                _viewModel.ShowDirectionSelector(hex.Coordinates, possibleDirections);
+            }
         }
         
-        var adjacentCoordinates = hex.Coordinates.GetAdjacentCoordinates().ToList();
-        _viewModel.HighlightHexes(adjacentCoordinates, true);
         _viewModel.NotifyStateChanged();
     }
-
-    private void HandleDirectionSelection(Hex selectedHex)
-    {
-        if (_selectedHex == null) return;
-        
-        var adjacentCoordinates = _selectedHex.Coordinates.GetAdjacentCoordinates().ToList();
-        if (!adjacentCoordinates.Contains(selectedHex.Coordinates)) return;
-
-        _viewModel.HighlightHexes(adjacentCoordinates, false);
-
-        var direction = _selectedHex.Coordinates.GetDirectionToNeighbour(selectedHex.Coordinates);
-
-        _builder.SetDirection(direction);
-        
-        CompleteMovement();
-    }
-
+    
     private void CompleteMovement()
     {
         var command = _builder.Build();
@@ -142,7 +152,8 @@ public class MovementState : IUiState
         }
         
         _builder.Reset();
-        _selectedHex = null;
+        _viewModel.HighlightHexes(_reachableHexes,false);
+        _targetHex = null;
         _selectedUnit = null;
         CurrentMovementStep = MovementStep.Completed;
         _viewModel.NotifyStateChanged();
