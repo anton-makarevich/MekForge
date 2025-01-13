@@ -152,6 +152,7 @@ public class MovementState : IUiState
         }
         
         _builder.Reset();
+        _viewModel.HighlightHexes(_reachableHexes,false);
         _targetHex = null;
         _selectedUnit = null;
         CurrentMovementStep = MovementStep.Completed;

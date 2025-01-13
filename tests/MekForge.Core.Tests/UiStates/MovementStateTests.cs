@@ -303,6 +303,10 @@ public class MovementStateTests
         _viewModel.IsDirectionSelectorVisible.Should().BeFalse();
         _state.ActionLabel.Should().BeEmpty();
         _state.IsActionRequired.Should().BeFalse();
+        foreach (var hex in _viewModel.Game.BattleMap.GetHexes())
+        {
+            hex.IsHighlighted.Should().BeFalse();
+        }
     }
 
     [Fact]
