@@ -280,4 +280,42 @@ public class MovementStateTests
         _viewModel.IsDirectionSelectorVisible.Should().BeFalse();
         _viewModel.AvailableDirections.Should().BeNull();
     }
+
+    [Fact]
+    public void HandleFacingSelection_CompletesMovement_WhenInDirectionSelectionStep()
+    {
+        // Arrange
+        SetPhase(PhaseNames.Movement);
+        SetActivePlayer();
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var unit = _viewModel.Units.First();
+        unit.Deploy(position);
+        _state.HandleUnitSelection(unit);
+        _state.HandleMovementTypeSelection(MovementType.Walk);
+        
+        var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 2))!;
+        _state.HandleHexSelection(targetHex);
+        
+        // Act
+        _state.HandleFacingSelection(HexDirection.Top);
+        
+        // Assert
+        _viewModel.IsDirectionSelectorVisible.Should().BeFalse();
+        _state.ActionLabel.Should().BeEmpty();
+        _state.IsActionRequired.Should().BeFalse();
+    }
+
+    [Fact]
+    public void HandleFacingSelection_DoesNothing_WhenNotInDirectionSelectionStep()
+    {
+        // Arrange
+        SetPhase(PhaseNames.Movement);
+        SetActivePlayer();
+        
+        // Act
+        _state.HandleFacingSelection(HexDirection.Top);
+        
+        // Assert
+        _state.ActionLabel.Should().Be("Select unit to move");
+    }
 }

@@ -88,7 +88,11 @@ public class MovementState : IUiState
 
     public void HandleFacingSelection(HexDirection direction)
     {
-        throw new NotImplementedException();
+        if (CurrentMovementStep != MovementStep.SelectingDirection) return;
+        
+        _builder.SetDirection(direction);
+        _viewModel.HideDirectionSelector();
+        CompleteMovement();
     }
 
     private void HandleUnitSelectionFromHex(Hex hex)
@@ -138,23 +142,7 @@ public class MovementState : IUiState
         
         _viewModel.NotifyStateChanged();
     }
-
-    private void HandleDirectionSelection(Hex selectedHex)
-    {
-        if (_targetHex == null) return;
-        
-        var adjacentCoordinates = _targetHex.Coordinates.GetAdjacentCoordinates().ToList();
-        if (!adjacentCoordinates.Contains(selectedHex.Coordinates)) return;
-
-        _viewModel.HighlightHexes(adjacentCoordinates, false);
-
-        var direction = _targetHex.Coordinates.GetDirectionToNeighbour(selectedHex.Coordinates);
-
-        _builder.SetDirection(direction);
-        
-        CompleteMovement();
-    }
-
+    
     private void CompleteMovement()
     {
         var command = _builder.Build();
