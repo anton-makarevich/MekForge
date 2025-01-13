@@ -125,7 +125,7 @@ public abstract class BaseGame : IGame
         var player = _players.FirstOrDefault(p => p.Id == moveCommand.PlayerId);
         if (player == null) return;
         var unit = player.Units.FirstOrDefault(u => u.Id == moveCommand.UnitId);
-        unit?.MoveTo(new HexPosition(new HexCoordinates(moveCommand.Destination),0));
+        unit?.MoveTo(new HexPosition(new HexCoordinates(moveCommand.Destination),(HexDirection)moveCommand.Direction));
     }
     
     protected bool ValidateCommand(GameCommand command)
@@ -135,6 +135,7 @@ public abstract class BaseGame : IGame
             JoinGameCommand joinGameCommand => ValidateJoinCommand(joinGameCommand),
             UpdatePlayerStatusCommand playerStateCommand => ValidatePlayer(playerStateCommand),
             DeployUnitCommand deployUnitCommand => ValidateDeployCommand(deployUnitCommand),
+            MoveUnitCommand => true,
             _ => false
         };
     }
