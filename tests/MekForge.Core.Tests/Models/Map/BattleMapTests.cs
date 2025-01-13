@@ -378,4 +378,28 @@ public class BattleMapTests
             pathCoords.Should().Contain(targetHex, "Path should reach (7,8)");
         }
     }
+
+    [Fact]
+    public void GetReachableHexes_WithProhibitedHexes_ExcludesProhibitedHexes()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(3, 3,
+            new SingleTerrainGenerator(3,3, new ClearTerrain()));
+        var start = new HexPosition(new HexCoordinates(2, 2), HexDirection.Top);
+
+        // Create prohibited hexes - block two adjacent hexes
+        var prohibitedHexes = new List<HexCoordinates>
+        {
+            new(2, 1), // Hex above start
+            new(3, 2)  // Hex to the right of start
+        };
+
+        // Act
+        var reachable = map.GetReachableHexes(start, 2, prohibitedHexes).ToList();
+
+        // Assert
+        reachable.Should().NotBeEmpty("Some hexes should be reachable");
+        reachable.Should().NotContain(h => prohibitedHexes.Contains(h.coordinates), 
+            "Prohibited hexes should not be included in reachable hexes");
+    }
 }

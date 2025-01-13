@@ -115,11 +115,13 @@ public class BattleMap
     /// </summary>
     public IEnumerable<(HexCoordinates coordinates, int cost)> GetReachableHexes(
         HexPosition start,
-        int maxMovementPoints)
+        int maxMovementPoints,
+        IEnumerable<HexCoordinates>? prohibitedHexes = null)
     {
         var visited = new Dictionary<(HexCoordinates coords, HexDirection facing), int>();
         var bestCosts = new Dictionary<HexCoordinates, int>();
         var toVisit = new Queue<HexPosition>();
+        var prohibited = prohibitedHexes?.ToHashSet() ?? [];
         
         visited[(start.Coordinates, start.Facing)] = 0;
         bestCosts[start.Coordinates] = 0;
@@ -133,9 +135,9 @@ public class BattleMap
             // For each adjacent hex
             foreach (var neighborCoord in current.Coordinates.GetAdjacentCoordinates())
             {
-                // Skip if hex doesn't exist on map
+                // Skip if hex doesn't exist on map or is prohibited
                 var neighborHex = GetHex(neighborCoord);
-                if (neighborHex == null)
+                if (neighborHex == null || prohibited.Contains(neighborCoord))
                     continue;
 
                 // Get required facing to move to this hex

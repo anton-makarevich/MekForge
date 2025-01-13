@@ -6,7 +6,7 @@ A cross-platform implementation of tactical turn-based mech combat game, inspire
 
 MekForge is an open-source tactical combat game featuring giant walking war machines. The game focuses on strategic combat, unit customization, and both single-player and multiplayer experiences.
 
-![MekForge](docs/screenshots/win/090125.png)
+![MekForge](docs/screenshots/win/120125.png)
 
 ## Features
 ### Implemented
