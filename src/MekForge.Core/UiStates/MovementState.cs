@@ -59,8 +59,8 @@ public class MovementState : IUiState
             // Get all reachable hexes, excluding enemy positions from pathfinding
             _reachableHexes = _viewModel.Game.BattleMap.GetReachableHexes(_selectedUnit.Position.Value, mp, prohibitedHexes)
                 .Select(x=>x.coordinates)
-                .Where(hex => _viewModel.Units.Where(u => u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id) // exclude allied positions from end results
-                                    .All(u => u.Position?.Coordinates != hex))
+                .Where(hex => !_viewModel.Units
+                    .Any(u => u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id && u.Position?.Coordinates == hex))
                 .ToList();
 
             _viewModel.HighlightHexes(_reachableHexes, true);
