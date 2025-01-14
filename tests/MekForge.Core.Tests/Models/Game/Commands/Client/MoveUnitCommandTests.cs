@@ -38,7 +38,8 @@ public class MoveUnitCommandTests : GameCommandTestBase<MoveUnitCommand>
             GameOriginId = _gameId,
             PlayerId = _player1.Id,
             UnitId = _unit.Id,
-            Destination = _position.ToData()
+            Destination = _position.ToData(),
+            MovementPoints = 5
         };
     }
 

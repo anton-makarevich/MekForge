@@ -8,7 +8,7 @@ public class MoveUnitCommandBuilder : ClientCommandBuilder
     private Guid? _unitId;
     private MovementType? _movementType;
     private HexCoordinates? _destination;
-    private HexDirection? _direction;
+    private List<HexPosition>? _movementPath;
 
     public MoveUnitCommandBuilder(Guid gameId, Guid playerId) 
         : base(gameId, playerId)
@@ -19,7 +19,7 @@ public class MoveUnitCommandBuilder : ClientCommandBuilder
         _unitId != null 
         && _movementType != null 
         && _destination != null 
-        && _direction != null;
+        && _movementPath != null;
 
     public void SetUnit(Unit unit)
     {
@@ -36,14 +36,14 @@ public class MoveUnitCommandBuilder : ClientCommandBuilder
         _destination = coordinates;
     }
 
-    public void SetDirection(HexDirection direction)
+    public void MovementPath(List<HexPosition> movementPath)
     {
-        _direction = direction;
+        _movementPath = movementPath;
     }
 
     public override MoveUnitCommand? Build()
     {
-        if (_unitId == null || _movementType == null || _destination == null || _direction == null)
+        if (_unitId == null || _movementType == null || _destination == null || _movementPath == null)
             return null;
 
         return new MoveUnitCommand
@@ -53,7 +53,8 @@ public class MoveUnitCommandBuilder : ClientCommandBuilder
             UnitId = _unitId.Value,
             MovementType = _movementType.Value,
             Destination = _destination.Value.ToData(),
-            Direction = (int)_direction.Value
+            Direction = (int)_movementPath.Last().Facing,
+            MovementPoints = Math.Max(0,_movementPath.Count-1)
         };
     }
 
@@ -62,6 +63,6 @@ public class MoveUnitCommandBuilder : ClientCommandBuilder
         _unitId = null;
         _movementType = null;
         _destination = null;
-        _direction = null;
+        _movementPath = null;
     }
 }

@@ -66,13 +66,54 @@ public class MechTests
     {
         // Arrange
         var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
+        var deployPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
         var newCoordinates =new HexPosition(new HexCoordinates(1, 2), HexDirection.BottomLeft);
+        mech.Deploy(deployPosition);
 
         // Act
-        mech.MoveTo(newCoordinates);
+        mech.MoveTo(newCoordinates, MovementType.Walk, 5);
 
         // Assert
         mech.Position.Should().Be(newCoordinates);
+        mech.HasMoved.Should().BeTrue();
+        mech.MovementTypeUsed.Should().Be(MovementType.Walk);
+        mech.DistanceCovered.Should().Be(1);
+        mech.MovementPointsSpent.Should().Be(5);
+    }
+    
+    [Fact]
+    public void MoveTo_ShouldThrowException_WhenNotDeployed()
+    {
+        // Arrange
+        var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
+        var newCoordinates =new HexPosition(new HexCoordinates(1, 2), HexDirection.BottomLeft);
+
+        // Act
+        var act = () => mech.MoveTo(newCoordinates, MovementType.Walk, 5);
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>().WithMessage("Unit is not deployed.");
+    }
+    
+    [Fact]
+    public void ResetMovement_ShouldResetMovementTracking()
+    {
+        // Arrange
+        var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
+        var deployPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var newCoordinates =new HexPosition(new HexCoordinates(1, 2), HexDirection.BottomLeft);
+        mech.Deploy(deployPosition);
+        mech.MoveTo(newCoordinates, MovementType.Walk, 5);
+
+        // Act
+        mech.ResetMovement();
+
+        // Assert
+        mech.Position.Should().Be(newCoordinates);
+        mech.HasMoved.Should().BeFalse();
+        mech.MovementTypeUsed.Should().BeNull();
+        mech.DistanceCovered.Should().Be(0);
+        mech.MovementPointsSpent.Should().Be(0);
     }
 
     [Fact]
