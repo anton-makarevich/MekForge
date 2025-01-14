@@ -161,11 +161,13 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
     {
         var mapPosition = e.GetPosition(MapCanvas);
         if (DirectionSelector.Bounds.Contains(mapPosition)) return true;
-        var unitButtons = MapCanvas.Children.OfType<StackPanel>().Where(c => c.IsVisible = true).ToList();
-        foreach (var unitButton in unitButtons)
+
+        if (_unitControls == null) return false;
+        foreach (var unit in _unitControls)
         {
-            if (unitButton.Bounds.Contains(mapPosition)) return true;
+            if (unit.MovementButtons.IsVisible && unit.MovementButtons.Bounds.Contains(mapPosition)) return true;
         }
+
         return false;
     }
 }
