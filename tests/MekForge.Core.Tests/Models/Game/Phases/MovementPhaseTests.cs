@@ -6,6 +6,7 @@ using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Players;
+using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
@@ -53,7 +54,9 @@ public class MovementPhaseTests : GameStateTestsBase
         // Arrange
         _sut.Enter();
         var newPosition = new HexCoordinateData(3, 1);
-    
+        var unit = Game.ActivePlayer.Units.Single(u => u.Id == _unit1Id);
+        unit.Deploy(new HexPosition(1,2,HexDirection.Top));
+        
         // Act
         _sut.HandleCommand(new MoveUnitCommand
         {
@@ -62,11 +65,11 @@ public class MovementPhaseTests : GameStateTestsBase
             GameOriginId = Game.Id,
             PlayerId = Game.ActivePlayer!.Id,
             UnitId = _unit1Id,
-            Destination = newPosition
+            Destination = newPosition,
+            MovementPoints = 5
         });
     
         // Assert
-        var unit = Game.ActivePlayer.Units.Single(u => u.Id == _unit1Id);
         unit.Position?.Coordinates.ToString().Should().Be("0301");
     }
 
@@ -85,7 +88,8 @@ public class MovementPhaseTests : GameStateTestsBase
             GameOriginId = Game.Id,
             PlayerId = wrongPlayerId,
             UnitId = _unit1Id,
-            Destination = new HexCoordinateData(1, 1)
+            Destination = new HexCoordinateData(1, 1),
+            MovementPoints = 5
         });
     
         // Assert
@@ -106,6 +110,7 @@ public class MovementPhaseTests : GameStateTestsBase
         // Move all units of first player
         foreach (var unit in Game.ActivePlayer.Units)
         {
+            unit.Deploy(new HexPosition(1,2,HexDirection.Top));
             _sut.HandleCommand(new MoveUnitCommand
             {
                 MovementType = MovementType.Walk,
@@ -113,7 +118,8 @@ public class MovementPhaseTests : GameStateTestsBase
                 GameOriginId = Game.Id,
                 PlayerId = Game.ActivePlayer!.Id,
                 UnitId = unit.Id,
-                Destination = new HexCoordinateData(1, 1)
+                Destination = new HexCoordinateData(1, 1),
+                MovementPoints = 5
             });
         }
 
@@ -134,6 +140,7 @@ public class MovementPhaseTests : GameStateTestsBase
         {
             foreach (var unit in player.Units)
             {
+                unit.Deploy(new HexPosition(1,2,HexDirection.Top));
                 _sut.HandleCommand(new MoveUnitCommand
                 {
                     MovementType = MovementType.Walk,
@@ -141,7 +148,8 @@ public class MovementPhaseTests : GameStateTestsBase
                     GameOriginId = Game.Id,
                     PlayerId = Game.ActivePlayer!.Id,
                     UnitId = unit.Id,
-                    Destination= new HexCoordinateData(1, 1)
+                    Destination= new HexCoordinateData(1, 1),
+                    MovementPoints = 5
                 });
             }
         }

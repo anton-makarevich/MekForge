@@ -66,10 +66,12 @@ public class MechTests
     {
         // Arrange
         var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
+        var deployPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
         var newCoordinates =new HexPosition(new HexCoordinates(1, 2), HexDirection.BottomLeft);
+        mech.Deploy(deployPosition);
 
         // Act
-        mech.MoveTo(newCoordinates);
+        mech.MoveTo(newCoordinates, MovementType.Walk, 5);
 
         // Assert
         mech.Position.Should().Be(newCoordinates);

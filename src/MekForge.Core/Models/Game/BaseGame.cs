@@ -125,7 +125,10 @@ public abstract class BaseGame : IGame
         var player = _players.FirstOrDefault(p => p.Id == moveCommand.PlayerId);
         if (player == null) return;
         var unit = player.Units.FirstOrDefault(u => u.Id == moveCommand.UnitId);
-        unit?.MoveTo(new HexPosition(new HexCoordinates(moveCommand.Destination),(HexDirection)moveCommand.Direction));
+        unit?.MoveTo(
+            new HexPosition(new HexCoordinates(moveCommand.Destination),(HexDirection)moveCommand.Direction),
+            moveCommand.MovementType,
+            moveCommand.MovementPoints);
     }
     
     protected bool ValidateCommand(GameCommand command)

@@ -358,7 +358,8 @@ public class ClientGameTests
             MovementType = MovementType.Walk,
             Direction = 0,
             Destination = new HexCoordinateData(2, 2),
-            UnitId = unitData.Id.Value
+            UnitId = unitData.Id.Value,
+            MovementPoints = 5
         };
     
         // Act
@@ -384,7 +385,8 @@ public class ClientGameTests
             MovementType = MovementType.Walk,
             Direction = 0,
             Destination = new HexCoordinateData(2, 2),
-            UnitId = Guid.NewGuid()
+            UnitId = Guid.NewGuid(),
+            MovementPoints = 5
         };
     
         // Act
@@ -509,7 +511,8 @@ public class ClientGameTests
             MovementType = MovementType.Walk,
             Direction = 1,
             Destination = new HexCoordinateData(2, 2),
-            UnitId = unitData.Id.Value
+            UnitId = unitData.Id.Value,
+            MovementPoints = 5
         };
 
         // Act
@@ -543,7 +546,8 @@ public class ClientGameTests
             MovementType = MovementType.Walk,
             Direction = 0,
             Destination = new HexCoordinateData(2, 2),
-            UnitId = Guid.NewGuid()
+            UnitId = Guid.NewGuid(),
+            MovementPoints = 5
         };
 
         // Act & Assert

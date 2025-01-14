@@ -62,10 +62,10 @@ public class MoveUnitCommandBuilderTests
     }
     
     [Fact]
-    public void CanBuild_ReturnsFalse_WhenOnlyDirectionSet()
+    public void CanBuild_ReturnsFalse_WhenOnlyMovementPathSet()
     {
         // Arrange
-        _builder.SetDirection(HexDirection.Top);
+        _builder.MovementPath([]);
         
         // Act & Assert
         _builder.CanBuild.Should().BeFalse();
@@ -77,7 +77,7 @@ public class MoveUnitCommandBuilderTests
         // Arrange
         _builder.SetUnit(_unit);
         _builder.SetDestination(_coordinates);
-        _builder.SetDirection(HexDirection.Top);
+        _builder.MovementPath([new HexPosition(1,1,HexDirection.Top)]);
         
         // Act & Assert
         _builder.CanBuild.Should().BeFalse();
@@ -89,7 +89,7 @@ public class MoveUnitCommandBuilderTests
         // Arrange
         _builder.SetUnit(_unit);
         _builder.SetMovementType(MovementType.Walk);
-        _builder.SetDirection(HexDirection.Top);
+        _builder.MovementPath([new HexPosition(1,1,HexDirection.Top)]);
         
         // Act & Assert
         _builder.CanBuild.Should().BeFalse();
@@ -114,7 +114,7 @@ public class MoveUnitCommandBuilderTests
         _builder.SetUnit(_unit);
         _builder.SetMovementType(MovementType.Walk);
         _builder.SetDestination(_coordinates);
-        _builder.SetDirection(HexDirection.Top);
+        _builder.MovementPath([new HexPosition(1,1,HexDirection.Top)]);
         
         // Act & Assert
         _builder.CanBuild.Should().BeTrue();
@@ -173,7 +173,7 @@ public class MoveUnitCommandBuilderTests
     public void Build_ReturnsNull_WhenOnlyDirectionSet()
     {
         // Arrange
-        _builder.SetDirection(HexDirection.Top);
+        _builder.MovementPath([new HexPosition(1,1,HexDirection.Top)]);
         
         // Act
         var result = _builder.Build();
@@ -189,7 +189,7 @@ public class MoveUnitCommandBuilderTests
         _builder.SetUnit(_unit);
         _builder.SetMovementType(MovementType.Walk);
         _builder.SetDestination(_coordinates);
-        _builder.SetDirection(HexDirection.Top);
+        _builder.MovementPath([new HexPosition(1,1,HexDirection.Top)]);
         
         // Act
         var result = _builder.Build();
@@ -212,7 +212,7 @@ public class MoveUnitCommandBuilderTests
         _builder.SetUnit(_unit);
         _builder.SetMovementType(MovementType.Walk);
         _builder.SetDestination(_coordinates);
-        _builder.SetDirection(HexDirection.Top);
+        _builder.MovementPath([new HexPosition(1,1,HexDirection.Top)]);
         
         // Act
         _builder.Reset();

@@ -81,6 +81,20 @@ public abstract class Unit
     public IReadOnlyList<UnitPart> Parts =>_parts;
     public Guid Id { get; private set; } = Guid.Empty;
 
+    // Movement tracking
+    public int MovementPointsSpent { get; private set; }
+    public MovementType? MovementTypeUsed { get; private set; }
+    public int DistanceCovered { get; private set; }
+
+    public bool HasMoved => MovementTypeUsed.HasValue;
+
+    public void ResetMovement()
+    { 
+        MovementPointsSpent = 0;
+        MovementTypeUsed = null;
+        DistanceCovered = 0;
+    }
+
     // Methods
     public abstract int CalculateBattleValue();
     
@@ -133,8 +147,16 @@ public abstract class Unit
         return GetAllComponents<T>().Any(c => c.IsActive && !c.IsDestroyed);
     }
 
-    public void MoveTo(HexPosition position)
+    public void MoveTo(HexPosition position, MovementType movementType, int movementPoints)
     {
+        if (Position == null)
+        {
+            throw new InvalidOperationException("Unit is not deployed.");
+        } 
+        var distance = Position.Value.Coordinates.DistanceTo(position.Coordinates);
+        DistanceCovered = distance;
+        MovementPointsSpent = movementPoints;
+        MovementTypeUsed = movementType;
         Position = position;
     }
 }

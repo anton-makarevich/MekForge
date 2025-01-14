@@ -23,4 +23,5 @@ public record MoveUnitCommand: ClientCommand
     public required HexCoordinateData Destination { get; init; }
     public required MovementType MovementType { get; init; }
     public required int Direction { get; init; }
+    public required int MovementPoints { get; init; }
 }

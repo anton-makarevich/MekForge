@@ -201,8 +201,9 @@ public class MovementStateTests
     public void HandleHexSelection_DoesNothing_WhenNoUnitOnHex()
     {
         // Arrange
-         var hex = new Hex(new HexCoordinates(1, 1));
-        _unit.MoveTo(new HexPosition(new HexCoordinates(2, 2),0));
+        var hex = new Hex(new HexCoordinates(1, 1));
+        _unit.Deploy(new HexPosition(1, 2, HexDirection.Bottom));
+        _unit.MoveTo(new HexPosition(new HexCoordinates(2, 2), 0), MovementType.Walk, 5);
 
         // Act
         _state.HandleHexSelection(hex);
