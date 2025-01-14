@@ -121,6 +121,30 @@ public class MoveUnitCommandBuilderTests
     }
     
     [Fact]
+    public void Build_ReturnsCommand()
+    {
+        // Arrange
+        _builder.SetUnit(_unit);
+        _builder.SetMovementType(MovementType.Walk);
+        _builder.SetDestination(_coordinates);
+        _builder.MovementPath([new HexPosition(1,1,HexDirection.Top)]);
+        
+        // Act 
+        var command = _builder.Build();
+        
+        // Assert
+        command.Should().NotBeNull();
+        command.Direction.Should().Be((int)HexDirection.Top);
+        command.Destination.Q.Should().Be(_coordinates.Q);
+        command.Destination.R.Should().Be(_coordinates.R);
+        command.GameOriginId.Should().Be(_gameId);
+        command.MovementType.Should().Be(MovementType.Walk);
+        command.PlayerId.Should().Be(_playerId);
+        command.UnitId.Should().Be(_unit.Id);
+        command.MovementPoints.Should().Be(0);
+    }
+    
+    [Fact]
     public void Build_ReturnsNull_WhenNoDataSet()
     {
         // Act
