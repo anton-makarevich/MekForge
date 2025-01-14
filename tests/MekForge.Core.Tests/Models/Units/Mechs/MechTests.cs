@@ -75,6 +75,10 @@ public class MechTests
 
         // Assert
         mech.Position.Should().Be(newCoordinates);
+        mech.HasMoved.Should().BeTrue();
+        mech.MovementTypeUsed.Should().Be(MovementType.Walk);
+        mech.DistanceCovered.Should().Be(1);
+        mech.MovementPointsSpent.Should().Be(5);
     }
 
     [Fact]
