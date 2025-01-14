@@ -104,6 +104,18 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
             
             var position = e?.GetPosition(MapCanvas);
             if (!position.HasValue) return;
+
+            // First check if we clicked on DirectionSelector or UnitControl buttons
+            if (DirectionSelector.IsVisible && DirectionSelector.Bounds.Contains(position.Value))
+                return; // Let the DirectionSelector handle its own click
+
+            var unitWithVisibleButtons = _unitControls?
+                .FirstOrDefault(unit => unit.MovementButtons.IsVisible && 
+                                      unit.MovementButtons.Bounds.Contains(position.Value));
+            if (unitWithVisibleButtons != null)
+                return; // Let the UnitControl handle its own click
+
+            // If we didn't click any buttons, proceed with hex selection
             var selectedHex = MapCanvas.Children
                 .OfType<HexControl>()
                 .FirstOrDefault(h => h.IsPointInside(position.Value));
@@ -119,7 +131,6 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
 
     private void OnPointerMoved(object? sender, PointerEventArgs e)
     {
-        if (IsInteraction(e)) return;
         if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
         var position = e.GetPosition(this);
         var delta = position - _lastPointerPosition;
@@ -155,19 +166,5 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
         {
             RenderMap(ViewModel.Game, (IImageService<Bitmap>)ViewModel.ImageService);
         }
-    }
-
-    private bool IsInteraction(PointerEventArgs e)
-    {
-        var mapPosition = e.GetPosition(MapCanvas);
-        if (DirectionSelector.Bounds.Contains(mapPosition)) return true;
-
-        if (_unitControls == null) return false;
-        foreach (var unit in _unitControls)
-        {
-            if (unit.MovementButtons.IsVisible && unit.MovementButtons.Bounds.Contains(mapPosition)) return true;
-        }
-
-        return false;
     }
 }
