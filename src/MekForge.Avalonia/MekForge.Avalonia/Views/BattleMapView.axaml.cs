@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -25,6 +27,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
     private bool _isManipulating;
     private bool _isPressed;
     private CancellationTokenSource _manipulationTokenSource;
+    private IEnumerable<UnitControl>? _unitControls;
 
     public BattleMapView()
     {
@@ -56,10 +59,14 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
             MapCanvas.Children.Add(hexControl);
         }
 
-        foreach (var unit in ViewModel.Units)
+        
+        _unitControls = ViewModel?.Units.Select(u=>new UnitControl(u, (IImageService<Bitmap>)ViewModel.ImageService, ViewModel));
+        if (_unitControls != null)
         {
-            var unitControl = new UnitControl(unit, (IImageService<Bitmap>)ViewModel.ImageService, ViewModel);
-            MapCanvas.Children.Add(unitControl);
+            foreach (var unitControl in _unitControls)
+            {
+                MapCanvas.Children.Add(unitControl);
+            }
         }
 
         // Ensure DirectionSelector stays on top
@@ -112,11 +119,12 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
 
     private void OnPointerMoved(object? sender, PointerEventArgs e)
     {
+        if (IsInteraction(e)) return;
         if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
         var position = e.GetPosition(this);
         var delta = position - _lastPointerPosition;
         _lastPointerPosition = position;
-
+        
         _mapTranslateTransform.X += delta.X;
         _mapTranslateTransform.Y += delta.Y;
     }
@@ -147,5 +155,19 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
         {
             RenderMap(ViewModel.Game, (IImageService<Bitmap>)ViewModel.ImageService);
         }
+    }
+
+    private bool IsInteraction(PointerEventArgs e)
+    {
+        var mapPosition = e.GetPosition(MapCanvas);
+        if (DirectionSelector.Bounds.Contains(mapPosition)) return true;
+
+        if (_unitControls == null) return false;
+        foreach (var unit in _unitControls)
+        {
+            if (unit.MovementButtons.IsVisible && unit.MovementButtons.Bounds.Contains(mapPosition)) return true;
+        }
+
+        return false;
     }
 }
