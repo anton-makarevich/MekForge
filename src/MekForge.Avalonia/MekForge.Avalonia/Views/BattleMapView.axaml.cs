@@ -27,7 +27,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
     private bool _isManipulating;
     private bool _isPressed;
     private CancellationTokenSource _manipulationTokenSource;
-    private IEnumerable<UnitControl>? _unitControls;
+    private List<UnitControl>? _unitControls;
 
     public BattleMapView()
     {
@@ -60,7 +60,9 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
         }
 
         
-        _unitControls = ViewModel?.Units.Select(u=>new UnitControl(u, (IImageService<Bitmap>)ViewModel.ImageService, ViewModel));
+        _unitControls = ViewModel?.Units
+            .Select(u=>new UnitControl(u, (IImageService<Bitmap>)ViewModel.ImageService, ViewModel))
+            .ToList();
         if (_unitControls != null)
         {
             foreach (var unitControl in _unitControls)
@@ -105,17 +107,35 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
             var position = e?.GetPosition(MapCanvas);
             if (!position.HasValue) return;
 
-            // First check if we clicked on DirectionSelector or UnitControl buttons
-            if (DirectionSelector.IsVisible && DirectionSelector.Bounds.Contains(position.Value))
-                return; // Let the DirectionSelector handle its own click
+            // Handle DirectionSelector interaction
+            if (DirectionSelector.IsVisible)
+            {
+                if (DirectionSelector.Bounds.Contains(position.Value))
+                {
+                    var directionSelectorPosition = position.Value - DirectionSelector.Bounds.Position;
+                    DirectionSelector.HandleInteraction(directionSelectorPosition);
+                    return;
+                }
+            }
 
-            var unitWithVisibleButtons = _unitControls?
-                .FirstOrDefault(unit => unit.MovementButtons.IsVisible && 
-                                      unit.MovementButtons.Bounds.Contains(position.Value));
-            if (unitWithVisibleButtons != null)
-                return; // Let the UnitControl handle its own click
+            // Handle UnitControl interactions
+            if (_unitControls != null)
+            {
+                foreach (var unit in _unitControls)
+                {
+                    if (unit.MovementButtons.IsVisible)
+                    {
+                        if (unit.MovementButtons.Bounds.Contains(position.Value))
+                        {
+                            var unitPosition = position.Value - unit.MovementButtons.Bounds.Position;
+                            unit.HandleInteraction(unitPosition);
+                            return;
+                        }
+                    }
+                }
+            }
 
-            // If we didn't click any buttons, proceed with hex selection
+            // If no controls were interacted with, handle hex selection
             var selectedHex = MapCanvas.Children
                 .OfType<HexControl>()
                 .FirstOrDefault(h => h.IsPointInside(position.Value));

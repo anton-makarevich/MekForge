@@ -51,8 +51,7 @@ namespace Sanet.MekForge.Avalonia.Controls
         }
 
         public static readonly DirectProperty<DirectionSelector,HexCoordinates> PositionProperty =
-            AvaloniaProperty.RegisterDirect<DirectionSelector, HexCoordinates>(
-                nameof(Position),
+            AvaloniaProperty.RegisterDirect<DirectionSelector, HexCoordinates>(nameof(Position),
                 o => o.Position,
                 (o, v) => o.Position = v);
 
@@ -69,8 +68,7 @@ namespace Sanet.MekForge.Avalonia.Controls
         }
 
         public static readonly DirectProperty<DirectionSelector,string> ForegroundProperty =
-            AvaloniaProperty.RegisterDirect<DirectionSelector, string>(
-                nameof(Foreground),
+            AvaloniaProperty.RegisterDirect<DirectionSelector, string>(nameof(Foreground),
                 o=> o.Foreground,
                 (o, v) => o.Foreground = v);
 
@@ -103,6 +101,38 @@ namespace Sanet.MekForge.Avalonia.Controls
                 bottomLeftPath.Fill = brush;
             if (TopLeftButton?.Content is Path topLeftPath)
                 topLeftPath.Fill = brush;
+        }
+
+        public void HandleInteraction(Point position)
+        {
+            if (!IsVisible)
+                return;
+            
+            if (TopButton.Bounds.Contains(position))
+                TopButton_Click(this, null);
+            else if (TopRightButton.Bounds.Contains(position))
+                TopRightButton_OnClick(this, null);
+            else if (BottomRightButton.Bounds.Contains(position))
+                BottomRightButton_OnClick(this, null);
+            else if (BottomButton.Bounds.Contains(position))
+                BottomButton_OnClick(this, null);
+            else if (BottomLeftButton.Bounds.Contains(position))
+                BottomLeftButton_OnClick(this, null);
+            else if (TopLeftButton.Bounds.Contains(position))
+                TopLeftButton_OnClick(this, null);
+        }
+
+        protected override void OnLoaded(RoutedEventArgs e)
+        {
+            base.OnLoaded(e);
+        
+            // Disable hit testing on all buttons
+            TopButton.IsHitTestVisible = false;
+            TopRightButton.IsHitTestVisible = false;
+            BottomRightButton.IsHitTestVisible = false;
+            BottomButton.IsHitTestVisible = false;
+            BottomLeftButton.IsHitTestVisible = false;
+            TopLeftButton.IsHitTestVisible = false;
         }
 
         private void TopButton_Click(object? sender, RoutedEventArgs e)

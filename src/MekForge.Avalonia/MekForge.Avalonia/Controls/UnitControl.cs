@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -8,6 +9,7 @@ using Sanet.MekForge.Core.Services;
 using System.Reactive.Linq;
 using System.Threading;
 using Avalonia;
+using Avalonia.Interactivity;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.UiStates;
 using Sanet.MekForge.Core.ViewModels;
@@ -190,6 +192,26 @@ namespace Sanet.MekForge.Avalonia.Controls
             };
 
             return button;
+        }
+
+        protected override void OnLoaded(RoutedEventArgs e)
+        {
+            base.OnLoaded(e);
+            MovementButtons.IsHitTestVisible = false;
+        }
+
+        public void HandleInteraction(Point position)
+        {
+            if (!MovementButtons.IsVisible)
+                return;
+            
+            // Find which button was clicked based on position
+            var clickedButton = MovementButtons.Children
+                .OfType<Button>()
+                .FirstOrDefault(b => b.Bounds.Contains(position));
+
+            // Trigger the button's Click event
+            clickedButton?.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         }
 
         public void Dispose()
