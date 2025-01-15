@@ -102,7 +102,6 @@ namespace Sanet.MekForge.Avalonia.Controls
                     _unit.IsDeployed,
                     _viewModel.SelectedUnit
                 })
-                .DistinctUntilChanged()
                 .ObserveOn(SynchronizationContext.Current) // Ensure events are processed on the UI thread
                 .Subscribe(state => 
                 {

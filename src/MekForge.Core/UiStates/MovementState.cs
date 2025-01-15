@@ -38,7 +38,6 @@ public class MovementState : IUiState
 
     public void HandleUnitSelection(Unit? unit)
     {
-        if (CurrentMovementStep != MovementStep.SelectingUnit) return;
         if (unit == null) return;
         if (unit.HasMoved) return;
         
@@ -76,16 +75,8 @@ public class MovementState : IUiState
 
     public void HandleHexSelection(Hex hex)
     {
-        switch (CurrentMovementStep)
-        {
-            case MovementStep.SelectingUnit:
-                HandleUnitSelectionFromHex(hex);
-                break;
-            case MovementStep.SelectingTargetHex:
-            case MovementStep.SelectingDirection:
-                HandleTargetHexSelection(hex);
-                break;
-        }
+        if (HandleUnitSelectionFromHex(hex)) return;
+        HandleTargetHexSelection(hex);
     }
 
     public void HandleFacingSelection(HexDirection direction)
@@ -97,13 +88,27 @@ public class MovementState : IUiState
         CompleteMovement();
     }
 
-    private void HandleUnitSelectionFromHex(Hex hex)
+    private bool HandleUnitSelectionFromHex(Hex hex)
     {
         var unit = _viewModel.Units.FirstOrDefault(u => u.Position?.Coordinates == hex.Coordinates);
-        if (unit != null && unit.Owner?.Id==_viewModel.Game?.ActivePlayer?.Id)
+        if (unit == null || unit.Owner?.Id != _viewModel.Game?.ActivePlayer?.Id) return false;
+        ResetUnitSelection();
+        _viewModel.SelectedUnit=unit;
+        return true;
+    }
+
+    private void ResetUnitSelection()
+    {
+        if (_viewModel.SelectedUnit == null) return;
+        _viewModel.SelectedUnit = null;
+        _viewModel.HideDirectionSelector();
+        if (_reachableHexes.Count > 0)
         {
-            _viewModel.SelectedUnit=unit;
+            _viewModel.HighlightHexes(_reachableHexes, false);
+            _reachableHexes = [];
         }
+        CurrentMovementStep=MovementStep.SelectingUnit;
+        _viewModel.NotifyStateChanged();
     }
 
     private void HandleTargetHexSelection(Hex hex)
