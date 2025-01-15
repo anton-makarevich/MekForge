@@ -31,6 +31,7 @@ namespace Sanet.MekForge.Avalonia.Controls
             _imageService = imageService;
             _viewModel = viewModel;
 
+            IsHitTestVisible = false;
             Width = HexCoordinates.HexWidth;
             Height = HexCoordinates.HexHeight;
             
@@ -194,24 +195,20 @@ namespace Sanet.MekForge.Avalonia.Controls
             return button;
         }
 
-        protected override void OnLoaded(RoutedEventArgs e)
-        {
-            base.OnLoaded(e);
-            MovementButtons.IsHitTestVisible = false;
-        }
-
-        public void HandleInteraction(Point position)
+        public bool HandleInteraction(Point position)
         {
             if (!MovementButtons.IsVisible)
-                return;
+                return false;
             
             // Find which button was clicked based on position
             var clickedButton = MovementButtons.Children
                 .OfType<Button>()
                 .FirstOrDefault(b => b.Bounds.Contains(position));
 
+            if (clickedButton is not {IsEnabled:true, IsVisible:true}) return false;
             // Trigger the button's Click event
-            clickedButton?.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            clickedButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            return true;
         }
 
         public void Dispose()

@@ -1,7 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Sanet.MekForge.Avalonia.Controls.DirectionSelector">
-    <Canvas>
+    <Canvas x:Name="ButtonsContainer">
         <!-- Top button -->
         <Button x:Name="TopButton" Canvas.Left="59" Canvas.Top="0" Width="50" Height="50"
                 Click="TopButton_Click">

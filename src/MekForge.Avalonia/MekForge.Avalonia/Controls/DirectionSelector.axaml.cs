@@ -15,6 +15,7 @@ namespace Sanet.MekForge.Avalonia.Controls
         public DirectionSelector()
         {
             InitializeComponent();
+            IsHitTestVisible = false;
             Width = HexCoordinates.HexWidth*1.65;
             Height = HexCoordinates.HexHeight*1.9;
         }
@@ -103,36 +104,17 @@ namespace Sanet.MekForge.Avalonia.Controls
                 topLeftPath.Fill = brush;
         }
 
-        public void HandleInteraction(Point position)
+        public bool HandleInteraction(Point position)
         {
             if (!IsVisible)
-                return;
+                return false;
             
-            if (TopButton.Bounds.Contains(position))
-                TopButton_Click(this, null);
-            else if (TopRightButton.Bounds.Contains(position))
-                TopRightButton_OnClick(this, null);
-            else if (BottomRightButton.Bounds.Contains(position))
-                BottomRightButton_OnClick(this, null);
-            else if (BottomButton.Bounds.Contains(position))
-                BottomButton_OnClick(this, null);
-            else if (BottomLeftButton.Bounds.Contains(position))
-                BottomLeftButton_OnClick(this, null);
-            else if (TopLeftButton.Bounds.Contains(position))
-                TopLeftButton_OnClick(this, null);
-        }
-
-        protected override void OnLoaded(RoutedEventArgs e)
-        {
-            base.OnLoaded(e);
-        
-            // Disable hit testing on all buttons
-            TopButton.IsHitTestVisible = false;
-            TopRightButton.IsHitTestVisible = false;
-            BottomRightButton.IsHitTestVisible = false;
-            BottomButton.IsHitTestVisible = false;
-            BottomLeftButton.IsHitTestVisible = false;
-            TopLeftButton.IsHitTestVisible = false;
+            var clickedButton = ButtonsContainer.Children
+                .OfType<Button>()
+                .FirstOrDefault(b => b.Bounds.Contains(position));
+            if (clickedButton is not { IsEnabled: true, IsVisible: true }) return false;
+            clickedButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            return true;
         }
 
         private void TopButton_Click(object? sender, RoutedEventArgs e)
