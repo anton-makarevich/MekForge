@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -27,7 +26,9 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
     private bool _isManipulating;
     private bool _isPressed;
     private CancellationTokenSource _manipulationTokenSource;
-    private IEnumerable<UnitControl>? _unitControls;
+    private List<UnitControl>? _unitControls;
+    private Point? _clickPosition;
+    private HexControl? _selectedHex;
 
     public BattleMapView()
     {
@@ -60,7 +61,9 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
         }
 
         
-        _unitControls = ViewModel?.Units.Select(u=>new UnitControl(u, (IImageService<Bitmap>)ViewModel.ImageService, ViewModel));
+        _unitControls = ViewModel?.Units
+            .Select(u=>new UnitControl(u, (IImageService<Bitmap>)ViewModel.ImageService, ViewModel))
+            .ToList();
         if (_unitControls != null)
         {
             foreach (var unitControl in _unitControls)
@@ -102,16 +105,39 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
             if (!_isPressed) return;
             _isPressed = false;
             
-            var position = e?.GetPosition(MapCanvas);
-            if (!position.HasValue) return;
-            var selectedHex = MapCanvas.Children
-                .OfType<HexControl>()
-                .FirstOrDefault(h => h.IsPointInside(position.Value));
+            _clickPosition = e?.GetPosition(MapCanvas);
+            if (!_clickPosition.HasValue) return;
 
-            if (selectedHex != null && ViewModel!=null)
+            // Handle DirectionSelector interaction
+            if (DirectionSelector.IsVisible)
+            {
+                if (DirectionSelector.Bounds.Contains(_clickPosition.Value))
+                {
+                    var directionSelectorPosition = _clickPosition.Value - DirectionSelector.Bounds.Position;
+                    if (DirectionSelector.HandleInteraction(directionSelectorPosition)) return;
+                }
+            }
+
+            // Handle UnitControl interactions
+            if (_unitControls != null)
+            {
+                foreach (var unit in _unitControls)
+                {
+                    if (!unit.MovementButtons.Bounds.Contains(_clickPosition.Value)) continue;
+                    var unitPosition = _clickPosition.Value - unit.MovementButtons.Bounds.Position;
+                    if (unit.HandleInteraction(unitPosition)) return;
+                }
+            }
+
+            // If no controls were interacted with, handle hex selection
+            _selectedHex = MapCanvas.Children
+                .OfType<HexControl>()
+                .FirstOrDefault(h => h.IsPointInside(_clickPosition.Value));
+
+            if (_selectedHex != null && ViewModel!=null)
             {
                 // Assign the hex coordinates to the ViewModel's unit position
-                ViewModel?.HandleHexSelection(selectedHex.Hex);
+                ViewModel?.HandleHexSelection(_selectedHex.Hex);
             }
         }
     }
@@ -119,7 +145,6 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
 
     private void OnPointerMoved(object? sender, PointerEventArgs e)
     {
-        if (IsInteraction(e)) return;
         if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
         var position = e.GetPosition(this);
         var delta = position - _lastPointerPosition;
@@ -155,19 +180,5 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
         {
             RenderMap(ViewModel.Game, (IImageService<Bitmap>)ViewModel.ImageService);
         }
-    }
-
-    private bool IsInteraction(PointerEventArgs e)
-    {
-        var mapPosition = e.GetPosition(MapCanvas);
-        if (DirectionSelector.Bounds.Contains(mapPosition)) return true;
-
-        if (_unitControls == null) return false;
-        foreach (var unit in _unitControls)
-        {
-            if (unit.MovementButtons.IsVisible && unit.MovementButtons.Bounds.Contains(mapPosition)) return true;
-        }
-
-        return false;
     }
 }

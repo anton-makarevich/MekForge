@@ -15,6 +15,7 @@ namespace Sanet.MekForge.Avalonia.Controls
         public DirectionSelector()
         {
             InitializeComponent();
+            IsHitTestVisible = false;
             Width = HexCoordinates.HexWidth*1.65;
             Height = HexCoordinates.HexHeight*1.9;
         }
@@ -51,8 +52,7 @@ namespace Sanet.MekForge.Avalonia.Controls
         }
 
         public static readonly DirectProperty<DirectionSelector,HexCoordinates> PositionProperty =
-            AvaloniaProperty.RegisterDirect<DirectionSelector, HexCoordinates>(
-                nameof(Position),
+            AvaloniaProperty.RegisterDirect<DirectionSelector, HexCoordinates>(nameof(Position),
                 o => o.Position,
                 (o, v) => o.Position = v);
 
@@ -69,8 +69,7 @@ namespace Sanet.MekForge.Avalonia.Controls
         }
 
         public static readonly DirectProperty<DirectionSelector,string> ForegroundProperty =
-            AvaloniaProperty.RegisterDirect<DirectionSelector, string>(
-                nameof(Foreground),
+            AvaloniaProperty.RegisterDirect<DirectionSelector, string>(nameof(Foreground),
                 o=> o.Foreground,
                 (o, v) => o.Foreground = v);
 
@@ -103,6 +102,19 @@ namespace Sanet.MekForge.Avalonia.Controls
                 bottomLeftPath.Fill = brush;
             if (TopLeftButton?.Content is Path topLeftPath)
                 topLeftPath.Fill = brush;
+        }
+
+        public bool HandleInteraction(Point position)
+        {
+            if (!IsVisible)
+                return false;
+            
+            var clickedButton = ButtonsContainer.Children
+                .OfType<Button>()
+                .FirstOrDefault(b => b.Bounds.Contains(position));
+            if (clickedButton is not { IsEnabled: true, IsVisible: true }) return false;
+            clickedButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            return true;
         }
 
         private void TopButton_Click(object? sender, RoutedEventArgs e)
