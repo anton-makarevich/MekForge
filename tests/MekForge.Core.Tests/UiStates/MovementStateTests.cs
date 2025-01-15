@@ -25,10 +25,10 @@ public class MovementStateTests
     private readonly MovementState _state;
     private readonly ClientGame _game;
     private readonly UnitData _unitData;
-    private readonly Unit _unit;
+    private readonly Unit _unit1;
+    private readonly Unit _unit2;
     private readonly Player _player;
     private readonly Hex _hex1;
-    private readonly Hex _hex2;
     private readonly BattleMapViewModel _viewModel;
 
     public MovementStateTests()
@@ -41,11 +41,11 @@ public class MovementStateTests
         
         var rules = new ClassicBattletechRulesProvider();
         _unitData = MechFactoryTests.CreateDummyMechData();
-        _unit = new MechFactory(rules).Create(_unitData);
+        _unit1 = new MechFactory(rules).Create(_unitData);
+        _unit2 = new MechFactory(rules).Create(_unitData);
         
         // Create two adjacent hexes
         _hex1 = new Hex(new HexCoordinates(1, 1));
-        _hex2 = new Hex(new HexCoordinates(1, 2)); 
         
         var battleMap = BattleMap.GenerateMap(
             2, 2,
@@ -124,7 +124,7 @@ public class MovementStateTests
     public void HandleUnitSelection_TransitionsToMovementTypeSelection()
     {
         // Act
-        _state.HandleUnitSelection(_unit);
+        _state.HandleUnitSelection(_unit1);
 
         // Assert
         _state.ActionLabel.Should().Be("Select movement type");
@@ -134,7 +134,7 @@ public class MovementStateTests
     public void HandleMovementTypeSelection_TransitionsToHexSelection()
     {
         // Arrange
-        _state.HandleUnitSelection(_unit);
+        _state.HandleUnitSelection(_unit1);
         
         // Act
         _state.HandleMovementTypeSelection(MovementType.Walk);
@@ -147,8 +147,8 @@ public class MovementStateTests
     public void HandleHexSelection_TransitionsToDirectionSelection()
     {
         // Arrange
-        _unit.Deploy(new HexPosition(new HexCoordinates(1,2),HexDirection.Bottom));
-        _state.HandleUnitSelection(_unit);
+        _unit1.Deploy(new HexPosition(new HexCoordinates(1,2),HexDirection.Bottom));
+        _state.HandleUnitSelection(_unit1);
         _state.HandleMovementTypeSelection(MovementType.Walk);
         
         // Act
@@ -169,6 +169,27 @@ public class MovementStateTests
         var unit = _viewModel.Units.First();
         unit.Deploy(position);
         var hex = new Hex(position.Coordinates);
+
+        // Act
+        state.HandleHexSelection(hex);
+
+        // Assert
+        _viewModel.SelectedUnit.Should().Be(unit);
+        state.ActionLabel.Should().Be("Select movement type");
+    }
+    
+    [Fact]
+    public void HandleHexSelection_SelectsUnit_WhenUnitIsOnHex_AndOtherUnitIsSelected()
+    {
+        // Arrange
+        SetPhase(PhaseNames.Movement);
+        SetActivePlayer();
+        var state = _viewModel.CurrentState;
+        var position = new HexPosition(new HexCoordinates(1, 1),HexDirection.Bottom);
+        var unit = _viewModel.Units.First();
+        unit.Deploy(position);
+        var hex = new Hex(position.Coordinates);
+        _viewModel.SelectedUnit = _unit2;
 
         // Act
         state.HandleHexSelection(hex);
@@ -202,8 +223,8 @@ public class MovementStateTests
     {
         // Arrange
         var hex = new Hex(new HexCoordinates(1, 1));
-        _unit.Deploy(new HexPosition(1, 2, HexDirection.Bottom));
-        _unit.MoveTo(new HexPosition(new HexCoordinates(2, 2), 0), MovementType.Walk, 5);
+        _unit1.Deploy(new HexPosition(1, 2, HexDirection.Bottom));
+        _unit1.MoveTo(new HexPosition(new HexCoordinates(2, 2), 0), MovementType.Walk, 5);
 
         // Act
         _state.HandleHexSelection(hex);
@@ -257,6 +278,30 @@ public class MovementStateTests
         _viewModel.AvailableDirections.Should().NotBeEmpty();
         // All directions should be available for adjacent hex with clear terrain
         _viewModel.AvailableDirections.Should().HaveCount(6);
+    }
+    
+    [Fact]
+    public void HandleHexSelection_ResetsHighlighting_WhenUnitIsReselected()
+    {
+        // Arrange
+        SetPhase(PhaseNames.Movement);
+        SetActivePlayer();
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var unit = _viewModel.Units.First();
+        unit.Deploy(position);
+        _viewModel.SelectedUnit = unit;
+        _state.HandleMovementTypeSelection(MovementType.Walk);
+        var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 2))!;
+        _state.HandleHexSelection(targetHex);
+        
+        // Act
+        _state.HandleHexSelection(new Hex(position.Coordinates));
+        
+        // Assert
+        foreach (var hex in _viewModel.Game.BattleMap.GetHexes())
+        {
+            hex.IsHighlighted.Should().BeFalse();
+        }
     }
 
     [Fact]
