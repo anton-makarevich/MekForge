@@ -143,6 +143,20 @@ public class DeploymentStateTests
     }
     
     [Fact]
+    public void HandleHexSelection_WhenSelectingHexTwice_ShouldSelectSecondHex()
+    {
+        // Arrange
+        _state.HandleUnitSelection(_unit);
+        
+        // Act
+        _state.HandleHexSelection(_hex1);
+        _state.HandleHexSelection(_hex2);
+
+        // Assert
+        _viewModel.DirectionSelectorPosition.Should().Be(_hex2.Coordinates);
+    }
+    
+    [Fact]
     public void HandleFacingSelection_WhenDirectionSelected_CompletesDeployment()
     {
         // Arrange

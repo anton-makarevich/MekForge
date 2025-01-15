@@ -49,7 +49,8 @@ public class DeploymentState : IUiState
 
     public void HandleHexSelection(Hex hex)
     {
-        if (_currentSubState == SubState.SelectingHex) HandleHexForDeployment(hex);
+        if (_currentSubState is SubState.SelectingHex 
+                             or SubState.SelectingDirection) HandleHexForDeployment(hex);
     }
 
     public void HandleFacingSelection(HexDirection direction)
