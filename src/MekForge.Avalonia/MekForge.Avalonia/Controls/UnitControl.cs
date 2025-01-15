@@ -60,6 +60,7 @@ namespace Sanet.MekForge.Avalonia.Controls
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 IsVisible = false,
+                IsHitTestVisible = false,
                 Spacing = 4,
                 Margin = new Thickness(4)
             };
