@@ -19,14 +19,24 @@ public class PathSegmentViewModel : BaseViewModel
     
     public bool IsTurn => _from.Coordinates == _to.Coordinates && _from.Facing != _to.Facing;
 
-    // Screen coordinates for rendering
+    // Screen coordinates for positioning the control
     public double FromX => _from.Coordinates.H;
     public double FromY => _from.Coordinates.V;
-    public double ToX => _to.Coordinates.H;
-    public double ToY => _to.Coordinates.V;
+
+    // Relative coordinates for path drawing (center of control is at From position)
+    public double StartX => HexCoordinates.HexWidth;
+    public double StartY => HexCoordinates.HexHeight;
+    
+    public double EndX => IsTurn 
+        ? StartX + (HexCoordinates.HexWidth / 2) * Math.Cos((int)_to.Facing * Math.PI / 3) 
+        : StartX + (_to.Coordinates.H - _from.Coordinates.H);
+        
+    public double EndY => IsTurn 
+        ? StartY + (HexCoordinates.HexHeight / 2) * Math.Sin((int)_to.Facing * Math.PI / 3)
+        : StartY + (_to.Coordinates.V - _from.Coordinates.V);
 
     // For turns
-    public double TurnAngleStart => ((int)_from.Facing * 60) % 360;
+    public double TurnAngleStart => (int)_from.Facing * 60 % 360;
     public double TurnAngleSweep
     {
         get
@@ -38,26 +48,6 @@ public class PathSegmentViewModel : BaseViewModel
             // For single step turns, we only need to determine if it's clockwise or counterclockwise
             var clockwise = (toAngle - fromAngle + 6) % 6 == 1;
             return clockwise ? 60 : -60;
-        }
-    }
-
-    // For movement lines
-    public double MovementAngle
-    {
-        get
-        {
-            if (IsTurn) return 0;
-            var direction = _from.Coordinates.GetDirectionToNeighbour(_to.Coordinates);
-            return ((int)direction * 60) % 360;
-        }
-    }
-
-    public double Length
-    {
-        get
-        {
-            if (IsTurn) return HexCoordinates.HexWidth / 2; // Radius for turn arc
-            return HexCoordinates.HexWidth * 0.75; // Distance between hex centers
         }
     }
 }
