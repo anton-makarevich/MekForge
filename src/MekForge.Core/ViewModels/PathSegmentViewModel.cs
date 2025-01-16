@@ -35,6 +35,28 @@ public class PathSegmentViewModel : BaseViewModel
         ? StartY + (HexCoordinates.HexHeight / 2) * Math.Sin((int)_to.Facing * Math.PI / 3)
         : StartY + (_to.Coordinates.V - _from.Coordinates.V);
 
+    // Direction vector at the end point (normalized)
+    public (double X, double Y) EndDirectionVector
+    {
+        get
+        {
+            if (IsTurn)
+            {
+                // For turns, the direction is tangent to the arc at the end point
+                var angle = ((int)_to.Facing * Math.PI / 3) + (TurnAngleSweep > 0 ? Math.PI/2 : -Math.PI/2);
+                return (Math.Cos(angle), Math.Sin(angle));
+            }
+            else
+            {
+                // For lines, normalize the direction vector
+                var dx = EndX - StartX;
+                var dy = EndY - StartY;
+                var length = Math.Sqrt(dx * dx + dy * dy);
+                return (dx / length, dy / length);
+            }
+        }
+    }
+
     // For turns
     public double TurnAngleStart => (int)_from.Facing * 60 % 360;
     public double TurnAngleSweep
