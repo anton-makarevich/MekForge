@@ -255,9 +255,9 @@ public class BattleMapViewModel : BaseViewModel
 
     public void ShowMovementPath(List<HexPosition> path)
     {
+        HideMovementPath();
         if (path.Count < 2)
         {
-            MovementPath = null;
             return;
         }
 

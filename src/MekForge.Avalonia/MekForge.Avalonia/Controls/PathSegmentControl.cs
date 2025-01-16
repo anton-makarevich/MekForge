@@ -1,66 +1,72 @@
 using System;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
 using Avalonia.Media;
 using Sanet.MekForge.Core.ViewModels;
 
 namespace Sanet.MekForge.Avalonia.Controls;
 
-public class PathSegmentControl : Control
+public class PathSegmentControl : Panel
 {
+    private readonly Path _path;
     private readonly PathSegmentViewModel _segment;
+    private static readonly IBrush PathStroke = Brushes.Yellow;
+    private const double StrokeThickness = 2;
 
     public PathSegmentControl(PathSegmentViewModel segment)
     {
         _segment = segment;
-    }
-    
-    public override void Render(DrawingContext context)
-    {
-        base.Render(context);
+        _path = new Path
+        {
+            Stroke = PathStroke,
+            StrokeThickness = StrokeThickness,
+            Data = CreatePathGeometry()
+        };
         
-        var pen = new Pen(Brushes.Yellow, 2);
+        Children.Add(_path);
+        UpdatePathSegmentPosition();
+    }
 
+    private Geometry CreatePathGeometry()
+    {
         if (_segment.IsTurn)
         {
-            // Draw an arc for turning
-            var center = new Point(Bounds.Width / 2, Bounds.Height / 2);
+            var center = new Point(_segment.Length, _segment.Length);
             var radius = _segment.Length;
             
             var arcGeometry = new StreamGeometry();
-            using (var context1 = arcGeometry.Open())
-            {
-                var startAngle = _segment.TurnAngleStart * Math.PI / 180;
-                var sweepAngle = _segment.TurnAngleSweep * Math.PI / 180;
+            using var context = arcGeometry.Open();
+            var startAngle = _segment.TurnAngleStart * Math.PI / 180;
+            var sweepAngle = _segment.TurnAngleSweep * Math.PI / 180;
                 
-                var startPoint = new Point(
-                    center.X + radius * Math.Cos(startAngle),
-                    center.Y + radius * Math.Sin(startAngle)
-                );
+            var startPoint = new Point(
+                center.X + radius * Math.Cos(startAngle),
+                center.Y + radius * Math.Sin(startAngle)
+            );
 
-                context1.BeginFigure(startPoint, false);
-                context1.ArcTo(
-                    new Point(
-                        center.X + radius * Math.Cos(startAngle + sweepAngle),
-                        center.Y + radius * Math.Sin(startAngle + sweepAngle)
-                    ),
-                    new Size(radius, radius),
-                    0,
-                    sweepAngle > Math.PI,
-                    sweepAngle > 0 ? SweepDirection.Clockwise : SweepDirection.CounterClockwise
-                );
-            }
-
-            context.DrawGeometry(null, pen, arcGeometry);
+            context.BeginFigure(startPoint, false);
+            context.ArcTo(
+                new Point(
+                    center.X + radius * Math.Cos(startAngle + sweepAngle),
+                    center.Y + radius * Math.Sin(startAngle + sweepAngle)
+                ),
+                new Size(radius, radius),
+                0,
+                false, // sweepAngle is always 60 or -60 degrees, so never more than 180
+                sweepAngle > 0 ? SweepDirection.Clockwise : SweepDirection.CounterClockwise
+            );
+            return arcGeometry;
         }
         else
         {
-            // Draw a line for movement
-            var start = new Point(0, Bounds.Height / 2);
-            var end = new Point(_segment.Length, Bounds.Height / 2);
-            context.DrawLine(pen, start, end);
+            var lineGeometry = new LineGeometry
+            {
+                StartPoint = new Point(0, 2),
+                EndPoint = new Point(_segment.Length, 2)
+            };
+            return lineGeometry;
         }
-        UpdatePathSegmentPosition();
     }
     
     private void UpdatePathSegmentPosition()
@@ -76,14 +82,16 @@ public class PathSegmentControl : Control
         else
         {
             // For movements, place and rotate the line between hexes
-            SetValue(Canvas.LeftProperty, _segment.FromX - _segment.Length);
-            SetValue(Canvas.TopProperty, _segment.FromY - _segment.Length);
+            SetValue(Canvas.LeftProperty, _segment.FromX);
+            SetValue(Canvas.TopProperty, _segment.FromY - 2);
             Width = _segment.Length;
             Height = 4;
             
-            var rotateTransform = new RotateTransform(_segment.MovementAngle);
-            rotateTransform.CenterX = 0;
-            rotateTransform.CenterY = 2;
+            var rotateTransform = new RotateTransform(_segment.MovementAngle)
+            {
+                CenterX = 0,
+                CenterY = 2
+            };
             RenderTransform = rotateTransform;
         }
     }
