@@ -7,6 +7,7 @@ public class PathSegmentViewModel : BaseViewModel
 {
     private readonly HexPosition _from;
     private readonly HexPosition _to;
+    private const double InitialLineLength = HexCoordinates.HexHeight * 0.4;
 
     public PathSegmentViewModel(HexPosition from, HexPosition to)
     {
@@ -26,13 +27,18 @@ public class PathSegmentViewModel : BaseViewModel
     // Relative coordinates for path drawing (center of control is at From position)
     public double StartX => HexCoordinates.HexWidth;
     public double StartY => HexCoordinates.HexHeight;
+
+    // For turns - initial line segment
+    public double InitialLineEndX => StartX + InitialLineLength * Math.Cos((int)_from.Facing * Math.PI / 3);
+    public double InitialLineEndY => StartY + InitialLineLength * Math.Sin((int)_from.Facing * Math.PI / 3);
     
+    // For turns - arc end point
     public double EndX => IsTurn 
-        ? StartX + (HexCoordinates.HexWidth / 2) * Math.Cos((int)_to.Facing * Math.PI / 3) 
+        ? InitialLineEndX + (HexCoordinates.HexWidth / 3) * Math.Cos((int)_to.Facing * Math.PI / 3) 
         : StartX + (_to.Coordinates.H - _from.Coordinates.H);
         
     public double EndY => IsTurn 
-        ? StartY + (HexCoordinates.HexHeight / 2) * Math.Sin((int)_to.Facing * Math.PI / 3)
+        ? InitialLineEndY + (HexCoordinates.HexHeight / 3) * Math.Sin((int)_to.Facing * Math.PI / 3)
         : StartY + (_to.Coordinates.V - _from.Coordinates.V);
 
     // Direction vector at the end point (normalized)
@@ -42,8 +48,8 @@ public class PathSegmentViewModel : BaseViewModel
         {
             if (IsTurn)
             {
-                // For turns, the direction is tangent to the arc at the end point
-                var angle = ((int)_to.Facing * Math.PI / 3) + (TurnAngleSweep > 0 ? Math.PI/2 : -Math.PI/2);
+                // For turns, the direction is the final facing direction
+                var angle = (int)_to.Facing * Math.PI / 3;
                 return (Math.Cos(angle), Math.Sin(angle));
             }
             else
@@ -58,7 +64,7 @@ public class PathSegmentViewModel : BaseViewModel
     }
 
     // For turns
-    public double TurnAngleStart => (int)_from.Facing * 60 % 360;
+    public double TurnAngleStart => ((int)_from.Facing * 60) % 360;
     public double TurnAngleSweep
     {
         get
@@ -69,7 +75,7 @@ public class PathSegmentViewModel : BaseViewModel
             
             // For single step turns, we only need to determine if it's clockwise or counterclockwise
             var clockwise = (toAngle - fromAngle + 6) % 6 == 1;
-            return clockwise ? 60 : -60;
+            return clockwise ? 30 : -30; // Reduced to 30 degrees
         }
     }
 }
