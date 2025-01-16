@@ -85,7 +85,7 @@ public class MovementState : IUiState
         var path = _possibleDirections[direction]; 
         _builder.MovementPath(path);
         _viewModel.HideDirectionSelector();
-        CompleteMovement();
+        _viewModel.ShowMovementPath(path);
     }
 
     private bool HandleUnitSelectionFromHex(Hex hex)

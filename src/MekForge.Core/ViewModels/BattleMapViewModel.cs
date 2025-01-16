@@ -43,6 +43,13 @@ public class BattleMapViewModel : BaseViewModel
         private set => SetProperty(ref _availableDirections, value);
     }
 
+    private List<PathSegmentViewModel>? _movementPath;
+    public List<PathSegmentViewModel>? MovementPath
+    {
+        get => _movementPath;
+        private set => SetProperty(ref _movementPath, value);
+    }
+
     public void DirectionSelectedCommand(HexDirection direction) 
     {
         CurrentState?.HandleFacingSelection(direction);
@@ -244,5 +251,26 @@ public class BattleMapViewModel : BaseViewModel
     {
         IsDirectionSelectorVisible = false;
         AvailableDirections = null;
+    }
+
+    public void ShowMovementPath(List<HexPosition> path)
+    {
+        if (path.Count < 2)
+        {
+            MovementPath = null;
+            return;
+        }
+
+        var segments = new List<PathSegmentViewModel>();
+        for (var i = 0; i < path.Count - 1; i++)
+        {
+            segments.Add(new PathSegmentViewModel(path[i], path[i + 1]));
+        }
+        MovementPath = segments;
+    }
+
+    public void HideMovementPath()
+    {
+        MovementPath = null;
     }
 }

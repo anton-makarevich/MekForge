@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,6 +28,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
     private bool _isPressed;
     private CancellationTokenSource _manipulationTokenSource;
     private List<UnitControl>? _unitControls;
+    private List<PathSegmentControl> _movementPathSegments = [];
     private Point? _clickPosition;
     private HexControl? _selectedHex;
 
@@ -179,6 +181,29 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
         if (ViewModel is { Game: not null })
         {
             RenderMap(ViewModel.Game, (IImageService<Bitmap>)ViewModel.ImageService);
+            ViewModel.PropertyChanged+=OnViewModelPropertyChanged;
+        }
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(ViewModel.MovementPath)) return;
+        if (ViewModel == null) return;
+        if (ViewModel.MovementPath == null)
+        {
+            foreach (var pathSegmentControl in _movementPathSegments)
+            {
+                MapCanvas.Children.Remove(pathSegmentControl);
+            }
+            _movementPathSegments.Clear();
+            return;
+        }
+
+        foreach (var pathSegmentViewModel in ViewModel.MovementPath)
+        {
+            var segmentControl = new PathSegmentControl(pathSegmentViewModel);
+            MapCanvas.Children.Add(segmentControl);
+            _movementPathSegments.Add(segmentControl);
         }
     }
 }
