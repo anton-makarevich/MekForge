@@ -1,3 +1,4 @@
+using System.Numerics;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MVVM.Core.ViewModels;
 
@@ -7,16 +8,13 @@ public class PathSegmentViewModel : BaseViewModel
 {
     private readonly HexPosition _from;
     private readonly HexPosition _to;
-    private const double TurnLength = 35;
+    private const double TurnLength = 40;
 
     public PathSegmentViewModel(HexPosition from, HexPosition to)
     {
         _from = from;
         _to = to;
     }
-
-    public HexPosition From => _from;
-    public HexPosition To => _to;
     
     public bool IsTurn => _from.Coordinates == _to.Coordinates && _from.Facing != _to.Facing;
 
@@ -37,26 +35,12 @@ public class PathSegmentViewModel : BaseViewModel
         : StartY + (_to.Coordinates.V - _from.Coordinates.V);
 
     // Direction vector at the end point (normalized)
-    public (double X, double Y) ArrowDirectionVector
+    public Vector2 ArrowDirectionVector
     {
         get
         {
-            if (IsTurn)
-            {
-                // For turns, the direction is the final facing direction + 90
-                var angle = (int)_to.Facing * Math.PI / 3;
-                return TurnAngleSweep > 0
-                    ? (Math.Cos(angle), Math.Sin(angle))
-                    : (-1 * Math.Cos(angle), -1 * Math.Sin(angle));
-            }
-            else
-            {
-                // For lines, normalize the direction vector
-                var dx = EndX - StartX;
-                var dy = EndY - StartY;
-                var length = Math.Sqrt(dx * dx + dy * dy);
-                return (dx / length, dy / length);
-            }
+           var angle = (int)_to.Facing * Math.PI / 3;
+           return new Vector2((float)Math.Sin(angle), -(float)Math.Cos(angle));
         }
     }
 

@@ -13,6 +13,7 @@ public class PathSegmentControl : Panel
     private readonly PathSegmentViewModel _segment;
     private const double StrokeThickness = 2;
     private const double ArrowSize = 15; // Size of arrow head
+    private const double ArcSize = 20;
 
     public PathSegmentControl(PathSegmentViewModel segment, BattleMapViewModel battleMap)
     {
@@ -54,7 +55,7 @@ public class PathSegmentControl : Panel
                 
                 context.ArcTo(
                     new Point(_segment.EndX, _segment.EndY),
-                    new Size(HexCoordinates.HexHeight / 6, HexCoordinates.HexHeight / 6),
+                    new Size(ArcSize, ArcSize),
                     0,
                     false,
                     sweepAngle > 0 ? SweepDirection.Clockwise : SweepDirection.CounterClockwise
@@ -72,7 +73,8 @@ public class PathSegmentControl : Panel
         }
 
         // Add arrow at the end
-        var (dirX, dirY) = _segment.ArrowDirectionVector;
+        var dirX = _segment.ArrowDirectionVector.X;
+        var dirY = _segment.ArrowDirectionVector.Y;
         var endPoint = new Point(_segment.EndX, _segment.EndY);
         var arrowGeometry = new StreamGeometry();
         using (var context = arrowGeometry.Open())
