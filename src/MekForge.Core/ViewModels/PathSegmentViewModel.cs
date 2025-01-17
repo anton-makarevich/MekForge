@@ -7,7 +7,7 @@ public class PathSegmentViewModel : BaseViewModel
 {
     private readonly HexPosition _from;
     private readonly HexPosition _to;
-    private const double TurnLength = HexCoordinates.HexHeight * 0.4;
+    private const double TurnLength = 35;
 
     public PathSegmentViewModel(HexPosition from, HexPosition to)
     {
@@ -29,23 +29,25 @@ public class PathSegmentViewModel : BaseViewModel
     public double StartY => HexCoordinates.HexHeight;
     
     public double EndX => IsTurn 
-        ? StartX + TurnLength * Math.Cos((int)_to.Facing * Math.PI / 3)
+        ? StartX + TurnLength * Math.Sin((int)_to.Facing * Math.PI / 3)
         : StartX + (_to.Coordinates.H - _from.Coordinates.H);
         
     public double EndY => IsTurn 
-        ? StartY + TurnLength * Math.Sin((int)_to.Facing * Math.PI / 3)
+        ? StartY - TurnLength * Math.Cos((int)_to.Facing * Math.PI / 3)
         : StartY + (_to.Coordinates.V - _from.Coordinates.V);
 
     // Direction vector at the end point (normalized)
-    public (double X, double Y) EndDirectionVector
+    public (double X, double Y) ArrowDirectionVector
     {
         get
         {
             if (IsTurn)
             {
-                // For turns, the direction is the final facing direction
+                // For turns, the direction is the final facing direction + 90
                 var angle = (int)_to.Facing * Math.PI / 3;
-                return (Math.Cos(angle), Math.Sin(angle));
+                return TurnAngleSweep > 0
+                    ? (Math.Cos(angle), Math.Sin(angle))
+                    : (-1 * Math.Cos(angle), -1 * Math.Sin(angle));
             }
             else
             {
@@ -58,8 +60,6 @@ public class PathSegmentViewModel : BaseViewModel
         }
     }
 
-    // For turns
-    public double TurnAngleStart => ((int)_from.Facing * 60) % 360;
     public double TurnAngleSweep
     {
         get

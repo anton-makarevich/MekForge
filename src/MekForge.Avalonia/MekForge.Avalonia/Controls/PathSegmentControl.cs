@@ -13,7 +13,7 @@ public class PathSegmentControl : Panel
     private readonly PathSegmentViewModel _segment;
     private static readonly IBrush PathStroke = Brushes.Yellow;
     private const double StrokeThickness = 2;
-    private const double ArrowSize = 10; // Size of arrow head
+    private const double ArrowSize = 15; // Size of arrow head
 
     public PathSegmentControl(PathSegmentViewModel segment)
     {
@@ -54,7 +54,7 @@ public class PathSegmentControl : Panel
                 
                 context.ArcTo(
                     new Point(_segment.EndX, _segment.EndY),
-                    new Size(HexCoordinates.HexWidth / 2, HexCoordinates.HexHeight / 2),
+                    new Size(HexCoordinates.HexHeight / 6, HexCoordinates.HexHeight / 6),
                     0,
                     false,
                     sweepAngle > 0 ? SweepDirection.Clockwise : SweepDirection.CounterClockwise
@@ -72,7 +72,7 @@ public class PathSegmentControl : Panel
         }
 
         // Add arrow at the end
-        var (dirX, dirY) = _segment.EndDirectionVector;
+        var (dirX, dirY) = _segment.ArrowDirectionVector;
         var endPoint = new Point(_segment.EndX, _segment.EndY);
         var arrowGeometry = new StreamGeometry();
         using (var context = arrowGeometry.Open())
