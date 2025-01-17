@@ -84,7 +84,11 @@ public class MovementState : IUiState
         if (CurrentMovementStep != MovementStep.SelectingDirection) return;
         var path = _possibleDirections[direction]; 
         _builder.MovementPath(path);
-        _viewModel.HideDirectionSelector();
+        if (_viewModel.MovementPath != null && _viewModel.MovementPath.Last().To==path.Last())
+        {
+            CompleteMovement();
+            return;
+        }
         _viewModel.ShowMovementPath(path);
     }
 
@@ -101,6 +105,7 @@ public class MovementState : IUiState
     {
         if (_viewModel.SelectedUnit == null) return;
         _viewModel.SelectedUnit = null;
+        _viewModel.HideMovementPath();
         _viewModel.HideDirectionSelector();
         if (_reachableHexes.Count > 0)
         {
@@ -142,6 +147,7 @@ public class MovementState : IUiState
             // Show direction selector if there are any possible directions
             if (_possibleDirections.Count != 0)
             {
+                _viewModel.HideMovementPath();
                 _viewModel.ShowDirectionSelector(hex.Coordinates, _possibleDirections.Select(kv=>kv.Key).ToList());
             }
         }
@@ -154,6 +160,8 @@ public class MovementState : IUiState
         var command = _builder.Build();
         if (command != null && _viewModel.Game is ClientGame clientGame)
         {
+            _viewModel.HideMovementPath();
+            _viewModel.HideDirectionSelector();
             clientGame.MoveUnit(command);
         }
         

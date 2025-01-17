@@ -16,6 +16,9 @@ public class PathSegmentViewModel : BaseViewModel
         _to = to;
     }
     
+    public HexPosition From => _from;
+    public HexPosition To => _to;
+    
     public bool IsTurn => _from.Coordinates == _to.Coordinates && _from.Facing != _to.Facing;
 
     // Screen coordinates for positioning the control
