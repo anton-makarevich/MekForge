@@ -9,6 +9,7 @@ using Sanet.MVVM.Core.ViewModels;
 using System.Collections.ObjectModel;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Services.Localization;
+using Sanet.MekForge.Core.ViewModels.Wrappers;
 
 namespace Sanet.MekForge.Core.ViewModels;
 
@@ -41,6 +42,13 @@ public class BattleMapViewModel : BaseViewModel
     {
         get => _availableDirections;
         private set => SetProperty(ref _availableDirections, value);
+    }
+
+    private List<PathSegmentViewModel>? _movementPath;
+    public List<PathSegmentViewModel>? MovementPath
+    {
+        get => _movementPath;
+        private set => SetProperty(ref _movementPath, value);
     }
 
     public void DirectionSelectedCommand(HexDirection direction) 
@@ -244,5 +252,26 @@ public class BattleMapViewModel : BaseViewModel
     {
         IsDirectionSelectorVisible = false;
         AvailableDirections = null;
+    }
+
+    public void ShowMovementPath(List<HexPosition> path)
+    {
+        HideMovementPath();
+        if (path.Count < 2)
+        {
+            return;
+        }
+
+        var segments = new List<PathSegmentViewModel>();
+        for (var i = 0; i < path.Count - 1; i++)
+        {
+            segments.Add(new PathSegmentViewModel(path[i], path[i + 1]));
+        }
+        MovementPath = segments;
+    }
+
+    public void HideMovementPath()
+    {
+        MovementPath = null;
     }
 }
