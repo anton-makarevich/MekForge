@@ -9,6 +9,7 @@ using Sanet.MVVM.Core.ViewModels;
 using System.Collections.ObjectModel;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Services.Localization;
+using Sanet.MekForge.Core.ViewModels.Wrappers;
 
 namespace Sanet.MekForge.Core.ViewModels;
 

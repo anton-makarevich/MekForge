@@ -2,7 +2,7 @@ using System.Numerics;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MVVM.Core.ViewModels;
 
-namespace Sanet.MekForge.Core.ViewModels;
+namespace Sanet.MekForge.Core.ViewModels.Wrappers;
 
 public class PathSegmentViewModel : BaseViewModel
 {

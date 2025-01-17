@@ -5,6 +5,7 @@ using Avalonia.Controls.Shapes;
 using Avalonia.Media;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.ViewModels;
+using Sanet.MekForge.Core.ViewModels.Wrappers;
 
 namespace Sanet.MekForge.Avalonia.Controls;
 
