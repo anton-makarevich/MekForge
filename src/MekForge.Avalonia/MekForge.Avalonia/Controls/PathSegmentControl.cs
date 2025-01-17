@@ -42,27 +42,19 @@ public class PathSegmentControl : Panel
         
         if (_segment.IsTurn)
         {
-            // Initial line in facing direction
-            geometry.Children.Add(new LineGeometry
-            {
-                StartPoint = new Point(_segment.StartX, _segment.StartY),
-                EndPoint = new Point(_segment.InitialLineEndX, _segment.InitialLineEndY)
-            });
-
             // Arc from line end to final position
             var arcGeometry = new StreamGeometry();
             using (var context = arcGeometry.Open())
             {
-                var startAngle = _segment.TurnAngleStart * Math.PI / 180;
                 var sweepAngle = _segment.TurnAngleSweep * Math.PI / 180;
                 
                 context.BeginFigure(
-                    new Point(_segment.InitialLineEndX, _segment.InitialLineEndY), 
+                    new Point(_segment.StartX, _segment.StartY), 
                     false);
                 
                 context.ArcTo(
                     new Point(_segment.EndX, _segment.EndY),
-                    new Size(HexCoordinates.HexWidth / 3, HexCoordinates.HexHeight / 3),
+                    new Size(HexCoordinates.HexWidth / 2, HexCoordinates.HexHeight / 2),
                     0,
                     false,
                     sweepAngle > 0 ? SweepDirection.Clockwise : SweepDirection.CounterClockwise
