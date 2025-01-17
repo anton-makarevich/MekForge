@@ -201,7 +201,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
 
         foreach (var pathSegmentViewModel in ViewModel.MovementPath)
         {
-            var segmentControl = new PathSegmentControl(pathSegmentViewModel);
+            var segmentControl = new PathSegmentControl(pathSegmentViewModel, ViewModel);
             MapCanvas.Children.Add(segmentControl);
             _movementPathSegments.Add(segmentControl);
         }

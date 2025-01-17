@@ -11,21 +11,21 @@ namespace Sanet.MekForge.Avalonia.Controls;
 public class PathSegmentControl : Panel
 {
     private readonly PathSegmentViewModel _segment;
-    private static readonly IBrush PathStroke = Brushes.Yellow;
     private const double StrokeThickness = 2;
     private const double ArrowSize = 15; // Size of arrow head
 
-    public PathSegmentControl(PathSegmentViewModel segment)
+    public PathSegmentControl(PathSegmentViewModel segment, BattleMapViewModel battleMap)
     {
         _segment = segment;
-        
+
         Width = HexCoordinates.HexWidth * 2;
         Height = HexCoordinates.HexHeight * 2;
-        
+        var color = Color.Parse(battleMap.ActivePlayerTint);
         var path = new Path
         {
-            Stroke = PathStroke,
+            Stroke = new SolidColorBrush(color),
             StrokeThickness = StrokeThickness,
+            Fill = new SolidColorBrush(color),
             Data = CreatePathGeometry()
         };
         
@@ -91,6 +91,8 @@ public class PathSegmentControl : Panel
             context.LineTo(leftPoint);
             context.LineTo(rightPoint);
             context.LineTo(endPoint);
+            context.EndFigure(true);
+            context.SetFillRule(FillRule.NonZero);
         }
         geometry.Children.Add(arrowGeometry);
 
