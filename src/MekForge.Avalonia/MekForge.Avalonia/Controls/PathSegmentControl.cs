@@ -28,6 +28,7 @@ public class PathSegmentControl : Panel
             Stroke = new SolidColorBrush(color),
             StrokeThickness = StrokeThickness,
             Fill = new SolidColorBrush(color),
+            Opacity = 0.8,
             Data = CreatePathGeometry()
         };
         
