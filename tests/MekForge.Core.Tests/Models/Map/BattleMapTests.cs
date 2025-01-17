@@ -429,4 +429,50 @@ public class BattleMapTests
         pathCoordinates.Should().Contain(new HexCoordinates(1, 2)); // Should go around through the left side
         pathCoordinates.Should().Contain(new HexCoordinates(2, 3));
     }
+
+    [Fact]
+    public void FindPath_WithTerrainCosts_ShouldConsiderMovementCosts()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(2, 5, 
+            new SingleTerrainGenerator(2,5, new ClearTerrain()));
+        var start = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var target = new HexPosition(new HexCoordinates(1, 5), HexDirection.Bottom);
+
+        // Add two possible paths:
+        // Path 1 (direct but costly): Through heavy woods (1,1)->(1,2)->(1,3)->(1,4)->(1,5)
+        //   Cost: 3+3+3+1 = 10 MP (each heavy woods hex costs 3)
+        // Path 2 (longer but cheaper): Around through clear terrain (1,1)->(2,1)->(2,2)->(2,3)->(2,4)->(1,5)
+        //   Cost: 1+1+1+1+1 = 5 MP (clear terrain) + 4 MP (direction changes) = 9 MP total
+
+        // Add heavy woods on the direct path
+        var woodsHexes = new[]
+        {
+            new HexCoordinates(1, 2),
+            new HexCoordinates(1, 3),
+            new HexCoordinates(1, 4)
+        };
+
+        foreach (var coord in woodsHexes)
+        {
+            var hex = new Hex(coord);
+            hex.AddTerrain(new HeavyWoodsTerrain()); // Movement cost 2
+            map.AddHex(hex);
+        }
+
+        // Act
+        var path = map.FindPath(start, target, 9);
+
+        // Assert
+        path.Should().NotBeNull("A path should exist within 9 movement points");
+        
+        // The path should go through clear terrain to avoid heavy woods
+        var pathCoords = path!.Select(p => p.Coordinates).Distinct().ToList();
+        pathCoords.Should().Contain(new HexCoordinates(2, 1), "Path should go through clear terrain at (2,1)");
+        pathCoords.Should().Contain(new HexCoordinates(2, 2), "Path should go through clear terrain at (2,2)");
+        pathCoords.Should().Contain(new HexCoordinates(2, 3), "Path should go through clear terrain at (2,3)");
+        pathCoords.Should().Contain(new HexCoordinates(2, 4), "Path should go through clear terrain at (2,4)");
+        woodsHexes.Should().NotContain(coord => pathCoords.Contains(coord), 
+            "Path should avoid all heavy woods hexes");
+    }
 }
