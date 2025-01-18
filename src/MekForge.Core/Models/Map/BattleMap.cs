@@ -44,16 +44,16 @@ public class BattleMap
     /// </summary>
     public List<HexPosition>? FindPath(HexPosition start, HexPosition target, int maxMovementPoints, IEnumerable<HexCoordinates>? prohibitedHexes = null)
     {
-        var frontier = new PriorityQueue<(HexPosition pos, List<HexPosition> path), int>();
-        var visited = new HashSet<(HexCoordinates coords, HexDirection facing)>();
+        var frontier = new PriorityQueue<(HexPosition pos, List<HexPosition> path, int cost), int>();
+        var visited = new Dictionary<(HexCoordinates coords, HexDirection facing), int>();
         var prohibited = prohibitedHexes?.ToHashSet() ?? new HashSet<HexCoordinates>();
         
-        frontier.Enqueue((start, [start]), 0);
-        visited.Add((start.Coordinates, start.Facing));
+        frontier.Enqueue((start, [start], 0), 0);
+        visited[(start.Coordinates, start.Facing)] = 0;
 
         while (frontier.Count > 0)
         {
-            var (current, path) = frontier.Dequeue();
+            var (current, path, currentCost) = frontier.Dequeue();
             
             // Check if we've reached the target
             if (current.Coordinates == target.Coordinates && current.Facing == target.Facing)
@@ -71,8 +71,9 @@ public class BattleMap
                 // Get required facing for movement
                 var requiredFacing = current.Coordinates.GetDirectionToNeighbour(nextCoord);
                 
-                // Calculate turning steps if needed
+                // Calculate turning steps and cost if needed
                 var turningSteps = current.GetTurningSteps(requiredFacing).ToList();
+                var turningCost = turningSteps.Count;
                 var newPath = new List<HexPosition>(path);
                 newPath.AddRange(turningSteps);
                 
@@ -80,30 +81,34 @@ public class BattleMap
                 var nextPos = new HexPosition(nextCoord, requiredFacing);
                 newPath.Add(nextPos);
                 
-                // Calculate total cost
-                var totalSteps = newPath.Count - 1; // -1 because start position doesn't count as a step
+                // Calculate total cost including terrain
+                var totalCost = currentCost + hex.MovementCost + turningCost;
                 
-                if (totalSteps > maxMovementPoints)
+                if (totalCost > maxMovementPoints)
                     continue;
                     
-                // Skip if we've already visited this state
-                if (!visited.Add((nextCoord, requiredFacing)))
+                // Skip if we've visited this state with a lower or equal cost
+                var nextKey = (nextCoord, requiredFacing);
+                if (visited.TryGetValue(nextKey, out var visitedCost) && totalCost >= visitedCost)
                     continue;
                 
+                visited[nextKey] = totalCost;
+                
                 // Calculate priority based on remaining distance plus current cost
-                var priority = totalSteps + nextCoord.DistanceTo(target.Coordinates);
+                var priority = totalCost + nextCoord.DistanceTo(target.Coordinates);
                 
                 // If we're at target coordinates but wrong facing, add turning steps to target facing
                 if (nextCoord == target.Coordinates && requiredFacing != target.Facing)
                 {
                     var finalTurningSteps = nextPos.GetTurningSteps(target.Facing).ToList();
-                    if (totalSteps + finalTurningSteps.Count > maxMovementPoints) continue;
+                    var finalCost = totalCost + finalTurningSteps.Count;
+                    if (finalCost > maxMovementPoints) continue;
                     newPath.AddRange(finalTurningSteps);
-                    frontier.Enqueue((new HexPosition(nextCoord, target.Facing), newPath), priority);
+                    frontier.Enqueue((new HexPosition(nextCoord, target.Facing), newPath, finalCost), priority);
                 }
                 else
                 {
-                    frontier.Enqueue((nextPos, newPath), priority);
+                    frontier.Enqueue((nextPos, newPath, totalCost), priority);
                 }
             }
         }
