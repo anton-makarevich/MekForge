@@ -8,7 +8,7 @@ public class MoveUnitCommandBuilder : ClientCommandBuilder
     private Guid? _unitId;
     private MovementType? _movementType;
     private HexCoordinates? _destination;
-    private List<HexPosition>? _movementPath;
+    private List<PathSegment>? _movementPath;
 
     public MoveUnitCommandBuilder(Guid gameId, Guid playerId) 
         : base(gameId, playerId)
@@ -36,7 +36,7 @@ public class MoveUnitCommandBuilder : ClientCommandBuilder
         _destination = coordinates;
     }
 
-    public void MovementPath(List<HexPosition> movementPath)
+    public void MovementPath(List<PathSegment> movementPath)
     {
         _movementPath = movementPath;
     }
@@ -53,8 +53,10 @@ public class MoveUnitCommandBuilder : ClientCommandBuilder
             UnitId = _unitId.Value,
             MovementType = _movementType.Value,
             Destination = _destination.Value.ToData(),
-            Direction = (int)_movementPath.Last().Facing,
-            MovementPoints = Math.Max(0,_movementPath.Count-1)
+            Direction = (int)_movementPath.Last().To.Facing,
+            MovementPoints = _movementPath.Sum(s => s.Cost),
+            PathSegments = _movementPath.Select(s => 
+                (s.From.Coordinates.ToData(), s.To.Coordinates.ToData(), s.Cost)).ToList()
         };
     }
 

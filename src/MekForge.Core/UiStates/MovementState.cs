@@ -14,7 +14,7 @@ public class MovementState : IUiState
     private List<HexCoordinates> _reachableHexes = [];
     private readonly List<HexCoordinates> _prohibitedHexes;
     private int _movementPoints;
-    private Dictionary<HexDirection, List<HexPosition>> _possibleDirections;
+    private Dictionary<HexDirection, List<PathSegment>> _possibleDirections;
 
     public MovementState(BattleMapViewModel viewModel)
     {
@@ -84,7 +84,7 @@ public class MovementState : IUiState
         if (CurrentMovementStep != MovementStep.SelectingDirection) return;
         var path = _possibleDirections[direction]; 
         _builder.MovementPath(path);
-        if (_viewModel.MovementPath != null && _viewModel.MovementPath.Last().To==path.Last())
+        if (_viewModel.MovementPath != null && _viewModel.MovementPath.Last().To==path.Last().To)
         {
             CompleteMovement();
             return;
@@ -130,7 +130,7 @@ public class MovementState : IUiState
         if (_selectedUnit != null && _viewModel.Game != null && _selectedUnit.Position !=null)
         {
             // Find all possible facing directions
-            _possibleDirections = new Dictionary<HexDirection,List<HexPosition>>();
+            _possibleDirections = new Dictionary<HexDirection,List<PathSegment>>();
             var startPosition = new HexPosition(_selectedUnit.Position.Value.Coordinates, _selectedUnit.Position.Value.Facing);
             
             foreach (var direction in Enum.GetValues<HexDirection>())
@@ -140,7 +140,7 @@ public class MovementState : IUiState
                 
                 if (path != null)
                 {
-                    _possibleDirections.Add(direction,path);
+                    _possibleDirections.Add(direction, path);
                 }
             }
             

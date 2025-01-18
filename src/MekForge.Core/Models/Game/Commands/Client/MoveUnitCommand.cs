@@ -7,7 +7,6 @@ namespace Sanet.MekForge.Core.Models.Game.Commands.Client;
 
 public record MoveUnitCommand: ClientCommand
 {
-
     public override string Format(ILocalizationService localizationService, IGame game)
     {
         var player = game.Players.FirstOrDefault(p => p.Id == PlayerId);
@@ -24,4 +23,5 @@ public record MoveUnitCommand: ClientCommand
     public required MovementType MovementType { get; init; }
     public required int Direction { get; init; }
     public required int MovementPoints { get; init; }
+    public required List<(HexCoordinateData From, HexCoordinateData To, int Cost)> PathSegments { get; init; }
 }

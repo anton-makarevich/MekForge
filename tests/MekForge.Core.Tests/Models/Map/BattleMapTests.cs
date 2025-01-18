@@ -78,7 +78,7 @@ public class BattleMapTests
         // Assert
         path.Should().NotBeNull();
         path!.Count.Should().Be(8); // Should include direction changes
-        path.Select(p => (p.Coordinates, p.Facing)).Should().ContainInOrder(
+        path.Select(p => (p.To.Coordinates, p.To.Facing)).Should().ContainInOrder(
             (new HexCoordinates(1, 1), HexDirection.Top),
             (new HexCoordinates(1, 1), HexDirection.TopRight),
             (new HexCoordinates(1, 1), HexDirection.BottomRight),
@@ -338,7 +338,7 @@ public class BattleMapTests
             path.Count.Should().BeLessOrEqualTo(maxMp + 1, 
                 "Path length should not exceed maxMP + 1 (including start position)");
 
-            var pathCoords = path.Select(p => p.Coordinates).Distinct().ToList();
+            var pathCoords = path.Select(p => p.To.Coordinates).Distinct().ToList();
             pathCoords.Should().Contain(new HexCoordinates(8, 5), "Path should go through (8,5)");
             pathCoords.Should().Contain(new HexCoordinates(7, 6), "Path should go through (7,6)");
             pathCoords.Should().Contain(new HexCoordinates(7, 7), "Path should go through (7,7)");
@@ -391,7 +391,7 @@ public class BattleMapTests
 
         // Assert
         path.Should().NotBeNull();
-        var pathCoordinates = path!.Select(p => p.Coordinates).ToList();
+        var pathCoordinates = path!.Select(p => p.To.Coordinates).ToList();
         pathCoordinates.Should().NotContain(prohibitedHexes);
         pathCoordinates.Should().Contain(new HexCoordinates(1, 2)); // Should go around through the left side
         pathCoordinates.Should().Contain(new HexCoordinates(2, 3));
@@ -423,7 +423,7 @@ public class BattleMapTests
         foreach (var coord in woodsHexes)
         {
             var hex = new Hex(coord);
-            hex.AddTerrain(new HeavyWoodsTerrain()); // Movement cost 2
+            hex.AddTerrain(new HeavyWoodsTerrain()); // Movement cost 3
             map.AddHex(hex);
         }
 
@@ -434,12 +434,27 @@ public class BattleMapTests
         path.Should().NotBeNull("A path should exist within 9 movement points");
         
         // The path should go through clear terrain to avoid heavy woods
-        var pathCoords = path!.Select(p => p.Coordinates).Distinct().ToList();
+        var pathCoords = path!.Select(p => p.To.Coordinates).Distinct().ToList();
         pathCoords.Should().Contain(new HexCoordinates(2, 1), "Path should go through clear terrain at (2,1)");
         pathCoords.Should().Contain(new HexCoordinates(2, 2), "Path should go through clear terrain at (2,2)");
         pathCoords.Should().Contain(new HexCoordinates(2, 3), "Path should go through clear terrain at (2,3)");
         pathCoords.Should().Contain(new HexCoordinates(2, 4), "Path should go through clear terrain at (2,4)");
         woodsHexes.Should().NotContain(coord => pathCoords.Contains(coord), 
             "Path should avoid all heavy woods hexes");
+
+        // Verify path costs
+        var totalCost = path!.Sum(s => s.Cost);
+        totalCost.Should().Be(9, "Total path cost should be 9 MP (5 MP for movement + 4 MP for turns)");
+        
+        // Verify movement costs
+        var movementSegments = path!.Where(s => s.From.Coordinates != s.To.Coordinates).ToList();
+        movementSegments.Should().AllSatisfy(s => s.Cost.Should().Be(1), 
+            "All movement segments should cost 1 MP as they go through clear terrain");
+        
+        // Verify turning costs
+        var turnSegments = path!.Where(s => s.From.Coordinates == s.To.Coordinates).ToList();
+        turnSegments.Should().HaveCount(4, "Should have 4 turns");
+        turnSegments.Should().AllSatisfy(s => s.Cost.Should().Be(1), 
+            "All turn segments should cost 1 MP");
     }
 }

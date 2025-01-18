@@ -254,7 +254,7 @@ public class BattleMapViewModel : BaseViewModel
         AvailableDirections = null;
     }
 
-    public void ShowMovementPath(List<HexPosition> path)
+    public void ShowMovementPath(List<PathSegment> path)
     {
         HideMovementPath();
         if (path.Count < 2)
@@ -262,11 +262,7 @@ public class BattleMapViewModel : BaseViewModel
             return;
         }
 
-        var segments = new List<PathSegmentViewModel>();
-        for (var i = 0; i < path.Count - 1; i++)
-        {
-            segments.Add(new PathSegmentViewModel(path[i], path[i + 1]));
-        }
+        var segments = path.Select(p=> new PathSegmentViewModel(p)).ToList();
         MovementPath = segments;
     }
 
