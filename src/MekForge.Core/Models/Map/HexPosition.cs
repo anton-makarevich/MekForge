@@ -1,5 +1,7 @@
 namespace Sanet.MekForge.Core.Models.Map;
 
+using Sanet.MekForge.Core.Data;
+
 /// <summary>
 /// Represents a position on the hex map, combining coordinates and facing direction
 /// </summary>
@@ -16,6 +18,11 @@ public readonly record struct HexPosition
 
     public HexPosition(int q, int r, HexDirection facing)
         : this(new HexCoordinates(q, r), facing)
+    {
+    }
+
+    public HexPosition(HexPositionData data)
+        : this(new HexCoordinates(data.Coordinates), (HexDirection)data.Facing)
     {
     }
 
@@ -62,4 +69,10 @@ public readonly record struct HexPosition
             }
         }
     }
+
+    public HexPositionData ToData() => new()
+    {
+        Coordinates = Coordinates.ToData(),
+        Facing = (int)Facing
+    };
 }

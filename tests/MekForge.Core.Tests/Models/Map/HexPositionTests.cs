@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Map;
 
 namespace Sanet.MekForge.Core.Tests.Models.Map;
@@ -33,6 +34,26 @@ public class HexPositionTests
 
         // Assert
         position.Coordinates.Should().Be(new HexCoordinates(q, r));
+        position.Facing.Should().Be(facing);
+    }
+
+    [Fact]
+    public void Constructor_WithData_SetsProperties()
+    {
+        // Arrange
+        var coordinates = new HexCoordinates(2, 3);
+        var facing = HexDirection.Bottom;
+        var data = new HexPositionData
+        {
+            Coordinates = coordinates.ToData(),
+            Facing = (int)facing
+        };
+
+        // Act
+        var position = new HexPosition(data);
+
+        // Assert
+        position.Coordinates.Should().Be(coordinates);
         position.Facing.Should().Be(facing);
     }
 
@@ -116,6 +137,22 @@ public class HexPositionTests
         steps.Count.Should().Be(2); // Should take 2 steps counterclockwise instead of 4 clockwise
         steps[0].Facing.Should().Be(HexDirection.TopLeft);
         steps[1].Facing.Should().Be(HexDirection.BottomLeft);
+    }
+
+    [Fact]
+    public void ToData_ReturnsCorrectData()
+    {
+        // Arrange
+        var coordinates = new HexCoordinates(2, 3);
+        var facing = HexDirection.Bottom;
+        var position = new HexPosition(coordinates, facing);
+
+        // Act
+        var data = position.ToData();
+
+        // Assert
+        data.Coordinates.Should().Be(new HexCoordinateData(2,3));
+        data.Facing.Should().Be(3);
     }
 
     [Fact]
