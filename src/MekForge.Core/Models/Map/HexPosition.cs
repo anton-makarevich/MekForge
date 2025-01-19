@@ -21,6 +21,11 @@ public readonly record struct HexPosition
     {
     }
 
+    public HexPosition(HexPositionData data)
+        : this(new HexCoordinates(data.Coordinates), (HexDirection)data.Facing)
+    {
+    }
+
     /// <summary>
     /// Calculates the cost in movement points to turn from current facing to target facing
     /// </summary>
