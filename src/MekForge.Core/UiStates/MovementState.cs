@@ -83,7 +83,7 @@ public class MovementState : IUiState
     {
         if (CurrentMovementStep != MovementStep.SelectingDirection) return;
         var path = _possibleDirections[direction]; 
-        _builder.MovementPath(path);
+        _builder.SetMovementPath(path);
         if (_viewModel.MovementPath != null && _viewModel.MovementPath.Last().To==path.Last().To)
         {
             CompleteMovement();
@@ -124,7 +124,6 @@ public class MovementState : IUiState
             return;
         }
 
-        _builder.SetDestination(hex.Coordinates);
         CurrentMovementStep = MovementStep.SelectingDirection;
         
         if (_selectedUnit != null && _viewModel.Game != null && _selectedUnit.Position !=null)

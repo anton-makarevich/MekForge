@@ -177,7 +177,7 @@ public class MovementStateTests
         _viewModel.SelectedUnit.Should().Be(unit);
         state.ActionLabel.Should().Be("Select movement type");
     }
-    
+
     [Fact]
     public void HandleHexSelection_SelectsUnit_WhenUnitIsOnHex_AndOtherUnitIsSelected()
     {
@@ -198,7 +198,7 @@ public class MovementStateTests
         _viewModel.SelectedUnit.Should().Be(unit);
         state.ActionLabel.Should().Be("Select movement type");
     }
-    
+
     [Fact]
     public void HandleHexSelection_DoesNotSelectsUnit_WhenUnitIsOnHex_ButNotOwnedByActivePlayer()
     {
@@ -224,7 +224,11 @@ public class MovementStateTests
         // Arrange
         var hex = new Hex(new HexCoordinates(1, 1));
         _unit1.Deploy(new HexPosition(1, 2, HexDirection.Bottom));
-        _unit1.MoveTo(new HexPosition(new HexCoordinates(2, 2), 0), MovementType.Walk, 5);
+        var newPosition = new HexPosition(new HexCoordinates(2, 2), HexDirection.Top);
+        _unit1.MoveTo(MovementType.Walk, new List<PathSegmentData>
+        {
+            new PathSegment(new HexPosition(1, 2, HexDirection.Bottom), newPosition, 1).ToData()
+        });
 
         // Act
         _state.HandleHexSelection(hex);
@@ -243,7 +247,7 @@ public class MovementStateTests
         // Assert
         action.Should().Throw<InvalidOperationException>();
     }
-    
+
     [Fact]
     public void Constructor_ShouldThrow_IfActivePlayerNull()
     {
@@ -279,7 +283,7 @@ public class MovementStateTests
         // All directions should be available for adjacent hex with clear terrain
         _viewModel.AvailableDirections.Should().HaveCount(6);
     }
-    
+
     [Fact]
     public void HandleHexSelection_ResetsHighlighting_WhenUnitIsReselected()
     {
@@ -326,7 +330,7 @@ public class MovementStateTests
         _viewModel.IsDirectionSelectorVisible.Should().BeFalse();
         _viewModel.AvailableDirections.Should().BeNull();
     }
-    
+
     [Fact]
     public void HandleFacingSelection_DispalysPath_WhenInDirectionSelectionStep()
     {

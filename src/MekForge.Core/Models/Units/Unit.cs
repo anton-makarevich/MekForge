@@ -1,3 +1,4 @@
+using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units.Components;
@@ -147,16 +148,17 @@ public abstract class Unit
         return GetAllComponents<T>().Any(c => c.IsActive && !c.IsDestroyed);
     }
 
-    public void MoveTo(HexPosition position, MovementType movementType, int movementPoints)
+    public void MoveTo(MovementType movementType, List<PathSegmentData> movementPath)
     {
         if (Position == null)
         {
             throw new InvalidOperationException("Unit is not deployed.");
         } 
+        var position = new HexPosition(movementPath.Last().To);
         var distance = Position.Value.Coordinates.DistanceTo(position.Coordinates);
         DistanceCovered = distance;
-        MovementPointsSpent = movementPoints;
+        MovementPointsSpent = movementPath.Sum(s=>s.Cost);
         MovementTypeUsed = movementType;
-        Position = position;
+        Position = position; 
     }
 }
