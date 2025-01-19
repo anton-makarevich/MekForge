@@ -61,13 +61,10 @@ public class MovementPhaseTests : GameStateTestsBase
         _sut.HandleCommand(new MoveUnitCommand
         {
             MovementType = MovementType.Walk,
-            Direction = 1,
             GameOriginId = Game.Id,
             PlayerId = Game.ActivePlayer!.Id,
             UnitId = _unit1Id,
-            Destination = newPosition,
-            MovementPoints = 5,
-            PathSegments =
+            MovementPath =
             [
                 new PathSegment(new HexPosition(1, 2, HexDirection.Top), new HexPosition(3, 1, HexDirection.Bottom), 1)
                     .ToData()
@@ -89,13 +86,10 @@ public class MovementPhaseTests : GameStateTestsBase
         _sut.HandleCommand(new MoveUnitCommand
         {
             MovementType = MovementType.Walk,
-            Direction = 1,
             GameOriginId = Game.Id,
             PlayerId = wrongPlayerId,
             UnitId = _unit1Id,
-            Destination = new HexCoordinateData(1, 1),
-            MovementPoints = 5,
-            PathSegments =
+            MovementPath =
             [
                 new PathSegment(new HexPosition(1, 2, HexDirection.Top), new HexPosition(1, 1, HexDirection.Bottom), 1)
                     .ToData()
@@ -124,13 +118,10 @@ public class MovementPhaseTests : GameStateTestsBase
             _sut.HandleCommand(new MoveUnitCommand
             {
                 MovementType = MovementType.Walk,
-                Direction = 1,
                 GameOriginId = Game.Id,
                 PlayerId = Game.ActivePlayer!.Id,
                 UnitId = unit.Id,
-                Destination = new HexCoordinateData(1, 1),
-                MovementPoints = 5,
-                PathSegments =
+                MovementPath =
                 [
                     new PathSegment(new HexPosition(1, 2, HexDirection.Top), new HexPosition(1, 1, HexDirection.Bottom),
                         1).ToData()
@@ -159,13 +150,10 @@ public class MovementPhaseTests : GameStateTestsBase
                 _sut.HandleCommand(new MoveUnitCommand
                 {
                     MovementType = MovementType.Walk,
-                    Direction = 1,
                     GameOriginId = Game.Id,
                     PlayerId = Game.ActivePlayer!.Id,
                     UnitId = unit.Id,
-                    Destination= new HexCoordinateData(1, 1),
-                    MovementPoints = 5,
-                    PathSegments =
+                    MovementPath =
                     [
                         new PathSegment(new HexPosition(1, 2, HexDirection.Top),
                             new HexPosition(1, 1, HexDirection.Bottom), 1).ToData()

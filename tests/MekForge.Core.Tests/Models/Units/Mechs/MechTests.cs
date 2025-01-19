@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;
@@ -71,14 +72,17 @@ public class MechTests
         mech.Deploy(deployPosition);
 
         // Act
-        mech.MoveTo(newCoordinates, MovementType.Walk, 5);
+        mech.MoveTo(MovementType.Walk, new List<PathSegmentData>
+        {
+            new PathSegment(deployPosition, newCoordinates, 0).ToData()
+        });
 
         // Assert
         mech.Position.Should().Be(newCoordinates);
         mech.HasMoved.Should().BeTrue();
         mech.MovementTypeUsed.Should().Be(MovementType.Walk);
         mech.DistanceCovered.Should().Be(1);
-        mech.MovementPointsSpent.Should().Be(5);
+        mech.MovementPointsSpent.Should().Be(0);
     }
     
     [Fact]
@@ -86,10 +90,13 @@ public class MechTests
     {
         // Arrange
         var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
-        var newCoordinates =new HexPosition(new HexCoordinates(1, 2), HexDirection.BottomLeft);
+        var newCoordinates = new HexPosition(new HexCoordinates(1, 2), HexDirection.BottomLeft);
 
         // Act
-        var act = () => mech.MoveTo(newCoordinates, MovementType.Walk, 5);
+        var act = () => mech.MoveTo(MovementType.Walk, new List<PathSegmentData>
+        {
+            new PathSegment(new HexPosition(1, 1, HexDirection.Bottom), newCoordinates, 1).ToData()
+        });
 
         // Assert
         act.Should().Throw<InvalidOperationException>().WithMessage("Unit is not deployed.");
@@ -101,9 +108,12 @@ public class MechTests
         // Arrange
         var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
         var deployPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
-        var newCoordinates =new HexPosition(new HexCoordinates(1, 2), HexDirection.BottomLeft);
+        var newCoordinates = new HexPosition(new HexCoordinates(1, 2), HexDirection.BottomLeft);
         mech.Deploy(deployPosition);
-        mech.MoveTo(newCoordinates, MovementType.Walk, 5);
+        mech.MoveTo(MovementType.Walk, new List<PathSegmentData>
+        {
+            new PathSegment(deployPosition, newCoordinates, 1).ToData()
+        });
 
         // Act
         mech.ResetMovement();

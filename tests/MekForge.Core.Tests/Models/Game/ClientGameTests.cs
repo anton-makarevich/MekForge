@@ -356,11 +356,8 @@ public class ClientGameTests
             GameOriginId = _clientGame.Id,
             PlayerId = player.Id,
             MovementType = MovementType.Walk,
-            Direction = 0,
-            Destination = new HexCoordinateData(2, 2),
             UnitId = unitData.Id.Value,
-            MovementPoints = 5,
-            PathSegments = [new PathSegment(new HexPosition(1, 1, HexDirection.Top), new HexPosition(2, 2, HexDirection.Top), 1).ToData()]
+            MovementPath = [new PathSegment(new HexPosition(1, 1, HexDirection.Top), new HexPosition(2, 2, HexDirection.Top), 1).ToData()]
         };
     
         // Act
@@ -370,8 +367,6 @@ public class ClientGameTests
         _commandPublisher.Received(1).PublishCommand(Arg.Is<MoveUnitCommand>(cmd =>
             cmd.PlayerId == player.Id &&
             cmd.MovementType == moveCommand.MovementType &&
-            cmd.Direction == moveCommand.Direction &&
-            cmd.Destination == moveCommand.Destination &&
             cmd.GameOriginId == _clientGame.Id));
     }
     
@@ -384,11 +379,8 @@ public class ClientGameTests
             GameOriginId = _clientGame.Id,
             PlayerId = Guid.NewGuid(),
             MovementType = MovementType.Walk,
-            Direction = 0,
-            Destination = new HexCoordinateData(2, 2),
             UnitId = Guid.NewGuid(),
-            MovementPoints = 5,
-            PathSegments = [new PathSegment(new HexPosition(1, 1, HexDirection.Top), new HexPosition(2, 2, HexDirection.Top), 1).ToData()]
+            MovementPath = [new PathSegment(new HexPosition(1, 1, HexDirection.Top), new HexPosition(2, 2, HexDirection.Top), 1).ToData()]
         };
     
         // Act
@@ -511,11 +503,8 @@ public class ClientGameTests
             GameOriginId = Guid.NewGuid(),
             PlayerId = player.Id,
             MovementType = MovementType.Walk,
-            Direction = 1,
-            Destination = new HexCoordinateData(2, 2),
             UnitId = unitData.Id.Value,
-            MovementPoints = 5,
-            PathSegments = [new PathSegment(new HexPosition(1, 1, HexDirection.Top), new HexPosition(2, 2, HexDirection.Top), 1).ToData()]
+            MovementPath = [new PathSegment(new HexPosition(1, 1, HexDirection.Top), new HexPosition(2, 2, HexDirection.Top), 1).ToData()]
         };
 
         // Act
@@ -525,7 +514,7 @@ public class ClientGameTests
         var movedUnit = _clientGame.Players.First().Units.First();
         movedUnit.Position.Value.Coordinates.Q.Should().Be(2);
         movedUnit.Position.Value.Coordinates.R.Should().Be(2);
-        movedUnit.Position.Value.Facing.Should().Be(HexDirection.TopRight);
+        movedUnit.Position.Value.Facing.Should().Be(HexDirection.Top);
     }
 
     [Fact]
@@ -547,11 +536,8 @@ public class ClientGameTests
             GameOriginId = Guid.NewGuid(),
             PlayerId = player.Id,
             MovementType = MovementType.Walk,
-            Direction = 0,
-            Destination = new HexCoordinateData(2, 2),
             UnitId = Guid.NewGuid(),
-            MovementPoints = 5,
-            PathSegments = [new PathSegment(new HexPosition(1, 1, HexDirection.Top), new HexPosition(2, 2, HexDirection.Top), 1).ToData()]
+            MovementPath = [new PathSegment(new HexPosition(1, 1, HexDirection.Top), new HexPosition(2, 2, HexDirection.Top), 1).ToData()]
         };
 
         // Act & Assert
