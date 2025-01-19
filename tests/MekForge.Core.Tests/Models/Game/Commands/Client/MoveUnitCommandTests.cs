@@ -39,7 +39,10 @@ public class MoveUnitCommandTests : GameCommandTestBase<MoveUnitCommand>
             PlayerId = _player1.Id,
             UnitId = _unit.Id,
             Destination = _position.ToData(),
-            MovementPoints = 5
+            MovementPoints = 5,
+            // PathSegments = [
+            //     (new HexCoordinates(3, 5).ToData(), new HexCoordinates(4, 5).ToData(), 1)
+            // ]
         };
     }
 
@@ -49,6 +52,7 @@ public class MoveUnitCommandTests : GameCommandTestBase<MoveUnitCommand>
         cloned!.PlayerId.Should().Be(original.PlayerId);
         cloned.UnitId.Should().Be(original.UnitId);
         cloned.Destination.Should().BeEquivalentTo(original.Destination);
+        //cloned.PathSegments.Should().BeEquivalentTo(original.PathSegments);
     }
 
     [Fact]

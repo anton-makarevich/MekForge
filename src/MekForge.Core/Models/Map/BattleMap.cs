@@ -42,7 +42,7 @@ public class BattleMap
     /// <summary>
     /// Finds a path between two positions, considering facing direction and movement costs
     /// </summary>
-    public List<HexPosition>? FindPath(HexPosition start, HexPosition target, int maxMovementPoints, IEnumerable<HexCoordinates>? prohibitedHexes = null)
+    public List<PathSegment>? FindPath(HexPosition start, HexPosition target, int maxMovementPoints, IEnumerable<HexCoordinates>? prohibitedHexes = null)
     {
         var frontier = new PriorityQueue<(HexPosition pos, List<HexPosition> path, int cost), int>();
         var visited = new Dictionary<(HexCoordinates coords, HexDirection facing), int>();
@@ -58,7 +58,24 @@ public class BattleMap
             // Check if we've reached the target
             if (current.Coordinates == target.Coordinates && current.Facing == target.Facing)
             {
-                return path;
+                // Convert path to segments
+                var segments = new List<PathSegment>();
+                for (var i = 0; i < path.Count - 1; i++)
+                {
+                    var from = path[i];
+                    var to = path[i + 1];
+                    var segmentCost = 1; // Default cost for turning
+
+                    // If coordinates changed, it's a movement
+                    if (from.Coordinates != to.Coordinates)
+                    {
+                        var hex = GetHex(to.Coordinates);
+                        segmentCost = hex!.MovementCost;
+                    }
+
+                    segments.Add(new PathSegment(from, to, segmentCost));
+                }
+                return segments;
             }
 
             // For each adjacent hex

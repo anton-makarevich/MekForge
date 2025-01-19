@@ -6,43 +6,42 @@ namespace Sanet.MekForge.Core.ViewModels.Wrappers;
 
 public class PathSegmentViewModel : BaseViewModel
 {
-    private readonly HexPosition _from;
-    private readonly HexPosition _to;
+    private readonly PathSegment _segment;
     private const double TurnLength = 40;
 
-    public PathSegmentViewModel(HexPosition from, HexPosition to)
+    public PathSegmentViewModel(PathSegment segment)
     {
-        _from = from;
-        _to = to;
+        _segment = segment;
     }
     
-    public HexPosition From => _from;
-    public HexPosition To => _to;
+    public HexPosition From => _segment.From;
+    public HexPosition To => _segment.To;
+    public int Cost => _segment.Cost;
     
-    public bool IsTurn => _from.Coordinates == _to.Coordinates && _from.Facing != _to.Facing;
+    public bool IsTurn => From.Coordinates == To.Coordinates && From.Facing != To.Facing;
 
     // Screen coordinates for positioning the control
-    public double FromX => _from.Coordinates.H;
-    public double FromY => _from.Coordinates.V;
+    public double FromX => From.Coordinates.H;
+    public double FromY => From.Coordinates.V;
 
     // Relative coordinates for path drawing (center of control is at From position)
     public double StartX => HexCoordinates.HexWidth;
     public double StartY => HexCoordinates.HexHeight;
     
     public double EndX => IsTurn 
-        ? StartX + TurnLength * Math.Sin((int)_to.Facing * Math.PI / 3)
-        : StartX + (_to.Coordinates.H - _from.Coordinates.H);
+        ? StartX + TurnLength * Math.Sin((int)To.Facing * Math.PI / 3)
+        : StartX + (To.Coordinates.H - From.Coordinates.H);
         
     public double EndY => IsTurn 
-        ? StartY - TurnLength * Math.Cos((int)_to.Facing * Math.PI / 3)
-        : StartY + (_to.Coordinates.V - _from.Coordinates.V);
+        ? StartY - TurnLength * Math.Cos((int)To.Facing * Math.PI / 3)
+        : StartY + (To.Coordinates.V - From.Coordinates.V);
 
     // Direction vector at the end point (normalized)
     public Vector2 ArrowDirectionVector
     {
         get
         {
-           var angle = (int)_to.Facing * Math.PI / 3;
+           var angle = (int)To.Facing * Math.PI / 3;
            return new Vector2((float)Math.Sin(angle), -(float)Math.Cos(angle));
         }
     }
@@ -52,8 +51,8 @@ public class PathSegmentViewModel : BaseViewModel
         get
         {
             if (!IsTurn) return 0;
-            var fromAngle = (int)_from.Facing;
-            var toAngle = (int)_to.Facing;
+            var fromAngle = (int)From.Facing;
+            var toAngle = (int)To.Facing;
             
             // For single step turns, we only need to determine if it's clockwise or counterclockwise
             var clockwise = (toAngle - fromAngle + 6) % 6 == 1;
