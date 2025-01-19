@@ -23,5 +23,5 @@ public record MoveUnitCommand: ClientCommand
     public required MovementType MovementType { get; init; }
     public required int Direction { get; init; }
     public required int MovementPoints { get; init; }
-    //public required List<(HexCoordinateData From, HexCoordinateData To, int Cost)> PathSegments { get; init; }
+    public required List<PathSegmentData> PathSegments { get; init; }
 }

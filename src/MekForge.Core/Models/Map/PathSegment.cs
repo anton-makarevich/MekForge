@@ -1,6 +1,6 @@
 namespace Sanet.MekForge.Core.Models.Map;
 
-using Sanet.MekForge.Core.Data;
+using Data;
 
 /// <summary>
 /// Represents a segment of a path with movement cost

@@ -31,6 +31,10 @@ public class MoveUnitCommandTests : GameCommandTestBase<MoveUnitCommand>
 
     protected override MoveUnitCommand CreateCommand()
     {
+        var startPos = new HexPosition(3, 5, HexDirection.Top);
+        var endPos = new HexPosition(4, 5, HexDirection.Bottom);
+        var pathSegment = new PathSegment(startPos, endPos, 1);
+
         return new MoveUnitCommand
         {
             Direction =  1,
@@ -40,9 +44,7 @@ public class MoveUnitCommandTests : GameCommandTestBase<MoveUnitCommand>
             UnitId = _unit.Id,
             Destination = _position.ToData(),
             MovementPoints = 5,
-            // PathSegments = [
-            //     (new HexCoordinates(3, 5).ToData(), new HexCoordinates(4, 5).ToData(), 1)
-            // ]
+            PathSegments = [pathSegment.ToData()]
         };
     }
 
@@ -52,7 +54,7 @@ public class MoveUnitCommandTests : GameCommandTestBase<MoveUnitCommand>
         cloned!.PlayerId.Should().Be(original.PlayerId);
         cloned.UnitId.Should().Be(original.UnitId);
         cloned.Destination.Should().BeEquivalentTo(original.Destination);
-        //cloned.PathSegments.Should().BeEquivalentTo(original.PathSegments);
+        cloned.PathSegments.Should().BeEquivalentTo(original.PathSegments);
     }
 
     [Fact]

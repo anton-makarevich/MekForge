@@ -359,7 +359,8 @@ public class ClientGameTests
             Direction = 0,
             Destination = new HexCoordinateData(2, 2),
             UnitId = unitData.Id.Value,
-            MovementPoints = 5
+            MovementPoints = 5,
+            PathSegments = [new PathSegment(new HexPosition(1, 1, HexDirection.Top), new HexPosition(2, 2, HexDirection.Top), 1).ToData()]
         };
     
         // Act
@@ -386,7 +387,8 @@ public class ClientGameTests
             Direction = 0,
             Destination = new HexCoordinateData(2, 2),
             UnitId = Guid.NewGuid(),
-            MovementPoints = 5
+            MovementPoints = 5,
+            PathSegments = [new PathSegment(new HexPosition(1, 1, HexDirection.Top), new HexPosition(2, 2, HexDirection.Top), 1).ToData()]
         };
     
         // Act
@@ -512,7 +514,8 @@ public class ClientGameTests
             Direction = 1,
             Destination = new HexCoordinateData(2, 2),
             UnitId = unitData.Id.Value,
-            MovementPoints = 5
+            MovementPoints = 5,
+            PathSegments = [new PathSegment(new HexPosition(1, 1, HexDirection.Top), new HexPosition(2, 2, HexDirection.Top), 1).ToData()]
         };
 
         // Act
@@ -547,7 +550,8 @@ public class ClientGameTests
             Direction = 0,
             Destination = new HexCoordinateData(2, 2),
             UnitId = Guid.NewGuid(),
-            MovementPoints = 5
+            MovementPoints = 5,
+            PathSegments = [new PathSegment(new HexPosition(1, 1, HexDirection.Top), new HexPosition(2, 2, HexDirection.Top), 1).ToData()]
         };
 
         // Act & Assert
