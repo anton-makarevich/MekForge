@@ -33,6 +33,22 @@ public class PathSegmentViewModelTests
     }
 
     [Fact]
+    public void ViewModel_ReturnsCorrectValues()
+    {
+        // Arrange
+        var from = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
+        var to = new HexPosition(new HexCoordinates(2, 1), HexDirection.Top);
+        var segment = new PathSegment(from, to, 1);
+        var sut = new PathSegmentViewModel(segment);
+
+        // Act & Assert
+        sut.From.Should().Be(from);
+        sut.To.Should().Be(to);
+        sut.FromX.Should().Be(from.Coordinates.H);
+        sut.FromY.Should().Be(from.Coordinates.V );
+    }
+
+    [Fact]
     public void EndPoints_CalculatedCorrectly_ForStraightMovement()
     {
         // Arrange
@@ -42,6 +58,8 @@ public class PathSegmentViewModelTests
         var sut = new PathSegmentViewModel(segment);
 
         // Act & Assert
+        sut.From.Should().Be(from);
+        sut.To.Should().Be(to);
         sut.EndX.Should().Be(sut.StartX + 75); // One hex to the right
         sut.EndY.Should().BeApproximately(sut.StartY + 43.3,0.1); // Half hex to the bottom
     }
