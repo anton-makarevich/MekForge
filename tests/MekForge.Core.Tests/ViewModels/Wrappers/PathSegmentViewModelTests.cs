@@ -12,7 +12,8 @@ public class PathSegmentViewModelTests
         // Arrange
         var from = new HexPosition(new HexCoordinates(0, 0), HexDirection.Top);
         var to = new HexPosition(new HexCoordinates(1, 0), HexDirection.Top);
-        var sut = new PathSegmentViewModel(from, to);
+        var segment = new PathSegment(from, to, 1);
+        var sut = new PathSegmentViewModel(segment);
 
         // Act & Assert
         sut.IsTurn.Should().BeFalse();
@@ -24,7 +25,8 @@ public class PathSegmentViewModelTests
         // Arrange
         var from = new HexPosition(new HexCoordinates(0, 0), HexDirection.Top);
         var to = new HexPosition(new HexCoordinates(0, 0), HexDirection.TopRight);
-        var sut = new PathSegmentViewModel(from, to);
+        var segment = new PathSegment(from, to, 1);
+        var sut = new PathSegmentViewModel(segment);
 
         // Act & Assert
         sut.IsTurn.Should().BeTrue();
@@ -36,7 +38,8 @@ public class PathSegmentViewModelTests
         // Arrange
         var from = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
         var to = new HexPosition(new HexCoordinates(2, 1), HexDirection.Top);
-        var sut = new PathSegmentViewModel(from, to);
+        var segment = new PathSegment(from, to, 1);
+        var sut = new PathSegmentViewModel(segment);
 
         // Act & Assert
         sut.EndX.Should().Be(sut.StartX + 75); // One hex to the right
@@ -49,7 +52,8 @@ public class PathSegmentViewModelTests
         // Arrange
         var from = new HexPosition(new HexCoordinates(0, 0), HexDirection.Top);
         var to = new HexPosition(new HexCoordinates(0, 0), HexDirection.TopRight);
-        var sut = new PathSegmentViewModel(from, to);
+        var segment = new PathSegment(from, to, 1);
+        var sut = new PathSegmentViewModel(segment);
         const double turnLength = 40;
 
         // Expected values for 60-degree turn (NorthRight = 60 degrees)
@@ -67,7 +71,8 @@ public class PathSegmentViewModelTests
         // Arrange
         var from = new HexPosition(new HexCoordinates(0, 0), HexDirection.Top);
         var to = new HexPosition(new HexCoordinates(0, 0), HexDirection.TopRight);
-        var sut = new PathSegmentViewModel(from, to);
+        var segment = new PathSegment(from, to, 1);
+        var sut = new PathSegmentViewModel(segment);
 
         // Expected values for NorthRight direction (60 degrees)
         var expectedX = Math.Sin(Math.PI / 3); // sin(60°)
@@ -87,7 +92,8 @@ public class PathSegmentViewModelTests
         // Arrange
         var from = new HexPosition(new HexCoordinates(0, 0), HexDirection.Top);
         var to = new HexPosition(new HexCoordinates(0, 1), HexDirection.Top);
-        var sut = new PathSegmentViewModel(from, to);
+        var segment = new PathSegment(from, to, 1);
+        var sut = new PathSegmentViewModel(segment);
 
         // Expected values for North direction (0 degrees)
         var expectedX = Math.Sin(0); // sin(0°) = 0
@@ -107,7 +113,8 @@ public class PathSegmentViewModelTests
         // Arrange
         var from = new HexPosition(new HexCoordinates(0, 0), HexDirection.Top);
         var to = new HexPosition(new HexCoordinates(0, 0), HexDirection.TopRight);
-        var sut = new PathSegmentViewModel(from, to);
+        var segment = new PathSegment(from, to, 1);
+        var sut = new PathSegmentViewModel(segment);
 
         // Act & Assert
         sut.TurnAngleSweep.Should().Be(60);
@@ -119,7 +126,8 @@ public class PathSegmentViewModelTests
         // Arrange
         var from = new HexPosition(new HexCoordinates(0, 0), HexDirection.TopRight);
         var to = new HexPosition(new HexCoordinates(0, 0), HexDirection.Top);
-        var sut = new PathSegmentViewModel(from, to);
+        var segment = new PathSegment(from, to, 1);
+        var sut = new PathSegmentViewModel(segment);
 
         // Act & Assert
         sut.TurnAngleSweep.Should().Be(-60);
@@ -131,9 +139,23 @@ public class PathSegmentViewModelTests
         // Arrange
         var from = new HexPosition(new HexCoordinates(0, 0), HexDirection.Top);
         var to = new HexPosition(new HexCoordinates(1, 0), HexDirection.Top);
-        var sut = new PathSegmentViewModel(from, to);
+        var segment = new PathSegment(from, to, 1);
+        var sut = new PathSegmentViewModel(segment);
 
         // Act & Assert
         sut.TurnAngleSweep.Should().Be(0);
+    }
+
+    [Fact]
+    public void Cost_ReturnsSegmentCost()
+    {
+        // Arrange
+        var from = new HexPosition(new HexCoordinates(0, 0), HexDirection.Top);
+        var to = new HexPosition(new HexCoordinates(1, 0), HexDirection.Top);
+        var segment = new PathSegment(from, to, 2);
+        var sut = new PathSegmentViewModel(segment);
+
+        // Act & Assert
+        sut.Cost.Should().Be(2);
     }
 }

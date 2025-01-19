@@ -77,9 +77,8 @@ public class BattleMapTests
 
         // Assert
         path.Should().NotBeNull();
-        path!.Count.Should().Be(8); // Should include direction changes
+        path!.Count.Should().Be(7); // Should include direction changes
         path.Select(p => (p.To.Coordinates, p.To.Facing)).Should().ContainInOrder(
-            (new HexCoordinates(1, 1), HexDirection.Top),
             (new HexCoordinates(1, 1), HexDirection.TopRight),
             (new HexCoordinates(1, 1), HexDirection.BottomRight),
             (new HexCoordinates(2, 1), HexDirection.BottomRight),

@@ -55,8 +55,8 @@ public class MoveUnitCommandBuilder : ClientCommandBuilder
             Destination = _destination.Value.ToData(),
             Direction = (int)_movementPath.Last().To.Facing,
             MovementPoints = _movementPath.Sum(s => s.Cost),
-            PathSegments = _movementPath.Select(s => 
-                (s.From.Coordinates.ToData(), s.To.Coordinates.ToData(), s.Cost)).ToList()
+            //PathSegments = _movementPath.Select(s => 
+            //    (s.From.Coordinates.ToData(), s.To.Coordinates.ToData(), s.Cost)).ToList()
         };
     }
 
