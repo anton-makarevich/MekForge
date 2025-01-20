@@ -74,31 +74,41 @@ public class PathSegmentControl : Panel
             });
         }
 
-        // Add arrow at the end
+        // Add arrows based on Cost value
         var dirX = _segment.ArrowDirectionVector.X;
         var dirY = _segment.ArrowDirectionVector.Y;
         var endPoint = new Point(_segment.EndX, _segment.EndY);
-        var arrowGeometry = new StreamGeometry();
-        using (var context = arrowGeometry.Open())
+        
+        for (int i = 0; i < _segment.Cost; i++)
         {
-            // Calculate arrow points
-            var leftPoint = new Point(
-                endPoint.X - ArrowSize * (dirX * 0.866 - dirY * 0.5), // cos(30°) = 0.866
-                endPoint.Y - ArrowSize * (dirY * 0.866 + dirX * 0.5)  // sin(30°) = 0.5
+            var arrowOffset = i * (ArrowSize * 0.5); // Each subsequent arrow is moved back by half arrow length
+            var arrowEndPoint = new Point(
+                endPoint.X - arrowOffset * dirX,
+                endPoint.Y - arrowOffset * dirY
             );
-            var rightPoint = new Point(
-                endPoint.X - ArrowSize * (dirX * 0.866 + dirY * 0.5),
-                endPoint.Y - ArrowSize * (dirY * 0.866 - dirX * 0.5)
-            );
+            
+            var arrowGeometry = new StreamGeometry();
+            using (var context = arrowGeometry.Open())
+            {
+                // Calculate arrow points
+                var leftPoint = new Point(
+                    arrowEndPoint.X - ArrowSize * (dirX * 0.866 - dirY * 0.5),
+                    arrowEndPoint.Y - ArrowSize * (dirY * 0.866 + dirX * 0.5)
+                );
+                var rightPoint = new Point(
+                    arrowEndPoint.X - ArrowSize * (dirX * 0.866 + dirY * 0.5),
+                    arrowEndPoint.Y - ArrowSize * (dirY * 0.866 - dirX * 0.5)
+                );
 
-            context.BeginFigure(endPoint, true);
-            context.LineTo(leftPoint);
-            context.LineTo(rightPoint);
-            context.LineTo(endPoint);
-            context.EndFigure(true);
-            context.SetFillRule(FillRule.NonZero);
+                context.BeginFigure(arrowEndPoint, true);
+                context.LineTo(leftPoint);
+                context.LineTo(rightPoint);
+                context.LineTo(arrowEndPoint);
+                context.EndFigure(true);
+                context.SetFillRule(FillRule.NonZero);
+            }
+            geometry.Children.Add(arrowGeometry);
         }
-        geometry.Children.Add(arrowGeometry);
 
         return geometry;
     }
