@@ -60,6 +60,11 @@ public abstract class Unit
         };
     }
 
+    /// <summary>
+    /// Determines if the unit can move backward with the given movement type
+    /// </summary>
+    public abstract bool CanMoveBackward(MovementType type);
+
     // Location and facing
     public HexPosition? Position { get; private set; }
 
