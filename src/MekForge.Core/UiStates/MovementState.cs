@@ -138,12 +138,10 @@ public class MovementState : IUiState
     private void HandleTargetHexSelection(Hex hex)
     {
         if (_selectedUnit?.Position == null || _viewModel.Game == null) return;
-        if (CurrentMovementStep != MovementStep.SelectingTargetHex) return;
 
         var isForwardReachable = _forwardReachableHexes.Contains(hex.Coordinates);
         var isBackwardReachable = _backwardReachableHexes.Contains(hex.Coordinates);
         
-
         if (!isForwardReachable && !isBackwardReachable) return;
 
         CurrentMovementStep = MovementStep.SelectingDirection;
@@ -177,6 +175,13 @@ public class MovementState : IUiState
                     oppositeTargetPos,
                     _movementPoints,
                     _prohibitedHexes);
+
+                // If path found, swap all directions in path segments
+                path = path?.Select(segment => new PathSegment(
+                    new HexPosition(segment.From.Coordinates, segment.From.Facing.GetOppositeDirection()),
+                    new HexPosition(segment.To.Coordinates, segment.To.Facing.GetOppositeDirection()),
+                    segment.Cost
+                )).ToList();
             }
 
             if (path != null)

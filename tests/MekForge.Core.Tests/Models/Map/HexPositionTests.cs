@@ -109,6 +109,41 @@ public class HexPositionTests
         steps.Should().BeEmpty();
     }
 
+    [Theory]
+    [InlineData(HexDirection.Top, HexDirection.Bottom)]
+    [InlineData(HexDirection.TopRight, HexDirection.BottomLeft)]
+    [InlineData(HexDirection.BottomRight, HexDirection.TopLeft)]
+    [InlineData(HexDirection.Bottom, HexDirection.Top)]
+    [InlineData(HexDirection.BottomLeft, HexDirection.TopRight)]
+    [InlineData(HexDirection.TopLeft, HexDirection.BottomRight)]
+    public void GetOppositeDirectionPosition_ReturnsPositionWithOppositeDirection(HexDirection input, HexDirection expected)
+    {
+        // Arrange
+        var coordinates = new HexCoordinates(2, 3);
+        var position = new HexPosition(coordinates, input);
+
+        // Act
+        var result = position.GetOppositeDirectionPosition();
+
+        // Assert
+        result.Coordinates.Should().Be(coordinates);
+        result.Facing.Should().Be(expected);
+    }
+
+    [Fact]
+    public void GetOppositeDirectionPosition_PreservesCoordinates()
+    {
+        // Arrange
+        var coordinates = new HexCoordinates(2, 3);
+        var position = new HexPosition(coordinates, HexDirection.Top);
+
+        // Act
+        var result = position.GetOppositeDirectionPosition();
+
+        // Assert
+        result.Coordinates.Should().Be(coordinates);
+    }
+
     [Fact]
     public void GetTurningSteps_FromTopToRight_ReturnsCorrectSequence()
     {

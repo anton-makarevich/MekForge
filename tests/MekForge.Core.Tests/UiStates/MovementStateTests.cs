@@ -397,4 +397,79 @@ public class MovementStateTests
         // Assert
         _state.ActionLabel.Should().Be("Select unit to move");
     }
+
+    [Fact]
+    public void HandleMovementTypeSelection_CalculatesBackwardReachableHexes_WhenWalking()
+    {
+        // Arrange
+        var startPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        _unit1.Deploy(startPosition);
+        _state.HandleUnitSelection(_unit1);
+        
+        // Act
+        _state.HandleMovementTypeSelection(MovementType.Walk);
+
+        // Assert
+        // The hex behind the unit (at 1,2) should be reachable
+        var hexBehind = _game.BattleMap.GetHex(new HexCoordinates(1, 2));
+        hexBehind!.IsHighlighted.Should().BeTrue();
+    }
+
+    [Fact]
+    public void HandleMovementTypeSelection_DoesNotCalculateBackwardReachableHexes_WhenRunning()
+    {
+        // Arrange
+        var startPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        _unit1.Deploy(startPosition);
+        _state.HandleUnitSelection(_unit1);
+        
+        // Act
+        _state.HandleMovementTypeSelection(MovementType.Run);
+
+        // Assert
+        // The hex behind the unit (at 1,2) should not be reachable
+        var hexBehind = _game.BattleMap.GetHex(new HexCoordinates(1, 2));
+        hexBehind!.IsHighlighted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void HandleTargetHexSelection_AllowsBackwardMovement_WhenWalking()
+    {
+        // Arrange
+        var startPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        _unit1.Deploy(startPosition);
+        _state.HandleUnitSelection(_unit1);
+        _state.HandleMovementTypeSelection(MovementType.Walk);
+        var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 2))!;
+
+        // Act
+        _state.HandleHexSelection(targetHex);
+
+        // Assert
+        _viewModel.IsDirectionSelectorVisible.Should().BeTrue();
+        _viewModel.DirectionSelectorPosition.Should().Be(targetHex.Coordinates);
+    }
+
+    [Fact]
+    public void HandleTargetHexSelection_SwapsDirectionsForBackwardMovement()
+    {
+        // Arrange
+        var startPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        _unit1.Deploy(startPosition);
+        _state.HandleUnitSelection(_unit1);
+        _state.HandleMovementTypeSelection(MovementType.Walk);
+        var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 2))!;
+        _state.HandleHexSelection(targetHex);
+
+        // Act
+        _state.HandleFacingSelection(HexDirection.Bottom);
+
+        // Assert
+        // Check that the path segments have correct facing directions
+        var path = _viewModel.MovementPath;
+        path.Should().NotBeNull();
+        path![0].From.Facing.Should().Be(HexDirection.Bottom); // Original facing
+        path[0].To.Coordinates.Should().Be(new HexCoordinates(1, 2)); // Target hex
+        path[0].To.Facing.Should().Be(HexDirection.Bottom); // Maintains facing for backward movement
+    }
 }
