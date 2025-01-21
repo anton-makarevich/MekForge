@@ -14,6 +14,7 @@
              x:DataType="viewModels:BattleMapViewModel">
     <UserControl.Resources>
         <converters:HexColorToBrushConverter x:Key="HexColorToBrushConverter"/>
+        <converters:ContrastingForegroundConverter x:Key="ContrastingForegroundConverter"/>
     </UserControl.Resources>
     <Grid>
         <Canvas x:Name="MapCanvas" 
@@ -94,15 +95,17 @@
                     <StackPanel Margin="10">
                         <!-- Basic Info -->
                         <StackPanel Orientation="Horizontal" Spacing="5" Margin="0,0,0,10">
-                            <TextBlock Text="{Binding SelectedUnit.Class}"/>
-                            <TextBlock Text="{Binding SelectedUnit.Tonnage}"/>
-                            <TextBlock Text="T"/>
+                            <TextBlock Text="{Binding SelectedUnit.Class}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding SelectedUnit.Tonnage}" VerticalAlignment="Center"/>
+                            <TextBlock Text="T" VerticalAlignment="Center"/>
                             <Border Background="{Binding ActivePlayerTint, Converter={StaticResource HexColorToBrushConverter}}"
+                                    VerticalAlignment="Center"
                                     CornerRadius="4"
-                                    BorderBrush="Black"
+                                    BorderBrush="{Binding ActivePlayerTint, Converter={StaticResource ContrastingForegroundConverter}}"
+                                    BorderThickness="1"
                                     Padding="5,2">
                                 <TextBlock Text="{Binding SelectedUnit.Status}"
-                                         Foreground="White"/>
+                                         Foreground="{Binding ActivePlayerTint, Converter={StaticResource ContrastingForegroundConverter}}"/>
                             </Border>
                         </StackPanel>
 
