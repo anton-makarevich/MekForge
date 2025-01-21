@@ -3,9 +3,9 @@ using Avalonia.Controls;
 
 namespace Sanet.MekForge.Avalonia.Views.TemplatedControls;
 
-public class CircleButton : Button
+public class ActionButton : Button
 {
-    public static readonly StyledProperty<string> IconDataProperty = AvaloniaProperty.Register<CircleButton, string>(
+    public static readonly StyledProperty<string> IconDataProperty = AvaloniaProperty.Register<ActionButton, string>(
         nameof(IconData));
 
     public string IconData

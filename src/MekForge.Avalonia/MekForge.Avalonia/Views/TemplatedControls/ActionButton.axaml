@@ -2,10 +2,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="using:Sanet.MekForge.Avalonia.Views.TemplatedControls">
     <Design.PreviewWith>
-        <controls:CircleButton />
+        <controls:ActionButton />
     </Design.PreviewWith>
 
-    <Style Selector="controls|CircleButton">
+    <Style Selector="controls|ActionButton">
         <Setter Property="Template">
             <ControlTemplate>
                 <Button Command="{TemplateBinding Command}"

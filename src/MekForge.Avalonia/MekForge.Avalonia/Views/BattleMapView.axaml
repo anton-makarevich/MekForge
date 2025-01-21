@@ -66,14 +66,14 @@
                     Margin="10"
                     Spacing="10">
             <!-- Record Sheet Button -->
-            <templatedControls:CircleButton
+            <templatedControls:ActionButton
                 IsVisible="{Binding IsRecordSheetButtonVisible}"
                 Command="{Binding ToggleRecordSheet}"
                 Background="Aqua"
                 IconData="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1v5h5v10H6V3h7z"/>
 
             <!-- Command Log Button -->
-            <templatedControls:CircleButton
+            <templatedControls:ActionButton
                 IsVisible="{Binding !IsCommandLogExpanded}"
                 Command="{Binding ToggleCommandLog}"
                 Background="Aqua"
@@ -81,19 +81,34 @@
         </StackPanel>
 
         <!-- Record Sheet Panel -->
-        <templatedControls:SlidingPanel
+        <templatedControls:GamePanel
             IsVisible="{Binding IsRecordSheetExpanded}"
             Title="Record Sheet"
             CloseCommand="{Binding ToggleRecordSheet}">
             <Grid />
-        </templatedControls:SlidingPanel>
+        </templatedControls:GamePanel>
 
         <!-- Command Log Panel -->
-        <templatedControls:SlidingPanel
+        <templatedControls:GamePanel
             IsVisible="{Binding IsCommandLogExpanded}"
             Title="Command Log"
             CloseCommand="{Binding ToggleCommandLog}">
-            <ListBox ItemsSource="{Binding CommandLog}"/>
-        </templatedControls:SlidingPanel>
+            <ScrollViewer Grid.Row="1" 
+                          MaxHeight="360">
+                <i:Interaction.Behaviors>
+                    <behaviors:AutoScrollBehavior />
+                </i:Interaction.Behaviors>
+                <ItemsControl ItemsSource="{Binding CommandLog}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}"
+                                       Foreground="Black"
+                                       Margin="5"
+                                       TextWrapping="Wrap"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </templatedControls:GamePanel>
     </Grid>
 </UserControl>

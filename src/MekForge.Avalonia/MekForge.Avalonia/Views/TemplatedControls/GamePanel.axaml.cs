@@ -4,9 +4,9 @@ using Avalonia.Controls;
 
 namespace Sanet.MekForge.Avalonia.Views.TemplatedControls;
 
-public class SlidingPanel : ContentControl
+public class GamePanel : ContentControl
 {
-    public static readonly StyledProperty<string> TitleProperty = AvaloniaProperty.Register<SlidingPanel, string>(
+    public static readonly StyledProperty<string> TitleProperty = AvaloniaProperty.Register<GamePanel, string>(
         nameof(Title));
 
     public string Title
@@ -15,7 +15,7 @@ public class SlidingPanel : ContentControl
         set => SetValue(TitleProperty, value);
     }
 
-    public static readonly StyledProperty<ICommand> CloseCommandProperty = AvaloniaProperty.Register<SlidingPanel, ICommand>(
+    public static readonly StyledProperty<ICommand> CloseCommandProperty = AvaloniaProperty.Register<GamePanel, ICommand>(
         nameof(CloseCommand));
 
     public ICommand CloseCommand
