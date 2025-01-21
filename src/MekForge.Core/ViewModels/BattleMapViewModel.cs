@@ -22,6 +22,7 @@ public class BattleMapViewModel : BaseViewModel
     private Unit? _selectedUnit;
     private readonly ObservableCollection<string> _commandLog = [];
     private bool _isCommandLogExpanded;
+    private bool _isRecordSheetExpanded;
     private readonly ILocalizationService _localizationService;
     private HexCoordinates _directionSelectorPosition;
     public HexCoordinates DirectionSelectorPosition
@@ -199,6 +200,7 @@ public class BattleMapViewModel : BaseViewModel
             SetProperty(ref _selectedUnit, value);
             CurrentState.HandleUnitSelection(value);
             NotifyPropertyChanged(nameof(AreUnitsToDeployVisible));
+            NotifyPropertyChanged(nameof(IsRecordSheetButtonVisible));
         }
     }
 
@@ -233,9 +235,26 @@ public class BattleMapViewModel : BaseViewModel
         set => SetProperty(ref _isCommandLogExpanded, value);
     }
 
+    public bool IsRecordSheetExpanded
+    {
+        get => _isRecordSheetExpanded;
+        set
+        {
+            SetProperty(ref _isRecordSheetExpanded, value); 
+            NotifyPropertyChanged(nameof(IsRecordSheetButtonVisible));
+        }
+    }
+
+    public bool IsRecordSheetButtonVisible => SelectedUnit != null && !IsRecordSheetExpanded;
+
     public void ToggleCommandLog()
     {
         IsCommandLogExpanded = !IsCommandLogExpanded;
+    }
+
+    public void ToggleRecordSheet()
+    {
+        IsRecordSheetExpanded = !IsRecordSheetExpanded;
     }
 
     public IEnumerable<Unit> Units => Game?.Players.SelectMany(p => p.Units) ?? [];
