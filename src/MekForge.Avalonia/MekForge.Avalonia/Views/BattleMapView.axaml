@@ -6,6 +6,7 @@
              xmlns:i="using:Avalonia.Xaml.Interactivity"
              xmlns:behaviors="using:Sanet.MekForge.Avalonia.Behaviors"
              xmlns:controls="clr-namespace:Sanet.MekForge.Avalonia.Controls"
+             xmlns:templatedControls="clr-namespace:Sanet.MekForge.Avalonia.Views.TemplatedControls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Sanet.MekForge.Avalonia.Views.BattleMapView"
              x:CompileBindings="True"
@@ -65,109 +66,34 @@
                     Margin="10"
                     Spacing="10">
             <!-- Record Sheet Button -->
-            <Button x:Name="RecordSheetButton"
-                    IsVisible="{Binding IsRecordSheetButtonVisible}"
-                    Command="{Binding ToggleRecordSheet}"
-                    Width="40"
-                    Height="40"
-                    CornerRadius="20"
-                    Background="Aqua">
-                <PathIcon Data="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1v5h5v10H6V3h7z"/>
-            </Button>
+            <templatedControls:CircleButton
+                IsVisible="{Binding IsRecordSheetButtonVisible}"
+                Command="{Binding ToggleRecordSheet}"
+                Background="Aqua"
+                IconData="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1v5h5v10H6V3h7z"/>
 
             <!-- Command Log Button -->
-            <Button x:Name="CommandLogButton"
-                    IsVisible="{Binding !IsCommandLogExpanded}"
-                    Command="{Binding ToggleCommandLog}"
-                    Width="40"
-                    Height="40"
-                    CornerRadius="20"
-                    Background="Aqua">
-                <PathIcon Data="M8 14v-4m4 4v-4m4 4v-4M3 21h18V7H3v14zM3 7V5a2 2 0 012-2h14a2 2 0 012 2v2H3z"/>
-            </Button>
+            <templatedControls:CircleButton
+                IsVisible="{Binding !IsCommandLogExpanded}"
+                Command="{Binding ToggleCommandLog}"
+                Background="Aqua"
+                IconData="M8 14v-4m4 4v-4m4 4v-4M3 21h18V7H3v14zM3 7V5a2 2 0 012-2h14a2 2 0 012 2v2H3z"/>
         </StackPanel>
 
         <!-- Record Sheet Panel -->
-        <Border x:Name="RecordSheetPanel"
-                IsVisible="{Binding IsRecordSheetExpanded}"
-                Background="White"
-                BorderBrush="Aqua"
-                BorderThickness="1"
-                CornerRadius="8"
-                Width="300"
-                MaxHeight="400"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Margin="10">
-            <Grid RowDefinitions="Auto,*">
-                <!-- Header -->
-                <Grid Grid.Row="0" 
-                      Background="Aqua" 
-                      Height="40">
-                    <TextBlock Text="Record Sheet"
-                               VerticalAlignment="Center"
-                               HorizontalAlignment="Center"
-                               FontWeight="Bold"/>
-                    <Button Command="{Binding ToggleRecordSheet}"
-                            HorizontalAlignment="Right"
-                            Width="40"
-                            Height="40"
-                            Background="Transparent">
-                        <PathIcon Data="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                    </Button>
-                </Grid>
-                <!-- Content will be added later -->
-                <Grid Grid.Row="1" />
-            </Grid>
-        </Border>
+        <templatedControls:SlidingPanel
+            IsVisible="{Binding IsRecordSheetExpanded}"
+            Title="Record Sheet"
+            CloseCommand="{Binding ToggleRecordSheet}">
+            <Grid />
+        </templatedControls:SlidingPanel>
+
         <!-- Command Log Panel -->
-        <Border x:Name="CommandLogPanel"
-                IsVisible="{Binding IsCommandLogExpanded}"
-                Background="White"
-                BorderBrush="Aqua"
-                BorderThickness="1"
-                CornerRadius="8"
-                Width="300"
-                MaxHeight="400"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Margin="10">
-            <Grid RowDefinitions="Auto,*">
-                <!-- Header -->
-                <Grid Grid.Row="0" 
-                      Background="Aqua" 
-                      Height="40">
-                    <TextBlock Text="Command Log"
-                             VerticalAlignment="Center"
-                             HorizontalAlignment="Center"
-                             FontWeight="Bold"/>
-                    <Button Command="{Binding ToggleCommandLog}"
-                            HorizontalAlignment="Right"
-                            Width="40"
-                            Height="40"
-                            Background="Transparent">
-                        <PathIcon Data="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                    </Button>
-                </Grid>
-                
-                <!-- Command List -->
-                <ScrollViewer Grid.Row="1" 
-                            MaxHeight="360">
-                    <i:Interaction.Behaviors>
-                        <behaviors:AutoScrollBehavior />
-                    </i:Interaction.Behaviors>
-                    <ItemsControl ItemsSource="{Binding CommandLog}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}"
-                                           Foreground="Black"
-                                         Margin="5"
-                                         TextWrapping="Wrap"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </Grid>
-        </Border>
+        <templatedControls:SlidingPanel
+            IsVisible="{Binding IsCommandLogExpanded}"
+            Title="Command Log"
+            CloseCommand="{Binding ToggleCommandLog}">
+            <ListBox ItemsSource="{Binding CommandLog}"/>
+        </templatedControls:SlidingPanel>
     </Grid>
 </UserControl>
