@@ -9,6 +9,8 @@ using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
+using Sanet.MekForge.Core.Models.Units;
+using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.Services.Localization;
 using Sanet.MekForge.Core.Tests.Data;
@@ -301,5 +303,59 @@ public class BattleMapViewModelTests
         // Assert
         _viewModel.IsDirectionSelectorVisible.Should().BeFalse();
         _viewModel.AvailableDirections.Should().BeNull();
+    }
+
+    [Fact]
+    public void IsRecordSheetButtonVisible_NoSelectedUnit_ReturnsFalse()
+    {
+        // Arrange
+        _viewModel.SelectedUnit = null;
+        _viewModel.IsRecordSheetExpanded = false;
+
+        // Act & Assert
+        _viewModel.IsRecordSheetButtonVisible.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsRecordSheetButtonVisible_HasSelectedUnitButExpanded_ReturnsFalse()
+    {
+        // Arrange
+        var unit = new Mech("Mech", "MK1",20,6,[]);
+        _viewModel.SelectedUnit = unit;
+        _viewModel.IsRecordSheetExpanded = true;
+
+        // Act & Assert
+        _viewModel.IsRecordSheetButtonVisible.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsRecordSheetButtonVisible_HasSelectedUnitNotExpanded_ReturnsTrue()
+    {
+        // Arrange
+        var unit = new Mech("Mech", "MK1",20,6,[]);
+        _viewModel.SelectedUnit = unit;
+        _viewModel.IsRecordSheetExpanded = false;
+
+        // Act & Assert
+        _viewModel.IsRecordSheetButtonVisible.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ToggleRecordSheet_TogglesIsRecordSheetExpanded()
+    {
+        // Arrange
+        _viewModel.IsRecordSheetExpanded = false;
+
+        // Act
+        _viewModel.ToggleRecordSheet();
+
+        // Assert
+        _viewModel.IsRecordSheetExpanded.Should().BeTrue();
+
+        // Act again
+        _viewModel.ToggleRecordSheet();
+
+        // Assert
+        _viewModel.IsRecordSheetExpanded.Should().BeFalse();
     }
 }
