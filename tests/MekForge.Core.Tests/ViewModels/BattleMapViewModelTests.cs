@@ -314,6 +314,17 @@ public class BattleMapViewModelTests
         // Act & Assert
         _viewModel.IsRecordSheetButtonVisible.Should().BeFalse();
     }
+    
+    [Fact]
+    public void IsRecordSheetPanelVisible_NoSelectedUnit_ReturnsFalse()
+    {
+        // Arrange
+        _viewModel.SelectedUnit = null;
+        _viewModel.IsRecordSheetExpanded = false;
+
+        // Act & Assert
+        _viewModel.IsRecordSheetPanelVisible.Should().BeFalse();
+    }
 
     [Fact]
     public void IsRecordSheetButtonVisible_HasSelectedUnitButExpanded_ReturnsFalse()
@@ -337,6 +348,30 @@ public class BattleMapViewModelTests
 
         // Act & Assert
         _viewModel.IsRecordSheetButtonVisible.Should().BeTrue();
+    }
+    
+    [Fact]
+    public void IsRecordSheetPanelVisible_HasSelectedUnitButExpanded_ReturnsTrue()
+    {
+        // Arrange
+        var unit = new Mech("Mech", "MK1",20,6,[]);
+        _viewModel.SelectedUnit = unit;
+        _viewModel.IsRecordSheetExpanded = true;
+
+        // Act & Assert
+        _viewModel.IsRecordSheetPanelVisible.Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsRecordSheetPanelVisible_HasSelectedUnitNotExpanded_ReturnsFalse()
+    {
+        // Arrange
+        var unit = new Mech("Mech", "MK1",20,6,[]);
+        _viewModel.SelectedUnit = unit;
+        _viewModel.IsRecordSheetExpanded = false;
+
+        // Act & Assert
+        _viewModel.IsRecordSheetPanelVisible.Should().BeFalse();
     }
 
     [Fact]
