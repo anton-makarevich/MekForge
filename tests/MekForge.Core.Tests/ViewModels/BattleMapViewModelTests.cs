@@ -9,7 +9,6 @@ using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
-using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.Services.Localization;
