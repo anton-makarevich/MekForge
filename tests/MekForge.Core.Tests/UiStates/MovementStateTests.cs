@@ -474,4 +474,29 @@ public class MovementStateTests
         path.Last().To.Coordinates.Should().Be(targetHex.Coordinates);
         path.Last().To.Facing.Should().Be(HexDirection.Top);
     }
+    
+    [Fact]
+    public void HandleUnitSelection_ClearsHexHighlighting_WhenUnitSelectedAgain()
+    {
+        // Arrange
+        var startPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
+        var unit = _viewModel.Units.First();
+        unit.Deploy(startPosition);
+        var unitHex = _game.BattleMap.GetHex(unit.Position!.Value.Coordinates)!;
+        _state.HandleHexSelection(unitHex);
+        _state.HandleMovementTypeSelection(MovementType.Walk);
+        var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 4))!;
+        _state.HandleHexSelection(targetHex);
+        _state.HandleFacingSelection(HexDirection.Top);
+
+        // Act
+        _state.HandleHexSelection(unitHex);
+        
+        // Assert
+        _viewModel.MovementPath.Should().BeNull();
+        foreach (var hex in _viewModel.Game.BattleMap.GetHexes())
+        {
+            hex.IsHighlighted.Should().BeFalse();
+        }
+    }
 }
