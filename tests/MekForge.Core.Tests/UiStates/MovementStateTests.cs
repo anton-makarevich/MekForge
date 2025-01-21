@@ -48,8 +48,8 @@ public class MovementStateTests
         _hex1 = new Hex(new HexCoordinates(1, 1));
         
         var battleMap = BattleMap.GenerateMap(
-            2, 2,
-            new SingleTerrainGenerator(2,2, new ClearTerrain()));
+            2, 11,
+            new SingleTerrainGenerator(2,11, new ClearTerrain()));
          _player = new Player(playerId, "Player1");
         _game = new ClientGame(
             battleMap, [_player], rules,
@@ -396,5 +396,107 @@ public class MovementStateTests
         
         // Assert
         _state.ActionLabel.Should().Be("Select unit to move");
+    }
+
+    [Fact]
+    public void HandleMovementTypeSelection_CalculatesBackwardReachableHexes_WhenWalking()
+    {
+        // Arrange
+        var startPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
+        _unit1.Deploy(startPosition);
+        _state.HandleUnitSelection(_unit1);
+        
+        // Act
+        _state.HandleMovementTypeSelection(MovementType.Walk);
+
+        // Assert
+        // The hex behind the unit (at 1,2) should be reachable
+        var hexBehind = _game.BattleMap.GetHex(new HexCoordinates(1, 9));
+        hexBehind!.IsHighlighted.Should().BeTrue();
+    }
+
+    [Fact]
+    public void HandleMovementTypeSelection_DoesNotCalculateBackwardReachableHexes_WhenRunning()
+    {
+        // Arrange
+        var startPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
+        _unit1.Deploy(startPosition);
+        _state.HandleUnitSelection(_unit1);
+        
+        // Act
+        _state.HandleMovementTypeSelection(MovementType.Run);
+
+        // Assert
+        // The hex behind the unit (at 1,11) should not be reachable (12 running MP are not enough to reach it)
+        var hexBehind = _game.BattleMap.GetHex(new HexCoordinates(1, 11));
+        hexBehind!.IsHighlighted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void HandleTargetHexSelection_AllowsBackwardMovement_WhenWalking()
+    {
+        // Arrange
+        var startPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        _unit1.Deploy(startPosition);
+        _state.HandleUnitSelection(_unit1);
+        _state.HandleMovementTypeSelection(MovementType.Walk);
+        var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 2))!;
+
+        // Act
+        _state.HandleHexSelection(targetHex);
+
+        // Assert
+        _viewModel.IsDirectionSelectorVisible.Should().BeTrue();
+        _viewModel.DirectionSelectorPosition.Should().Be(targetHex.Coordinates);
+    }
+
+    [Fact]
+    public void HandleTargetHexSelection_SwapsDirectionsForBackwardMovement()
+    {
+        // Arrange
+        var startPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
+        _unit1.Deploy(startPosition);
+        _state.HandleUnitSelection(_unit1);
+        _state.HandleMovementTypeSelection(MovementType.Walk);
+        var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 4))!;
+        _state.HandleHexSelection(targetHex);
+
+        // Act
+        _state.HandleFacingSelection(HexDirection.Top);
+
+        // Assert
+        // Check that the path segments have correct facing directions
+        var path = _viewModel.MovementPath;
+        path.Should().NotBeNull();
+        path![0].From.Facing.Should().Be(HexDirection.Top); // Original facing
+        path[0].To.Coordinates.Should().Be(new HexCoordinates(1, 2)); // Target hex
+        path[0].To.Facing.Should().Be(HexDirection.Top); // Maintains facing for backward movement
+        path.Last().To.Coordinates.Should().Be(targetHex.Coordinates);
+        path.Last().To.Facing.Should().Be(HexDirection.Top);
+    }
+    
+    [Fact]
+    public void HandleUnitSelection_ClearsHexHighlighting_WhenUnitSelectedAgain()
+    {
+        // Arrange
+        var startPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
+        var unit = _viewModel.Units.First();
+        unit.Deploy(startPosition);
+        var unitHex = _game.BattleMap.GetHex(unit.Position!.Value.Coordinates)!;
+        _state.HandleHexSelection(unitHex);
+        _state.HandleMovementTypeSelection(MovementType.Walk);
+        var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 4))!;
+        _state.HandleHexSelection(targetHex);
+        _state.HandleFacingSelection(HexDirection.Top);
+
+        // Act
+        _state.HandleHexSelection(unitHex);
+        
+        // Assert
+        _viewModel.MovementPath.Should().BeNull();
+        foreach (var hex in _viewModel.Game.BattleMap.GetHexes())
+        {
+            hex.IsHighlighted.Should().BeFalse();
+        }
     }
 }

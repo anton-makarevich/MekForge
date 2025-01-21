@@ -1,4 +1,4 @@
-﻿namespace Sanet.MekForge.Core.Models.Map;
+namespace Sanet.MekForge.Core.Models.Map;
 
 public enum HexDirection
 {
@@ -8,4 +8,10 @@ public enum HexDirection
     Bottom = 3,      
     BottomLeft = 4, 
     TopLeft = 5 
+}
+
+public static class HexDirectionExtensions
+{
+    public static HexDirection GetOppositeDirection(this HexDirection direction) =>
+        (HexDirection)((int)(direction + 3) % 6);
 }

@@ -11,7 +11,8 @@ public class MovementState : IUiState
     private readonly BattleMapViewModel _viewModel;
     private readonly MoveUnitCommandBuilder _builder;
     private Unit? _selectedUnit;
-    private List<HexCoordinates> _reachableHexes = [];
+    private List<HexCoordinates> _forwardReachableHexes = [];
+    private List<HexCoordinates> _backwardReachableHexes = [];
     private readonly List<HexCoordinates> _prohibitedHexes;
     private int _movementPoints;
     private Dictionary<HexDirection, List<PathSegment>> _possibleDirections;
@@ -60,14 +61,30 @@ public class MovementState : IUiState
         // Get reachable hexes and highlight them
         if (_selectedUnit?.Position != null && _viewModel.Game != null)
         {
-            // Get all reachable hexes, excluding enemy positions from pathfinding
-            _reachableHexes = _viewModel.Game.BattleMap.GetReachableHexes(_selectedUnit.Position.Value, _movementPoints, _prohibitedHexes)
-                .Select(x=>x.coordinates)
+            // Get forward reachable hexes
+            _forwardReachableHexes = _viewModel.Game.BattleMap
+                .GetReachableHexes(_selectedUnit.Position.Value, _movementPoints, _prohibitedHexes)
+                .Select(x => x.coordinates)
                 .Where(hex => !_viewModel.Units
                     .Any(u => u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id && u.Position?.Coordinates == hex))
                 .ToList();
 
-            _viewModel.HighlightHexes(_reachableHexes, true);
+            // Get backward reachable hexes if unit can move backward
+            _backwardReachableHexes = [];
+            if (_selectedUnit.CanMoveBackward(movementType))
+            {
+                var oppositePosition = _selectedUnit.Position.Value.GetOppositeDirectionPosition();
+                _backwardReachableHexes = _viewModel.Game.BattleMap
+                    .GetReachableHexes(oppositePosition, _movementPoints, _prohibitedHexes)
+                    .Select(x => x.coordinates)
+                    .Where(hex => !_viewModel.Units
+                        .Any(u => u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id && u.Position?.Coordinates == hex))
+                    .ToList();
+            }
+
+            // Highlight all reachable hexes
+            var allReachableHexes = _forwardReachableHexes.Union(_backwardReachableHexes).ToList();
+            _viewModel.HighlightHexes(allReachableHexes, true);
         }
 
         _viewModel.NotifyStateChanged();
@@ -107,10 +124,12 @@ public class MovementState : IUiState
         _viewModel.SelectedUnit = null;
         _viewModel.HideMovementPath();
         _viewModel.HideDirectionSelector();
-        if (_reachableHexes.Count > 0)
+        if (_forwardReachableHexes.Count > 0 || _backwardReachableHexes.Count > 0)
         {
-            _viewModel.HighlightHexes(_reachableHexes, false);
-            _reachableHexes = [];
+            var allReachableHexes = _forwardReachableHexes.Union(_backwardReachableHexes).ToList();
+            _viewModel.HighlightHexes(allReachableHexes, false);
+            _forwardReachableHexes = [];
+            _backwardReachableHexes = [];
         }
         CurrentMovementStep=MovementStep.SelectingUnit;
         _viewModel.NotifyStateChanged();
@@ -118,39 +137,66 @@ public class MovementState : IUiState
 
     private void HandleTargetHexSelection(Hex hex)
     {
-        // Check if the hex is actually reachable
-        if (_reachableHexes.All(h => h != hex.Coordinates))
-        {
-            return;
-        }
+        if (_selectedUnit?.Position == null || _viewModel.Game == null) return;
+
+        var isForwardReachable = _forwardReachableHexes.Contains(hex.Coordinates);
+        var isBackwardReachable = _backwardReachableHexes.Contains(hex.Coordinates);
+        
+        if (!isForwardReachable && !isBackwardReachable) return;
 
         CurrentMovementStep = MovementStep.SelectingDirection;
         
-        if (_selectedUnit != null && _viewModel.Game != null && _selectedUnit.Position !=null)
+        _possibleDirections = new Dictionary<HexDirection, List<PathSegment>>();
+        var availableDirections = Enum.GetValues<HexDirection>();
+
+        foreach (var direction in availableDirections)
         {
-            // Find all possible facing directions
-            _possibleDirections = new Dictionary<HexDirection,List<PathSegment>>();
-            var startPosition = new HexPosition(_selectedUnit.Position.Value.Coordinates, _selectedUnit.Position.Value.Facing);
-            
-            foreach (var direction in Enum.GetValues<HexDirection>())
+            var targetPos = new HexPosition(hex.Coordinates, direction);
+            List<PathSegment>? path = null;
+
+            if (isForwardReachable)
             {
-                var targetPosition = new HexPosition(hex.Coordinates, direction);
-                var path = _viewModel.Game.BattleMap.FindPath(startPosition, targetPosition, _movementPoints, _prohibitedHexes);
-                
-                if (path != null)
-                {
-                    _possibleDirections.Add(direction, path);
-                }
+                // Try forward movement
+                path = _viewModel.Game?.BattleMap.FindPath(
+                    _selectedUnit.Position.Value,
+                    targetPos,
+                    _movementPoints,
+                    _prohibitedHexes);
             }
-            
-            // Show direction selector if there are any possible directions
-            if (_possibleDirections.Count != 0)
+
+            if (path == null && isBackwardReachable)
             {
-                _viewModel.HideMovementPath();
-                _viewModel.ShowDirectionSelector(hex.Coordinates, _possibleDirections.Select(kv=>kv.Key).ToList());
+                // Try backward movement
+                var oppositeStartPos = _selectedUnit.Position.Value.GetOppositeDirectionPosition();
+                var oppositeTargetPos = targetPos.GetOppositeDirectionPosition();
+                
+                path = _viewModel.Game?.BattleMap.FindPath(
+                    oppositeStartPos,
+                    oppositeTargetPos,
+                    _movementPoints,
+                    _prohibitedHexes);
+
+                // If path found, swap all directions in path segments
+                path = path?.Select(segment => new PathSegment(
+                    new HexPosition(segment.From.Coordinates, segment.From.Facing.GetOppositeDirection()),
+                    new HexPosition(segment.To.Coordinates, segment.To.Facing.GetOppositeDirection()),
+                    segment.Cost
+                )).ToList();
+            }
+
+            if (path != null)
+            {
+                _possibleDirections[direction] = path;
             }
         }
-        
+
+        // Show direction selector if there are any possible directions
+        if (_possibleDirections.Count != 0)
+        {
+            _viewModel.HideMovementPath();
+            _viewModel.ShowDirectionSelector(hex.Coordinates, _possibleDirections.Select(kv=>kv.Key).ToList());
+        }
+
         _viewModel.NotifyStateChanged();
     }
     
@@ -165,7 +211,10 @@ public class MovementState : IUiState
         }
         
         _builder.Reset();
-        _viewModel.HighlightHexes(_reachableHexes,false);
+        var allReachableHexes = _forwardReachableHexes.Union(_backwardReachableHexes).ToList();
+        _viewModel.HighlightHexes(allReachableHexes,false);
+        _forwardReachableHexes = [];
+        _backwardReachableHexes = [];
         _selectedUnit = null;
         CurrentMovementStep = MovementStep.Completed;
         _viewModel.NotifyStateChanged();

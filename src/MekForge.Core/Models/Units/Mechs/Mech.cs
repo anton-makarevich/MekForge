@@ -75,6 +75,8 @@ public class Mech : Unit
         return bv;
     }
 
+    public override bool CanMoveBackward(MovementType type) => type == MovementType.Walk;
+
     public void SetProne()
     {
         Status |= UnitStatus.Prone;

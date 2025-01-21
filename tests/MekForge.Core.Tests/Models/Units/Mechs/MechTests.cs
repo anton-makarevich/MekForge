@@ -24,6 +24,17 @@ public class MechTests
             new Leg(PartLocation.LeftLeg, 25, 8)
         ];
     }
+    
+    [Fact]
+    public void Mech_CanWalkBackwards_BitCannotRun()
+    {
+        // Arrange & Act
+        var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
+
+        // Assert
+        mech.CanMoveBackward(MovementType.Walk).Should().BeTrue();
+        mech.CanMoveBackward(MovementType.Run).Should().BeFalse();
+    }
 
     [Fact]
     public void Constructor_InitializesAllParts()

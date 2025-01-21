@@ -75,4 +75,10 @@ public readonly record struct HexPosition
         Coordinates = Coordinates.ToData(),
         Facing = (int)Facing
     };
+
+    /// <summary>
+    /// Returns a new position with the same coordinates but facing the opposite direction
+    /// </summary>
+    public HexPosition GetOppositeDirectionPosition() => 
+        new(Coordinates, (HexDirection)((int)(Facing + 3) % 6));
 }
