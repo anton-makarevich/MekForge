@@ -115,7 +115,8 @@
                         <Grid Height="20" Margin="0,0,0,10">
                             <ProgressBar Value="{Binding SelectedUnit.CurrentHeat}" 
                                        Maximum="30"
-                                       Height="20">
+                                       Height="20"
+                                       MinHeight="0">
                                 <ProgressBar.Foreground>
                                     <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
                                         <GradientStop Offset="0" Color="#ADD8E6"/>
@@ -159,249 +160,225 @@
                     </StackPanel>
                 </TabItem>
                 <TabItem Header="Armor">
-                    <ScrollViewer>
-                        <Grid Margin="10" RowDefinitions="Auto,*,*" ColumnDefinitions="*,*,*,*">
-                            <!-- Head -->
-                            <StackPanel Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Margin="5">
-                                <TextBlock Text="Head" HorizontalAlignment="Center"/>
-                                <Grid ColumnDefinitions="*,*" Margin="0,5">
-                                    <StackPanel Grid.Column="0" Margin="2">
-                                        <TextBlock Text="A" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="60"
-                                                   Value="{Binding SelectedUnit.Parts[0].CurrentArmor}"
-                                                   Maximum="{Binding SelectedUnit.Parts[0].MaxArmor}"
-                                                   Foreground="LightBlue"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[0].CurrentArmor}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Margin="2">
-                                        <TextBlock Text="S" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="60"
-                                                   Value="{Binding SelectedUnit.Parts[0].CurrentStructure}"
-                                                   Maximum="{Binding SelectedUnit.Parts[0].MaxStructure}"
-                                                   Foreground="Orange"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[0].CurrentStructure}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
+                    <Grid ColumnDefinitions="*,*,*,*,*,*,*,*"
+                          RowDefinitions="Auto,3*,2*,2*"
+                          Height="300">
+                        <!-- Labels -->
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Head" HorizontalAlignment="Center" FontSize="11" Margin="2,0"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="LT" HorizontalAlignment="Center" FontSize="11" Margin="2,0"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="CT" HorizontalAlignment="Center" FontSize="11" Margin="2,0"/>
+                        <TextBlock Grid.Row="0" Grid.Column="3" Text="RT" HorizontalAlignment="Center" FontSize="11" Margin="2,0"/>
+                        <TextBlock Grid.Row="0" Grid.Column="4" Text="LA" HorizontalAlignment="Center" FontSize="11" Margin="2,0"/>
+                        <TextBlock Grid.Row="0" Grid.Column="5" Text="RA" HorizontalAlignment="Center" FontSize="11" Margin="2,0"/>
+                        <TextBlock Grid.Row="0" Grid.Column="6" Text="LL" HorizontalAlignment="Center" FontSize="11" Margin="2,0"/>
+                        <TextBlock Grid.Row="0" Grid.Column="7" Text="RL" HorizontalAlignment="Center" FontSize="11" Margin="2,0"/>
 
-                            <!-- Arms -->
-                            <StackPanel Grid.Row="1" Grid.Column="0" Margin="5">
-                                <TextBlock Text="Left Arm" HorizontalAlignment="Center"/>
-                                <Grid ColumnDefinitions="*,*" Margin="0,5">
-                                    <StackPanel Grid.Column="0" Margin="2">
-                                        <TextBlock Text="A" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="100"
-                                                   Value="{Binding SelectedUnit.Parts[4].CurrentArmor}"
-                                                   Maximum="{Binding SelectedUnit.Parts[4].MaxArmor}"
-                                                   Foreground="LightBlue"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[4].CurrentArmor}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Margin="2">
-                                        <TextBlock Text="S" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="100"
-                                                   Value="{Binding SelectedUnit.Parts[4].CurrentStructure}"
-                                                   Maximum="{Binding SelectedUnit.Parts[4].MaxStructure}"
-                                                   Foreground="Orange"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[4].CurrentStructure}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-                            <StackPanel Grid.Row="1" Grid.Column="3" Margin="5">
-                                <TextBlock Text="Right Arm" HorizontalAlignment="Center"/>
-                                <Grid ColumnDefinitions="*,*" Margin="0,5">
-                                    <StackPanel Grid.Column="0" Margin="2">
-                                        <TextBlock Text="A" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="100"
-                                                   Value="{Binding SelectedUnit.Parts[5].CurrentArmor}"
-                                                   Maximum="{Binding SelectedUnit.Parts[5].MaxArmor}"
-                                                   Foreground="LightBlue"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[5].CurrentArmor}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Margin="2">
-                                        <TextBlock Text="S" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="100"
-                                                   Value="{Binding SelectedUnit.Parts[5].CurrentStructure}"
-                                                   Maximum="{Binding SelectedUnit.Parts[5].MaxStructure}"
-                                                   Foreground="Orange"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[5].CurrentStructure}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
+                        <!-- Head -->
+                        <ProgressBar Grid.Row="1" Grid.Column="0" 
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[0].CurrentArmor}"
+                                   Maximum="{Binding SelectedUnit.Parts[0].MaxArmor}"
+                                   Foreground="LightBlue"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   VerticalAlignment="Stretch"/>
+                        <ProgressBar Grid.Row="2" Grid.Column="0"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[0].CurrentStructure}"
+                                   Maximum="{Binding SelectedUnit.Parts[0].MaxStructure}"
+                                   Foreground="Orange"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   VerticalAlignment="Stretch"/>
 
-                            <!-- Torso -->
-                            <StackPanel Grid.Row="1" Grid.Column="1" Margin="5">
-                                <TextBlock Text="Left Torso" HorizontalAlignment="Center"/>
-                                <Grid ColumnDefinitions="*,*,*" Margin="0,5">
-                                    <StackPanel Grid.Column="0" Margin="2">
-                                        <TextBlock Text="FA" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="100"
-                                                   Value="{Binding SelectedUnit.Parts[2].CurrentArmor}"
-                                                   Maximum="{Binding SelectedUnit.Parts[2].MaxArmor}"
-                                                   Foreground="LightBlue"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[2].CurrentArmor}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Margin="2">
-                                        <TextBlock Text="S" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="100"
-                                                   Value="{Binding SelectedUnit.Parts[2].CurrentStructure}"
-                                                   Maximum="{Binding SelectedUnit.Parts[2].MaxStructure}"
-                                                   Foreground="Orange"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[2].CurrentStructure}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="2" Margin="2">
-                                        <TextBlock Text="RA" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="100"
-                                                   Value="{Binding SelectedUnit.Parts[2], Converter={StaticResource TorsoPropertyConverter}, ConverterParameter=CurrentRearArmor}"
-                                                   Maximum="{Binding SelectedUnit.Parts[2], Converter={StaticResource TorsoPropertyConverter}, ConverterParameter=MaxRearArmor}"
-                                                   Foreground="LightBlue"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[2], Converter={StaticResource TorsoPropertyConverter}, ConverterParameter=CurrentRearArmor}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-                            <StackPanel Grid.Row="1" Grid.Column="2" Margin="5">
-                                <TextBlock Text="Right Torso" HorizontalAlignment="Center"/>
-                                <Grid ColumnDefinitions="*,*,*" Margin="0,5">
-                                    <StackPanel Grid.Column="0" Margin="2">
-                                        <TextBlock Text="FA" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="100"
-                                                   Value="{Binding SelectedUnit.Parts[3].CurrentArmor}"
-                                                   Maximum="{Binding SelectedUnit.Parts[3].MaxArmor}"
-                                                   Foreground="LightBlue"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[3].CurrentArmor}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Margin="2">
-                                        <TextBlock Text="S" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="100"
-                                                   Value="{Binding SelectedUnit.Parts[3].CurrentStructure}"
-                                                   Maximum="{Binding SelectedUnit.Parts[3].MaxStructure}"
-                                                   Foreground="Orange"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[3].CurrentStructure}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="2" Margin="2">
-                                        <TextBlock Text="RA" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="100"
-                                                   Value="{Binding SelectedUnit.Parts[3], Converter={StaticResource TorsoPropertyConverter}, ConverterParameter=CurrentRearArmor}"
-                                                   Maximum="{Binding SelectedUnit.Parts[3], Converter={StaticResource TorsoPropertyConverter}, ConverterParameter=MaxRearArmor}"
-                                                   Foreground="LightBlue"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[3], Converter={StaticResource TorsoPropertyConverter}, ConverterParameter=CurrentRearArmor}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
+                        <!-- Left Torso -->
+                        <ProgressBar Grid.Row="1" Grid.Column="1"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[2].CurrentArmor}"
+                                   Maximum="{Binding SelectedUnit.Parts[2].MaxArmor}"
+                                   Foreground="LightBlue"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   VerticalAlignment="Stretch"/>
+                        <ProgressBar Grid.Row="2" Grid.Column="1"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[2].CurrentStructure}"
+                                   Maximum="{Binding SelectedUnit.Parts[2].MaxStructure}"
+                                   Foreground="Orange"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   VerticalAlignment="Stretch"/>
+                        <ProgressBar Grid.Row="3" Grid.Column="1"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[2], Converter={StaticResource TorsoPropertyConverter}, ConverterParameter=CurrentRearArmor}"
+                                   Maximum="{Binding SelectedUnit.Parts[2], Converter={StaticResource TorsoPropertyConverter}, ConverterParameter=MaxRearArmor}"
+                                   Foreground="LightBlue"
+                                   Width="25" Margin="2,1"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   MinHeight="0"
+                                   VerticalAlignment="Stretch"/>
 
-                            <!-- Center Torso -->
-                            <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="5,120,5,5">
-                                <TextBlock Text="Center Torso" HorizontalAlignment="Center"/>
-                                <Grid ColumnDefinitions="*,*,*" Margin="0,5">
-                                    <StackPanel Grid.Column="0" Margin="2">
-                                        <TextBlock Text="FA" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="100"
-                                                   Value="{Binding SelectedUnit.Parts[1].CurrentArmor}"
-                                                   Maximum="{Binding SelectedUnit.Parts[1].MaxArmor}"
-                                                   Foreground="LightBlue"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[1].CurrentArmor}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Margin="2">
-                                        <TextBlock Text="S" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="100"
-                                                   Value="{Binding SelectedUnit.Parts[1].CurrentStructure}"
-                                                   Maximum="{Binding SelectedUnit.Parts[1].MaxStructure}"
-                                                   Foreground="Orange"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[1].CurrentStructure}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="2" Margin="2">
-                                        <TextBlock Text="RA" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="100"
-                                                   Value="{Binding SelectedUnit.Parts[1], Converter={StaticResource TorsoPropertyConverter}, ConverterParameter=CurrentRearArmor}"
-                                                   Maximum="{Binding SelectedUnit.Parts[1], Converter={StaticResource TorsoPropertyConverter}, ConverterParameter=MaxRearArmor}"
-                                                   Foreground="LightBlue"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[1], Converter={StaticResource TorsoPropertyConverter}, ConverterParameter=CurrentRearArmor}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
+                        <!-- Center Torso -->
+                        <ProgressBar Grid.Row="1" Grid.Column="2"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[1].CurrentArmor}"
+                                   Maximum="{Binding SelectedUnit.Parts[1].MaxArmor}"
+                                   Foreground="LightBlue"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   VerticalAlignment="Stretch"/>
+                        <ProgressBar Grid.Row="2" Grid.Column="2"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[1].CurrentStructure}"
+                                   Maximum="{Binding SelectedUnit.Parts[1].MaxStructure}"
+                                   Foreground="Orange"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   VerticalAlignment="Stretch"/>
+                        <ProgressBar Grid.Row="3" Grid.Column="2"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[1], Converter={StaticResource TorsoPropertyConverter}, ConverterParameter=CurrentRearArmor}"
+                                   Maximum="{Binding SelectedUnit.Parts[1], Converter={StaticResource TorsoPropertyConverter}, ConverterParameter=MaxRearArmor}"
+                                   Foreground="LightBlue"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   VerticalAlignment="Stretch"/>
 
-                            <!-- Legs -->
-                            <StackPanel Grid.Row="2" Grid.Column="1" Margin="5">
-                                <TextBlock Text="Left Leg" HorizontalAlignment="Center"/>
-                                <Grid ColumnDefinitions="*,*" Margin="0,5">
-                                    <StackPanel Grid.Column="0" Margin="2">
-                                        <TextBlock Text="A" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="100"
-                                                   Value="{Binding SelectedUnit.Parts[6].CurrentArmor}"
-                                                   Maximum="{Binding SelectedUnit.Parts[6].MaxArmor}"
-                                                   Foreground="LightBlue"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[6].CurrentArmor}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Margin="2">
-                                        <TextBlock Text="S" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="100"
-                                                   Value="{Binding SelectedUnit.Parts[6].CurrentStructure}"
-                                                   Maximum="{Binding SelectedUnit.Parts[6].MaxStructure}"
-                                                   Foreground="Orange"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[6].CurrentStructure}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-                            <StackPanel Grid.Row="2" Grid.Column="2" Margin="5">
-                                <TextBlock Text="Right Leg" HorizontalAlignment="Center"/>
-                                <Grid ColumnDefinitions="*,*" Margin="0,5">
-                                    <StackPanel Grid.Column="0" Margin="2">
-                                        <TextBlock Text="A" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="100"
-                                                   Value="{Binding SelectedUnit.Parts[7].CurrentArmor}"
-                                                   Maximum="{Binding SelectedUnit.Parts[7].MaxArmor}"
-                                                   Foreground="LightBlue"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[7].CurrentArmor}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Margin="2">
-                                        <TextBlock Text="S" HorizontalAlignment="Center" FontSize="10"/>
-                                        <ProgressBar Orientation="Vertical" 
-                                                   Height="100"
-                                                   Value="{Binding SelectedUnit.Parts[7].CurrentStructure}"
-                                                   Maximum="{Binding SelectedUnit.Parts[7].MaxStructure}"
-                                                   Foreground="Orange"/>
-                                        <TextBlock Text="{Binding SelectedUnit.Parts[7].CurrentStructure}" 
-                                                 HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-                        </Grid>
-                    </ScrollViewer>
+                        <!-- Right Torso -->
+                        <ProgressBar Grid.Row="1" Grid.Column="3"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[3].CurrentArmor}"
+                                   Maximum="{Binding SelectedUnit.Parts[3].MaxArmor}"
+                                   Foreground="LightBlue"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   VerticalAlignment="Stretch"/>
+                        <ProgressBar Grid.Row="2" Grid.Column="3"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[3].CurrentStructure}"
+                                   Maximum="{Binding SelectedUnit.Parts[3].MaxStructure}"
+                                   Foreground="Orange"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   VerticalAlignment="Stretch"/>
+                        <ProgressBar Grid.Row="3" Grid.Column="3"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[3], Converter={StaticResource TorsoPropertyConverter}, ConverterParameter=CurrentRearArmor}"
+                                   Maximum="{Binding SelectedUnit.Parts[3], Converter={StaticResource TorsoPropertyConverter}, ConverterParameter=MaxRearArmor}"
+                                   Foreground="LightBlue"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   VerticalAlignment="Stretch"/>
+
+                        <!-- Left Arm -->
+                        <ProgressBar Grid.Row="1" Grid.Column="4"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[4].CurrentArmor}"
+                                   Maximum="{Binding SelectedUnit.Parts[4].MaxArmor}"
+                                   Foreground="LightBlue"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   VerticalAlignment="Stretch"/>
+                        <ProgressBar Grid.Row="2" Grid.Column="4"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[4].CurrentStructure}"
+                                   Maximum="{Binding SelectedUnit.Parts[4].MaxStructure}"
+                                   Foreground="Orange"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   VerticalAlignment="Stretch"/>
+
+                        <!-- Right Arm -->
+                        <ProgressBar Grid.Row="1" Grid.Column="5"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[5].CurrentArmor}"
+                                   Maximum="{Binding SelectedUnit.Parts[5].MaxArmor}"
+                                   Foreground="LightBlue"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   VerticalAlignment="Stretch"/>
+                        <ProgressBar Grid.Row="2" Grid.Column="5"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[5].CurrentStructure}"
+                                   Maximum="{Binding SelectedUnit.Parts[5].MaxStructure}"
+                                   Foreground="Orange"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   VerticalAlignment="Stretch"/>
+
+                        <!-- Left Leg -->
+                        <ProgressBar Grid.Row="1" Grid.Column="6"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[6].CurrentArmor}"
+                                   Maximum="{Binding SelectedUnit.Parts[6].MaxArmor}"
+                                   Foreground="LightBlue"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   VerticalAlignment="Stretch"/>
+                        <ProgressBar Grid.Row="2" Grid.Column="6"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[6].CurrentStructure}"
+                                   Maximum="{Binding SelectedUnit.Parts[6].MaxStructure}"
+                                   Foreground="Orange"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   VerticalAlignment="Stretch"/>
+
+                        <!-- Right Leg -->
+                        <ProgressBar Grid.Row="1" Grid.Column="7"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[7].CurrentArmor}"
+                                   Maximum="{Binding SelectedUnit.Parts[7].MaxArmor}"
+                                   Foreground="LightBlue"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   VerticalAlignment="Stretch"/>
+                        <ProgressBar Grid.Row="2" Grid.Column="7"
+                                   Orientation="Vertical"
+                                   Value="{Binding SelectedUnit.Parts[7].CurrentStructure}"
+                                   Maximum="{Binding SelectedUnit.Parts[7].MaxStructure}"
+                                   Foreground="Orange"
+                                   Width="25" Margin="2,1"
+                                   MinHeight="0"
+                                   ShowProgressText="True"
+                                   ProgressTextFormat="{}{0}/{3}"
+                                   VerticalAlignment="Stretch"/>
+                    </Grid>
                 </TabItem>
                 <TabItem Header="Weapons">
                     <!-- Weapons content will be added later -->
