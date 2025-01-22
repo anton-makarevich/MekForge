@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:Sanet.MekForge.Avalonia.Controls"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="300"
+             x:Class="Sanet.MekForge.Avalonia.Controls.UnitHealthIndicator">
+    <UserControl.Styles>
+        <StyleInclude Source="/Styles/MechStyles.axaml"/>
+    </UserControl.Styles>
+    <Grid ColumnDefinitions="*,*,*,*,*,*,*,*"
+          RowDefinitions="Auto,3*,2*,2*"
+          Height="280">
+        <!-- Labels -->
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="H" HorizontalAlignment="Center" FontSize="14" Margin="2,0"/>
+        <TextBlock Grid.Row="0" Grid.Column="1" Text="LT" HorizontalAlignment="Center" FontSize="14" Margin="2,0"/>
+        <TextBlock Grid.Row="0" Grid.Column="2" Text="CT" HorizontalAlignment="Center" FontSize="14" Margin="2,0"/>
+        <TextBlock Grid.Row="0" Grid.Column="3" Text="RT" HorizontalAlignment="Center" FontSize="14" Margin="2,0"/>
+        <TextBlock Grid.Row="0" Grid.Column="4" Text="LA" HorizontalAlignment="Center" FontSize="14" Margin="2,0"/>
+        <TextBlock Grid.Row="0" Grid.Column="5" Text="RA" HorizontalAlignment="Center" FontSize="14" Margin="2,0"/>
+        <TextBlock Grid.Row="0" Grid.Column="6" Text="LL" HorizontalAlignment="Center" FontSize="14" Margin="2,0"/>
+        <TextBlock Grid.Row="0" Grid.Column="7" Text="RL" HorizontalAlignment="Center" FontSize="14" Margin="2,0"/>
+
+        <!-- Head -->
+        <ProgressBar Name="HeadArmor" Grid.Row="1" Grid.Column="0" Classes="unitPartHealthBar mechArmor"/>
+        <ProgressBar Name="HeadStructure" Grid.Row="2" Grid.Column="0" Classes="unitPartHealthBar mechStructure"/>
+
+        <!-- Left Torso -->
+        <ProgressBar Name="LeftTorsoArmor" Grid.Row="1" Grid.Column="1" Classes="unitPartHealthBar mechArmor"/>
+        <ProgressBar Name="LeftTorsoStructure" Grid.Row="2" Grid.Column="1" Classes="unitPartHealthBar mechStructure"/>
+        <ProgressBar Name="LeftTorsoRearArmor" Grid.Row="3" Grid.Column="1" Classes="unitPartHealthBar mechArmor"/>
+
+        <!-- Center Torso -->
+        <ProgressBar Name="CenterTorsoArmor" Grid.Row="1" Grid.Column="2" Classes="unitPartHealthBar mechArmor"/>
+        <ProgressBar Name="CenterTorsoStructure" Grid.Row="2" Grid.Column="2" Classes="unitPartHealthBar mechStructure"/>
+        <ProgressBar Name="CenterTorsoRearArmor" Grid.Row="3" Grid.Column="2" Classes="unitPartHealthBar mechArmor"/>
+
+        <!-- Right Torso -->
+        <ProgressBar Name="RightTorsoArmor" Grid.Row="1" Grid.Column="3" Classes="unitPartHealthBar mechArmor"/>
+        <ProgressBar Name="RightTorsoStructure" Grid.Row="2" Grid.Column="3" Classes="unitPartHealthBar mechStructure"/>
+        <ProgressBar Name="RightTorsoRearArmor" Grid.Row="3" Grid.Column="3" Classes="unitPartHealthBar mechArmor"/>
+
+        <!-- Left Arm -->
+        <ProgressBar Name="LeftArmArmor" Grid.Row="1" Grid.Column="4" Classes="unitPartHealthBar mechArmor"/>
+        <ProgressBar Name="LeftArmStructure" Grid.Row="2" Grid.Column="4" Classes="unitPartHealthBar mechStructure"/>
+
+        <!-- Right Arm -->
+        <ProgressBar Name="RightArmArmor" Grid.Row="1" Grid.Column="5" Classes="unitPartHealthBar mechArmor"/>
+        <ProgressBar Name="RightArmStructure" Grid.Row="2" Grid.Column="5" Classes="unitPartHealthBar mechStructure"/>
+
+        <!-- Left Leg -->
+        <ProgressBar Name="LeftLegArmor" Grid.Row="1" Grid.Column="6" Classes="unitPartHealthBar mechArmor"/>
+        <ProgressBar Name="LeftLegStructure" Grid.Row="2" Grid.Column="6" Classes="unitPartHealthBar mechStructure"/>
+
+        <!-- Right Leg -->
+        <ProgressBar Name="RightLegArmor" Grid.Row="1" Grid.Column="7" Classes="unitPartHealthBar mechArmor"/>
+        <ProgressBar Name="RightLegStructure" Grid.Row="2" Grid.Column="7" Classes="unitPartHealthBar mechStructure"/>
+    </Grid>
+</UserControl>
