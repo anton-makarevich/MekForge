@@ -10,6 +10,7 @@
         <di:ServiceCollection x:Key="ServiceCollection"/>
         <converters:HexColorToBrushConverter x:Key="HexColorToBrushConverter"/>
         <converters:ContrastingForegroundConverter x:Key="ContrastingForegroundConverter"/>
+        <converters:TorsoPropertyConverter x:Key="TorsoPropertyConverter"/>
     </Application.Resources>
              
     <Application.Styles>
