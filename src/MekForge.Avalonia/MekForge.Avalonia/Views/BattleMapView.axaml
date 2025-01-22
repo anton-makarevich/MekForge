@@ -15,7 +15,6 @@
     <UserControl.Resources>
         <converters:HexColorToBrushConverter x:Key="HexColorToBrushConverter"/>
         <converters:ContrastingForegroundConverter x:Key="ContrastingForegroundConverter"/>
-        <converters:TorsoPropertyConverter x:Key="TorsoPropertyConverter"/>
     </UserControl.Resources>
     <Grid>
         <Canvas x:Name="MapCanvas" 
