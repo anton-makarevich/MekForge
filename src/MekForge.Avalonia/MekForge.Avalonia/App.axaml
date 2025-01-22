@@ -3,11 +3,13 @@
              x:Class="Sanet.MekForge.Avalonia.App"
              xmlns:local="using:Sanet.MekForge.Avalonia"
              xmlns:di="using:Microsoft.Extensions.DependencyInjection"
-             RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+             xmlns:converters="clr-namespace:Sanet.MekForge.Avalonia.Converters"
+             RequestedThemeVariant="Light">
 
     <Application.Resources>
         <di:ServiceCollection x:Key="ServiceCollection"/>
+        <converters:HexColorToBrushConverter x:Key="HexColorToBrushConverter"/>
+        <converters:ContrastingForegroundConverter x:Key="ContrastingForegroundConverter"/>
     </Application.Resources>
              
     <Application.Styles>

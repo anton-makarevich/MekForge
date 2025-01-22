@@ -201,6 +201,7 @@ public class BattleMapViewModel : BaseViewModel
             CurrentState.HandleUnitSelection(value);
             NotifyPropertyChanged(nameof(AreUnitsToDeployVisible));
             NotifyPropertyChanged(nameof(IsRecordSheetButtonVisible));
+            NotifyPropertyChanged(nameof(IsRecordSheetPanelVisible));
         }
     }
 
@@ -242,10 +243,12 @@ public class BattleMapViewModel : BaseViewModel
         {
             SetProperty(ref _isRecordSheetExpanded, value); 
             NotifyPropertyChanged(nameof(IsRecordSheetButtonVisible));
+            NotifyPropertyChanged(nameof(IsRecordSheetPanelVisible));
         }
     }
 
     public bool IsRecordSheetButtonVisible => SelectedUnit != null && !IsRecordSheetExpanded;
+    public bool IsRecordSheetPanelVisible => SelectedUnit != null && IsRecordSheetExpanded;
 
     public void ToggleCommandLog()
     {

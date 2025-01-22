@@ -7,10 +7,15 @@
              xmlns:behaviors="using:Sanet.MekForge.Avalonia.Behaviors"
              xmlns:controls="clr-namespace:Sanet.MekForge.Avalonia.Controls"
              xmlns:templatedControls="clr-namespace:Sanet.MekForge.Avalonia.Views.TemplatedControls"
+             xmlns:converters="clr-namespace:Sanet.MekForge.Avalonia.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Sanet.MekForge.Avalonia.Views.BattleMapView"
              x:CompileBindings="True"
              x:DataType="viewModels:BattleMapViewModel">
+    <UserControl.Resources>
+        <converters:HexColorToBrushConverter x:Key="HexColorToBrushConverter"/>
+        <converters:ContrastingForegroundConverter x:Key="ContrastingForegroundConverter"/>
+    </UserControl.Resources>
     <Grid>
         <Canvas x:Name="MapCanvas" 
                 Background="Transparent">
@@ -82,10 +87,83 @@
 
         <!-- Record Sheet Panel -->
         <templatedControls:GamePanel
-            IsVisible="{Binding IsRecordSheetExpanded}"
-            Title="Record Sheet"
+            IsVisible="{Binding IsRecordSheetPanelVisible}"
+            Title="{Binding SelectedUnit.Name}"
             CloseCommand="{Binding ToggleRecordSheet}">
-            <Grid />
+            <TabControl>
+                <TabItem Header="Info">
+                    <StackPanel Margin="10">
+                        <!-- Basic Info -->
+                        <StackPanel Orientation="Horizontal" Spacing="5" Margin="0,0,0,10">
+                            <TextBlock Text="{Binding SelectedUnit.Class}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding SelectedUnit.Tonnage}" VerticalAlignment="Center"/>
+                            <TextBlock Text="T" VerticalAlignment="Center"/>
+                            <Border Background="{Binding ActivePlayerTint, Converter={StaticResource HexColorToBrushConverter}}"
+                                    VerticalAlignment="Center"
+                                    CornerRadius="4"
+                                    BorderBrush="{Binding ActivePlayerTint, Converter={StaticResource ContrastingForegroundConverter}}"
+                                    BorderThickness="1"
+                                    Padding="5,2">
+                                <TextBlock Text="{Binding SelectedUnit.Status}"
+                                         Foreground="{Binding ActivePlayerTint, Converter={StaticResource ContrastingForegroundConverter}}"/>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Heat Level -->
+                        <TextBlock Text="Heat Level" Margin="0,0,0,5"/>
+                        <Grid Height="20" Margin="0,0,0,10">
+                            <ProgressBar Value="{Binding SelectedUnit.CurrentHeat}" 
+                                       Maximum="30"
+                                       Height="20">
+                                <ProgressBar.Foreground>
+                                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
+                                        <GradientStop Offset="0" Color="#ADD8E6"/>
+                                        <GradientStop Offset="0.5" Color="#FFA500"/>
+                                        <GradientStop Offset="1" Color="#8B0000"/>
+                                    </LinearGradientBrush>
+                                </ProgressBar.Foreground>
+                            </ProgressBar>
+                            <TextBlock Text="{Binding SelectedUnit.CurrentHeat}"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <!-- Movement Info -->
+                        <Border Background="#20000000" 
+                                CornerRadius="4" 
+                                Padding="10" 
+                                IsVisible="{Binding SelectedUnit.HasMoved}">
+                            <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
+                                <TextBlock Grid.Row="0" Grid.Column="0" 
+                                         Text="Type" 
+                                         HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" 
+                                         Text="Points" 
+                                         HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Row="0" Grid.Column="2" 
+                                         Text="Distance" 
+                                         HorizontalAlignment="Center"/>
+                                
+                                <TextBlock Grid.Row="1" Grid.Column="0" 
+                                         Text="{Binding SelectedUnit.MovementTypeUsed}"
+                                         HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" 
+                                         Text="{Binding SelectedUnit.MovementPointsSpent}"
+                                         HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Row="1" Grid.Column="2" 
+                                         Text="{Binding SelectedUnit.DistanceCovered}"
+                                         HorizontalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Armor">
+                    <!-- Armor content will be added later -->
+                </TabItem>
+                <TabItem Header="Weapons">
+                    <!-- Weapons content will be added later -->
+                </TabItem>
+            </TabControl>
         </templatedControls:GamePanel>
 
         <!-- Command Log Panel -->
