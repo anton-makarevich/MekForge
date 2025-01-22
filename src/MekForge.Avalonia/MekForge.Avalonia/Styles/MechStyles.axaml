@@ -1,0 +1,35 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style Selector="ProgressBar.mechFrontArmor">
+        <Setter Property="Orientation" Value="Vertical"/>
+        <Setter Property="Foreground" Value="LightBlue"/>
+        <Setter Property="Width" Value="25"/>
+        <Setter Property="Margin" Value="2,1"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="ShowProgressText" Value="True"/>
+        <Setter Property="ProgressTextFormat" Value="{}{0}/{3}"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+    </Style>
+
+    <Style Selector="ProgressBar.mechStructure">
+        <Setter Property="Orientation" Value="Vertical"/>
+        <Setter Property="Foreground" Value="Orange"/>
+        <Setter Property="Width" Value="25"/>
+        <Setter Property="Margin" Value="2,1"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="ShowProgressText" Value="True"/>
+        <Setter Property="ProgressTextFormat" Value="{}{0}/{3}"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+    </Style>
+
+    <Style Selector="ProgressBar.mechRearArmor">
+        <Setter Property="Orientation" Value="Vertical"/>
+        <Setter Property="Foreground" Value="LightBlue"/>
+        <Setter Property="Width" Value="25"/>
+        <Setter Property="Margin" Value="2,1"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="ShowProgressText" Value="True"/>
+        <Setter Property="ProgressTextFormat" Value="{}{0}/{3}"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+    </Style>
+</Styles>

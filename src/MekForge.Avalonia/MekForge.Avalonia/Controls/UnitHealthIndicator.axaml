@@ -5,6 +5,9 @@
              xmlns:controls="clr-namespace:Sanet.MekForge.Avalonia.Controls"
              mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="300"
              x:Class="Sanet.MekForge.Avalonia.Controls.UnitHealthIndicator">
+    <UserControl.Styles>
+        <StyleInclude Source="/Styles/MechStyles.axaml"/>
+    </UserControl.Styles>
     <Grid ColumnDefinitions="*,*,*,*,*,*,*,*"
           RowDefinitions="Auto,3*,2*,2*"
           Height="300">
@@ -19,171 +22,38 @@
         <TextBlock Grid.Row="0" Grid.Column="7" Text="RL" HorizontalAlignment="Center" FontSize="11" Margin="2,0"/>
 
         <!-- Head -->
-        <ProgressBar Name="HeadArmor" Grid.Row="1" Grid.Column="0" 
-                    Orientation="Vertical"
-                    Foreground="LightBlue"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
-        <ProgressBar Name="HeadStructure" Grid.Row="2" Grid.Column="0"
-                    Orientation="Vertical"
-                    Foreground="Orange"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
+        <ProgressBar Name="HeadArmor" Grid.Row="1" Grid.Column="0" Classes="mechFrontArmor"/>
+        <ProgressBar Name="HeadStructure" Grid.Row="2" Grid.Column="0" Classes="mechStructure"/>
 
         <!-- Left Torso -->
-        <ProgressBar Name="LeftTorsoArmor" Grid.Row="1" Grid.Column="1"
-                    Orientation="Vertical"
-                    Foreground="LightBlue"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
-        <ProgressBar Name="LeftTorsoStructure" Grid.Row="2" Grid.Column="1"
-                    Orientation="Vertical"
-                    Foreground="Orange"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
-        <ProgressBar Name="LeftTorsoRearArmor" Grid.Row="3" Grid.Column="1"
-                    Orientation="Vertical"
-                    Foreground="LightBlue"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
+        <ProgressBar Name="LeftTorsoArmor" Grid.Row="1" Grid.Column="1" Classes="mechFrontArmor"/>
+        <ProgressBar Name="LeftTorsoStructure" Grid.Row="2" Grid.Column="1" Classes="mechStructure"/>
+        <ProgressBar Name="LeftTorsoRearArmor" Grid.Row="3" Grid.Column="1" Classes="mechRearArmor"/>
 
         <!-- Center Torso -->
-        <ProgressBar Name="CenterTorsoArmor" Grid.Row="1" Grid.Column="2"
-                    Orientation="Vertical"
-                    Foreground="LightBlue"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
-        <ProgressBar Name="CenterTorsoStructure" Grid.Row="2" Grid.Column="2"
-                    Orientation="Vertical"
-                    Foreground="Orange"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
-        <ProgressBar Name="CenterTorsoRearArmor" Grid.Row="3" Grid.Column="2"
-                    Orientation="Vertical"
-                    Foreground="LightBlue"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
+        <ProgressBar Name="CenterTorsoArmor" Grid.Row="1" Grid.Column="2" Classes="mechFrontArmor"/>
+        <ProgressBar Name="CenterTorsoStructure" Grid.Row="2" Grid.Column="2" Classes="mechStructure"/>
+        <ProgressBar Name="CenterTorsoRearArmor" Grid.Row="3" Grid.Column="2" Classes="mechRearArmor"/>
 
         <!-- Right Torso -->
-        <ProgressBar Name="RightTorsoArmor" Grid.Row="1" Grid.Column="3"
-                    Orientation="Vertical"
-                    Foreground="LightBlue"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
-        <ProgressBar Name="RightTorsoStructure" Grid.Row="2" Grid.Column="3"
-                    Orientation="Vertical"
-                    Foreground="Orange"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
-        <ProgressBar Name="RightTorsoRearArmor" Grid.Row="3" Grid.Column="3"
-                    Orientation="Vertical"
-                    Foreground="LightBlue"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
+        <ProgressBar Name="RightTorsoArmor" Grid.Row="1" Grid.Column="3" Classes="mechFrontArmor"/>
+        <ProgressBar Name="RightTorsoStructure" Grid.Row="2" Grid.Column="3" Classes="mechStructure"/>
+        <ProgressBar Name="RightTorsoRearArmor" Grid.Row="3" Grid.Column="3" Classes="mechRearArmor"/>
 
         <!-- Left Arm -->
-        <ProgressBar Name="LeftArmArmor" Grid.Row="1" Grid.Column="4"
-                    Orientation="Vertical"
-                    Foreground="LightBlue"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
-        <ProgressBar Name="LeftArmStructure" Grid.Row="2" Grid.Column="4"
-                    Orientation="Vertical"
-                    Foreground="Orange"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
+        <ProgressBar Name="LeftArmArmor" Grid.Row="1" Grid.Column="4" Classes="mechFrontArmor"/>
+        <ProgressBar Name="LeftArmStructure" Grid.Row="2" Grid.Column="4" Classes="mechStructure"/>
 
         <!-- Right Arm -->
-        <ProgressBar Name="RightArmArmor" Grid.Row="1" Grid.Column="5"
-                    Orientation="Vertical"
-                    Foreground="LightBlue"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
-        <ProgressBar Name="RightArmStructure" Grid.Row="2" Grid.Column="5"
-                    Orientation="Vertical"
-                    Foreground="Orange"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
+        <ProgressBar Name="RightArmArmor" Grid.Row="1" Grid.Column="5" Classes="mechFrontArmor"/>
+        <ProgressBar Name="RightArmStructure" Grid.Row="2" Grid.Column="5" Classes="mechStructure"/>
 
         <!-- Left Leg -->
-        <ProgressBar Name="LeftLegArmor" Grid.Row="1" Grid.Column="6"
-                    Orientation="Vertical"
-                    Foreground="LightBlue"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
-        <ProgressBar Name="LeftLegStructure" Grid.Row="2" Grid.Column="6"
-                    Orientation="Vertical"
-                    Foreground="Orange"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
+        <ProgressBar Name="LeftLegArmor" Grid.Row="1" Grid.Column="6" Classes="mechFrontArmor"/>
+        <ProgressBar Name="LeftLegStructure" Grid.Row="2" Grid.Column="6" Classes="mechStructure"/>
 
         <!-- Right Leg -->
-        <ProgressBar Name="RightLegArmor" Grid.Row="1" Grid.Column="7"
-                    Orientation="Vertical"
-                    Foreground="LightBlue"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
-        <ProgressBar Name="RightLegStructure" Grid.Row="2" Grid.Column="7"
-                    Orientation="Vertical"
-                    Foreground="Orange"
-                    Width="25" Margin="2,1"
-                    MinHeight="0"
-                    ShowProgressText="True"
-                    ProgressTextFormat="{}{0}/{3}"
-                    VerticalAlignment="Stretch"/>
+        <ProgressBar Name="RightLegArmor" Grid.Row="1" Grid.Column="7" Classes="mechFrontArmor"/>
+        <ProgressBar Name="RightLegStructure" Grid.Row="2" Grid.Column="7" Classes="mechStructure"/>
     </Grid>
 </UserControl>

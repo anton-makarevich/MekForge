@@ -15,6 +15,7 @@
              
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="Styles/MechStyles.axaml"/>
         <StyleInclude Source="Views/TemplatedControls/GamePanel.axaml"/>
         <StyleInclude Source="Views/TemplatedControls/ActionButton.axaml"/>
     </Application.Styles>
