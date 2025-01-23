@@ -11,6 +11,10 @@ public class MtfDataProvider:IMechDataProvider
 
     public Data.UnitData LoadMechFromTextData(IEnumerable<string> lines)
     {
+        _mechData.Clear();
+        _locationEquipment.Clear();
+        _armorValues.Clear();
+
         var listLines = lines.ToList();
         ParseBasicData(listLines);
         ParseLocationData(listLines);
@@ -23,10 +27,22 @@ public class MtfDataProvider:IMechDataProvider
             WalkMp = int.Parse(Regex.Match(_mechData["Walk MP"], @"\d+").Value),
             EngineRating = int.Parse(_mechData["EngineRating"]),
             EngineType = _mechData["EngineType"],
-            ArmorValues = _armorValues,
-            LocationEquipment = _locationEquipment,
-            Quirks = _mechData.Where(pair => pair.Key.StartsWith("quirk")).ToDictionary(),
-            AdditionalAttributes = _mechData.Where(pair => pair.Key.StartsWith("system")).ToDictionary()
+            ArmorValues = _armorValues.ToDictionary(
+                kvp => kvp.Key,
+                kvp => new ArmorLocation { FrontArmor = kvp.Value.FrontArmor, RearArmor = kvp.Value.RearArmor }
+            ),
+            LocationEquipment = _locationEquipment.ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value.ToList()
+            ),
+            Quirks = _mechData.Where(pair => pair.Key.StartsWith("quirk")).ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value
+            ),
+            AdditionalAttributes = _mechData.Where(pair => pair.Key.StartsWith("system")).ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value
+            )
         };
     }
 
