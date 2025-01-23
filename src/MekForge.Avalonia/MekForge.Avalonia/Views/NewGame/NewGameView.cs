@@ -27,7 +27,7 @@ public abstract class NewGameView : BaseView<NewGameViewModel>
             if (stream == null) continue;
             using var reader = new StreamReader(stream);
             var mtfData = await reader.ReadToEndAsync();
-            var mechData = mtfDataProvider.LoadMechFromTextData(mtfData.Split('\n'));
+            var mechData = mtfDataProvider.LoadMechFromTextData(mtfData.Split("\r\n"));
                 
             units.Add(mechData);
         }

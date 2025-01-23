@@ -138,7 +138,7 @@ public partial class MtfDataProvider:IMechDataProvider
             }
 
             // Add equipment to current location
-            if (!currentLocation.HasValue || line.Contains("-Empty-")) continue;
+            if (currentLocation.HasValue && !line.Contains("-Empty-"))
             {
                 locationEquipment[currentLocation.Value].Add(MapMtfStringToComponent(line));
             }
