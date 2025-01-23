@@ -3,7 +3,7 @@ using Sanet.MekForge.Core.Models.Units;
 
 namespace Sanet.MekForge.Core.Data.Community;
 
-public class MtfDataProvider:IMechDataProvider
+public partial class MtfDataProvider:IMechDataProvider
 {
     public UnitData LoadMechFromTextData(IEnumerable<string> lines)
     {
