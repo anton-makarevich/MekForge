@@ -5,33 +5,30 @@ namespace Sanet.MekForge.Core.Data.Community;
 
 public class MtfDataProvider:IMechDataProvider
 {
-    private readonly Dictionary<string, string> _mechData = new();
-    private readonly Dictionary<PartLocation, List<MekForgeComponent>> _locationEquipment = new();
-    private readonly Dictionary<PartLocation, ArmorLocation> _armorValues = new();
-
-    public Data.UnitData LoadMechFromTextData(IEnumerable<string> lines)
+    public UnitData LoadMechFromTextData(IEnumerable<string> lines)
     {
         var listLines = lines.ToList();
-        ParseBasicData(listLines);
-        ParseLocationData(listLines);
+        var mechData = ParseBasicData(listLines);
+        var (locationEquipment, armorValues) = ParseLocationData(listLines);
         
-        return new Data.UnitData
+        return new UnitData
         {
-            Chassis = _mechData["chassis"],
-            Model = _mechData["model"],
-            Mass = int.Parse(_mechData["Mass"]),
-            WalkMp = int.Parse(Regex.Match(_mechData["Walk MP"], @"\d+").Value),
-            EngineRating = int.Parse(_mechData["EngineRating"]),
-            EngineType = _mechData["EngineType"],
-            ArmorValues = _armorValues,
-            LocationEquipment = _locationEquipment,
-            Quirks = _mechData.Where(pair => pair.Key.StartsWith("quirk")).ToDictionary(),
-            AdditionalAttributes = _mechData.Where(pair => pair.Key.StartsWith("system")).ToDictionary()
+            Chassis = mechData["chassis"],
+            Model = mechData["model"],
+            Mass = int.Parse(mechData["Mass"]),
+            WalkMp = int.Parse(Regex.Match(mechData["Walk MP"], @"\d+").Value),
+            EngineRating = int.Parse(mechData["EngineRating"]),
+            EngineType = mechData["EngineType"],
+            ArmorValues = armorValues,
+            LocationEquipment = locationEquipment,
+            Quirks = mechData.Where(pair => pair.Key.StartsWith("quirk")).ToDictionary(),
+            AdditionalAttributes = mechData.Where(pair => pair.Key.StartsWith("system")).ToDictionary()
         };
     }
 
-    private void ParseBasicData(IEnumerable<string> lines)
+    private Dictionary<string, string> ParseBasicData(IEnumerable<string> lines)
     {
+        var mechData = new Dictionary<string, string>();
         var quirksCount = 0;
         var systemsCount = 0;
         foreach (var line in lines)
@@ -49,8 +46,8 @@ public class MtfDataProvider:IMechDataProvider
                 var engineData = value.Split(' ');
                 if (engineData.Length >= 2)
                 {
-                    _mechData["EngineRating"] = engineData[0];
-                    _mechData["EngineType"] = engineData[1];
+                    mechData["EngineRating"] = engineData[0];
+                    mechData["EngineType"] = engineData[1];
                 }
             }
             else
@@ -63,13 +60,16 @@ public class MtfDataProvider:IMechDataProvider
                 {
                     key = $"{key}{++systemsCount}";
                 }
-                _mechData[key] = value;
+                mechData[key] = value;
             }
         }
+        return mechData;
     }
 
-    private void ParseLocationData(IEnumerable<string> lines)
+    private (Dictionary<PartLocation, List<MekForgeComponent>> equipment, Dictionary<PartLocation, ArmorLocation> armor) ParseLocationData(IEnumerable<string> lines)
     {
+        var locationEquipment = new Dictionary<PartLocation, List<MekForgeComponent>>();
+        var armorValues = new Dictionary<PartLocation, ArmorLocation>();
         PartLocation? currentLocation = null;
         var parsingArmor = false;
 
@@ -79,7 +79,7 @@ public class MtfDataProvider:IMechDataProvider
             {
                 if (currentLocation == PartLocation.RightLeg)
                 {
-                    return;
+                    return (locationEquipment, armorValues);
                 }
                 continue;
             }
@@ -105,20 +105,20 @@ public class MtfDataProvider:IMechDataProvider
                 if (match.Success && TryParseLocation(match.Groups[1].Value, out var location))
                 {
                     var value = int.Parse(match.Groups[2].Value);
-                    if (!_armorValues.ContainsKey(location))
-                        _armorValues[location] = new ArmorLocation();
+                    if (!armorValues.ContainsKey(location))
+                        armorValues[location] = new ArmorLocation();
 
                     // Handle rear armor values
                     if (IsRearArmor(match.Groups[1].Value))
                     {
                         var mainLocation = GetMainLocationForRear(match.Groups[1].Value);
-                        if (!_armorValues.ContainsKey(mainLocation))
-                            _armorValues[mainLocation] = new ArmorLocation();
-                        _armorValues[mainLocation].RearArmor = value;
+                        if (!armorValues.ContainsKey(mainLocation))
+                            armorValues[mainLocation] = new ArmorLocation();
+                        armorValues[mainLocation].RearArmor = value;
                     }
                     else
                     {
-                        _armorValues[location].FrontArmor = value;
+                        armorValues[location].FrontArmor = value;
                     }
                 }
                 continue;
@@ -131,8 +131,8 @@ public class MtfDataProvider:IMechDataProvider
                 if (TryParseLocation(locationText, out var location))
                 {
                     currentLocation = location;
-                    if (!_locationEquipment.ContainsKey(location))
-                        _locationEquipment[location] = new List<MekForgeComponent>();
+                    if (!locationEquipment.ContainsKey(location))
+                        locationEquipment[location] = new List<MekForgeComponent>();
                 }
                 continue;
             }
@@ -140,9 +140,10 @@ public class MtfDataProvider:IMechDataProvider
             // Add equipment to current location
             if (!currentLocation.HasValue || line.Contains("-Empty-")) continue;
             {
-                _locationEquipment[currentLocation.Value].Add(MapMtfStringToComponent(line));
+                locationEquipment[currentLocation.Value].Add(MapMtfStringToComponent(line));
             }
         }
+        return (locationEquipment, armorValues);
     }
 
     private MekForgeComponent MapMtfStringToComponent(string mtfString)

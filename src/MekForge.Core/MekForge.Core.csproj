@@ -9,7 +9,7 @@
                    
         <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <Version>0.22.1-alpha</Version>
+        <Version>0.22.2-alpha</Version>
         <Authors>Anton Makarevich</Authors>
         <Company>Anton Makarevich</Company>
         <Description>Classic BattleTech game implementation</Description>
