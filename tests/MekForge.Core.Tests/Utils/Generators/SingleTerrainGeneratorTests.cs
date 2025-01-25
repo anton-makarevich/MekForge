@@ -39,8 +39,7 @@ public class SingleTerrainGeneratorTests
         var coordinates = new HexCoordinates(q, r);
 
         // Act & Assert
-        var action = () => generator.Generate(coordinates);
-        var ex = Should.Throw<HexOutsideOfMapBoundariesException>(() => action);
+        var ex = Should.Throw<HexOutsideOfMapBoundariesException>(() => generator.Generate(coordinates));
         ex.Coordinates.ShouldBe(coordinates);
         ex.MapWidth.ShouldBe(width);
         ex.MapHeight.ShouldBe(height);

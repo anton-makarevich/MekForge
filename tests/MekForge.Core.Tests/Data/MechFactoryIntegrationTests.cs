@@ -24,16 +24,13 @@ public class MechFactoryIntegrationTests
         foreach (var mtfFile in mtfFiles)
         {
             Mech? createdMech = null;
-            // Act
-            var act = () =>
+            // Act & Assert
+            Should.NotThrow(() =>
             {
                 var mtfData = File.ReadAllLines(mtfFile);
                 var mechData = parser.LoadMechFromTextData(mtfData);
                 createdMech = mechFactory.Create(mechData);
-            };
-
-            // Assert
-            Should.NotThrow(()=>act);
+            });
             createdMech.ShouldNotBeNull();
         }
     }

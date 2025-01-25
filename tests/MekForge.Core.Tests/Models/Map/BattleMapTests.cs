@@ -48,8 +48,7 @@ public class BattleMapTests
         var hex = new Hex(new HexCoordinates(q, r));
 
         // Act & Assert
-        var action = () => map.AddHex(hex);
-        var ex =Should.Throw<HexOutsideOfMapBoundariesException>(()=>action);
+        var ex =Should.Throw<HexOutsideOfMapBoundariesException>(()=>map.AddHex(hex));
         ex.Coordinates.ShouldBe(hex.Coordinates);
         ex.MapWidth.ShouldBe(2); 
         ex.MapHeight.ShouldBe(2);
