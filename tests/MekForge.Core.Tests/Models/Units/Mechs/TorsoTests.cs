@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 
@@ -29,27 +29,27 @@ public class TorsoTests
         var excessDamage = torso.ApplyDamage(damage, direction);
 
         // Assert
-        excessDamage.Should().Be(expectedExcess);
+        excessDamage.ShouldBe(expectedExcess);
 
         if (direction == HitDirection.Front)
         {
             if (damage <= maxArmor)
             {
-                torso.CurrentArmor.Should().Be(maxArmor - damage);
-                torso.CurrentRearArmor.Should().Be(maxRearArmor);
-                torso.CurrentStructure.Should().Be(maxStructure);
+                torso.CurrentArmor.ShouldBe(maxArmor - damage);
+                torso.CurrentRearArmor.ShouldBe(maxRearArmor);
+                torso.CurrentStructure.ShouldBe(maxStructure);
             }
             else
             {
-                torso.CurrentArmor.Should().Be(0);
+                torso.CurrentArmor.ShouldBe(0);
                 var remainingDamage = damage - maxArmor;
                 if (remainingDamage < maxStructure)
                 {
-                    torso.CurrentStructure.Should().Be(maxStructure - remainingDamage);
+                    torso.CurrentStructure.ShouldBe(maxStructure - remainingDamage);
                 }
                 else
                 {
-                    torso.CurrentStructure.Should().Be(0);
+                    torso.CurrentStructure.ShouldBe(0);
                 }
             }
         }
@@ -57,21 +57,21 @@ public class TorsoTests
         {
             if (damage <= maxRearArmor)
             {
-                torso.CurrentRearArmor.Should().Be(maxRearArmor - damage);
-                torso.CurrentArmor.Should().Be(maxArmor);
-                torso.CurrentStructure.Should().Be(maxStructure);
+                torso.CurrentRearArmor.ShouldBe(maxRearArmor - damage);
+                torso.CurrentArmor.ShouldBe(maxArmor);
+                torso.CurrentStructure.ShouldBe(maxStructure);
             }
             else
             {
-                torso.CurrentRearArmor.Should().Be(0);
+                torso.CurrentRearArmor.ShouldBe(0);
                 var remainingDamage = damage - maxRearArmor;
                 if (remainingDamage < maxStructure)
                 {
-                    torso.CurrentStructure.Should().Be(maxStructure - remainingDamage);
+                    torso.CurrentStructure.ShouldBe(maxStructure - remainingDamage);
                 }
                 else
                 {
-                    torso.CurrentStructure.Should().Be(0);
+                    torso.CurrentStructure.ShouldBe(0);
                 }
             }
         }
@@ -90,17 +90,17 @@ public class TorsoTests
         var excessDamage = torso.ApplyDamage(damage, HitDirection.Rear);
 
         // Assert
-        excessDamage.Should().Be(expectedExcess);
+        excessDamage.ShouldBe(expectedExcess);
 
         if (damage <= maxRearArmor)
         {
-            torso.CurrentRearArmor.Should().Be(maxRearArmor - damage);
-            torso.CurrentStructure.Should().Be(maxStructure);
+            torso.CurrentRearArmor.ShouldBe(maxRearArmor - damage);
+            torso.CurrentStructure.ShouldBe(maxStructure);
         }
         else if (damage < maxArmor + maxStructure)
         {
-            torso.CurrentRearArmor.Should().Be(0);
-            torso.CurrentStructure.Should().Be(maxStructure - (damage - maxRearArmor));
+            torso.CurrentRearArmor.ShouldBe(0);
+            torso.CurrentStructure.ShouldBe(maxStructure - (damage - maxRearArmor));
         }
     }
 }

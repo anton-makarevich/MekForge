@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Missile;
 
@@ -13,14 +13,14 @@ public class Lrm10Tests
         var lrm10 = new LRM10();
 
         // Assert
-        lrm10.Name.Should().Be("LRM-10");
-        lrm10.Size.Should().Be(1);
-        lrm10.Heat.Should().Be(4);
-        lrm10.Damage.Should().Be(10); // Total damage for all missiles
-        lrm10.BattleValue.Should().Be(90);
-        lrm10.AmmoType.Should().Be(AmmoType.LRM10);
-        lrm10.Clusters.Should().Be(2);
-        lrm10.IsDestroyed.Should().BeFalse();
+        lrm10.Name.ShouldBe("LRM-10");
+        lrm10.Size.ShouldBe(1);
+        lrm10.Heat.ShouldBe(4);
+        lrm10.Damage.ShouldBe(10); // Total damage for all missiles
+        lrm10.BattleValue.ShouldBe(90);
+        lrm10.AmmoType.ShouldBe(AmmoType.LRM10);
+        lrm10.Clusters.ShouldBe(2);
+        lrm10.IsDestroyed.ShouldBeFalse();
     }
 
     [Fact]
@@ -33,6 +33,6 @@ public class Lrm10Tests
         lrm10.Hit();
 
         // Assert
-        lrm10.IsDestroyed.Should().BeTrue();
+        lrm10.IsDestroyed.ShouldBeTrue();
     }
 }

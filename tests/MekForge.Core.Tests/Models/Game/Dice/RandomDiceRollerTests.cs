@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Game.Dice;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Dice;
@@ -15,7 +15,8 @@ public class RandomDiceRollerTests
         var result = roller.RollD6();
 
         // Assert
-        result.Result.Should().BeGreaterThan(0).And.BeLessThan(7);
+        result.Result.ShouldBeGreaterThan(0);
+        result.Result.ShouldBeLessThan(7);
     }
 
     [Fact]
@@ -28,7 +29,7 @@ public class RandomDiceRollerTests
         var results = roller.Roll2D6();
 
         // Assert
-        results.Should().HaveCount(2);
-        results.All(r => r.Result is > 0 and < 7).Should().BeTrue();
+        results.Count.ShouldBe(2);
+        results.All(r => r.Result is > 0 and < 7).ShouldBeTrue();
     }
 }

@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
@@ -42,25 +42,25 @@ public class TurnOrderTests
 
         // Assert - Following the example from requirements
         var steps = _sut.Steps;
-        steps.Should().HaveCount(6);
+        steps.Count.ShouldBe(6);
         
         // 1. Player 3 moves one unit (2 remains)
-        steps[0].Should().Be(new TurnStep(_player3, 1));
+        steps[0].ShouldBe(new TurnStep(_player3, 1));
         
         // 2. Player 1 moves one unit (1 remains)
-        steps[1].Should().Be(new TurnStep(_player1, 1));
+        steps[1].ShouldBe(new TurnStep(_player1, 1));
         
         // 3. Player 2 moves one unit (2 remains)
-        steps[2].Should().Be(new TurnStep(_player2, 1));
+        steps[2].ShouldBe(new TurnStep(_player2, 1));
         
         // 4. Player 3 moves 2 units (has twice as many as Player 1)
-        steps[3].Should().Be(new TurnStep(_player3, 2));
+        steps[3].ShouldBe(new TurnStep(_player3, 2));
         
         // 5. Player 1 moves last unit
-        steps[4].Should().Be(new TurnStep(_player1, 1));
+        steps[4].ShouldBe(new TurnStep(_player1, 1));
         
         // 6. Player 2 moves 2 units
-        steps[5].Should().Be(new TurnStep(_player2, 2));
+        steps[5].ShouldBe(new TurnStep(_player2, 2));
     }
 
     [Fact]
@@ -76,13 +76,13 @@ public class TurnOrderTests
 
         // Assert
         var steps = _sut.Steps;
-        steps.Should().HaveCount(4);
+        steps.Count.ShouldBe(4);
         
         // Loser moves first, one unit at a time
-        steps[0].Should().Be(new TurnStep(_player1, 1));
-        steps[1].Should().Be(new TurnStep(_player2, 1));
-        steps[2].Should().Be(new TurnStep(_player1, 1));
-        steps[3].Should().Be(new TurnStep(_player2, 1));
+        steps[0].ShouldBe(new TurnStep(_player1, 1));
+        steps[1].ShouldBe(new TurnStep(_player2, 1));
+        steps[2].ShouldBe(new TurnStep(_player1, 1));
+        steps[3].ShouldBe(new TurnStep(_player2, 1));
     }
 
     [Fact]
@@ -93,16 +93,16 @@ public class TurnOrderTests
         _sut.CalculateOrder(initiativeOrder);
 
         // Act & Assert
-        _sut.CurrentStep.Should().BeNull();
+        _sut.CurrentStep.ShouldBeNull();
         
         var step1 = _sut.GetNextStep();
-        step1.Should().NotBeNull();
-        _sut.CurrentStep.Should().Be(step1);
-        _sut.HasNextStep.Should().BeFalse();
+        step1.ShouldNotBeNull();
+        _sut.CurrentStep.ShouldBe(step1);
+        _sut.HasNextStep.ShouldBeFalse();
 
         var step2 = _sut.GetNextStep();
-        step2.Should().BeNull();
-        _sut.CurrentStep.Should().BeNull();
+        step2.ShouldBeNull();
+        _sut.CurrentStep.ShouldBeNull();
     }
 
     [Fact]
@@ -117,8 +117,8 @@ public class TurnOrderTests
         _sut.Reset();
 
         // Assert
-        _sut.CurrentStep.Should().BeNull();
+        _sut.CurrentStep.ShouldBeNull();
         var nextStep = _sut.GetNextStep();
-        nextStep.Should().Be(_sut.Steps[0]);
+        nextStep.ShouldBe(_sut.Steps[0]);
     }
 }

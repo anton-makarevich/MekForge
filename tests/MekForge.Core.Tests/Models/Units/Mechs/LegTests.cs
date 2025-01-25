@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 
@@ -12,12 +12,12 @@ public class LegTests
         var leftLeg = new Leg(PartLocation.LeftLeg, 8, 4);
         var rightLeg = new Leg(PartLocation.RightLeg, 8, 4);
 
-        leftLeg.Location.Should().Be(PartLocation.LeftLeg);
-        leftLeg.MaxArmor.Should().Be(8);
-        leftLeg.MaxStructure.Should().Be(4);
+        leftLeg.Location.ShouldBe(PartLocation.LeftLeg);
+        leftLeg.MaxArmor.ShouldBe(8);
+        leftLeg.MaxStructure.ShouldBe(4);
 
-        rightLeg.Location.Should().Be(PartLocation.RightLeg);
-        rightLeg.MaxArmor.Should().Be(8);
-        rightLeg.MaxStructure.Should().Be(4);
+        rightLeg.Location.ShouldBe(PartLocation.RightLeg);
+        rightLeg.MaxArmor.ShouldBe(8);
+        rightLeg.MaxStructure.ShouldBe(4);
     }
 }

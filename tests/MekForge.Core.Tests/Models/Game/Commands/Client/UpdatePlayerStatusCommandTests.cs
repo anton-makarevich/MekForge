@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
@@ -32,8 +32,8 @@ public class UpdatePlayerStatusCommandTests : GameCommandTestBase<UpdatePlayerSt
     protected override void AssertCommandSpecificProperties(UpdatePlayerStatusCommand original, UpdatePlayerStatusCommand? cloned)
     {
         base.AssertCommandSpecificProperties(original, cloned);
-        cloned!.PlayerId.Should().Be(original.PlayerId);
-        cloned.PlayerStatus.Should().Be(original.PlayerStatus);
+        cloned!.PlayerId.ShouldBe(original.PlayerId);
+        cloned.PlayerStatus.ShouldBe(original.PlayerStatus);
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class UpdatePlayerStatusCommandTests : GameCommandTestBase<UpdatePlayerSt
         var result = command.Format(_localizationService, _game);
 
         // Assert
-        result.Should().Be("formatted status command");
+        result.ShouldBe("formatted status command");
         _localizationService.Received(1).GetString("Command_UpdatePlayerStatus");
     }
 
@@ -61,6 +61,6 @@ public class UpdatePlayerStatusCommandTests : GameCommandTestBase<UpdatePlayerSt
         var result = command.Format(_localizationService, _game);
 
         // Assert
-        result.Should().BeEmpty();
+        result.ShouldBeEmpty();
     }
 }

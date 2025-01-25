@@ -1,6 +1,5 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
-using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
@@ -34,14 +33,14 @@ public class BaseGameTests() : BaseGame(BattleMap.GenerateMap(5, 5, new SingleTe
         OnPlayerJoined(joinCommand);
 
         // Assert
-        Players.Should().HaveCount(1);
+        Players.Count.ShouldBe(1);
     }
 
     [Fact]
     public void New_ShouldHaveCorrectTurnAndPhase()
     {
-        Turn.Should().Be(1);
-        TurnPhase.Should().Be(PhaseNames.Start);
+        Turn.ShouldBe(1);
+        TurnPhase.ShouldBe(PhaseNames.Start);
     }
 
     // Additional tests for common functionalities can be added here

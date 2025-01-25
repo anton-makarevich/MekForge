@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
@@ -48,7 +48,7 @@ public class InitiativePhaseTests : GameStateTestsBase
     [Fact]
     public void Name_ShouldBeInitiative()
     {
-        _sut.Name.Should().Be(PhaseNames.Initiative);
+        _sut.Name.ShouldBe(PhaseNames.Initiative);
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public class InitiativePhaseTests : GameStateTestsBase
     {
         _sut.Enter();
 
-        Game.ActivePlayer.Should().NotBeNull();
+        Game.ActivePlayer.ShouldNotBeNull();
     }
 
     [Fact]
@@ -76,9 +76,9 @@ public class InitiativePhaseTests : GameStateTestsBase
         // Assert
         CommandPublisher.Received().PublishCommand(Arg.Do<DiceRolledCommand>(cmd =>
         {
-            cmd.GameOriginId.Should().Be(Game.Id);
-            cmd.PlayerId.Should().Be(Game.ActivePlayer!.Id);
-            cmd.Roll.Should().Be(7);
+            cmd.GameOriginId.ShouldBe(Game.Id);
+            cmd.PlayerId.ShouldBe(Game.ActivePlayer!.Id);
+            cmd.Roll.ShouldBe(7);
         }));
     }
 
@@ -106,9 +106,9 @@ public class InitiativePhaseTests : GameStateTestsBase
         });
 
         // Assert
-        Game.TurnPhase.Should().Be(PhaseNames.Movement);
-        Game.InitiativeOrder.Should().HaveCount(2);
-        Game.InitiativeOrder[0].Should().Be(firstPlayer); // Higher roll should be first
+        Game.TurnPhase.ShouldBe(PhaseNames.Movement);
+        Game.InitiativeOrder.Count.ShouldBe(2);
+        Game.InitiativeOrder[0].ShouldBe(firstPlayer); // Higher roll should be first
     }
 
     [Fact]
@@ -137,8 +137,8 @@ public class InitiativePhaseTests : GameStateTestsBase
         CommandPublisher.ClearReceivedCalls();
 
         // Assert
-        Game.TurnPhase.Should().Be(PhaseNames.Initiative); // Should stay in initiative
-        Game.ActivePlayer.Should().BeOneOf(firstPlayer, secondPlayer); // One of tied players should be active
+        Game.TurnPhase.ShouldBe(PhaseNames.Initiative); // Should stay in initiative
+        Game.ActivePlayer.ShouldBeOneOf(firstPlayer, secondPlayer); // One of tied players should be active
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public class InitiativePhaseTests : GameStateTestsBase
         });
 
         // Assert
-        Game.ActivePlayer.Should().Be(activePlayer); // Active player shouldn't change
+        Game.ActivePlayer.ShouldBe(activePlayer); // Active player shouldn't change
         CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<DiceRolledCommand>());
     }
 
@@ -172,9 +172,9 @@ public class InitiativePhaseTests : GameStateTestsBase
     
         // Assert
         CommandPublisher.Received(2).PublishCommand(Arg.Any<DiceRolledCommand>());
-        Game.TurnPhase.Should().Be(PhaseNames.Movement);
-        Game.InitiativeOrder[0].Should().Be(Game.Players[1]); // Player with roll 8 should be first
-        Game.InitiativeOrder[1].Should().Be(Game.Players[0]); // Player with roll 7 should be second
+        Game.TurnPhase.ShouldBe(PhaseNames.Movement);
+        Game.InitiativeOrder[0].ShouldBe(Game.Players[1]); // Player with roll 8 should be first
+        Game.InitiativeOrder[1].ShouldBe(Game.Players[0]); // Player with roll 7 should be second
     }
 
     [Fact]
@@ -192,9 +192,9 @@ public class InitiativePhaseTests : GameStateTestsBase
     
         // Assert
         CommandPublisher.Received(4).PublishCommand(Arg.Any<DiceRolledCommand>()); // Should receive 4 roll commands (2 initial + 2 rerolls)
-        Game.TurnPhase.Should().Be(PhaseNames.Movement); // Should proceed to movement after resolving ties
-        Game.InitiativeOrder[0].Should().Be(Game.Players[0]); // Player who rerolled 8 should be first
-        Game.InitiativeOrder[1].Should().Be(Game.Players[1]); // Player who rerolled 6 should be second
+        Game.TurnPhase.ShouldBe(PhaseNames.Movement); // Should proceed to movement after resolving ties
+        Game.InitiativeOrder[0].ShouldBe(Game.Players[0]); // Player who rerolled 8 should be first
+        Game.InitiativeOrder[1].ShouldBe(Game.Players[1]); // Player who rerolled 6 should be second
     }
 
     [Fact]
@@ -214,9 +214,9 @@ public class InitiativePhaseTests : GameStateTestsBase
     
         // Assert
         CommandPublisher.Received(6).PublishCommand(Arg.Any<DiceRolledCommand>()); // Should receive 6 roll commands (2 initial + 2 first reroll + 2 second reroll)
-        Game.TurnPhase.Should().Be(PhaseNames.Movement);
-        Game.InitiativeOrder[0].Should().Be(Game.Players[0]); // Player who rolled 8 should be first
-        Game.InitiativeOrder[1].Should().Be(Game.Players[1]); // Player who rolled 5 should be second
+        Game.TurnPhase.ShouldBe(PhaseNames.Movement);
+        Game.InitiativeOrder[0].ShouldBe(Game.Players[0]); // Player who rolled 8 should be first
+        Game.InitiativeOrder[1].ShouldBe(Game.Players[1]); // Player who rolled 5 should be second
     }
 
     [Fact]
@@ -231,8 +231,8 @@ public class InitiativePhaseTests : GameStateTestsBase
 
         // Assert
         CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<DiceRolledCommand>());
-        Game.TurnPhase.Should().Be(PhaseNames.Initiative);
-        Game.ActivePlayer.Should().Be(Game.Players[0]); // First player should be active
+        Game.TurnPhase.ShouldBe(PhaseNames.Initiative);
+        Game.ActivePlayer.ShouldBe(Game.Players[0]); // First player should be active
     }
 
     [Fact]
@@ -280,9 +280,9 @@ public class InitiativePhaseTests : GameStateTestsBase
 
         // Assert
         CommandPublisher.Received(4).PublishCommand(Arg.Any<DiceRolledCommand>()); // Should receive 4 roll commands (2 initial + 2 rerolls)
-        Game.TurnPhase.Should().Be(PhaseNames.Movement);
-        Game.InitiativeOrder[0].Should().Be(player1); // Player who rolled 8 in second round should be first
-        Game.InitiativeOrder[1].Should().Be(player2); // Player who rolled 6 in second round should be second
+        Game.TurnPhase.ShouldBe(PhaseNames.Movement);
+        Game.InitiativeOrder[0].ShouldBe(player1); // Player who rolled 8 in second round should be first
+        Game.InitiativeOrder[1].ShouldBe(player2); // Player who rolled 6 in second round should be second
     }
 
     [Fact]
@@ -311,23 +311,23 @@ public class InitiativePhaseTests : GameStateTestsBase
 
         // Act & Assert
         // First round of rolls
-        game.ActivePlayer!.Id.Should().Be(_player1Id);
+        game.ActivePlayer!.Id.ShouldBe(_player1Id);
         SetupDiceRolls(4);
         sut.HandleCommand(new RollDiceCommand { GameOriginId = Guid.NewGuid(), PlayerId = _player1Id });
 
-        game.ActivePlayer!.Id.Should().Be(_player2Id);
+        game.ActivePlayer!.Id.ShouldBe(_player2Id);
         SetupDiceRolls(6);
         sut.HandleCommand(new RollDiceCommand { GameOriginId = Guid.NewGuid(), PlayerId = _player2Id });
 
-        game.ActivePlayer!.Id.Should().Be(player3Id);
+        game.ActivePlayer!.Id.ShouldBe(player3Id);
         SetupDiceRolls(8);
         sut.HandleCommand(new RollDiceCommand { GameOriginId = Guid.NewGuid(), PlayerId = player3Id });
 
-        game.ActivePlayer!.Id.Should().Be(player4Id);
+        game.ActivePlayer!.Id.ShouldBe(player4Id);
         SetupDiceRolls(4);
         sut.HandleCommand(new RollDiceCommand { GameOriginId = Guid.NewGuid(), PlayerId = player4Id });
 
         // After tie is detected, should only activate players with tied rolls (player1 and player4)
-        game.ActivePlayer!.Id.Should().Be(_player1Id);
+        game.ActivePlayer!.Id.ShouldBe(_player1Id);
     }
 }

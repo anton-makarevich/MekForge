@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Map.Terrains;
 
 namespace Sanet.MekForge.Core.Tests.Models.Map.Terrains;
@@ -12,7 +12,7 @@ public class LightWoodsTerrainTests
         var terrain = new LightWoodsTerrain();
 
         // Act & Assert
-        terrain.Height.Should().Be(1);
+        terrain.Height.ShouldBe(1);
     }
 
     [Fact]
@@ -22,7 +22,7 @@ public class LightWoodsTerrainTests
         var terrain = new LightWoodsTerrain();
 
         // Act & Assert
-        terrain.TerrainFactor.Should().Be(2);
+        terrain.TerrainFactor.ShouldBe(2);
     }
 
     [Fact]
@@ -32,6 +32,6 @@ public class LightWoodsTerrainTests
         var terrain = new LightWoodsTerrain();
 
         // Act & Assert
-        terrain.Id.Should().Be("LightWoods");
+        terrain.Id.ShouldBe("LightWoods");
     }
 }

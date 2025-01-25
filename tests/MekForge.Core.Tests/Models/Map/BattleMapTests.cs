@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Models.Map;
@@ -18,8 +18,8 @@ public class BattleMapTests
         var map = new BattleMap(width, height);
 
         // Assert
-        map.Width.Should().Be(width);
-        map.Height.Should().Be(height);
+        map.Width.ShouldBe(width);
+        map.Height.ShouldBe(height);
     }
 
     [Fact]
@@ -33,7 +33,7 @@ public class BattleMapTests
         map.AddHex(hex);
 
         // Assert
-        map.GetHex(hex.Coordinates).Should().Be(hex);
+        map.GetHex(hex.Coordinates).ShouldBe(hex);
     }
 
     [Theory]
@@ -48,12 +48,10 @@ public class BattleMapTests
         var hex = new Hex(new HexCoordinates(q, r));
 
         // Act & Assert
-        var action = () => map.AddHex(hex);
-        action.Should().Throw<HexOutsideOfMapBoundariesException>()
-            .Which.Should().Match<HexOutsideOfMapBoundariesException>(ex =>
-                ex.Coordinates == hex.Coordinates &&
-                ex.MapWidth == 2 &&
-                ex.MapHeight == 2);
+        var ex =Should.Throw<HexOutsideOfMapBoundariesException>(()=>map.AddHex(hex));
+        ex.Coordinates.ShouldBe(hex.Coordinates);
+        ex.MapWidth.ShouldBe(2); 
+        ex.MapHeight.ShouldBe(2);
     }
 
     [Fact]
@@ -76,9 +74,9 @@ public class BattleMapTests
         var path = map.FindPath(start, target, 10);
 
         // Assert
-        path.Should().NotBeNull();
-        path!.Count.Should().Be(7); // Should include direction changes
-        path.Select(p => (p.To.Coordinates, p.To.Facing)).Should().ContainInOrder(
+        path.ShouldNotBeNull();
+        path.Count.ShouldBe(7); // Should include direction changes
+        path.Select(p => (p.To.Coordinates, p.To.Facing)).ShouldBe([
             (new HexCoordinates(1, 1), HexDirection.TopRight),
             (new HexCoordinates(1, 1), HexDirection.BottomRight),
             (new HexCoordinates(2, 1), HexDirection.BottomRight),
@@ -86,7 +84,7 @@ public class BattleMapTests
             (new HexCoordinates(3, 1), HexDirection.TopRight),
             (new HexCoordinates(3, 1), HexDirection.BottomRight),
             (new HexCoordinates(3, 1), HexDirection.Bottom)
-        );
+        ]);
     }
 
     [Fact]
@@ -101,10 +99,10 @@ public class BattleMapTests
         var reachable = map.GetReachableHexes(start, 2).ToList();
 
         // Assert
-        reachable.Count.Should().Be(4); // 
-        reachable.All(h => h.cost <= 2).Should().BeTrue();
-        reachable.Count(h => h.cost == 1).Should().Be(1); // 6 adjacent hexes
-        reachable.Count(h => h.cost == 2).Should().Be(3); // 12 hexes at distance 2
+        reachable.Count.ShouldBe(4); // 
+        reachable.All(h => h.cost <= 2).ShouldBeTrue();
+        reachable.Count(h => h.cost == 1).ShouldBe(1); // 6 adjacent hexes
+        reachable.Count(h => h.cost == 2).ShouldBe(3); // 12 hexes at distance 2
     }
 
     [Fact]
@@ -128,8 +126,8 @@ public class BattleMapTests
         var reachable = map.GetReachableHexes(start, 2).ToList();
 
         // Assert
-        reachable.Count.Should().Be(1); // Only the clear hex should be reachable
-        reachable.First().coordinates.Should().Be(clearHex.Coordinates);
+        reachable.Count.ShouldBe(1); // Only the clear hex should be reachable
+        reachable.First().coordinates.ShouldBe(clearHex.Coordinates);
     }
 
     [Fact]
@@ -152,7 +150,7 @@ public class BattleMapTests
         var hasLos = map.HasLineOfSight(start, end);
 
         // Assert
-        hasLos.Should().BeTrue();
+        hasLos.ShouldBeTrue();
     }
 
     [Fact]
@@ -180,7 +178,7 @@ public class BattleMapTests
         var hasLos = map.HasLineOfSight(start, end);
 
         // Assert
-        hasLos.Should().BeFalse();
+        hasLos.ShouldBeFalse();
     }
 
     [Fact]
@@ -197,8 +195,8 @@ public class BattleMapTests
         var map = BattleMap.GenerateMap(width, height, generator);
 
         // Assert
-        map.Width.Should().Be(width);
-        map.Height.Should().Be(height);
+        map.Width.ShouldBe(width);
+        map.Height.ShouldBe(height);
 
         // Check if all hexes are created
         for (var r = 1; r < height+1; r++)
@@ -206,7 +204,7 @@ public class BattleMapTests
             for (var q = 1; q < width+1; q++)
             {
                 var hex = map.GetHex(new HexCoordinates(q, r));
-                hex.Should().NotBeNull();
+                hex.ShouldNotBeNull();
             }
         }
 
@@ -238,7 +236,7 @@ public class BattleMapTests
             for (var r = 1; r < height+1; r++)
             {
                 var hex = map.GetHex(new HexCoordinates(q, r));
-                hex!.HasTerrain("Clear").Should().BeTrue();
+                hex!.HasTerrain("Clear").ShouldBeTrue();
             }
         }
 
@@ -267,9 +265,9 @@ public class BattleMapTests
         foreach (var hex in originalMap.GetHexes())
         {
             var clonedHex = clonedMap.GetHex(hex.Coordinates);
-            clonedHex.Should().NotBeNull();
-            clonedHex.Level.Should().Be(hex.Level);
-            clonedHex.GetTerrainTypes().Should().BeEquivalentTo(hex.GetTerrainTypes());
+            clonedHex.ShouldNotBeNull();
+            clonedHex.Level.ShouldBe(hex.Level);
+            clonedHex.GetTerrainTypes().ShouldBeEquivalentTo(hex.GetTerrainTypes());
         }
     }
 
@@ -278,7 +276,7 @@ public class BattleMapTests
     {
         // Arrange
         var map = BattleMap.GenerateMap(11, 9,
-            new SingleTerrainGenerator(11,9, new ClearTerrain())); // Size to fit all hexes (0-10, 0-8)
+            new SingleTerrainGenerator(11, 9, new ClearTerrain())); // Size to fit all hexes (0-10, 0-8)
 
         // Heavy Woods
         var heavyWoodsCoords = new[]
@@ -315,7 +313,7 @@ public class BattleMapTests
 
         // Assert
         var targetHex = new HexCoordinates(7, 8);
-        reachableHexes.Should().Contain(x => x.coordinates == targetHex,
+        reachableHexes.ShouldContain(x => x.coordinates == targetHex,
             "Hex (7,8) should be reachable through path: (9,5)->(8,5)->(7,6)->[turn]->(7,7)->(7,8)");
 
         // Verify the path exists and respects movement points
@@ -324,18 +322,16 @@ public class BattleMapTests
             new HexPosition(targetHex, HexDirection.Bottom),
             maxMp);
 
-        path.Should().NotBeNull("A valid path should exist to reach (7,8)");
-        if (path != null)
-        {
-            path.Count.Should().BeLessOrEqualTo(maxMp + 1, 
-                "Path length should not exceed maxMP + 1 (including start position)");
+        path.ShouldNotBeNull("A valid path should exist to reach (7,8)");
 
-            var pathCoords = path.Select(p => p.To.Coordinates).Distinct().ToList();
-            pathCoords.Should().Contain(new HexCoordinates(8, 5), "Path should go through (8,5)");
-            pathCoords.Should().Contain(new HexCoordinates(7, 6), "Path should go through (7,6)");
-            pathCoords.Should().Contain(new HexCoordinates(7, 7), "Path should go through (7,7)");
-            pathCoords.Should().Contain(targetHex, "Path should reach (7,8)");
-        }
+        path.Count.ShouldBeLessThanOrEqualTo(maxMp + 1,
+            "Path length should not exceed maxMP + 1 (including start position)");
+
+        var pathCoords = path.Select(p => p.To.Coordinates).Distinct().ToList();
+        pathCoords.ShouldContain(new HexCoordinates(8, 5), "Path should go through (8,5)");
+        pathCoords.ShouldContain(new HexCoordinates(7, 6), "Path should go through (7,6)");
+        pathCoords.ShouldContain(new HexCoordinates(7, 7), "Path should go through (7,7)");
+        pathCoords.ShouldContain(targetHex, "Path should reach (7,8)");
     }
 
     [Fact]
@@ -357,8 +353,8 @@ public class BattleMapTests
         var reachable = map.GetReachableHexes(start, 2, prohibitedHexes).ToList();
 
         // Assert
-        reachable.Should().NotBeEmpty("Some hexes should be reachable");
-        reachable.Should().NotContain(h => prohibitedHexes.Contains(h.coordinates), 
+        reachable.ShouldNotBeEmpty("Some hexes should be reachable");
+        reachable.ShouldNotContain(h => prohibitedHexes.Contains(h.coordinates), 
             "Prohibited hexes should not be included in reachable hexes");
     }
 
@@ -382,11 +378,14 @@ public class BattleMapTests
         var path = map.FindPath(start, target, 10, prohibitedHexes);
 
         // Assert
-        path.Should().NotBeNull();
-        var pathCoordinates = path!.Select(p => p.To.Coordinates).ToList();
-        pathCoordinates.Should().NotContain(prohibitedHexes);
-        pathCoordinates.Should().Contain(new HexCoordinates(1, 2)); // Should go around through the left side
-        pathCoordinates.Should().Contain(new HexCoordinates(2, 3));
+        path.ShouldNotBeNull();
+        var pathCoordinates = path.Select(p => p.To.Coordinates).ToList();
+        foreach (var prohibitedHex in prohibitedHexes)
+        {
+            pathCoordinates.ShouldNotContain(prohibitedHex);
+        }
+        pathCoordinates.ShouldContain(new HexCoordinates(1, 2)); // Should go around through the left side
+        pathCoordinates.ShouldContain(new HexCoordinates(2, 3));
     }
 
     [Fact]
@@ -423,30 +422,29 @@ public class BattleMapTests
         var path = map.FindPath(start, target, 9);
 
         // Assert
-        path.Should().NotBeNull("A path should exist within 9 movement points");
+        path.ShouldNotBeNull("A path should exist within 9 movement points");
         
         // The path should go through clear terrain to avoid heavy woods
-        var pathCoords = path!.Select(p => p.To.Coordinates).Distinct().ToList();
-        pathCoords.Should().Contain(new HexCoordinates(2, 1), "Path should go through clear terrain at (2,1)");
-        pathCoords.Should().Contain(new HexCoordinates(2, 2), "Path should go through clear terrain at (2,2)");
-        pathCoords.Should().Contain(new HexCoordinates(2, 3), "Path should go through clear terrain at (2,3)");
-        pathCoords.Should().Contain(new HexCoordinates(2, 4), "Path should go through clear terrain at (2,4)");
-        woodsHexes.Should().NotContain(coord => pathCoords.Contains(coord), 
+        var pathCoords = path.Select(p => p.To.Coordinates).Distinct().ToList();
+        pathCoords.ShouldContain(new HexCoordinates(2, 1), "Path should go through clear terrain at (2,1)");
+        pathCoords.ShouldContain(new HexCoordinates(2, 2), "Path should go through clear terrain at (2,2)");
+        pathCoords.ShouldContain(new HexCoordinates(2, 3), "Path should go through clear terrain at (2,3)");
+        pathCoords.ShouldContain(new HexCoordinates(2, 4), "Path should go through clear terrain at (2,4)");
+        woodsHexes.ShouldNotContain(coord => pathCoords.Contains(coord), 
             "Path should avoid all heavy woods hexes");
 
         // Verify path costs
-        var totalCost = path!.Sum(s => s.Cost);
-        totalCost.Should().Be(9, "Total path cost should be 9 MP (5 MP for movement + 4 MP for turns)");
+        var totalCost = path.Sum(s => s.Cost);
+        totalCost.ShouldBe(9, "Total path cost should be 9 MP (5 MP for movement + 4 MP for turns)");
         
         // Verify movement costs
-        var movementSegments = path!.Where(s => s.From.Coordinates != s.To.Coordinates).ToList();
-        movementSegments.Should().AllSatisfy(s => s.Cost.Should().Be(1), 
-            "All movement segments should cost 1 MP as they go through clear terrain");
+        var movementSegments = path.Where(s => s.From.Coordinates != s.To.Coordinates).ToList();
+        movementSegments.ShouldAllBe(s => s.Cost == 1, "All movement segments should cost 1 MP as they go through clear terrain");
         
         // Verify turning costs
-        var turnSegments = path!.Where(s => s.From.Coordinates == s.To.Coordinates).ToList();
-        turnSegments.Should().HaveCount(4, "Should have 4 turns");
-        turnSegments.Should().AllSatisfy(s => s.Cost.Should().Be(1), 
+        var turnSegments = path.Where(s => s.From.Coordinates == s.To.Coordinates).ToList();
+        turnSegments.Count.ShouldBe(4, "Should have 4 turns");
+        turnSegments.ShouldAllBe(s => s.Cost==1, 
             "All turn segments should cost 1 MP");
     }
 
@@ -467,17 +465,17 @@ public class BattleMapTests
         var reachableHexes = map.GetJumpReachableHexes(start, movementPoints).ToList();
 
         // Assert
-        reachableHexes.Should().HaveCount(18, 
+        reachableHexes.Count.ShouldBe(18, 
             $"Should have 18 total reachable hexes with {terrainType.Name}");
-        reachableHexes.Should().NotContain(start, 
+        reachableHexes.ShouldNotContain(start, 
             "Should not include start hex");
-        reachableHexes.All(h => h.DistanceTo(start) <= movementPoints).Should().BeTrue(
+        reachableHexes.All(h => h.DistanceTo(start) <= movementPoints).ShouldBeTrue(
             "All hexes should be within movement range");
         
         // Verify we have correct number of hexes at each distance
-        reachableHexes.Count(h => h.DistanceTo(start) == 1).Should().Be(6, 
+        reachableHexes.Count(h => h.DistanceTo(start) == 1).ShouldBe(6, 
             "Should have 6 hexes at distance 1");
-        reachableHexes.Count(h => h.DistanceTo(start) == 2).Should().Be(12, 
+        reachableHexes.Count(h => h.DistanceTo(start) == 2).ShouldBe(12, 
             "Should have 12 hexes at distance 2");
     }
 
@@ -497,9 +495,8 @@ public class BattleMapTests
         var reachableHexes = map.GetJumpReachableHexes(start, movementPoints, prohibitedHexes).ToList();
 
         // Assert
-        reachableHexes.Should().NotContain(prohibitedHexes);
-        reachableHexes.Should().OnlyContain(h => !prohibitedHexes.Contains(h));
-        reachableHexes.All(h => h.DistanceTo(start) <= movementPoints).Should().BeTrue();
+        prohibitedHexes.ForEach(coordinates => reachableHexes.ShouldNotContain(coordinates));
+        reachableHexes.All(h => h.DistanceTo(start) <= movementPoints).ShouldBeTrue();
     }
 
     [Fact]
@@ -515,9 +512,13 @@ public class BattleMapTests
         var reachableHexes = map.GetJumpReachableHexes(start, movementPoints).ToList();
 
         // Assert
-        reachableHexes.Should().OnlyContain(h => 
-            h.Q >= 1 && h.Q <= 3 && 
-            h.R >= 1 && h.R <= 3); // Should only contain hexes within map boundaries
-        reachableHexes.All(h => h.DistanceTo(start) <= movementPoints).Should().BeTrue();
+        reachableHexes.ShouldAllBe(h => 
+                h.Q >= 1 && h.Q <= 3 && 
+                h.R >= 1 && h.R <= 3, 
+            "All hexes should be within map boundaries (Q: 1-3, R: 1-3)");
+
+        reachableHexes.ShouldAllBe(h => 
+                h.DistanceTo(start) <= movementPoints,
+            $"All hexes should be within {movementPoints} movement points from start");
     }
 }

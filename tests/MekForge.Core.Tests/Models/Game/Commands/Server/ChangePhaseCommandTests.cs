@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
@@ -25,7 +25,7 @@ public class ChangePhaseCommandTests : GameCommandTestBase<ChangePhaseCommand>
     protected override void AssertCommandSpecificProperties(ChangePhaseCommand original, ChangePhaseCommand? cloned)
     {
         base.AssertCommandSpecificProperties(original, cloned);
-        cloned!.Phase.Should().Be(original.Phase);
+        cloned!.Phase.ShouldBe(original.Phase);
     }
 
     [Fact]
@@ -39,7 +39,7 @@ public class ChangePhaseCommandTests : GameCommandTestBase<ChangePhaseCommand>
         var result = command.Format(_localizationService, _game);
 
         // Assert
-        result.Should().Be("formatted phase command");
+        result.ShouldBe("formatted phase command");
         _localizationService.Received(1).GetString("Command_ChangePhase");
     }
 }

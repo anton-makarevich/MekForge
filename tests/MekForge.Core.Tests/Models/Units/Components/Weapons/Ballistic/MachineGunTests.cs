@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Ballistic;
 
@@ -13,19 +13,19 @@ public class MachineGunTests
         var machineGun = new MachineGun();
 
         // Assert
-        machineGun.Name.Should().Be("Machine Gun");
-        machineGun.Size.Should().Be(1);
-        machineGun.Damage.Should().Be(2);
-        machineGun.Heat.Should().Be(0);
-        machineGun.MinimumRange.Should().Be(0);
-        machineGun.ShortRange.Should().Be(1);
-        machineGun.MediumRange.Should().Be(2);
-        machineGun.LongRange.Should().Be(3);
-        machineGun.Type.Should().Be(WeaponType.Ballistic);
-        machineGun.BattleValue.Should().Be(5);
-        machineGun.AmmoType.Should().Be(AmmoType.MachineGun);
-        machineGun.IsDestroyed.Should().BeFalse();
-        machineGun.IsActive.Should().BeTrue();
+        machineGun.Name.ShouldBe("Machine Gun");
+        machineGun.Size.ShouldBe(1);
+        machineGun.Damage.ShouldBe(2);
+        machineGun.Heat.ShouldBe(0);
+        machineGun.MinimumRange.ShouldBe(0);
+        machineGun.ShortRange.ShouldBe(1);
+        machineGun.MediumRange.ShouldBe(2);
+        machineGun.LongRange.ShouldBe(3);
+        machineGun.Type.ShouldBe(WeaponType.Ballistic);
+        machineGun.BattleValue.ShouldBe(5);
+        machineGun.AmmoType.ShouldBe(AmmoType.MachineGun);
+        machineGun.IsDestroyed.ShouldBeFalse();
+        machineGun.IsActive.ShouldBeTrue();
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class MachineGunTests
         machineGun.Hit();
 
         // Assert
-        machineGun.IsDestroyed.Should().BeTrue();
+        machineGun.IsDestroyed.ShouldBeTrue();
     }
 
     [Fact]
@@ -48,12 +48,12 @@ public class MachineGunTests
         var machineGun = new MachineGun();
 
         // Act & Assert
-        machineGun.IsActive.Should().BeTrue(); // Default state
+        machineGun.IsActive.ShouldBeTrue(); // Default state
 
         machineGun.Deactivate();
-        machineGun.IsActive.Should().BeFalse();
+        machineGun.IsActive.ShouldBeFalse();
 
         machineGun.Activate();
-        machineGun.IsActive.Should().BeTrue();
+        machineGun.IsActive.ShouldBeTrue();
     }
 }

@@ -1,5 +1,5 @@
 using AsyncAwaitBestPractices.MVVM;
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
@@ -45,11 +45,11 @@ public class NewGameViewModelTests
     [Fact]
     public void Constructor_SetsDefaultValues()
     {
-        _sut.MapWidth.Should().Be(15);
-        _sut.MapHeight.Should().Be(17);
-        _sut.ForestCoverage.Should().Be(20);
-        _sut.LightWoodsPercentage.Should().Be(30);
-        _sut.IsLightWoodsEnabled.Should().BeTrue();
+        _sut.MapWidth.ShouldBe(15);
+        _sut.MapHeight.ShouldBe(17);
+        _sut.ForestCoverage.ShouldBe(20);
+        _sut.LightWoodsPercentage.ShouldBe(30);
+        _sut.IsLightWoodsEnabled.ShouldBeTrue();
     }
 
     [Theory]
@@ -60,7 +60,7 @@ public class NewGameViewModelTests
     {
         _sut.ForestCoverage = coverage;
 
-        _sut.IsLightWoodsEnabled.Should().Be(expectedEnabled);
+        _sut.IsLightWoodsEnabled.ShouldBe(expectedEnabled);
     }
 
     [Fact]
@@ -69,10 +69,10 @@ public class NewGameViewModelTests
         _sut.ForestCoverage = 0;
         await ((IAsyncCommand)_sut.StartGameCommand).ExecuteAsync();
 
-        _battleMapViewModel.Game.Should().NotBeNull();
+        _battleMapViewModel.Game.ShouldNotBeNull();
         var hex = _battleMapViewModel.Game!.BattleMap.GetHexes().First();
-        hex.GetTerrains().Should().HaveCount(1);
-        hex.GetTerrains().First().Should().BeOfType<ClearTerrain>();
+        hex.GetTerrains().ToList().Count.ShouldBe(1);
+        hex.GetTerrains().First().ShouldBeOfType<ClearTerrain>();
     }
 
     [Fact]
@@ -82,9 +82,9 @@ public class NewGameViewModelTests
         _sut.LightWoodsPercentage = 100;
         await ((IAsyncCommand)_sut.StartGameCommand).ExecuteAsync();
 
-        _battleMapViewModel.Game.Should().NotBeNull();
+        _battleMapViewModel.Game.ShouldNotBeNull();
         var hexes = _battleMapViewModel.Game!.BattleMap.GetHexes().ToList();
-        hexes.Should().Contain(h => h.GetTerrains().Any(t => t is LightWoodsTerrain));
+        hexes.ShouldContain(h => h.GetTerrains().Any(t => t is LightWoodsTerrain));
     }
 
     [Fact]
@@ -105,7 +105,7 @@ public class NewGameViewModelTests
         _sut.MapWidth = newWidth;
 
         // Assert
-        _sut.MapWidth.Should().Be(newWidth);
+        _sut.MapWidth.ShouldBe(newWidth);
     }
 
     [Fact]
@@ -123,7 +123,7 @@ public class NewGameViewModelTests
 
         // Assert
         await _navigationService.Received(1).NavigateToViewModelAsync(_battleMapViewModel);
-        _commandPublisher.Received(1).PublishCommand(Arg.Is<JoinGameCommand>(g => g.Units.First().Id != Guid.Empty ));
+        _commandPublisher.Received(1)!.PublishCommand(Arg.Is<JoinGameCommand>(g => g.Units.First().Id != Guid.Empty ));
         _gameManager.Received(1).StartServer(Arg.Any<BattleMap>());
     }
     
@@ -137,8 +137,8 @@ public class NewGameViewModelTests
         _sut.AddPlayerCommand.Execute(null);
 
         // Assert
-        _sut.Players.Count.Should().Be(initialPlayerCount + 1);
-        _sut.CanAddPlayer.Should().BeTrue();
+        _sut.Players.Count.ShouldBe(initialPlayerCount + 1);
+        _sut.CanAddPlayer.ShouldBeTrue();
     }
 
     [Fact]
@@ -155,8 +155,8 @@ public class NewGameViewModelTests
         _sut.AddPlayerCommand.Execute(null);
 
         // Assert
-        _sut.Players.Count.Should().Be(initialPlayerCount); // Should not increase
-        _sut.CanAddPlayer.Should().BeFalse();
+        _sut.Players.Count.ShouldBe(initialPlayerCount); // Should not increase
+        _sut.CanAddPlayer.ShouldBeFalse();
     }
     
     [Fact]
@@ -169,7 +169,7 @@ public class NewGameViewModelTests
         var result = _sut.CanStartGame;
 
         // Assert
-        result.Should().BeFalse();
+        result.ShouldBeFalse();
     }
 
     [Fact]
@@ -182,7 +182,7 @@ public class NewGameViewModelTests
         var result = _sut.CanStartGame;
 
         // Assert
-        result.Should().BeFalse();
+        result.ShouldBeFalse();
     }
 
     [Fact]
@@ -199,7 +199,7 @@ public class NewGameViewModelTests
         var result = _sut.CanStartGame;
     
         // Assert
-        result.Should().BeTrue();
+        result.ShouldBeTrue();
     }
     
     [Fact]
@@ -217,6 +217,6 @@ public class NewGameViewModelTests
         var result = _sut.CanStartGame;
     
         // Assert
-        result.Should().BeFalse();
+        result.ShouldBeFalse();
     }
 }

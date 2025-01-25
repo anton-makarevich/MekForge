@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Units.Components.Engines;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Components.Engines;
@@ -12,10 +12,10 @@ public class EngineTests
         var engine = new Engine(100);
 
         // Assert
-        engine.Name.Should().Be("Fusion Engine 100");
-        engine.Rating.Should().Be(100);
-        engine.MountedAtSlots.Should().HaveCount(6);
-        engine.MountedAtSlots.Should().ContainInOrder(0,1,2,7,8,9);
-        engine.IsDestroyed.Should().BeFalse();
+        engine.Name.ShouldBe("Fusion Engine 100");
+        engine.Rating.ShouldBe(100);
+        engine.MountedAtSlots.ToList().Count.ShouldBe(6);
+        engine.MountedAtSlots.ShouldBe([0,1,2,7,8,9]);
+        engine.IsDestroyed.ShouldBeFalse();
     }
 }

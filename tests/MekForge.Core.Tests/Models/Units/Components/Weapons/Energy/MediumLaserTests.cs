@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Energy;
 
@@ -13,12 +13,12 @@ public class MediumLaserTests
         var laser = new MediumLaser();
 
         // Assert
-        laser.Name.Should().Be("Medium Laser");
-        laser.Size.Should().Be(1);
-        laser.Heat.Should().Be(3);
-        laser.Damage.Should().Be(5);
-        laser.BattleValue.Should().Be(46);
-        laser.AmmoType.Should().Be(AmmoType.None);
+        laser.Name.ShouldBe("Medium Laser");
+        laser.Size.ShouldBe(1);
+        laser.Heat.ShouldBe(3);
+        laser.Damage.ShouldBe(5);
+        laser.BattleValue.ShouldBe(46);
+        laser.AmmoType.ShouldBe(AmmoType.None);
     }
 
     [Fact]
@@ -31,6 +31,6 @@ public class MediumLaserTests
         laser.Hit();
 
         // Assert
-        laser.IsDestroyed.Should().BeTrue();
+        laser.IsDestroyed.ShouldBeTrue();
     }
 }

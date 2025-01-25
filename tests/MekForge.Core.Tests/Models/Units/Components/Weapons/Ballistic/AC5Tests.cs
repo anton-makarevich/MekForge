@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Ballistic;
 
@@ -13,13 +13,13 @@ public class Ac5Tests
         var ac5 = new AC5();
 
         // Assert
-        ac5.Name.Should().Be("AC/5");
-        ac5.Size.Should().Be(4);
-        ac5.Heat.Should().Be(1);
-        ac5.Damage.Should().Be(5);
-        ac5.BattleValue.Should().Be(123);
-        ac5.AmmoType.Should().Be(AmmoType.AC5);
-        ac5.IsDestroyed.Should().BeFalse();
+        ac5.Name.ShouldBe("AC/5");
+        ac5.Size.ShouldBe(4);
+        ac5.Heat.ShouldBe(1);
+        ac5.Damage.ShouldBe(5);
+        ac5.BattleValue.ShouldBe(123);
+        ac5.AmmoType.ShouldBe(AmmoType.AC5);
+        ac5.IsDestroyed.ShouldBeFalse();
     }
 
     [Fact]
@@ -32,6 +32,6 @@ public class Ac5Tests
         ac5.Hit();
 
         // Assert
-        ac5.IsDestroyed.Should().BeTrue();
+        ac5.IsDestroyed.ShouldBeTrue();
     }
 }

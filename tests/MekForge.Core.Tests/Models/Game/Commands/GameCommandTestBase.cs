@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Game.Commands;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Commands;
@@ -18,15 +18,15 @@ public abstract class GameCommandTestBase<T> where T : GameCommand
         var clonedCommand = originalCommand.CloneWithGameId(newGameId);
 
         // Assert
-        clonedCommand.Should().NotBeSameAs(originalCommand);
-        clonedCommand.Should().BeOfType<T>();
-        clonedCommand.GameOriginId.Should().Be(newGameId);
-        clonedCommand.Timestamp.Should().Be(originalCommand.Timestamp);
+        clonedCommand.ShouldNotBeSameAs(originalCommand);
+        clonedCommand.ShouldBeOfType<T>();
+        clonedCommand.GameOriginId.ShouldBe(newGameId);
+        clonedCommand.Timestamp.ShouldBe(originalCommand.Timestamp);
         AssertCommandSpecificProperties(originalCommand, clonedCommand as T);
     }
 
     protected virtual void AssertCommandSpecificProperties(T original, T? cloned)
     {
-        cloned.Should().NotBeNull();
+        cloned.ShouldNotBeNull();
     }
 }

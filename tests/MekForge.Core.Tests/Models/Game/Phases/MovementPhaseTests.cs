@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
@@ -45,7 +45,7 @@ public class MovementPhaseTests : GameStateTestsBase
         _sut.Enter();
     
         // Assert
-        Game.ActivePlayer.Should().Be(Game.Players[0]); // Player who lost initiative moves first
+        Game.ActivePlayer.ShouldBe(Game.Players[0]); // Player who lost initiative moves first
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class MovementPhaseTests : GameStateTestsBase
         });
     
         // Assert
-        unit.Position?.Coordinates.ToString().Should().Be("0301");
+        unit.Position?.Coordinates.ToString().ShouldBe("0301");
     }
 
     [Fact]
@@ -99,7 +99,7 @@ public class MovementPhaseTests : GameStateTestsBase
         // Assert
         foreach (var unit in Game.ActivePlayer.Units)
         {
-            unit.Position.Should().BeNull();
+            unit.Position.ShouldBeNull();
         }
     }
     
@@ -163,6 +163,6 @@ public class MovementPhaseTests : GameStateTestsBase
         }
     
         // Assert
-        Game.TurnPhase.Should().Be(PhaseNames.Attack);
+        Game.TurnPhase.ShouldBe(PhaseNames.Attack);
     }
 }

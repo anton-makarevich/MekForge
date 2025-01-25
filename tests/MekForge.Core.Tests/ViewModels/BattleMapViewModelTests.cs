@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
@@ -41,12 +41,12 @@ public class BattleMapViewModelTests
 
         // Act and Assert
         _game.Turn.Returns(1);
-        _viewModel.Turn.Should().Be(1);
+        _viewModel.Turn.ShouldBe(1);
         _game.TurnPhase.Returns(PhaseNames.Start);
-        _viewModel.TurnPhaseNames.Should().Be(PhaseNames.Start);
+        _viewModel.TurnPhaseNames.ShouldBe(PhaseNames.Start);
         _game.ActivePlayer.Returns(new Player(Guid.Empty, "Player1", "#FF0000"));
-        _viewModel.ActivePlayerName.Should().Be("Player1");
-        _viewModel.ActivePlayerTint.Should().Be("#FF0000");
+        _viewModel.ActivePlayerName.ShouldBe("Player1");
+        _viewModel.ActivePlayerTint.ShouldBe("#FF0000");
     }
 
     [Theory]
@@ -93,15 +93,15 @@ public class BattleMapViewModelTests
         // Assert
         if (expectedVisible)
         {
-            _viewModel.UnitsToDeploy.Should().ContainSingle();
+            _viewModel.UnitsToDeploy.ShouldHaveSingleItem();
         }
         else
         {
-            _viewModel.UnitsToDeploy.Should().BeEmpty();
+            _viewModel.UnitsToDeploy.ShouldBeEmpty();
         }
-        _viewModel.AreUnitsToDeployVisible.Should().Be(expectedVisible);
-        _viewModel.UserActionLabel.Should().Be(actionLabel);
-        _viewModel.IsUserActionLabelVisible.Should().Be(expectedVisible);
+        _viewModel.AreUnitsToDeployVisible.ShouldBe(expectedVisible);
+        _viewModel.UserActionLabel.ShouldBe(actionLabel);
+        _viewModel.IsUserActionLabelVisible.ShouldBe(expectedVisible);
     }
     
     [Fact]
@@ -126,16 +126,16 @@ public class BattleMapViewModelTests
         var units = _viewModel.Units.ToList();
 
         // Assert
-        units.Should().HaveCount(3);
-        units.Should().Contain(unit1);
-        units.Should().Contain(unit2);
+        units.Count.ShouldBe(3);
+        units.ShouldContain(unit1);
+        units.ShouldContain(unit2);
     }
 
     [Fact]
     public void CommandLog_ShouldBeEmpty_WhenGameIsNotClientGame()
     {
         // Assert
-        _viewModel.CommandLog.Should().BeEmpty();
+        _viewModel.CommandLog.ShouldBeEmpty();
     }
 
     [Fact]
@@ -164,8 +164,8 @@ public class BattleMapViewModelTests
         clientGame.HandleCommand(joinCommand);
 
         // Assert
-        _viewModel.CommandLog.Should().HaveCount(1);
-        _viewModel.CommandLog.First().Should().BeEquivalentTo(joinCommand.Format(_localizationService, clientGame));
+        _viewModel.CommandLog.Count.ShouldBe(1);
+        _viewModel.CommandLog.First().ShouldBeEquivalentTo(joinCommand.Format(_localizationService, clientGame));
     }
 
     [Fact]
@@ -201,16 +201,16 @@ public class BattleMapViewModelTests
         clientGame.HandleCommand(phaseCommand);
 
         // Assert
-        _viewModel.CommandLog.Should().HaveCount(2);
-        _viewModel.CommandLog.First().Should().BeEquivalentTo(joinCommand.Format(_localizationService,clientGame));
-        _viewModel.CommandLog.Last().Should().BeEquivalentTo(phaseCommand.Format(_localizationService,clientGame));
+        _viewModel.CommandLog.Count.ShouldBe(2);
+        _viewModel.CommandLog.First().ShouldBeEquivalentTo(joinCommand.Format(_localizationService,clientGame));
+        _viewModel.CommandLog.Last().ShouldBeEquivalentTo(phaseCommand.Format(_localizationService,clientGame));
     }
 
     [Fact]
     public void IsCommandLogExpanded_ShouldBeFalse_ByDefault()
     {
         // Assert
-        _viewModel.IsCommandLogExpanded.Should().BeFalse();
+        _viewModel.IsCommandLogExpanded.ShouldBeFalse();
     }
 
     [Fact]
@@ -222,16 +222,16 @@ public class BattleMapViewModelTests
 
         // Act & Assert - First toggle
         _viewModel.ToggleCommandLog();
-        _viewModel.IsCommandLogExpanded.Should().BeTrue();
-        propertyChangedEvents.Should().Contain(nameof(BattleMapViewModel.IsCommandLogExpanded));
+        _viewModel.IsCommandLogExpanded.ShouldBeTrue();
+        propertyChangedEvents.ShouldContain(nameof(BattleMapViewModel.IsCommandLogExpanded));
 
         // Clear events for second test
         propertyChangedEvents.Clear();
 
         // Act & Assert - Second toggle
         _viewModel.ToggleCommandLog();
-        _viewModel.IsCommandLogExpanded.Should().BeFalse();
-        propertyChangedEvents.Should().Contain(nameof(BattleMapViewModel.IsCommandLogExpanded));
+        _viewModel.IsCommandLogExpanded.ShouldBeFalse();
+        propertyChangedEvents.ShouldContain(nameof(BattleMapViewModel.IsCommandLogExpanded));
     }
 
     [Fact]
@@ -268,8 +268,8 @@ public class BattleMapViewModelTests
         });
         
         // Assert
-        _viewModel.UserActionLabel.Should().Be("Select unit to move");
-        _viewModel.IsUserActionLabelVisible.Should().BeTrue();
+        _viewModel.UserActionLabel.ShouldBe("Select unit to move");
+        _viewModel.IsUserActionLabelVisible.ShouldBeTrue();
     }
 
     [Fact]
@@ -283,9 +283,9 @@ public class BattleMapViewModelTests
         _viewModel.ShowDirectionSelector(position, directions);
 
         // Assert
-        _viewModel.DirectionSelectorPosition.Should().Be(position);
-        _viewModel.IsDirectionSelectorVisible.Should().BeTrue();
-        _viewModel.AvailableDirections.Should().BeEquivalentTo(directions);
+        _viewModel.DirectionSelectorPosition.ShouldBe(position);
+        _viewModel.IsDirectionSelectorVisible.ShouldBeTrue();
+        _viewModel.AvailableDirections.ShouldBeEquivalentTo(directions);
     }
 
     [Fact]
@@ -300,8 +300,8 @@ public class BattleMapViewModelTests
         _viewModel.HideDirectionSelector();
 
         // Assert
-        _viewModel.IsDirectionSelectorVisible.Should().BeFalse();
-        _viewModel.AvailableDirections.Should().BeNull();
+        _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
+        _viewModel.AvailableDirections.ShouldBeNull();
     }
 
     [Fact]
@@ -312,7 +312,7 @@ public class BattleMapViewModelTests
         _viewModel.IsRecordSheetExpanded = false;
 
         // Act & Assert
-        _viewModel.IsRecordSheetButtonVisible.Should().BeFalse();
+        _viewModel.IsRecordSheetButtonVisible.ShouldBeFalse();
     }
     
     [Fact]
@@ -323,7 +323,7 @@ public class BattleMapViewModelTests
         _viewModel.IsRecordSheetExpanded = false;
 
         // Act & Assert
-        _viewModel.IsRecordSheetPanelVisible.Should().BeFalse();
+        _viewModel.IsRecordSheetPanelVisible.ShouldBeFalse();
     }
 
     [Fact]
@@ -335,7 +335,7 @@ public class BattleMapViewModelTests
         _viewModel.IsRecordSheetExpanded = true;
 
         // Act & Assert
-        _viewModel.IsRecordSheetButtonVisible.Should().BeFalse();
+        _viewModel.IsRecordSheetButtonVisible.ShouldBeFalse();
     }
 
     [Fact]
@@ -347,7 +347,7 @@ public class BattleMapViewModelTests
         _viewModel.IsRecordSheetExpanded = false;
 
         // Act & Assert
-        _viewModel.IsRecordSheetButtonVisible.Should().BeTrue();
+        _viewModel.IsRecordSheetButtonVisible.ShouldBeTrue();
     }
     
     [Fact]
@@ -359,7 +359,7 @@ public class BattleMapViewModelTests
         _viewModel.IsRecordSheetExpanded = true;
 
         // Act & Assert
-        _viewModel.IsRecordSheetPanelVisible.Should().BeTrue();
+        _viewModel.IsRecordSheetPanelVisible.ShouldBeTrue();
     }
 
     [Fact]
@@ -371,7 +371,7 @@ public class BattleMapViewModelTests
         _viewModel.IsRecordSheetExpanded = false;
 
         // Act & Assert
-        _viewModel.IsRecordSheetPanelVisible.Should().BeFalse();
+        _viewModel.IsRecordSheetPanelVisible.ShouldBeFalse();
     }
 
     [Fact]
@@ -384,12 +384,12 @@ public class BattleMapViewModelTests
         _viewModel.ToggleRecordSheet();
 
         // Assert
-        _viewModel.IsRecordSheetExpanded.Should().BeTrue();
+        _viewModel.IsRecordSheetExpanded.ShouldBeTrue();
 
         // Act again
         _viewModel.ToggleRecordSheet();
 
         // Assert
-        _viewModel.IsRecordSheetExpanded.Should().BeFalse();
+        _viewModel.IsRecordSheetExpanded.ShouldBeFalse();
     }
 }

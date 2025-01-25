@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Data.Community;
 using Sanet.MekForge.Core.Models.Units;
@@ -19,12 +19,12 @@ public class MtfDataProviderTests
         var mechData = parser.LoadMechFromTextData(_locustMtfData);
 
         // Assert
-        mechData.Chassis.Should().Be("Locust");
-        mechData.Model.Should().Be("LCT-1V");
-        mechData.Mass.Should().Be(20);
-        mechData.WalkMp.Should().Be(8);
-        mechData.EngineRating.Should().Be(160);
-        mechData.EngineType.Should().Be("Fusion");
+        mechData.Chassis.ShouldBe("Locust");
+        mechData.Model.ShouldBe("LCT-1V");
+        mechData.Mass.ShouldBe(20);
+        mechData.WalkMp.ShouldBe(8);
+        mechData.EngineRating.ShouldBe(160);
+        mechData.EngineType.ShouldBe("Fusion");
     }
 
     [Fact]
@@ -37,14 +37,14 @@ public class MtfDataProviderTests
         var mechData = parser.LoadMechFromTextData(_locustMtfData);
 
         // Assert
-        mechData.ArmorValues[PartLocation.LeftArm].FrontArmor.Should().Be(4);
-        mechData.ArmorValues[PartLocation.RightArm].FrontArmor.Should().Be(4);
-        mechData.ArmorValues[PartLocation.LeftTorso].FrontArmor.Should().Be(8);
-        mechData.ArmorValues[PartLocation.RightTorso].FrontArmor.Should().Be(8);
-        mechData.ArmorValues[PartLocation.CenterTorso].FrontArmor.Should().Be(10);
-        mechData.ArmorValues[PartLocation.Head].FrontArmor.Should().Be(8);
-        mechData.ArmorValues[PartLocation.LeftLeg].FrontArmor.Should().Be(8);
-        mechData.ArmorValues[PartLocation.RightLeg].FrontArmor.Should().Be(8);
+        mechData.ArmorValues[PartLocation.LeftArm].FrontArmor.ShouldBe(4);
+        mechData.ArmorValues[PartLocation.RightArm].FrontArmor.ShouldBe(4);
+        mechData.ArmorValues[PartLocation.LeftTorso].FrontArmor.ShouldBe(8);
+        mechData.ArmorValues[PartLocation.RightTorso].FrontArmor.ShouldBe(8);
+        mechData.ArmorValues[PartLocation.CenterTorso].FrontArmor.ShouldBe(10);
+        mechData.ArmorValues[PartLocation.Head].FrontArmor.ShouldBe(8);
+        mechData.ArmorValues[PartLocation.LeftLeg].FrontArmor.ShouldBe(8);
+        mechData.ArmorValues[PartLocation.RightLeg].FrontArmor.ShouldBe(8);
     }
 
     [Fact]
@@ -59,20 +59,20 @@ public class MtfDataProviderTests
         // Assert
         // Left Arm
         var leftArmEquipment = mechData.LocationEquipment[PartLocation.LeftArm];
-        leftArmEquipment.Should().Contain(MekForgeComponent.Shoulder);
-        leftArmEquipment.Should().Contain(MekForgeComponent.UpperArmActuator);
-        leftArmEquipment.Should().Contain(MekForgeComponent.MachineGun);
+        leftArmEquipment.ShouldContain(MekForgeComponent.Shoulder);
+        leftArmEquipment.ShouldContain(MekForgeComponent.UpperArmActuator);
+        leftArmEquipment.ShouldContain(MekForgeComponent.MachineGun);
 
         // Right Arm
         var rightArmEquipment = mechData.LocationEquipment[PartLocation.RightArm];
-        rightArmEquipment.Should().Contain(MekForgeComponent.Shoulder);
-        rightArmEquipment.Should().Contain(MekForgeComponent.UpperArmActuator);
-        rightArmEquipment.Should().Contain(MekForgeComponent.MachineGun);
+        rightArmEquipment.ShouldContain(MekForgeComponent.Shoulder);
+        rightArmEquipment.ShouldContain(MekForgeComponent.UpperArmActuator);
+        rightArmEquipment.ShouldContain(MekForgeComponent.MachineGun);
 
         // Center Torso
         var centerTorsoEquipment = mechData.LocationEquipment[PartLocation.CenterTorso];
-        centerTorsoEquipment.Should().Contain(MekForgeComponent.Engine);
-        centerTorsoEquipment.Should().Contain(MekForgeComponent.Gyro);
-        centerTorsoEquipment.Should().Contain(MekForgeComponent.MediumLaser);
+        centerTorsoEquipment.ShouldContain(MekForgeComponent.Engine);
+        centerTorsoEquipment.ShouldContain(MekForgeComponent.Gyro);
+        centerTorsoEquipment.ShouldContain(MekForgeComponent.MediumLaser);
     }
 }

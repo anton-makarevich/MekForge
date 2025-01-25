@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
@@ -56,8 +56,8 @@ public class DeploymentStateTests
     public void InitialState_HasSelectUnitAction()
     {
         // Assert
-        _state.ActionLabel.Should().Be("Select Unit");
-        _state.IsActionRequired.Should().BeTrue();
+        _state.ActionLabel.ShouldBe("Select Unit");
+        _state.IsActionRequired.ShouldBeTrue();
     }
 
     private void SetActivePlayer(Player player)
@@ -85,7 +85,7 @@ public class DeploymentStateTests
         _state.HandleUnitSelection(_unit);
 
         // Assert
-        _state.ActionLabel.Should().Be("Select Hex");
+        _state.ActionLabel.ShouldBe("Select Hex");
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public class DeploymentStateTests
         _state.HandleHexSelection(_hex1);
 
         // Assert
-        _state.ActionLabel.Should().Be("Select Direction");
+        _state.ActionLabel.ShouldBe("Select Direction");
     }
     
     [Fact]
@@ -106,10 +106,8 @@ public class DeploymentStateTests
     {
         // Arrange
         _viewModel.Game=null;
-        // Act
-        var action = () => new DeploymentState(_viewModel);
-        // Assert
-        action.Should().Throw<InvalidOperationException>();
+        // Act & Assert
+        Should.Throw<InvalidOperationException>(() => new DeploymentState(_viewModel));
     }
     
     [Fact]
@@ -121,10 +119,8 @@ public class DeploymentStateTests
             GameOriginId = Guid.NewGuid(),
             Phase = PhaseNames.Attack,
         });
-        // Act
-        var action = () => new DeploymentState(_viewModel);
-        // Assert
-        action.Should().Throw<InvalidOperationException>();
+        // Act & Assert
+        Should.Throw<InvalidOperationException>(() => new DeploymentState(_viewModel));
     }
 
     [Fact]
@@ -137,9 +133,9 @@ public class DeploymentStateTests
         _state.HandleHexSelection(_hex1);
 
         // Assert
-        _viewModel.DirectionSelectorPosition.Should().Be(_hex1.Coordinates);
-        _viewModel.IsDirectionSelectorVisible.Should().BeTrue();
-        _viewModel.AvailableDirections.Should().HaveCount(6);
+        _viewModel.DirectionSelectorPosition.ShouldBe(_hex1.Coordinates);
+        _viewModel.IsDirectionSelectorVisible.ShouldBeTrue();
+        _viewModel.AvailableDirections!.ToList().Count.ShouldBe(6);
     }
     
     [Fact]
@@ -153,7 +149,7 @@ public class DeploymentStateTests
         _state.HandleHexSelection(_hex2);
 
         // Assert
-        _viewModel.DirectionSelectorPosition.Should().Be(_hex2.Coordinates);
+        _viewModel.DirectionSelectorPosition.ShouldBe(_hex2.Coordinates);
     }
     
     [Fact]
@@ -167,8 +163,8 @@ public class DeploymentStateTests
         _state.HandleFacingSelection(HexDirection.Top);
     
         // Assert
-        _state.ActionLabel.Should().Be("");
-        _viewModel.IsDirectionSelectorVisible.Should().BeFalse();
+        _state.ActionLabel.ShouldBe("");
+        _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
     }
 
     [Fact]
@@ -182,6 +178,6 @@ public class DeploymentStateTests
         _state.HandleFacingSelection(HexDirection.Top);
 
         // Assert
-        _viewModel.IsDirectionSelectorVisible.Should().BeFalse();
+        _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
     }
 }

@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
@@ -15,7 +15,7 @@ public class StartPhaseTests : GameStateTestsBase
     {
         _sut = new StartPhase(Game);
 
-        _sut.Name.Should().Be(PhaseNames.Start);
+        _sut.Name.ShouldBe(PhaseNames.Start);
     }
 
     [Fact]
@@ -30,10 +30,10 @@ public class StartPhaseTests : GameStateTestsBase
         _sut.HandleCommand(joinCommand);
 
         // Assert
-        Game.Players.Should().HaveCount(1);
-        Game.Players[0].Id.Should().Be(playerId);
-        Game.Players[0].Name.Should().Be("Player 1");
-        Game.Players[0].Units.Should().HaveCount(1);
+        Game.Players.Count.ShouldBe(1);
+        Game.Players[0].Id.ShouldBe(playerId);
+        Game.Players[0].Name.ShouldBe("Player 1");
+        Game.Players[0].Units.Count.ShouldBe(1);
     }
 
     [Fact]
@@ -54,11 +54,11 @@ public class StartPhaseTests : GameStateTestsBase
         _sut.HandleCommand(CreateStatusCommand(player2Id, PlayerStatus.Playing));
 
         // Assert
-        Game.TurnPhase.Should().Be(PhaseNames.Deployment);
+        Game.TurnPhase.ShouldBe(PhaseNames.Deployment);
         VerifyPhaseChange(PhaseNames.Deployment);
         
         // Should set first player as active
-        Game.ActivePlayer.Should().NotBeNull();
+        Game.ActivePlayer.ShouldNotBeNull();
         VerifyActivePlayerChange(Game.ActivePlayer?.Id);
     }
 
@@ -77,9 +77,9 @@ public class StartPhaseTests : GameStateTestsBase
         _sut.HandleCommand(CreateStatusCommand(Guid.NewGuid(), PlayerStatus.Playing));
 
         // Assert
-        Game.TurnPhase.Should().Be(PhaseNames.Start);
+        Game.TurnPhase.ShouldBe(PhaseNames.Start);
         CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<ChangePhaseCommand>());
-        Game.ActivePlayer.Should().BeNull();
+        Game.ActivePlayer.ShouldBeNull();
     }
 
     [Fact]
@@ -92,8 +92,8 @@ public class StartPhaseTests : GameStateTestsBase
         _sut.HandleCommand(CreateStatusCommand(Guid.NewGuid(), PlayerStatus.Playing));
 
         // Assert
-        Game.TurnPhase.Should().Be(PhaseNames.Start);
+        Game.TurnPhase.ShouldBe(PhaseNames.Start);
         CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<ChangePhaseCommand>());
-        Game.ActivePlayer.Should().BeNull();
+        Game.ActivePlayer.ShouldBeNull();
     }
 }

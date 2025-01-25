@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Data.Community;
 using Sanet.MekForge.Core.Models.Units.Mechs;
@@ -24,17 +24,14 @@ public class MechFactoryIntegrationTests
         foreach (var mtfFile in mtfFiles)
         {
             Mech? createdMech = null;
-            // Act
-            var act = () =>
+            // Act & Assert
+            Should.NotThrow(() =>
             {
                 var mtfData = File.ReadAllLines(mtfFile);
                 var mechData = parser.LoadMechFromTextData(mtfData);
                 createdMech = mechFactory.Create(mechData);
-            };
-
-            // Assert
-            act.Should().NotThrow();
-            createdMech.Should().NotBeNull();
+            });
+            createdMech.ShouldNotBeNull();
         }
     }
 

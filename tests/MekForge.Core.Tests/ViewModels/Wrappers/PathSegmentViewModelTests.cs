@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.ViewModels.Wrappers;
 
@@ -16,7 +16,7 @@ public class PathSegmentViewModelTests
         var sut = new PathSegmentViewModel(segment);
 
         // Act & Assert
-        sut.IsTurn.Should().BeFalse();
+        sut.IsTurn.ShouldBeFalse();
     }
 
     [Fact]
@@ -29,7 +29,7 @@ public class PathSegmentViewModelTests
         var sut = new PathSegmentViewModel(segment);
 
         // Act & Assert
-        sut.IsTurn.Should().BeTrue();
+        sut.IsTurn.ShouldBeTrue();
     }
 
     [Fact]
@@ -42,10 +42,10 @@ public class PathSegmentViewModelTests
         var sut = new PathSegmentViewModel(segment);
 
         // Act & Assert
-        sut.From.Should().Be(from);
-        sut.To.Should().Be(to);
-        sut.FromX.Should().Be(from.Coordinates.H);
-        sut.FromY.Should().Be(from.Coordinates.V );
+        sut.From.ShouldBe(from);
+        sut.To.ShouldBe(to);
+        sut.FromX.ShouldBe(from.Coordinates.H);
+        sut.FromY.ShouldBe(from.Coordinates.V );
     }
 
     [Fact]
@@ -58,10 +58,10 @@ public class PathSegmentViewModelTests
         var sut = new PathSegmentViewModel(segment);
 
         // Act & Assert
-        sut.From.Should().Be(from);
-        sut.To.Should().Be(to);
-        sut.EndX.Should().Be(sut.StartX + 75); // One hex to the right
-        sut.EndY.Should().BeApproximately(sut.StartY + 43.3,0.1); // Half hex to the bottom
+        sut.From.ShouldBe(from);
+        sut.To.ShouldBe(to);
+        sut.EndX.ShouldBe(sut.StartX + 75); // One hex to the right
+        sut.EndY.ShouldBe(sut.StartY + 43.3,0.1); // Half hex to the bottom
     }
 
     [Fact]
@@ -79,8 +79,8 @@ public class PathSegmentViewModelTests
         var expectedY = sut.StartY - turnLength * Math.Cos(Math.PI / 3); // -cos(60°)
 
         // Act & Assert
-        sut.EndX.Should().BeApproximately(expectedX, 0.001);
-        sut.EndY.Should().BeApproximately(expectedY, 0.001);
+        sut.EndX.ShouldBe(expectedX, 0.001);
+        sut.EndY.ShouldBe(expectedY, 0.001);
     }
 
     [Fact]
@@ -100,8 +100,8 @@ public class PathSegmentViewModelTests
         var direction = sut.ArrowDirectionVector;
 
         // Assert
-        direction.X.Should().BeApproximately((float)expectedX, 0.001f);
-        direction.Y.Should().BeApproximately((float)expectedY, 0.001f);
+        direction.X.ShouldBe((float)expectedX, 0.001f);
+        direction.Y.ShouldBe((float)expectedY, 0.001f);
     }
 
     [Fact]
@@ -121,8 +121,8 @@ public class PathSegmentViewModelTests
         var direction = sut.ArrowDirectionVector;
 
         // Assert
-        direction.X.Should().BeApproximately((float)expectedX, 0.001f);
-        direction.Y.Should().BeApproximately((float)expectedY, 0.001f);
+        direction.X.ShouldBe((float)expectedX, 0.001f);
+        direction.Y.ShouldBe((float)expectedY, 0.001f);
     }
 
     [Fact]
@@ -135,7 +135,7 @@ public class PathSegmentViewModelTests
         var sut = new PathSegmentViewModel(segment);
 
         // Act & Assert
-        sut.TurnAngleSweep.Should().Be(60);
+        sut.TurnAngleSweep.ShouldBe(60);
     }
 
     [Fact]
@@ -148,7 +148,7 @@ public class PathSegmentViewModelTests
         var sut = new PathSegmentViewModel(segment);
 
         // Act & Assert
-        sut.TurnAngleSweep.Should().Be(-60);
+        sut.TurnAngleSweep.ShouldBe(-60);
     }
 
     [Fact]
@@ -161,7 +161,7 @@ public class PathSegmentViewModelTests
         var sut = new PathSegmentViewModel(segment);
 
         // Act & Assert
-        sut.TurnAngleSweep.Should().Be(0);
+        sut.TurnAngleSweep.ShouldBe(0);
     }
 
     [Fact]
@@ -174,6 +174,6 @@ public class PathSegmentViewModelTests
         var sut = new PathSegmentViewModel(segment);
 
         // Act & Assert
-        sut.Cost.Should().Be(2);
+        sut.Cost.ShouldBe(2);
     }
 }

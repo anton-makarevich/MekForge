@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Utils.TechRules;
@@ -38,24 +38,21 @@ namespace Sanet.MekForge.Core.Tests.Utils.TechRules
             var result = _provider.GetStructureValues(tonnage);
 
             // Assert
-            result[PartLocation.Head].Should().Be(head);
-            result[PartLocation.CenterTorso].Should().Be(centerTorso);
-            result[PartLocation.LeftTorso].Should().Be(leftTorso);
-            result[PartLocation.RightTorso].Should().Be(rightTorso);
-            result[PartLocation.LeftArm].Should().Be(leftArm);
-            result[PartLocation.RightArm].Should().Be(rightArm);
-            result[PartLocation.LeftLeg].Should().Be(leftLeg);
-            result[PartLocation.RightLeg].Should().Be(rightLeg);
+            result[PartLocation.Head].ShouldBe(head);
+            result[PartLocation.CenterTorso].ShouldBe(centerTorso);
+            result[PartLocation.LeftTorso].ShouldBe(leftTorso);
+            result[PartLocation.RightTorso].ShouldBe(rightTorso);
+            result[PartLocation.LeftArm].ShouldBe(leftArm);
+            result[PartLocation.RightArm].ShouldBe(rightArm);
+            result[PartLocation.LeftLeg].ShouldBe(leftLeg);
+            result[PartLocation.RightLeg].ShouldBe(rightLeg);
         }
 
         [Fact]
         public void GetStructureValues_InvalidTonnage_ThrowsException()
         {
-            // Act
-            Action act = () => _provider.GetStructureValues(150);
-
-            // Assert
-            act.Should().Throw<ArgumentOutOfRangeException>();
+            // Act & Assert
+            Should.Throw<ArgumentOutOfRangeException>(()=>_provider.GetStructureValues(150));
         }
 
         [Theory]
@@ -78,7 +75,7 @@ namespace Sanet.MekForge.Core.Tests.Utils.TechRules
             var result = _provider.GetAmmoRounds(ammoType);
 
             // Assert
-            result.Should().Be(expectedRounds);
+            result.ShouldBe(expectedRounds);
         }
     }
 }

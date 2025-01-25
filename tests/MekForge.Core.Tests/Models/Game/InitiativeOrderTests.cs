@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Players;
@@ -23,7 +23,7 @@ public class InitiativeOrderTests
 
         // Assert
         var orderedPlayers = _sut.GetOrderedPlayers();
-        orderedPlayers.Should().ContainInOrder(_player2, _player3, _player1);
+        orderedPlayers.ShouldBe([_player2, _player3, _player1]);
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class InitiativeOrderTests
 
         // Assert
         var orderedPlayers = _sut.GetOrderedPlayers();
-        orderedPlayers.Should().ContainInOrder(_player3, _player1, _player4, _player2);
+        orderedPlayers.ShouldBe([_player3, _player1, _player4, _player2]);
     }
 
     [Fact]
@@ -57,9 +57,9 @@ public class InitiativeOrderTests
         _sut.Clear();
 
         // Assert
-        _sut.GetOrderedPlayers().Should().BeEmpty();
-        _sut.HasPlayer(_player1).Should().BeFalse();
-        _sut.HasPlayer(_player2).Should().BeFalse();
+        _sut.GetOrderedPlayers().ShouldBeEmpty();
+        _sut.HasPlayer(_player1).ShouldBeFalse();
+        _sut.HasPlayer(_player2).ShouldBeFalse();
     }
 
     [Theory]
@@ -71,7 +71,7 @@ public class InitiativeOrderTests
         _sut.AddResult(_player1, roll);
 
         // Act & Assert
-        _sut.HasPlayer(_player1).Should().BeTrue();
+        _sut.HasPlayer(_player1).ShouldBeTrue();
     }
 
     [Fact]
@@ -81,7 +81,7 @@ public class InitiativeOrderTests
         _sut.AddResult(_player1, 5);
 
         // Act & Assert
-        _sut.HasPlayer(_player2).Should().BeFalse();
+        _sut.HasPlayer(_player2).ShouldBeFalse();
     }
 
     [Fact]
@@ -93,7 +93,7 @@ public class InitiativeOrderTests
         _sut.AddResult(_player3, 6);
 
         // Act & Assert
-        _sut.HasTies().Should().BeFalse();
+        _sut.HasTies().ShouldBeFalse();
     }
 
     [Fact]
@@ -105,7 +105,7 @@ public class InitiativeOrderTests
         _sut.AddResult(_player3, 6);
 
         // Act & Assert
-        _sut.HasTies().Should().BeTrue();
+        _sut.HasTies().ShouldBeTrue();
     }
 
     [Fact]
@@ -120,7 +120,7 @@ public class InitiativeOrderTests
         _sut.AddResult(_player2, 6);
 
         // Act & Assert
-        _sut.HasTies().Should().BeFalse();
+        _sut.HasTies().ShouldBeFalse();
     }
 
     [Fact]
@@ -135,7 +135,7 @@ public class InitiativeOrderTests
         var tiedPlayers = _sut.GetTiedPlayers();
 
         // Assert
-        tiedPlayers.Should().BeEmpty();
+        tiedPlayers.ShouldBeEmpty();
     }
 
     [Fact]
@@ -150,10 +150,10 @@ public class InitiativeOrderTests
         var tiedPlayers = _sut.GetTiedPlayers();
 
         // Assert
-        tiedPlayers.Should().HaveCount(2);
-        tiedPlayers.Should().Contain(_player1);
-        tiedPlayers.Should().Contain(_player2);
-        tiedPlayers.Should().NotContain(_player3);
+        tiedPlayers.Count.ShouldBe(2);
+        tiedPlayers.ShouldContain(_player1);
+        tiedPlayers.ShouldContain(_player2);
+        tiedPlayers.ShouldNotContain(_player3);
     }
 
     [Fact]
@@ -172,9 +172,9 @@ public class InitiativeOrderTests
         var tiedPlayers = _sut.GetTiedPlayers();
 
         // Assert
-        tiedPlayers.Should().HaveCount(2);
-        tiedPlayers.Should().Contain(_player1);
-        tiedPlayers.Should().Contain(_player2);
+        tiedPlayers.Count.ShouldBe(2);
+        tiedPlayers.ShouldContain(_player1);
+        tiedPlayers.ShouldContain(_player2);
     }
 
     [Fact]
@@ -190,16 +190,16 @@ public class InitiativeOrderTests
         var tiedPlayers = _sut.GetTiedPlayers();
 
         // Assert
-        tiedPlayers.Should().HaveCount(2);
-        tiedPlayers.Should().Contain(_player1);
-        tiedPlayers.Should().Contain(_player4);
+        tiedPlayers.Count.ShouldBe(2);
+        tiedPlayers.ShouldContain(_player1);
+        tiedPlayers.ShouldContain(_player4);
     }
 
     [Fact]
     public void GetOrderedPlayers_WhenEmpty_ShouldReturnEmptyList()
     {
         // Act & Assert
-        _sut.GetOrderedPlayers().Should().BeEmpty();
+        _sut.GetOrderedPlayers().ShouldBeEmpty();
     }
 
     [Fact]
@@ -216,7 +216,7 @@ public class InitiativeOrderTests
 
         // Assert
         var orderedPlayers = _sut.GetOrderedPlayers();
-        orderedPlayers.Should().ContainInOrder(_player1, _player3, _player2);
+        orderedPlayers.ShouldBe([_player1, _player3, _player2]);
     }
 
     [Fact]
@@ -227,7 +227,7 @@ public class InitiativeOrderTests
         _sut.StartNewRoll(); // Move to round 2
 
         // Act & Assert
-        _sut.HasPlayerRolledInCurrentRound(_player1).Should().BeFalse();
+        _sut.HasPlayerRolledInCurrentRound(_player1).ShouldBeFalse();
     }
 
     [Fact]
@@ -237,7 +237,7 @@ public class InitiativeOrderTests
         _sut.AddResult(_player1, 7);
 
         // Act & Assert
-        _sut.HasPlayerRolledInCurrentRound(_player1).Should().BeTrue();
+        _sut.HasPlayerRolledInCurrentRound(_player1).ShouldBeTrue();
     }
 
     [Fact]
@@ -249,8 +249,8 @@ public class InitiativeOrderTests
         _sut.AddResult(_player2, 8); // Round 2
 
         // Act & Assert
-        _sut.HasPlayerRolledInCurrentRound(_player1).Should().BeFalse();
-        _sut.HasPlayerRolledInCurrentRound(_player2).Should().BeTrue();
+        _sut.HasPlayerRolledInCurrentRound(_player1).ShouldBeFalse();
+        _sut.HasPlayerRolledInCurrentRound(_player2).ShouldBeTrue();
     }
 
     [Fact]
@@ -264,7 +264,7 @@ public class InitiativeOrderTests
         _sut.AddResult(_player1, 8); // Round 2
         
         // Act & Assert
-        _sut.HasPlayerRolledInCurrentRound(_player1).Should().BeTrue();
-        _sut.HasPlayerRolledInCurrentRound(_player2).Should().BeFalse();
+        _sut.HasPlayerRolledInCurrentRound(_player1).ShouldBeTrue();
+        _sut.HasPlayerRolledInCurrentRound(_player2).ShouldBeFalse();
     }
 }

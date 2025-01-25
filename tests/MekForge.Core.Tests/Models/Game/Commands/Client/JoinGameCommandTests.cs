@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
@@ -34,9 +34,9 @@ public class JoinGameCommandTests : GameCommandTestBase<JoinGameCommand>
     protected override void AssertCommandSpecificProperties(JoinGameCommand original, JoinGameCommand? cloned)
     {
         base.AssertCommandSpecificProperties(original, cloned);
-        cloned!.PlayerId.Should().Be(original.PlayerId);
-        cloned.PlayerName.Should().Be(original.PlayerName);
-        cloned.Units.Should().BeEquivalentTo(original.Units);
+        cloned!.PlayerId.ShouldBe(original.PlayerId);
+        cloned.PlayerName.ShouldBe(original.PlayerName);
+        cloned.Units.ShouldBeEquivalentTo(original.Units);
     }
 
     [Fact]
@@ -51,7 +51,7 @@ public class JoinGameCommandTests : GameCommandTestBase<JoinGameCommand>
         var result = command.Format(_localizationService, _game);
 
         // Assert
-        result.Should().Be("formatted join command");
+        result.ShouldBe("formatted join command");
         _localizationService.Received(1).GetString("Command_JoinGame");
     }
 }

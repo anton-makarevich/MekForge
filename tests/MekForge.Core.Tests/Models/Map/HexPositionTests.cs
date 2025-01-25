@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Map;
 
@@ -17,8 +17,8 @@ public class HexPositionTests
         var position = new HexPosition(coordinates, facing);
 
         // Assert
-        position.Coordinates.Should().Be(coordinates);
-        position.Facing.Should().Be(facing);
+        position.Coordinates.ShouldBe(coordinates);
+        position.Facing.ShouldBe(facing);
     }
 
     [Fact]
@@ -33,8 +33,8 @@ public class HexPositionTests
         var position = new HexPosition(q, r, facing);
 
         // Assert
-        position.Coordinates.Should().Be(new HexCoordinates(q, r));
-        position.Facing.Should().Be(facing);
+        position.Coordinates.ShouldBe(new HexCoordinates(q, r));
+        position.Facing.ShouldBe(facing);
     }
 
     [Fact]
@@ -53,8 +53,8 @@ public class HexPositionTests
         var position = new HexPosition(data);
 
         // Assert
-        position.Coordinates.Should().Be(coordinates);
-        position.Facing.Should().Be(facing);
+        position.Coordinates.ShouldBe(coordinates);
+        position.Facing.ShouldBe(facing);
     }
 
     [Theory]
@@ -76,7 +76,7 @@ public class HexPositionTests
         var cost = position.GetTurningCost(to);
 
         // Assert
-        cost.Should().Be(expectedCost);
+        cost.ShouldBe(expectedCost);
     }
 
     [Theory]
@@ -92,8 +92,8 @@ public class HexPositionTests
         var steps = position.GetTurningSteps(to).ToList();
 
         // Assert
-        steps.Count.Should().Be(expectedSteps);
-        steps.All(p => p.Coordinates == position.Coordinates).Should().BeTrue(); // All steps are in same hex
+        steps.Count.ShouldBe(expectedSteps);
+        steps.All(p => p.Coordinates == position.Coordinates).ShouldBeTrue(); // All steps are in same hex
     }
 
     [Fact]
@@ -106,7 +106,7 @@ public class HexPositionTests
         var steps = position.GetTurningSteps(HexDirection.Top).ToList();
 
         // Assert
-        steps.Should().BeEmpty();
+        steps.ShouldBeEmpty();
     }
 
     [Theory]
@@ -126,8 +126,8 @@ public class HexPositionTests
         var result = position.GetOppositeDirectionPosition();
 
         // Assert
-        result.Coordinates.Should().Be(coordinates);
-        result.Facing.Should().Be(expected);
+        result.Coordinates.ShouldBe(coordinates);
+        result.Facing.ShouldBe(expected);
     }
 
     [Fact]
@@ -141,7 +141,7 @@ public class HexPositionTests
         var result = position.GetOppositeDirectionPosition();
 
         // Assert
-        result.Coordinates.Should().Be(coordinates);
+        result.Coordinates.ShouldBe(coordinates);
     }
 
     [Fact]
@@ -154,9 +154,9 @@ public class HexPositionTests
         var steps = position.GetTurningSteps(HexDirection.BottomRight).ToList();
 
         // Assert
-        steps.Count.Should().Be(2);
-        steps[0].Facing.Should().Be(HexDirection.TopRight);
-        steps[1].Facing.Should().Be(HexDirection.BottomRight);
+        steps.Count.ShouldBe(2);
+        steps[0].Facing.ShouldBe(HexDirection.TopRight);
+        steps[1].Facing.ShouldBe(HexDirection.BottomRight);
     }
 
     [Fact]
@@ -169,9 +169,9 @@ public class HexPositionTests
         var steps = position.GetTurningSteps(HexDirection.BottomLeft).ToList();
 
         // Assert
-        steps.Count.Should().Be(2); // Should take 2 steps counterclockwise instead of 4 clockwise
-        steps[0].Facing.Should().Be(HexDirection.TopLeft);
-        steps[1].Facing.Should().Be(HexDirection.BottomLeft);
+        steps.Count.ShouldBe(2); // Should take 2 steps counterclockwise instead of 4 clockwise
+        steps[0].Facing.ShouldBe(HexDirection.TopLeft);
+        steps[1].Facing.ShouldBe(HexDirection.BottomLeft);
     }
 
     [Fact]
@@ -186,8 +186,8 @@ public class HexPositionTests
         var data = position.ToData();
 
         // Assert
-        data.Coordinates.Should().Be(new HexCoordinateData(2,3));
-        data.Facing.Should().Be(3);
+        data.Coordinates.ShouldBe(new HexCoordinateData(2,3));
+        data.Facing.ShouldBe(3);
     }
 
     [Fact]
@@ -198,7 +198,7 @@ public class HexPositionTests
         var position2 = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
 
         // Assert
-        position1.Should().Be(position2);
+        position1.ShouldBe(position2);
     }
 
     [Fact]
@@ -210,7 +210,7 @@ public class HexPositionTests
         var position3 = new HexPosition(new HexCoordinates(2, 1), HexDirection.Top);
 
         // Assert
-        position1.Should().NotBe(position2); // Different facing
-        position1.Should().NotBe(position3); // Different coordinates
+        position1.ShouldNotBe(position2); // Different facing
+        position1.ShouldNotBe(position3); // Different coordinates
     }
 }
