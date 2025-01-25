@@ -6,7 +6,7 @@ namespace Sanet.MekForge.Avalonia.Converters;
 
 public class HexColorToBrushConverter : IValueConverter
 {
-    public object? Convert(
+    public object Convert(
         object? value, Type targetType, 
         object? parameter,
         System.Globalization.CultureInfo culture)

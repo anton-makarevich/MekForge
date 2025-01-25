@@ -3,7 +3,7 @@ using Sanet.MekForge.Core.Models.Units;
 
 namespace Sanet.MekForge.Core.Data.Community;
 
-public class MtfDataProvider:IMechDataProvider
+public partial class MtfDataProvider:IMechDataProvider
 {
     public UnitData LoadMechFromTextData(IEnumerable<string> lines)
     {
@@ -138,7 +138,7 @@ public class MtfDataProvider:IMechDataProvider
             }
 
             // Add equipment to current location
-            if (!currentLocation.HasValue || line.Contains("-Empty-")) continue;
+            if (currentLocation.HasValue && !line.Contains("-Empty-"))
             {
                 locationEquipment[currentLocation.Value].Add(MapMtfStringToComponent(line));
             }

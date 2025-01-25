@@ -162,7 +162,7 @@
                     <controls:UnitHealthIndicator Unit="{Binding SelectedUnit}"/>
                 </TabItem>
                 <TabItem Header="Weapons">
-                    <!-- Weapons content will be added later -->
+                    <controls:UnitWeaponsPanel Unit="{Binding SelectedUnit}"/>
                 </TabItem>
             </TabControl>
         </templatedControls:GamePanel>
