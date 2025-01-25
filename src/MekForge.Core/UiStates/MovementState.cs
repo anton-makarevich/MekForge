@@ -61,25 +61,44 @@ public class MovementState : IUiState
         // Get reachable hexes and highlight them
         if (_selectedUnit?.Position != null && _viewModel.Game != null)
         {
-            // Get forward reachable hexes
-            _forwardReachableHexes = _viewModel.Game.BattleMap
-                .GetReachableHexes(_selectedUnit.Position.Value, _movementPoints, _prohibitedHexes)
-                .Select(x => x.coordinates)
-                .Where(hex => !_viewModel.Units
-                    .Any(u => u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id && u.Position?.Coordinates == hex))
-                .ToList();
-
-            // Get backward reachable hexes if unit can move backward
-            _backwardReachableHexes = [];
-            if (_selectedUnit.CanMoveBackward(movementType))
+            if (movementType == MovementType.Jump)
             {
-                var oppositePosition = _selectedUnit.Position.Value.GetOppositeDirectionPosition();
-                _backwardReachableHexes = _viewModel.Game.BattleMap
-                    .GetReachableHexes(oppositePosition, _movementPoints, _prohibitedHexes)
+                // For jumping, we use the simplified method that ignores terrain and facing
+                var reachableHexes = _viewModel.Game.BattleMap
+                    .GetJumpReachableHexes(
+                        _selectedUnit.Position.Value.Coordinates,
+                        _movementPoints,
+                        _prohibitedHexes)
+                    .Where(hex => !_viewModel.Units
+                        .Any(u => u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id && u.Position?.Coordinates == hex))
+                    .ToList();
+                
+                // For jumping, there's no forward/backward distinction
+                _forwardReachableHexes = reachableHexes;
+                _backwardReachableHexes = [];
+            }
+            else
+            {
+                // Get forward reachable hexes
+                _forwardReachableHexes = _viewModel.Game.BattleMap
+                    .GetReachableHexes(_selectedUnit.Position.Value, _movementPoints, _prohibitedHexes)
                     .Select(x => x.coordinates)
                     .Where(hex => !_viewModel.Units
                         .Any(u => u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id && u.Position?.Coordinates == hex))
                     .ToList();
+
+                // Get backward reachable hexes if unit can move backward
+                _backwardReachableHexes = [];
+                if (_selectedUnit.CanMoveBackward(movementType))
+                {
+                    var oppositePosition = _selectedUnit.Position.Value.GetOppositeDirectionPosition();
+                    _backwardReachableHexes = _viewModel.Game.BattleMap
+                        .GetReachableHexes(oppositePosition, _movementPoints, _prohibitedHexes)
+                        .Select(x => x.coordinates)
+                        .Where(hex => !_viewModel.Units
+                            .Any(u => u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id && u.Position?.Coordinates == hex))
+                        .ToList();
+                }
             }
 
             // Highlight all reachable hexes

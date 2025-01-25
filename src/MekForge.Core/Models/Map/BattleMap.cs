@@ -198,6 +198,50 @@ public class BattleMap
     }
 
     /// <summary>
+    /// Gets all valid hexes that can be reached with jumping movement, where each hex costs 1 MP
+    /// regardless of terrain or facing direction
+    /// </summary>
+    public IEnumerable<HexCoordinates> GetJumpReachableHexes(
+        HexCoordinates start,
+        int movementPoints,
+        IEnumerable<HexCoordinates>? prohibitedHexes = null)
+    {
+        var reachableHexes = new HashSet<HexCoordinates>();
+        var prohibited = prohibitedHexes?.ToHashSet() ?? [];
+        
+        // For jumping, we check all hexes within movementPoints distance
+        // and each hex costs exactly 1 MP regardless of terrain
+        for (var q = -movementPoints; q <= movementPoints; q++)
+        {
+            for (var r = Math.Max(-movementPoints, -q - movementPoints); 
+                 r <= Math.Min(movementPoints, -q + movementPoints); 
+                 r++)
+            {
+                var coordinates = new HexCoordinates(
+                    start.Q + q,
+                    start.R + r);
+                
+                // Skip if hex doesn't exist on map or is prohibited
+                var hex = GetHex(coordinates);
+                if (hex == null || prohibited.Contains(coordinates))
+                    continue;
+                
+                // For jumping, we only care about the actual distance
+                // since each hex movement costs 1 MP
+                if (start.DistanceTo(coordinates) <= movementPoints)
+                {
+                    reachableHexes.Add(coordinates);
+                }
+            }
+        }
+        
+        // Remove the starting hex from results
+        reachableHexes.Remove(start);
+        
+        return reachableHexes;
+    }
+
+    /// <summary>
     /// Checks if there is line of sight between two hexes
     /// </summary>
     public bool HasLineOfSight(HexCoordinates from, HexCoordinates to)
