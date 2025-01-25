@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
@@ -59,7 +59,7 @@ public class ServerGameTests
         _serverGame.HandleCommand(joinCommand);
 
         // Assert
-        _serverGame.Players.Should().HaveCount(1);
+        _serverGame.Players.Count.ShouldBe(1);
     }
 
     [Fact]
@@ -80,7 +80,7 @@ public class ServerGameTests
 
         // Assert
         // Verify that no players were added since the command was from this game instance
-        _serverGame.Players.Should().BeEmpty();
+        _serverGame.Players.ShouldBeEmpty();
     }
     
     [Fact]
@@ -109,8 +109,8 @@ public class ServerGameTests
 
         // Assert
         var updatedPlayer = _serverGame.Players.FirstOrDefault(p => p.Id == playerId);
-        updatedPlayer.Should().NotBeNull();
-        updatedPlayer.Status.Should().Be(PlayerStatus.Playing);
+        updatedPlayer.ShouldNotBeNull();
+        updatedPlayer.Status.ShouldBe(PlayerStatus.Playing);
     }
 
     [Fact]
@@ -134,7 +134,7 @@ public class ServerGameTests
         });
 
         // Assert
-        _serverGame.TurnPhase.Should().Be(PhaseNames.Deployment);
+        _serverGame.TurnPhase.ShouldBe(PhaseNames.Deployment);
         _commandPublisher.Received(1).PublishCommand(Arg.Is<ChangePhaseCommand>(cmd => 
             cmd.Phase == PhaseNames.Deployment &&
             cmd.GameOriginId == _serverGame.Id
@@ -181,9 +181,9 @@ public class ServerGameTests
         });
         
         // Assert
-        _serverGame.ActivePlayer.Should().NotBeNull();
+        _serverGame.ActivePlayer.ShouldNotBeNull();
         var expectedIds = new List<Guid> { playerId1, playerId2 };
-        expectedIds.Should().Contain(_serverGame.ActivePlayer.Id);
+        expectedIds.ShouldContain(_serverGame.ActivePlayer.Id);
     }
     
     [Fact]
@@ -223,8 +223,8 @@ public class ServerGameTests
         });
     
         // Assert
-        _serverGame.Players.All(p=>p.Units.All(u=>u.IsDeployed)).Should().BeTrue();
-        _serverGame.TurnPhase.Should().Be(PhaseNames.Initiative);
+        _serverGame.Players.All(p=>p.Units.All(u=>u.IsDeployed)).ShouldBeTrue();
+        _serverGame.TurnPhase.ShouldBe(PhaseNames.Initiative);
     }
     
     [Fact]
@@ -235,6 +235,6 @@ public class ServerGameTests
         _serverGame.IncrementTurn();
     
         // Assert
-        _serverGame.Turn.Should().Be(2);
+        _serverGame.Turn.ShouldBe(2);
     }
 }

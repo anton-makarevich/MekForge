@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Models.Map;
 
@@ -13,8 +13,8 @@ public class HexCoordinatesTests
         var coords = new HexCoordinates(2, 3);
 
         // Assert
-        coords.Q.Should().Be(2);
-        coords.R.Should().Be(3);
+        coords.Q.ShouldBe(2);
+        coords.R.ShouldBe(3);
     }
 
     [Fact]
@@ -27,7 +27,7 @@ public class HexCoordinatesTests
         var s = coords.S;
 
         // Assert
-        s.Should().Be(-5); // -Q - R = -2 - 3 = -5
+        s.ShouldBe(-5); // -Q - R = -2 - 3 = -5
     }
     
     [Fact]
@@ -38,13 +38,13 @@ public class HexCoordinatesTests
         var hexOdd = new HexCoordinates(1, 2);  // Odd column
 
         // Assert
-        hexEven.X.Should().Be(2);
-        hexEven.Z.Should().Be(2); // Calculation: R - (Q + (Q % 2)) / 2 = 3 - (2 + 0) / 2
-        hexEven.Y.Should().Be(-4); // Calculation: -X - Z = -2 - 2
+        hexEven.X.ShouldBe(2);
+        hexEven.Z.ShouldBe(2); // Calculation: R - (Q + (Q % 2)) / 2 = 3 - (2 + 0) / 2
+        hexEven.Y.ShouldBe(-4); // Calculation: -X - Z = -2 - 2
 
-        hexOdd.X.Should().Be(1);
-        hexOdd.Z.Should().Be(1); // Calculation: R - (Q + (Q % 2)) / 2 = 2 - (1 + 1) / 2
-        hexOdd.Y.Should().Be(-2); // Calculation: -X - Z = -1 - 1
+        hexOdd.X.ShouldBe(1);
+        hexOdd.Z.ShouldBe(1); // Calculation: R - (Q + (Q % 2)) / 2 = 2 - (1 + 1) / 2
+        hexOdd.Y.ShouldBe(-2); // Calculation: -X - Z = -1 - 1
     }
     
     [Theory]
@@ -62,22 +62,20 @@ public class HexCoordinatesTests
         var direction = center.GetDirectionToNeighbour(neighbour);
 
         // Assert
-        direction.Should().Be(expectedDirection);
+        direction.ShouldBe(expectedDirection);
     }
     
     [Fact]
-    public void GetDirectionFromToNeighbour_ThrowsException_ForNonAdjacentNeighbour()
+    public void GetDirectionToNeighbour_ThrowsWhenNotAdjacent()
     {
         // Arrange
-        var center = new HexCoordinates(4, 4);
-        var neighbour = new HexCoordinates(6, 4); // Non-adjacent
+        var center = new HexCoordinates(5, 4);
+        var neighbour = new HexCoordinates(7, 4); // Not adjacent
 
-        // Act
+        // Act & Assert
         Action act = () => center.GetDirectionToNeighbour(neighbour);
-
-        // Assert
-        act.Should().Throw<WrongHexException>()
-            .WithMessage("Neighbour is not adjacent to center.");
+        Should.Throw<WrongHexException>(act)
+            .Message.ShouldBe("Neighbour is not adjacent to center.");
     }
 
     [Theory]
@@ -100,7 +98,7 @@ public class HexCoordinatesTests
         var distance = hex1.DistanceTo(hex2);
 
         // Assert
-        distance.Should().Be(expectedDistance);
+        distance.ShouldBe(expectedDistance);
     }
 
     [Fact]
@@ -115,7 +113,7 @@ public class HexCoordinatesTests
         var distance2To1 = hex2.DistanceTo(hex1);
 
         // Assert
-        distance1To2.Should().Be(distance2To1);
+        distance1To2.ShouldBe(distance2To1);
     }
 
     [Fact]
@@ -128,13 +126,13 @@ public class HexCoordinatesTests
         var neighbors = center.GetAdjacentCoordinates().ToList();
 
         // Assert
-        neighbors.Should().HaveCount(6);
-        neighbors.Should().Contain(new HexCoordinates(1, 2));   // East
-        neighbors.Should().Contain(new HexCoordinates(1, 3));  // Northeast
-        neighbors.Should().Contain(new HexCoordinates(2, 1));  // Northwest
-        neighbors.Should().Contain(new HexCoordinates(2, 3));  // West
-        neighbors.Should().Contain(new HexCoordinates(3, 2));  // Southwest
-        neighbors.Should().Contain(new HexCoordinates(3, 3));   // Southeast
+        neighbors.Count.ShouldBe(6);
+        neighbors.ShouldContain(new HexCoordinates(1, 2));   // East
+        neighbors.ShouldContain(new HexCoordinates(1, 3));  // Northeast
+        neighbors.ShouldContain(new HexCoordinates(2, 1));  // Northwest
+        neighbors.ShouldContain(new HexCoordinates(2, 3));  // West
+        neighbors.ShouldContain(new HexCoordinates(3, 2));  // Southwest
+        neighbors.ShouldContain(new HexCoordinates(3, 3));   // Southeast
     }
 
     [Fact]
@@ -149,7 +147,7 @@ public class HexCoordinatesTests
         // Assert
         foreach (var neighbor in neighbors)
         {
-            center.DistanceTo(neighbor).Should().Be(1);
+            center.DistanceTo(neighbor).ShouldBe(1);
         }
     }
 
@@ -169,12 +167,12 @@ public class HexCoordinatesTests
         // Assert
         foreach (var hex in hexesInRange)
         {
-            center.DistanceTo(hex).Should().BeLessThanOrEqualTo(range);
+            center.DistanceTo(hex).ShouldBeLessThanOrEqualTo(range);
         }
 
         // Verify that all hexes at exactly range distance are included
         var hexesAtRange = hexesInRange.Where(h => center.DistanceTo(h) == range);
-        hexesAtRange.Count().Should().Be(6 * range); // Each range adds 6 more hexes
+        hexesAtRange.Count().ShouldBe(6 * range); // Each range adds 6 more hexes
     }
 
     [Fact]
@@ -186,9 +184,9 @@ public class HexCoordinatesTests
         var hex3 = new HexCoordinates(2, 0);
 
         // Assert
-        hex1.H.Should().Be(0);
-        hex2.H.Should().Be(75); // 100 * 0.75
-        hex3.H.Should().Be(150); // 200 * 0.75
+        hex1.H.ShouldBe(0);
+        hex2.H.ShouldBe(75); // 100 * 0.75
+        hex3.H.ShouldBe(150); // 200 * 0.75
     }
 
     [Fact]
@@ -201,10 +199,10 @@ public class HexCoordinatesTests
         var hex4 = new HexCoordinates(1, 1); // Odd Q
 
         // Assert
-        hex1.V.Should().Be(0);
-        hex2.V.Should().Be(HexCoordinates.HexHeight);
-        hex3.V.Should().Be( -HexCoordinates.HexHeight*0.5);  // Offset for odd Q
-        hex4.V.Should().Be(HexCoordinates.HexHeight*0.5);  // Height - 0.5*Height offset for odd Q
+        hex1.V.ShouldBe(0);
+        hex2.V.ShouldBe(HexCoordinates.HexHeight);
+        hex3.V.ShouldBe( -HexCoordinates.HexHeight*0.5);  // Offset for odd Q
+        hex4.V.ShouldBe(HexCoordinates.HexHeight*0.5);  // Height - 0.5*Height offset for odd Q
     }
     
     [Fact]
@@ -218,9 +216,9 @@ public class HexCoordinatesTests
         var hexes = start.LineTo(end);
 
         // Assert
-        hexes.Should().NotBeNull();
-        hexes.Count.Should().Be(4);
-        hexes.Should().ContainInOrder(new HexCoordinates(1, 1), new HexCoordinates(2,1), new HexCoordinates(2, 2), new HexCoordinates(3, 3));
+        hexes.ShouldNotBeNull();
+        hexes.Count.ShouldBe(4);
+        hexes.ShouldBe(new[] { new HexCoordinates(1, 1), new HexCoordinates(2,1), new HexCoordinates(2, 2), new HexCoordinates(3, 3) });
     }
 
     [Fact]
@@ -233,9 +231,9 @@ public class HexCoordinatesTests
         var hexes = coordinates.LineTo(coordinates);
 
         // Assert
-        hexes.Should().NotBeNull();
-        hexes.Count.Should().Be(1);
-        hexes.Should().ContainSingle().Which.Should().Be(coordinates);
+        hexes.ShouldNotBeNull();
+        hexes.Count.ShouldBe(1);
+        hexes.ShouldBe(new[] { coordinates });
     }
     
     [Fact]
@@ -248,8 +246,8 @@ public class HexCoordinatesTests
         var data = hexCoordinates.ToData();
          
         // Assert
-        data.Q.Should().Be(3);
-        data.R.Should().Be(4);
+        data.Q.ShouldBe(3);
+        data.R.ShouldBe(4);
     }
 
     [Fact]
@@ -262,6 +260,6 @@ public class HexCoordinatesTests
         var text = hexCoordinates.ToString();
         
         // Assert
-        text.Should().Be("0304");
+        text.ShouldBe("0304");
     }
 }

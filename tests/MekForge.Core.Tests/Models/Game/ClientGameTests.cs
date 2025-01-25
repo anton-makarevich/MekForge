@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
@@ -47,8 +47,8 @@ public class ClientGameTests
         _clientGame.HandleCommand(joinCommand);
 
         // Assert
-        _clientGame.Players.Should().HaveCount(1);
-        _clientGame.Players[0].Name.Should().Be(joinCommand.PlayerName);
+        _clientGame.Players.Count.ShouldBe(1);
+        _clientGame.Players[0].Name.ShouldBe(joinCommand.PlayerName);
     }
     
     [Fact]
@@ -69,7 +69,7 @@ public class ClientGameTests
 
         // Assert
         // Verify that no players were added since the command was from this game instance
-        _clientGame.Players.Should().BeEmpty();
+        _clientGame.Players.ShouldBeEmpty();
     }
 
     [Fact]
@@ -115,8 +115,8 @@ public class ClientGameTests
 
         // Assert
         var updatedPlayer = _clientGame.Players.FirstOrDefault(p => p.Id == playerId);
-        updatedPlayer.Should().NotBeNull();
-        updatedPlayer.Status.Should().Be(PlayerStatus.Playing);
+        updatedPlayer.ShouldNotBeNull();
+        updatedPlayer.Status.ShouldBe(PlayerStatus.Playing);
     }
     
     [Fact]
@@ -171,7 +171,7 @@ public class ClientGameTests
         _clientGame.HandleCommand(command);
         
         // Assert
-        _clientGame.TurnPhase.Should().Be(PhaseNames.End);
+        _clientGame.TurnPhase.ShouldBe(PhaseNames.End);
     }
     
     [Fact]
@@ -199,9 +199,9 @@ public class ClientGameTests
         _clientGame.HandleCommand(command);
         
         // Assert
-        _clientGame.ActivePlayer.Should().Be(actualPlayer);
-        actualPlayer.Name.Should().Be(player.Name);
-        actualPlayer.Id.Should().Be(player.Id);
+        _clientGame.ActivePlayer.ShouldBe(actualPlayer);
+        actualPlayer.Name.ShouldBe(player.Name);
+        actualPlayer.Id.ShouldBe(player.Id);
     }
 
     [Fact]
@@ -221,8 +221,8 @@ public class ClientGameTests
         _clientGame.HandleCommand(joinCommand);
 
         // Assert
-        _clientGame.CommandLog.Should().HaveCount(1);
-        _clientGame.CommandLog[0].Should().BeEquivalentTo(joinCommand);
+        _clientGame.CommandLog.Count.ShouldBe(1);
+        _clientGame.CommandLog[0].ShouldBeEquivalentTo(joinCommand);
     }
 
     [Fact]
@@ -242,7 +242,7 @@ public class ClientGameTests
         _clientGame.HandleCommand(command);
 
         // Assert
-        _clientGame.CommandLog.Should().BeEmpty();
+        _clientGame.CommandLog.ShouldBeEmpty();
     }
 
     [Fact]
@@ -264,8 +264,8 @@ public class ClientGameTests
         _clientGame.HandleCommand(joinCommand);
 
         // Assert
-        receivedCommands.Should().HaveCount(1);
-        receivedCommands.First().Should().BeEquivalentTo(joinCommand);
+        receivedCommands.Count.ShouldBe(1);
+        receivedCommands.First().ShouldBeEquivalentTo(joinCommand);
     }
 
     [Fact]
@@ -420,10 +420,10 @@ public class ClientGameTests
 
         // Assert
         var deployedUnit = _clientGame.Players.First().Units.First();
-        deployedUnit.IsDeployed.Should().BeTrue();
-        deployedUnit.Position.Value.Coordinates.Q.Should().Be(1);
-        deployedUnit.Position.Value.Coordinates.R.Should().Be(1);
-        deployedUnit.Position.Value.Facing.Should().Be(HexDirection.Top);
+        deployedUnit.IsDeployed.ShouldBeTrue();
+        deployedUnit.Position.Value.Coordinates.Q.ShouldBe(1);
+        deployedUnit.Position.Value.Coordinates.R.ShouldBe(1);
+        deployedUnit.Position.Value.Facing.ShouldBe(HexDirection.Top);
     }
 
     [Fact]
@@ -468,7 +468,7 @@ public class ClientGameTests
 
         // Assert
         var unit = _clientGame.Players.First().Units.First();
-        unit.Position.Should().Be(initialPosition);
+        unit.Position.ShouldBe(initialPosition);
     }
 
     [Fact]
@@ -512,9 +512,9 @@ public class ClientGameTests
 
         // Assert
         var movedUnit = _clientGame.Players.First().Units.First();
-        movedUnit.Position.Value.Coordinates.Q.Should().Be(2);
-        movedUnit.Position.Value.Coordinates.R.Should().Be(2);
-        movedUnit.Position.Value.Facing.Should().Be(HexDirection.Top);
+        movedUnit.Position.Value.Coordinates.Q.ShouldBe(2);
+        movedUnit.Position.Value.Coordinates.R.ShouldBe(2);
+        movedUnit.Position.Value.Facing.ShouldBe(HexDirection.Top);
     }
 
     [Fact]
@@ -541,7 +541,6 @@ public class ClientGameTests
         };
 
         // Act & Assert
-        _clientGame.Invoking(g => g.HandleCommand(moveCommand))
-            .Should().NotThrow();
+        Should.NotThrow(() => _clientGame.HandleCommand(moveCommand));
     }
 }
