@@ -206,39 +206,18 @@ public class BattleMap
         int movementPoints,
         IEnumerable<HexCoordinates>? prohibitedHexes = null)
     {
-        var reachableHexes = new HashSet<HexCoordinates>();
         var prohibited = prohibitedHexes?.ToHashSet() ?? [];
         
-        // For jumping, we check all hexes within movementPoints distance
-        // and each hex costs exactly 1 MP regardless of terrain
-        for (var q = -movementPoints; q <= movementPoints; q++)
-        {
-            for (var r = Math.Max(-movementPoints, -q - movementPoints); 
-                 r <= Math.Min(movementPoints, -q + movementPoints); 
-                 r++)
+        // Get all hexes within range using the existing method
+        return start.GetCoordinatesInRange(movementPoints)
+            .Where(coordinates =>
             {
-                var coordinates = new HexCoordinates(
-                    start.Q + q,
-                    start.R + r);
-                
                 // Skip if hex doesn't exist on map or is prohibited
                 var hex = GetHex(coordinates);
-                if (hex == null || prohibited.Contains(coordinates))
-                    continue;
-                
-                // For jumping, we only care about the actual distance
-                // since each hex movement costs 1 MP
-                if (start.DistanceTo(coordinates) <= movementPoints)
-                {
-                    reachableHexes.Add(coordinates);
-                }
-            }
-        }
-        
-        // Remove the starting hex from results
-        reachableHexes.Remove(start);
-        
-        return reachableHexes;
+                return hex != null && 
+                       !prohibited.Contains(coordinates) &&
+                       coordinates != start;
+            });
     }
 
     /// <summary>

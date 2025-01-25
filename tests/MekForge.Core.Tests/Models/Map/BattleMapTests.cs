@@ -464,9 +464,13 @@ public class BattleMapTests
 
         // Assert
         // Should return exactly the hexes that are 1-2 hexes away (not including start hex)
-        reachableHexes.Should().HaveCount(12); // 6 hexes at distance 1 + 6 hexes at distance 2
+        reachableHexes.Should().HaveCount(18); // 6 hexes at distance 1 + 12 hexes at distance 2
         reachableHexes.Should().NotContain(start); // Should not include start hex
         reachableHexes.All(h => h.DistanceTo(start) <= movementPoints).Should().BeTrue();
+        
+        // Verify we have correct number of hexes at each distance
+        reachableHexes.Count(h => h.DistanceTo(start) == 1).Should().Be(6, "Should have 6 hexes at distance 1");
+        reachableHexes.Count(h => h.DistanceTo(start) == 2).Should().Be(12, "Should have 12 hexes at distance 2");
     }
 
     [Fact]
