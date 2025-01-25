@@ -41,6 +41,8 @@ public class MovementStateTests
         
         var rules = new ClassicBattletechRulesProvider();
         _unitData = MechFactoryTests.CreateDummyMechData();
+        var ct = _unitData.LocationEquipment[PartLocation.CenterTorso];
+        ct.AddRange(MekForgeComponent.JumpJet,MekForgeComponent.JumpJet);
         _unit1 = new MechFactory(rules).Create(_unitData);
         _unit2 = new MechFactory(rules).Create(_unitData);
         
@@ -494,6 +496,79 @@ public class MovementStateTests
         
         // Assert
         _viewModel.MovementPath.Should().BeNull();
+        foreach (var hex in _viewModel.Game.BattleMap.GetHexes())
+        {
+            hex.IsHighlighted.Should().BeFalse();
+        }
+    }
+
+    [Fact]
+    public void HandleMovementTypeSelection_ForJumping_CalculatesReachableHexes()
+    {
+        // Arrange
+        var position = new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom);
+        _unit1.Deploy(position);
+        _state.HandleUnitSelection(_unit1);
+        
+        // Act
+        _state.HandleMovementTypeSelection(MovementType.Jump);
+
+        // Assert
+        var reachableHexes = _game.BattleMap.GetHexes()
+            .Count(h => h.IsHighlighted);
+        reachableHexes.Should().BeGreaterThan(0, "Should highlight reachable hexes");
+
+        // Verify only hexes within jump range are highlighted
+        foreach (var hex in _game.BattleMap.GetHexes())
+        {
+            if (hex.IsHighlighted)
+            {
+                hex.Coordinates.DistanceTo(position.Coordinates)
+                    .Should().BeLessThanOrEqualTo(_unit1.GetMovementPoints(MovementType.Jump),
+                        "Should only highlight hexes within jump range");
+            }
+        }
+    }
+
+    [Fact]
+    public void HandleTargetHexSelection_ForJumping_ShowsAllDirections()
+    {
+        // Arrange
+        var startPosition = new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom);
+        _unit1.Deploy(startPosition);
+        _state.HandleUnitSelection(_unit1);
+        _state.HandleMovementTypeSelection(MovementType.Jump);
+        
+        var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 3))!;
+        
+        // Act
+        _state.HandleHexSelection(targetHex);
+        
+        // Assert
+        _viewModel.IsDirectionSelectorVisible.Should().BeTrue("Should show direction selector");
+        _viewModel.DirectionSelectorPosition.Should().Be(targetHex.Coordinates);
+        _viewModel.AvailableDirections.Should().HaveCount(6, "All directions should be available for jumping");
+    }
+
+    [Fact]
+    public void HandleFacingSelection_ForJumping_CompletesMovementWithoutPath()
+    {
+        // Arrange
+        var startPosition = new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom);
+        _unit1.Deploy(startPosition);
+        _state.HandleUnitSelection(_unit1);
+        _state.HandleMovementTypeSelection(MovementType.Jump);
+        
+        var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 3))!;
+        _state.HandleHexSelection(targetHex);
+        
+        // Act
+        _state.HandleFacingSelection(HexDirection.Top);
+        
+        // Assert
+        _viewModel.MovementPath.Should().BeNull("Should not show movement path for jumping");
+        _state.ActionLabel.Should().BeEmpty();
+        _state.IsActionRequired.Should().BeFalse();
         foreach (var hex in _viewModel.Game.BattleMap.GetHexes())
         {
             hex.IsHighlighted.Should().BeFalse();

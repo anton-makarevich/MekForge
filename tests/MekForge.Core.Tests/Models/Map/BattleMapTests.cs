@@ -93,16 +93,9 @@ public class BattleMapTests
     public void GetReachableHexes_WithClearTerrain_ReturnsCorrectHexes()
     {
         // Arrange
-        var map = new BattleMap(5, 5);
+        var map = BattleMap.GenerateMap(5, 5,
+            new SingleTerrainGenerator(5, 5, new ClearTerrain()));
         var start = new HexPosition(new HexCoordinates(3, 3), HexDirection.Top);
-
-        // Add clear terrain in a 2-hex radius
-        foreach (var hex in start.Coordinates.GetCoordinatesInRange(2))
-        {
-            var mapHex = new Hex(hex);
-            mapHex.AddTerrain(new ClearTerrain());
-            map.AddHex(mapHex);
-        }
 
         // Act
         var reachable = map.GetReachableHexes(start, 2).ToList();
@@ -455,5 +448,76 @@ public class BattleMapTests
         turnSegments.Should().HaveCount(4, "Should have 4 turns");
         turnSegments.Should().AllSatisfy(s => s.Cost.Should().Be(1), 
             "All turn segments should cost 1 MP");
+    }
+
+    [Theory]
+    [InlineData(typeof(ClearTerrain))] 
+    [InlineData(typeof(LightWoodsTerrain))] 
+    [InlineData(typeof(HeavyWoodsTerrain))] 
+    public void GetJumpReachableHexes_WithDifferentTerrains_IgnoresTerrainCost(Type terrainType)
+    {
+        // Arrange
+        var terrain = (Terrain)Activator.CreateInstance(terrainType)!;
+        var map = BattleMap.GenerateMap(5, 5,
+            new SingleTerrainGenerator(5, 5, terrain));
+        var start = new HexCoordinates(3, 3);
+        const int movementPoints = 2; 
+
+        // Act
+        var reachableHexes = map.GetJumpReachableHexes(start, movementPoints).ToList();
+
+        // Assert
+        reachableHexes.Should().HaveCount(18, 
+            $"Should have 18 total reachable hexes with {terrainType.Name}");
+        reachableHexes.Should().NotContain(start, 
+            "Should not include start hex");
+        reachableHexes.All(h => h.DistanceTo(start) <= movementPoints).Should().BeTrue(
+            "All hexes should be within movement range");
+        
+        // Verify we have correct number of hexes at each distance
+        reachableHexes.Count(h => h.DistanceTo(start) == 1).Should().Be(6, 
+            "Should have 6 hexes at distance 1");
+        reachableHexes.Count(h => h.DistanceTo(start) == 2).Should().Be(12, 
+            "Should have 12 hexes at distance 2");
+    }
+
+    [Fact]
+    public void GetJumpReachableHexes_WithProhibitedHexes_ExcludesProhibitedHexes()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(5, 5,
+            new SingleTerrainGenerator(5, 5, new ClearTerrain()));
+        var start = new HexCoordinates(3, 3);
+        const int movementPoints = 2;
+
+        // Prohibit some adjacent hexes
+        var prohibitedHexes = start.GetAdjacentCoordinates().Take(3).ToList();
+
+        // Act
+        var reachableHexes = map.GetJumpReachableHexes(start, movementPoints, prohibitedHexes).ToList();
+
+        // Assert
+        reachableHexes.Should().NotContain(prohibitedHexes);
+        reachableHexes.Should().OnlyContain(h => !prohibitedHexes.Contains(h));
+        reachableHexes.All(h => h.DistanceTo(start) <= movementPoints).Should().BeTrue();
+    }
+
+    [Fact]
+    public void GetJumpReachableHexes_AtMapEdge_ReturnsOnlyValidHexes()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(3, 3,
+            new SingleTerrainGenerator(3, 3, new ClearTerrain()));
+        var start = new HexCoordinates(1, 1); // Corner hex
+        const int movementPoints = 2;
+
+        // Act
+        var reachableHexes = map.GetJumpReachableHexes(start, movementPoints).ToList();
+
+        // Assert
+        reachableHexes.Should().OnlyContain(h => 
+            h.Q >= 1 && h.Q <= 3 && 
+            h.R >= 1 && h.R <= 3); // Should only contain hexes within map boundaries
+        reachableHexes.All(h => h.DistanceTo(start) <= movementPoints).Should().BeTrue();
     }
 }
