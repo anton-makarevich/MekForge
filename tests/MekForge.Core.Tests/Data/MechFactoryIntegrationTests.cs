@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Data.Community;
 using Sanet.MekForge.Core.Models.Units.Mechs;
@@ -33,8 +33,8 @@ public class MechFactoryIntegrationTests
             };
 
             // Assert
-            act.Should().NotThrow();
-            createdMech.Should().NotBeNull();
+            Should.NotThrow(()=>act);
+            createdMech.ShouldNotBeNull();
         }
     }
 

@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
@@ -17,7 +17,7 @@ public class DeploymentPhaseTests : GameStateTestsBase
     {
         _sut = new DeploymentPhase(Game);
 
-        _sut.Name.Should().Be(PhaseNames.Deployment);
+        _sut.Name.ShouldBe(PhaseNames.Deployment);
     }
 
     [Fact]
@@ -38,9 +38,9 @@ public class DeploymentPhaseTests : GameStateTestsBase
         _sut.Enter();
 
         // Assert
-        Game.ActivePlayer.Should().NotBeNull();
+        Game.ActivePlayer.ShouldNotBeNull();
         var playerNames = Game.Players.Select(p => p.Name).ToArray();
-        playerNames.Should().Contain(Game.ActivePlayer.Name);
+        playerNames.ShouldContain(Game.ActivePlayer.Name);
     }
 
     [Fact]
@@ -62,10 +62,10 @@ public class DeploymentPhaseTests : GameStateTestsBase
 
         // Assert
         var unit = player.Units[0];
-        unit.IsDeployed.Should().BeTrue();
-        unit.Position.HasValue.Should().BeTrue();
-        unit.Position.Value.Coordinates.Q.Should().Be(1);
-        unit.Position.Value.Coordinates.R.Should().Be(1);
+        unit.IsDeployed.ShouldBeTrue();
+        unit.Position.HasValue.ShouldBeTrue();
+        unit.Position.Value.Coordinates.Q.ShouldBe(1);
+        unit.Position.Value.Coordinates.R.ShouldBe(1);
     }
 
     [Fact]
@@ -92,7 +92,7 @@ public class DeploymentPhaseTests : GameStateTestsBase
         _sut.HandleCommand(CreateDeployCommand(Game.ActivePlayer.Id, Game.ActivePlayer.Units[0].Id, 2, 2, 0));
         
         // Assert
-        Game.TurnPhase.Should().Be(PhaseNames.Initiative);
+        Game.TurnPhase.ShouldBe(PhaseNames.Initiative);
         VerifyPhaseChange(PhaseNames.Initiative);
     }
 
@@ -129,8 +129,8 @@ public class DeploymentPhaseTests : GameStateTestsBase
         _sut.HandleCommand(CreateDeployCommand(playerId, unit1.Id.Value, 1, 1, 0));
 
         // Assert
-        Game.ActivePlayer.Should().Be(initialActivePlayer);
-        Game.TurnPhase.Should().Be(PhaseNames.Deployment);
+        Game.ActivePlayer.ShouldBe(initialActivePlayer);
+        Game.TurnPhase.ShouldBe(PhaseNames.Deployment);
         CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<ChangePhaseCommand>());
     }
 
@@ -158,7 +158,7 @@ public class DeploymentPhaseTests : GameStateTestsBase
         _sut.HandleCommand(CreateDeployCommand(initialActivePlayer!.Id, initialActivePlayer.Units[0].Id, 1, 1, 0));
 
         // Assert
-        Game.ActivePlayer.Should().NotBe(initialActivePlayer);
-        Game.TurnPhase.Should().Be(PhaseNames.Deployment);
+        Game.ActivePlayer.ShouldNotBe(initialActivePlayer);
+        Game.TurnPhase.ShouldBe(PhaseNames.Deployment);
     }
 }

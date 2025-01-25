@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
@@ -32,8 +32,8 @@ public class DiceRolledCommandTests : GameCommandTestBase<DiceRolledCommand>
     protected override void AssertCommandSpecificProperties(DiceRolledCommand original, DiceRolledCommand? cloned)
     {
         base.AssertCommandSpecificProperties(original, cloned);
-        cloned!.PlayerId.Should().Be(original.PlayerId);
-        cloned.Roll.Should().Be(original.Roll);
+        cloned!.PlayerId.ShouldBe(original.PlayerId);
+        cloned.Roll.ShouldBe(original.Roll);
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class DiceRolledCommandTests : GameCommandTestBase<DiceRolledCommand>
         var result = command.Format(_localizationService, _game);
 
         // Assert
-        result.Should().Be("formatted dice command");
+        result.ShouldBe("formatted dice command");
         _localizationService.Received(1).GetString("Command_DiceRolled");
     }
 
@@ -61,6 +61,6 @@ public class DiceRolledCommandTests : GameCommandTestBase<DiceRolledCommand>
         var result = command.Format(_localizationService, _game);
 
         // Assert
-        result.Should().BeEmpty();
+        result.ShouldBeEmpty();
     }
 }

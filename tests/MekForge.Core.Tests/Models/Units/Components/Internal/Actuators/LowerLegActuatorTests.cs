@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using Shouldly;
 using Sanet.MekForge.Core.Models.Units.Components.Internal.Actuators;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Components.Internal.Actuators;
@@ -12,9 +12,9 @@ public class LowerLegActuatorTests
         var actuator = new LowerLegActuator();
 
         // Assert
-        actuator.Name.Should().Be("Lower Leg");
-        actuator.MountedAtSlots.Should().HaveCount(1);
-        actuator.MountedAtSlots.Should().ContainInOrder(2);
-        actuator.IsDestroyed.Should().BeFalse();
+        actuator.Name.ShouldBe("Lower Leg");
+        actuator.MountedAtSlots.ToList().Count.ShouldBe(1);
+        actuator.MountedAtSlots.ShouldBe([2]);
+        actuator.IsDestroyed.ShouldBeFalse();
     }
 }

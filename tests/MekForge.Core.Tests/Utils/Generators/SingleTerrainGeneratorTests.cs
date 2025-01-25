@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Models.Map;
@@ -21,7 +21,7 @@ public class SingleTerrainGeneratorTests
         var hex = generator.Generate(new HexCoordinates(2, 2));
 
         // Assert
-        hex.HasTerrain("Clear").Should().BeTrue();
+        hex.HasTerrain("Clear").ShouldBeTrue();
     }
 
     [Theory]
@@ -40,10 +40,9 @@ public class SingleTerrainGeneratorTests
 
         // Act & Assert
         var action = () => generator.Generate(coordinates);
-        action.Should().Throw<HexOutsideOfMapBoundariesException>()
-            .Which.Should().Match<HexOutsideOfMapBoundariesException>(ex =>
-                ex.Coordinates == coordinates &&
-                ex.MapWidth == width &&
-                ex.MapHeight == height);
+        var ex = Should.Throw<HexOutsideOfMapBoundariesException>(() => action);
+        ex.Coordinates.ShouldBe(coordinates);
+        ex.MapWidth.ShouldBe(width);
+        ex.MapHeight.ShouldBe(height);
     }
 }

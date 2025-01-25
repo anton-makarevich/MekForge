@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Data;
 
@@ -18,9 +18,9 @@ public class PathSegmentTests
         var segment = new PathSegment(from, to, cost);
 
         // Assert
-        segment.From.Should().Be(from);
-        segment.To.Should().Be(to);
-        segment.Cost.Should().Be(cost);
+        segment.From.ShouldBe(from);
+        segment.To.ShouldBe(to);
+        segment.Cost.ShouldBe(cost);
     }
 
     [Fact]
@@ -41,9 +41,9 @@ public class PathSegmentTests
         var segment = new PathSegment(data);
 
         // Assert
-        segment.From.Should().Be(from);
-        segment.To.Should().Be(to);
-        segment.Cost.Should().Be(cost);
+        segment.From.ShouldBe(from);
+        segment.To.ShouldBe(to);
+        segment.Cost.ShouldBe(cost);
     }
 
     [Fact]
@@ -59,9 +59,9 @@ public class PathSegmentTests
         var data = segment.ToData();
 
         // Assert
-        data.From.Should().Be(from.ToData());
-        data.To.Should().Be(to.ToData());
-        data.Cost.Should().Be(cost);
+        data.From.ShouldBe(from.ToData());
+        data.To.ShouldBe(to.ToData());
+        data.Cost.ShouldBe(cost);
     }
 
     [Fact]
@@ -77,6 +77,6 @@ public class PathSegmentTests
         var segment2 = new PathSegment(from, to, cost);
 
         // Assert
-        segment1.Should().Be(segment2);
+        segment1.ShouldBe(segment2);
     }
 }

@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 using Sanet.MekForge.Core.Models.Map;
@@ -28,7 +28,7 @@ public class MoveUnitCommandBuilderTests
     public void CanBuild_ReturnsFalse_WhenNoDataSet()
     {
         // Act & Assert
-        _builder.CanBuild.Should().BeFalse();
+        _builder.CanBuild.ShouldBeFalse();
     }
     
     [Fact]
@@ -38,7 +38,7 @@ public class MoveUnitCommandBuilderTests
         _builder.SetUnit(_unit);
         
         // Act & Assert
-        _builder.CanBuild.Should().BeFalse();
+        _builder.CanBuild.ShouldBeFalse();
     }
     
     [Fact]
@@ -48,7 +48,7 @@ public class MoveUnitCommandBuilderTests
         _builder.SetMovementType(MovementType.Walk);
         
         // Act & Assert
-        _builder.CanBuild.Should().BeFalse();
+        _builder.CanBuild.ShouldBeFalse();
     }
     
     [Fact]
@@ -58,7 +58,7 @@ public class MoveUnitCommandBuilderTests
         _builder.SetMovementPath([]);
         
         // Act & Assert
-        _builder.CanBuild.Should().BeFalse();
+        _builder.CanBuild.ShouldBeFalse();
     }
     
     [Fact]
@@ -70,7 +70,7 @@ public class MoveUnitCommandBuilderTests
             new HexPosition(1,2,HexDirection.Bottom), 1)]);
         
         // Act & Assert
-        _builder.CanBuild.Should().BeFalse();
+        _builder.CanBuild.ShouldBeFalse();
     }
     
     [Fact]
@@ -81,7 +81,7 @@ public class MoveUnitCommandBuilderTests
         _builder.SetMovementType(MovementType.Walk);
         
         // Act & Assert
-        _builder.CanBuild.Should().BeFalse();
+        _builder.CanBuild.ShouldBeFalse();
     }
     
     [Fact]
@@ -96,7 +96,7 @@ public class MoveUnitCommandBuilderTests
             1)]);
         
         // Act & Assert
-        _builder.CanBuild.Should().BeTrue();
+        _builder.CanBuild.ShouldBeTrue();
     }
     
     [Fact]
@@ -114,15 +114,15 @@ public class MoveUnitCommandBuilderTests
         var command = _builder.Build();
         
         // Assert
-        command.Should().NotBeNull();
-        command.GameOriginId.Should().Be(_gameId);
-        command.MovementType.Should().Be(MovementType.Walk);
-        command.PlayerId.Should().Be(_playerId);
-        command.UnitId.Should().Be(_unit.Id);
-        command.MovementPath.Should().HaveCount(1);
-        command.MovementPath[0].Cost.Should().Be(1);
-        command.MovementPath[0].From.Coordinates.Should().BeEquivalentTo(startPos.Coordinates.ToData());
-        command.MovementPath[0].To.Coordinates.Should().BeEquivalentTo(endPos.Coordinates.ToData());
+        command.ShouldNotBeNull();
+        command.GameOriginId.ShouldBe(_gameId);
+        command.MovementType.ShouldBe(MovementType.Walk);
+        command.PlayerId.ShouldBe(_playerId);
+        command.UnitId.ShouldBe(_unit.Id);
+        command.MovementPath.Count.ShouldBe(1);
+        command.MovementPath[0].Cost.ShouldBe(1);
+        command.MovementPath[0].From.Coordinates.ShouldBeEquivalentTo(startPos.Coordinates.ToData());
+        command.MovementPath[0].To.Coordinates.ShouldBeEquivalentTo(endPos.Coordinates.ToData());
     }
     
     [Fact]
@@ -132,7 +132,7 @@ public class MoveUnitCommandBuilderTests
         var result = _builder.Build();
         
         // Assert
-        result.Should().BeNull();
+        result.ShouldBeNull();
     }
     
     [Fact]
@@ -145,7 +145,7 @@ public class MoveUnitCommandBuilderTests
         var result = _builder.Build();
         
         // Assert
-        result.Should().BeNull();
+        result.ShouldBeNull();
     }
     
     [Fact]
@@ -158,7 +158,7 @@ public class MoveUnitCommandBuilderTests
         var result = _builder.Build();
         
         // Assert
-        result.Should().BeNull();
+        result.ShouldBeNull();
     }
     
     [Fact]
@@ -172,7 +172,7 @@ public class MoveUnitCommandBuilderTests
         var result = _builder.Build();
         
         // Assert
-        result.Should().BeNull();
+        result.ShouldBeNull();
     }
     
     [Fact]
@@ -193,14 +193,14 @@ public class MoveUnitCommandBuilderTests
         var result = _builder.Build();
         
         // Assert
-        result.Should().NotBeNull();
-        result!.GameOriginId.Should().Be(_gameId);
-        result.PlayerId.Should().Be(_playerId);
-        result.UnitId.Should().Be(_unit.Id);
-        result.MovementType.Should().Be(MovementType.Walk);
-        result.MovementPath.Should().HaveCount(2);
-        result.MovementPath[0].Cost.Should().Be(1);
-        result.MovementPath[1].Cost.Should().Be(1);
+        result.ShouldNotBeNull();
+        result!.GameOriginId.ShouldBe(_gameId);
+        result.PlayerId.ShouldBe(_playerId);
+        result.UnitId.ShouldBe(_unit.Id);
+        result.MovementType.ShouldBe(MovementType.Walk);
+        result.MovementPath.Count.ShouldBe(2);
+        result.MovementPath[0].Cost.ShouldBe(1);
+        result.MovementPath[1].Cost.ShouldBe(1);
     }
     
     [Fact]
@@ -216,6 +216,6 @@ public class MoveUnitCommandBuilderTests
         _builder.Reset();
         
         // Assert
-        _builder.CanBuild.Should().BeFalse();
+        _builder.CanBuild.ShouldBeFalse();
     }
 }

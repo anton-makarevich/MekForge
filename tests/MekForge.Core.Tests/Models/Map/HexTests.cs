@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
 
@@ -16,8 +16,8 @@ public class HexTests
         var hex = new Hex(coords, 3);
 
         // Assert
-        hex.Coordinates.Should().Be(coords);
-        hex.Level.Should().Be(3);
+        hex.Coordinates.ShouldBe(coords);
+        hex.Level.ShouldBe(3);
     }
 
     [Fact]
@@ -27,7 +27,7 @@ public class HexTests
         var hex = new Hex(new HexCoordinates(0, 0));
 
         // Assert
-        hex.Level.Should().Be(0);
+        hex.Level.ShouldBe(0);
     }
 
     [Fact]
@@ -41,8 +41,8 @@ public class HexTests
         hex.AddTerrain(heavyWoods);
 
         // Assert
-        hex.HasTerrain("HeavyWoods").Should().BeTrue();
-        hex.GetTerrain("HeavyWoods").Should().Be(heavyWoods);
+        hex.HasTerrain("HeavyWoods").ShouldBeTrue();
+        hex.GetTerrain("HeavyWoods").ShouldBe(heavyWoods);
     }
 
     [Fact]
@@ -56,8 +56,8 @@ public class HexTests
         hex.RemoveTerrain("HeavyWoods");
 
         // Assert
-        hex.HasTerrain("HeavyWoods").Should().BeFalse();
-        hex.GetTerrain("HeavyWoods").Should().BeNull();
+        hex.HasTerrain("HeavyWoods").ShouldBeFalse();
+        hex.GetTerrain("HeavyWoods").ShouldBeNull();
     }
 
     [Fact]
@@ -72,8 +72,8 @@ public class HexTests
         var terrains = hex.GetTerrains().ToList();
 
         // Assert
-        terrains.Should().HaveCount(1);
-        terrains.Should().Contain(heavyWoods);
+        terrains.Count.ShouldBe(1);
+        terrains.ShouldContain(heavyWoods);
     }
 
     [Fact]
@@ -87,7 +87,7 @@ public class HexTests
         var ceiling = hex.GetCeiling();
 
         // Assert
-        ceiling.Should().Be(4); // Base level (2) + terrain height (2)
+        ceiling.ShouldBe(4); // Base level (2) + terrain height (2)
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public class HexTests
         var ceiling = hex.GetCeiling();
 
         // Assert
-        ceiling.Should().Be(2);
+        ceiling.ShouldBe(2);
     }
 
     [Fact]
@@ -110,7 +110,7 @@ public class HexTests
         var hex = new Hex(new HexCoordinates(0, 0));
 
         // Act & Assert
-        hex.MovementCost.Should().Be(1);
+        hex.MovementCost.ShouldBe(1);
     }
 
     [Fact]
@@ -121,7 +121,7 @@ public class HexTests
         hex.AddTerrain(new LightWoodsTerrain()); // TerrainFactor = 2
 
         // Act & Assert
-        hex.MovementCost.Should().Be(2);
+        hex.MovementCost.ShouldBe(2);
     }
 
     [Fact]
@@ -134,7 +134,7 @@ public class HexTests
         hex.AddTerrain(new HeavyWoodsTerrain()); // TerrainFactor = 3
 
         // Act & Assert
-        hex.MovementCost.Should().Be(3);
+        hex.MovementCost.ShouldBe(3);
     }
 
     [Fact]
@@ -149,7 +149,7 @@ public class HexTests
         hex.RemoveTerrain("HeavyWoods");
 
         // Assert
-        hex.MovementCost.Should().Be(2);
+        hex.MovementCost.ShouldBe(2);
     }
 
     [Fact]
@@ -165,6 +165,6 @@ public class HexTests
         hex.RemoveTerrain("HeavyWoods");
 
         // Assert
-        hex.MovementCost.Should().Be(1);
+        hex.MovementCost.ShouldBe(1);
     }
 }

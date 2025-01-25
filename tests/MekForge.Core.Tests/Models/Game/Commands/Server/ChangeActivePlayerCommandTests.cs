@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
@@ -32,7 +32,7 @@ public class ChangeActivePlayerCommandTests : GameCommandTestBase<ChangeActivePl
     protected override void AssertCommandSpecificProperties(ChangeActivePlayerCommand original, ChangeActivePlayerCommand? cloned)
     {
         base.AssertCommandSpecificProperties(original, cloned);
-        cloned!.PlayerId.Should().Be(original.PlayerId);
+        cloned!.PlayerId.ShouldBe(original.PlayerId);
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class ChangeActivePlayerCommandTests : GameCommandTestBase<ChangeActivePl
         var result = command.Format(_localizationService, _game);
 
         // Assert
-        result.Should().Be("formatted active player command");
+        result.ShouldBe("formatted active player command");
         _localizationService.Received(1).GetString("Command_ChangeActivePlayerUnits");
     }
     
@@ -68,7 +68,7 @@ public class ChangeActivePlayerCommandTests : GameCommandTestBase<ChangeActivePl
         var result = command.Format(_localizationService, _game);
 
         // Assert
-        result.Should().Be("formatted active player command");
+        result.ShouldBe("formatted active player command");
         _localizationService.Received(1).GetString("Command_ChangeActivePlayer");
     }
     
@@ -87,6 +87,6 @@ public class ChangeActivePlayerCommandTests : GameCommandTestBase<ChangeActivePl
         var result = command.Format(_localizationService, _game);
         
         // Assert
-        result.Should().BeEmpty();
+        result.ShouldBeEmpty();
     }
 }

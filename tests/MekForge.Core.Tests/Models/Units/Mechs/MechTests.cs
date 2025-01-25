@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
@@ -32,8 +32,8 @@ public class MechTests
         var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
 
         // Assert
-        mech.CanMoveBackward(MovementType.Walk).Should().BeTrue();
-        mech.CanMoveBackward(MovementType.Run).Should().BeFalse();
+        mech.CanMoveBackward(MovementType.Walk).ShouldBeTrue();
+        mech.CanMoveBackward(MovementType.Run).ShouldBeFalse();
     }
 
     [Fact]
@@ -43,15 +43,15 @@ public class MechTests
         var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
 
         // Assert
-        mech.Parts.Should().HaveCount(8, "all mech locations should be initialized");
-        mech.Parts.Should().Contain(p => p.Location == PartLocation.Head);
-        mech.Parts.Should().Contain(p => p.Location == PartLocation.CenterTorso);
-        mech.Parts.Should().Contain(p => p.Location == PartLocation.LeftTorso);
-        mech.Parts.Should().Contain(p => p.Location == PartLocation.RightTorso);
-        mech.Parts.Should().Contain(p => p.Location == PartLocation.LeftArm);
-        mech.Parts.Should().Contain(p => p.Location == PartLocation.RightArm);
-        mech.Parts.Should().Contain(p => p.Location == PartLocation.LeftLeg);
-        mech.Parts.Should().Contain(p => p.Location == PartLocation.RightLeg);
+        mech.Parts.Count.ShouldBe(8, "all mech locations should be initialized");
+        mech.Parts.ShouldContain(p => p.Location == PartLocation.Head);
+        mech.Parts.ShouldContain(p => p.Location == PartLocation.CenterTorso);
+        mech.Parts.ShouldContain(p => p.Location == PartLocation.LeftTorso);
+        mech.Parts.ShouldContain(p => p.Location == PartLocation.RightTorso);
+        mech.Parts.ShouldContain(p => p.Location == PartLocation.LeftArm);
+        mech.Parts.ShouldContain(p => p.Location == PartLocation.RightArm);
+        mech.Parts.ShouldContain(p => p.Location == PartLocation.LeftLeg);
+        mech.Parts.ShouldContain(p => p.Location == PartLocation.RightLeg);
     }
 
     [Theory]
@@ -70,7 +70,7 @@ public class MechTests
         var transferLocation = mech.TestGetTransferLocation(from);
 
         // Assert
-        transferLocation.Should().Be(expected);
+        transferLocation.ShouldBe(expected);
     }
     
     [Fact]
@@ -89,11 +89,11 @@ public class MechTests
         });
 
         // Assert
-        mech.Position.Should().Be(newCoordinates);
-        mech.HasMoved.Should().BeTrue();
-        mech.MovementTypeUsed.Should().Be(MovementType.Walk);
-        mech.DistanceCovered.Should().Be(1);
-        mech.MovementPointsSpent.Should().Be(0);
+        mech.Position.ShouldBe(newCoordinates);
+        mech.HasMoved.ShouldBeTrue();
+        mech.MovementTypeUsed.ShouldBe(MovementType.Walk);
+        mech.DistanceCovered.ShouldBe(1);
+        mech.MovementPointsSpent.ShouldBe(0);
     }
     
     [Fact]
@@ -110,7 +110,8 @@ public class MechTests
         });
 
         // Assert
-        act.Should().Throw<InvalidOperationException>().WithMessage("Unit is not deployed.");
+        var ex = Should.Throw<InvalidOperationException>(act);
+        ex.Message.ShouldBe("Unit is not deployed.");
     }
     
     [Fact]
@@ -130,11 +131,11 @@ public class MechTests
         mech.ResetMovement();
 
         // Assert
-        mech.Position.Should().Be(newCoordinates);
-        mech.HasMoved.Should().BeFalse();
-        mech.MovementTypeUsed.Should().BeNull();
-        mech.DistanceCovered.Should().Be(0);
-        mech.MovementPointsSpent.Should().Be(0);
+        mech.Position.ShouldBe(newCoordinates);
+        mech.HasMoved.ShouldBeFalse();
+        mech.MovementTypeUsed.ShouldBeNull();
+        mech.DistanceCovered.ShouldBe(0);
+        mech.MovementPointsSpent.ShouldBe(0);
     }
 
     [Fact]
@@ -151,7 +152,7 @@ public class MechTests
         mech.ApplyHeat(5); // Apply 5 heat with 2 heat sinks
 
         // Assert
-        mech.CurrentHeat.Should().Be(3, "5 heat - 2 heat sinks = 3 heat");
+        mech.CurrentHeat.ShouldBe(3, "5 heat - 2 heat sinks = 3 heat");
     }
 
     [Fact]
@@ -167,7 +168,7 @@ public class MechTests
         var bv = mech.CalculateBattleValue();
 
         // Assert
-        bv.Should().Be(5046, "5000 (base BV for 50 tons) + 46 (medium laser)");
+        bv.ShouldBe(5046, "5000 (base BV for 50 tons) + 46 (medium laser)");
     }
 
     [Fact]
@@ -177,7 +178,7 @@ public class MechTests
         var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
 
         // Assert
-        mech.Status.Should().Be(UnitStatus.Active);
+        mech.Status.ShouldBe(UnitStatus.Active);
     }
 
     [Fact]
@@ -190,7 +191,7 @@ public class MechTests
         mech.Shutdown();
 
         // Assert
-        mech.Status.Should().Be(UnitStatus.Shutdown);
+        mech.Status.ShouldBe(UnitStatus.Shutdown);
     }
 
     [Fact]
@@ -204,7 +205,7 @@ public class MechTests
         mech.Startup();
 
         // Assert
-        mech.Status.Should().Be(UnitStatus.Active);
+        mech.Status.ShouldBe(UnitStatus.Active);
     }
 
     [Fact]
@@ -217,7 +218,7 @@ public class MechTests
         mech.SetProne();
 
         // Assert
-        (mech.Status & UnitStatus.Prone).Should().Be(UnitStatus.Prone);
+        (mech.Status & UnitStatus.Prone).ShouldBe(UnitStatus.Prone);
     }
 
     [Fact]
@@ -231,7 +232,7 @@ public class MechTests
         mech.StandUp();
 
         // Assert
-        (mech.Status & UnitStatus.Prone).Should().NotBe(UnitStatus.Prone);
+        (mech.Status & UnitStatus.Prone).ShouldNotBe(UnitStatus.Prone);
     }
 
     [Theory]
@@ -257,9 +258,9 @@ public class MechTests
         var jumpingMp = mech.GetMovementPoints(MovementType.Jump);
 
         // Assert
-        walkingMp.Should().Be(walkMp, "walking MP should match the base movement");
-        runningMp.Should().Be(runMp, "running MP should be 1.5x walking");
-        jumpingMp.Should().Be(jumpMp, "jumping MP should match the number of jump jets");
+        walkingMp.ShouldBe(walkMp, "walking MP should match the base movement");
+        runningMp.ShouldBe(runMp, "running MP should be 1.5x walking");
+        jumpingMp.ShouldBe(jumpMp, "jumping MP should match the number of jump jets");
     }
 
     [Theory]
@@ -290,7 +291,7 @@ public class MechTests
         var weightClass = mech.Class;
 
         // Assert
-        weightClass.Should().Be(expectedClass);
+        weightClass.ShouldBe(expectedClass);
     }
 
     [Fact]
@@ -303,7 +304,7 @@ public class MechTests
         // Act
         mech.ApplyDamage(100, headPart);
         // Assert
-        mech.Status.Should().Be(UnitStatus.Destroyed);
+        mech.Status.ShouldBe(UnitStatus.Destroyed);
 
         // Reset mech for next test
         mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
@@ -312,7 +313,7 @@ public class MechTests
         // Act
         mech.ApplyDamage(100, centerTorsoPart);
         // Assert
-        mech.Status.Should().Be(UnitStatus.Destroyed);
+        mech.Status.ShouldBe(UnitStatus.Destroyed);
     }
 
     [Fact]
@@ -326,9 +327,9 @@ public class MechTests
         mech.Deploy(new HexPosition(coordinate, HexDirection.Bottom));
 
         // Assert
-        mech.Position?.Coordinates.Should().Be(coordinate);
-        mech.Position?.Facing.Should().Be(HexDirection.Bottom);
-        mech.IsDeployed.Should().BeTrue();
+        mech.Position?.Coordinates.ShouldBe(coordinate);
+        mech.Position?.Facing.ShouldBe(HexDirection.Bottom);
+        mech.IsDeployed.ShouldBeTrue();
     }
 
     [Fact]
@@ -339,11 +340,10 @@ public class MechTests
         var coordinate = new HexCoordinates(1, 1);
         mech.Deploy( new HexPosition(coordinate, HexDirection.Bottom));
 
-        // Act
-        var act = () => mech.Deploy(new HexPosition(new HexCoordinates(2, 2), HexDirection.Bottom));
-
-        // Assert
-        act.Should().Throw<InvalidOperationException>().WithMessage("Test TST-1A is already deployed.");
+        // Act & Assert
+        var ex =Should.Throw<InvalidOperationException>(
+                () => mech.Deploy(new HexPosition(new HexCoordinates(2, 2), HexDirection.Bottom)));
+        ex.Message.ShouldBe("Test TST-1A is already deployed.");
     }
 }
 

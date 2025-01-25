@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Units.Components;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Components;
@@ -12,10 +12,10 @@ public class MascTests
         var masc = new Masc("MASC");
 
         // Assert
-        masc.Name.Should().Be("MASC");
-        masc.Size.Should().Be(1);
-        masc.IsDestroyed.Should().BeFalse();
-        masc.IsActive.Should().BeFalse(); // MASC starts deactivated
+        masc.Name.ShouldBe("MASC");
+        masc.Size.ShouldBe(1);
+        masc.IsDestroyed.ShouldBeFalse();
+        masc.IsActive.ShouldBeFalse(); // MASC starts deactivated
     }
 
     [Fact]
@@ -29,7 +29,7 @@ public class MascTests
         masc.Hit();
 
         // Assert
-        masc.IsDestroyed.Should().BeTrue();
-        masc.IsActive.Should().BeFalse();
+        masc.IsDestroyed.ShouldBeTrue();
+        masc.IsActive.ShouldBeFalse();
     }
 }

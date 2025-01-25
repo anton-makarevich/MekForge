@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Models.Units.Components;
 
@@ -20,10 +20,10 @@ public class ComponentTests
         var component = new TestComponent("Test Component",[]);
 
         // Assert
-        component.Name.Should().Be("Test Component");
-        component.IsDestroyed.Should().BeFalse();
-        component.IsActive.Should().BeTrue();
-        component.IsMounted.Should().BeFalse();
+        component.Name.ShouldBe("Test Component");
+        component.IsDestroyed.ShouldBeFalse();
+        component.IsActive.ShouldBeTrue();
+        component.IsMounted.ShouldBeFalse();
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public class ComponentTests
         component.Mount(new[] { 0 });
 
         // Assert
-        component.IsMounted.Should().BeTrue();
+        component.IsMounted.ShouldBeTrue();
     }
 
     [Fact]
@@ -50,7 +50,7 @@ public class ComponentTests
         component.UnMount();
 
         // Assert
-        component.IsMounted.Should().BeFalse();
+        component.IsMounted.ShouldBeFalse();
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public class ComponentTests
 
         // Act & Assert
         var exception = Assert.Throws<ComponentException>(() => component.UnMount());
-        exception.Message.Should().Be("Fixed components cannot be unmounted.");
+        exception.Message.ShouldBe("Fixed components cannot be unmounted.");
     }
 
     [Fact]
@@ -74,8 +74,8 @@ public class ComponentTests
         component.Hit();
 
         // Assert
-        component.IsDestroyed.Should().BeTrue();
-        component.Hits.Should().Be(1);
+        component.IsDestroyed.ShouldBeTrue();
+        component.Hits.ShouldBe(1);
     }
 
     [Fact]
@@ -85,13 +85,13 @@ public class ComponentTests
         var component = new TestComponent("Test Component",[]);
         
         // Act & Assert
-        component.IsActive.Should().BeTrue(); // Default state
+        component.IsActive.ShouldBeTrue(); // Default state
         
         component.Deactivate();
-        component.IsActive.Should().BeFalse();
+        component.IsActive.ShouldBeFalse();
         
         component.Activate();
-        component.IsActive.Should().BeTrue();
+        component.IsActive.ShouldBeTrue();
     }
 
     [Fact]
@@ -101,13 +101,13 @@ public class ComponentTests
         var component = new TestComponent("Test Component", [],2);
         
         // Act & Assert
-        component.IsMounted.Should().BeFalse(); // Initially not mounted
+        component.IsMounted.ShouldBeFalse(); // Initially not mounted
         
         component.Mount([0, 1]);
-        component.IsMounted.Should().BeTrue(); // Mounted with slots
+        component.IsMounted.ShouldBeTrue(); // Mounted with slots
         
         component.UnMount();
-        component.IsMounted.Should().BeFalse(); // Unmounted
+        component.IsMounted.ShouldBeFalse(); // Unmounted
     }
 
     [Fact]
@@ -122,7 +122,7 @@ public class ComponentTests
         component.Mount([2, 3]); // Try to mount again with different slots
 
         // Assert
-        component.MountedAtSlots.Should().BeEquivalentTo(initialSlots); // Should keep original slots
+        component.MountedAtSlots.ShouldBeEquivalentTo(initialSlots); // Should keep original slots
     }
     
     [Fact]
@@ -133,7 +133,7 @@ public class ComponentTests
         
         // Act & Assert
         var exception = Assert.Throws<ComponentException>(() => component.Mount([2]));// Try to mount 
-        exception.Message.Should().Be("Component Test Component requires 2 slots.");
+        exception.Message.ShouldBe("Component Test Component requires 2 slots.");
         
     }
 
@@ -145,6 +145,6 @@ public class ComponentTests
 
         // Act & Assert - should not throw
         component.UnMount();
-        component.IsMounted.Should().BeFalse();
+        component.IsMounted.ShouldBeFalse();
     }
 }

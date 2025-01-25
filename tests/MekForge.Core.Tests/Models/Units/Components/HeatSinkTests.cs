@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Units.Components;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Components;
@@ -12,10 +12,10 @@ public class HeatSinkTests
         var heatSink = new HeatSink();
 
         // Assert
-        heatSink.Name.Should().Be("Heat Sink");
-        heatSink.MountedAtSlots.Should().BeEmpty();
-        heatSink.HeatDissipation.Should().Be(1);
-        heatSink.IsDestroyed.Should().BeFalse();
+        heatSink.Name.ShouldBe("Heat Sink");
+        heatSink.MountedAtSlots.ShouldBeEmpty();
+        heatSink.HeatDissipation.ShouldBe(1);
+        heatSink.IsDestroyed.ShouldBeFalse();
     }
 
     [Fact]
@@ -25,10 +25,10 @@ public class HeatSinkTests
         var heatSink = new HeatSink(dissipation: 2, name: "Double Heat Sink");
 
         // Assert
-        heatSink.Name.Should().Be("Double Heat Sink");
-        heatSink.MountedAtSlots.Should().BeEmpty();
-        heatSink.HeatDissipation.Should().Be(2);
-        heatSink.IsDestroyed.Should().BeFalse();
+        heatSink.Name.ShouldBe("Double Heat Sink");
+        heatSink.MountedAtSlots.ShouldBeEmpty();
+        heatSink.HeatDissipation.ShouldBe(2);
+        heatSink.IsDestroyed.ShouldBeFalse();
     }
 
     [Fact]
@@ -41,6 +41,6 @@ public class HeatSinkTests
         heatSink.Hit();
 
         // Assert
-        heatSink.IsDestroyed.Should().BeTrue();
+        heatSink.IsDestroyed.ShouldBeTrue();
     }
 }

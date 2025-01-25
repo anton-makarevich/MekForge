@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using Shouldly;
 using Sanet.MekForge.Core.UiStates;
 
 namespace Sanet.MekForge.Core.Tests.UiStates;
@@ -12,7 +12,7 @@ public class IdleStateTests
         var sut = new IdleState();
         
         // Assert
-        sut.ActionLabel.Should().Be("Wait");
+        sut.ActionLabel.ShouldBe("Wait");
     }
     
     [Fact]
@@ -22,6 +22,6 @@ public class IdleStateTests
         var sut = new IdleState();
         
         // Assert
-        sut.IsActionRequired.Should().BeFalse();
+        sut.IsActionRequired.ShouldBeFalse();
     }
 }

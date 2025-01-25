@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
@@ -48,9 +48,9 @@ public class MoveUnitCommandTests : GameCommandTestBase<MoveUnitCommand>
     protected override void AssertCommandSpecificProperties(MoveUnitCommand original, MoveUnitCommand? cloned)
     {
         base.AssertCommandSpecificProperties(original, cloned);
-        cloned!.PlayerId.Should().Be(original.PlayerId);
-        cloned.UnitId.Should().Be(original.UnitId);
-        cloned.MovementPath.Should().BeEquivalentTo(original.MovementPath);
+        cloned!.PlayerId.ShouldBe(original.PlayerId);
+        cloned.UnitId.ShouldBe(original.UnitId);
+        cloned.MovementPath.ShouldBeEquivalentTo(original.MovementPath);
     }
 
     [Fact]
@@ -64,7 +64,7 @@ public class MoveUnitCommandTests : GameCommandTestBase<MoveUnitCommand>
         var result = command.Format(_localizationService, _game);
 
         // Assert
-        result.Should().Be("formatted move command");
+        result.ShouldBe("formatted move command");
         _localizationService.Received(1).GetString("Command_MoveUnit");
     }
 
@@ -78,7 +78,7 @@ public class MoveUnitCommandTests : GameCommandTestBase<MoveUnitCommand>
         var result = command.Format(_localizationService, _game);
 
         // Assert
-        result.Should().BeEmpty();
+        result.ShouldBeEmpty();
     }
 
     [Fact]
@@ -91,6 +91,6 @@ public class MoveUnitCommandTests : GameCommandTestBase<MoveUnitCommand>
         var result = command.Format(_localizationService, _game);
 
         // Assert
-        result.Should().BeEmpty();
+        result.ShouldBeEmpty();
     }
 }

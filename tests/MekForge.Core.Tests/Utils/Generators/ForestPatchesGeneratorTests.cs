@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Models.Map;
@@ -21,9 +21,9 @@ public class ForestPatchesGeneratorTests
             for (var r = 1; r < height+1; r++)
             {
                 var hex = generator.Generate(new HexCoordinates(q, r));
-                hex.HasTerrain("Clear").Should().BeTrue();
-                hex.HasTerrain("LightWoods").Should().BeFalse();
-                hex.HasTerrain("HeavyWoods").Should().BeFalse();
+                hex.HasTerrain("Clear").ShouldBeTrue();
+                hex.HasTerrain("LightWoods").ShouldBeFalse();
+                hex.HasTerrain("HeavyWoods").ShouldBeFalse();
             }
         }
     }
@@ -46,14 +46,14 @@ public class ForestPatchesGeneratorTests
             for (var r = 1; r < height+1; r++)
             {
                 var hex = generator.Generate(new HexCoordinates(q, r));
-                hex.HasTerrain("Clear").Should().BeFalse();
+                hex.HasTerrain("Clear").ShouldBeFalse();
                 if (hex.HasTerrain("LightWoods") || hex.HasTerrain("HeavyWoods"))
                 {
                     hasAnyWoods = true;
                 }
             }
         }
-        hasAnyWoods.Should().BeTrue();
+        hasAnyWoods.ShouldBeTrue();
     }
 
     [Theory]
@@ -70,12 +70,10 @@ public class ForestPatchesGeneratorTests
         var coordinates = new HexCoordinates(q, r);
 
         // Act & Assert
-        var action = () => generator.Generate(coordinates);
-        action.Should().Throw<HexOutsideOfMapBoundariesException>()
-            .Which.Should().Match<HexOutsideOfMapBoundariesException>(ex =>
-                ex.Coordinates == coordinates &&
-                ex.MapWidth == width &&
-                ex.MapHeight == height);
+        var ex = Should.Throw<HexOutsideOfMapBoundariesException>(() => generator.Generate(coordinates));
+        ex.Coordinates.ShouldBe(coordinates);
+        ex.MapWidth.ShouldBe(width);
+        ex.MapHeight.ShouldBe(height);
     }
 
     [Fact]
@@ -104,7 +102,7 @@ public class ForestPatchesGeneratorTests
         // Assert
         // Count hexes with woods
         var woodsHexes = hexes.Count(h => h.HasTerrain("LightWoods") || h.HasTerrain("HeavyWoods"));
-        woodsHexes.Should().BeGreaterThan(0);
+        woodsHexes.ShouldBeGreaterThan(0);
 
         // Verify that woods appear in patches by checking for adjacent woods hexes
         var hasAdjacentWoods = false;
@@ -119,8 +117,8 @@ public class ForestPatchesGeneratorTests
                     var coords = new HexCoordinates(q, r);
                     foreach (var neighbor in coords.GetAdjacentCoordinates())
                     {
-                        if (neighbor.Q >= 1 && neighbor.Q < width+1 &&
-                            neighbor.R >= 1 && neighbor.R < height+1)
+                        if (neighbor.Q is >= 1 and < width+1 &&
+                            neighbor.R is >= 1 and < height+1)
                         {
                             var neighborHex = hexes[neighbor.Q * (height+1) + neighbor.R];
                             if (neighborHex.HasTerrain("LightWoods") || neighborHex.HasTerrain("HeavyWoods"))
@@ -135,6 +133,6 @@ public class ForestPatchesGeneratorTests
             }
             if (hasAdjacentWoods) break;
         }
-        hasAdjacentWoods.Should().BeTrue();
+        hasAdjacentWoods.ShouldBeTrue();
     }
 }

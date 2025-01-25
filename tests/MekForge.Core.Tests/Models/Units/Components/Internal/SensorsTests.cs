@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using Shouldly;
 using Sanet.MekForge.Core.Models.Units.Components.Internal;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Components.Internal;
@@ -12,9 +12,9 @@ public class SensorsTests
         var sensors = new Sensors();
 
         // Assert
-        sensors.Name.Should().Be("Sensors");
-        sensors.MountedAtSlots.Should().HaveCount(2);
-        sensors.MountedAtSlots.Should().ContainInOrder(1,4);
-        sensors.IsDestroyed.Should().BeFalse();
+        sensors.Name.ShouldBe("Sensors");
+        sensors.MountedAtSlots.ToList().Count.ShouldBe(2);
+        sensors.MountedAtSlots.ShouldBe([1,4]);
+        sensors.IsDestroyed.ShouldBeFalse();
     }
 }

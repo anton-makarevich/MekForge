@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 using Sanet.MekForge.Core.Models.Map;
@@ -27,7 +27,7 @@ public class DeploymentCommandBuilderTests
     public void CanBuild_ReturnsFalse_WhenNoDataSet()
     {
         // Act & Assert
-        _builder.CanBuild.Should().BeFalse();
+        _builder.CanBuild.ShouldBeFalse();
     }
     
     [Fact]
@@ -37,7 +37,7 @@ public class DeploymentCommandBuilderTests
         _builder.SetUnit(_unit);
         
         // Act & Assert
-        _builder.CanBuild.Should().BeFalse();
+        _builder.CanBuild.ShouldBeFalse();
     }
     
     [Fact]
@@ -47,7 +47,7 @@ public class DeploymentCommandBuilderTests
         _builder.SetPosition(_coordinates);
         
         // Act & Assert
-        _builder.CanBuild.Should().BeFalse();
+        _builder.CanBuild.ShouldBeFalse();
     }
     
     [Fact]
@@ -57,7 +57,7 @@ public class DeploymentCommandBuilderTests
         _builder.SetDirection(HexDirection.Top);
         
         // Act & Assert
-        _builder.CanBuild.Should().BeFalse();
+        _builder.CanBuild.ShouldBeFalse();
     }
     
     [Fact]
@@ -69,7 +69,7 @@ public class DeploymentCommandBuilderTests
         _builder.SetDirection(HexDirection.Top);
         
         // Act & Assert
-        _builder.CanBuild.Should().BeTrue();
+        _builder.CanBuild.ShouldBeTrue();
     }
     
     [Fact]
@@ -79,7 +79,7 @@ public class DeploymentCommandBuilderTests
         var result = _builder.Build();
         
         // Assert
-        result.Should().BeNull();
+        result.ShouldBeNull();
     }
     
     [Fact]
@@ -94,13 +94,13 @@ public class DeploymentCommandBuilderTests
         var result = _builder.Build();
         
         // Assert
-        result.Should().NotBeNull();
-        result!.GameOriginId.Should().Be(_gameId);
-        result.PlayerId.Should().Be(_playerId);
-        result.UnitId.Should().Be(_unit.Id);
-        result.Position.Q.Should().Be(_coordinates.Q);
-        result.Position.R.Should().Be(_coordinates.R);
-        result.Direction.Should().Be((int)HexDirection.Top);
+        result.ShouldNotBeNull();
+        result!.GameOriginId.ShouldBe(_gameId);
+        result.PlayerId.ShouldBe(_playerId);
+        result.UnitId.ShouldBe(_unit.Id);
+        result.Position.Q.ShouldBe(_coordinates.Q);
+        result.Position.R.ShouldBe(_coordinates.R);
+        result.Direction.ShouldBe((int)HexDirection.Top);
     }
     
     [Fact]
@@ -115,7 +115,7 @@ public class DeploymentCommandBuilderTests
         _builder.Reset();
         
         // Assert
-        _builder.CanBuild.Should().BeFalse();
-        _builder.Build().Should().BeNull();
+        _builder.CanBuild.ShouldBeFalse();
+        _builder.Build().ShouldBeNull();
     }
 }

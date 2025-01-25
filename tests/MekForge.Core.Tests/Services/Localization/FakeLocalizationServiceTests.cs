@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using Shouldly;
 using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.Tests.Services.Localization;
@@ -24,6 +24,6 @@ public class FakeLocalizationServiceTests
         var result = localizationService.GetString(key);
 
         // Assert
-        result.Should().Be(expectedValue);
+        result.ShouldBe(expectedValue);
     }
 }

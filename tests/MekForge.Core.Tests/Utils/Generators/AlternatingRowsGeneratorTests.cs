@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
@@ -24,13 +24,13 @@ public class AlternatingRowsGeneratorTests
             var hex = generator.Generate(new HexCoordinates(2, r));
             if (r % 2 == 0)
             {
-                hex.HasTerrain("Clear").Should().BeTrue();
-                hex.HasTerrain("LightWoods").Should().BeFalse();
+                hex.HasTerrain("Clear").ShouldBeTrue();
+                hex.HasTerrain("LightWoods").ShouldBeFalse();
             }
             else
             {
-                hex.HasTerrain("Clear").Should().BeFalse();
-                hex.HasTerrain("LightWoods").Should().BeTrue();
+                hex.HasTerrain("Clear").ShouldBeFalse();
+                hex.HasTerrain("LightWoods").ShouldBeTrue();
             }
         }
     }
@@ -47,12 +47,10 @@ public class AlternatingRowsGeneratorTests
         var coordinates = new HexCoordinates(width + 1, height + 1);
         
         // Act & Assert
-        var action = () => generator.Generate(coordinates);
-        action.Should().Throw<HexOutsideOfMapBoundariesException>()
-            .Which.Should().Match<HexOutsideOfMapBoundariesException>(ex =>
-                ex.Coordinates == coordinates &&
-                ex.MapWidth == width &&
-                ex.MapHeight == height);
+        var ex = Should.Throw<HexOutsideOfMapBoundariesException>(() => generator.Generate(coordinates));
+        ex.Coordinates.ShouldBe(coordinates);
+        ex.MapWidth.ShouldBe(width);
+        ex.MapHeight.ShouldBe(height);
     }
 
     [Fact]
@@ -74,7 +72,7 @@ public class AlternatingRowsGeneratorTests
             for (var q = 1; q < width+1; q++)
             {
                 var hex = generator.Generate(new HexCoordinates(q, r));
-                hex.HasTerrain(expectedTerrain).Should().BeTrue();
+                hex.HasTerrain(expectedTerrain).ShouldBeTrue();
             }
         }
     }

@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Units.Components.Internal;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Components.Internal;
@@ -12,9 +12,9 @@ public class LifeSupportTests
         var lifeSupport = new LifeSupport();
 
         // Assert
-        lifeSupport.Name.Should().Be("Life Support");
-        lifeSupport.MountedAtSlots.Should().HaveCount(2);
-        lifeSupport.MountedAtSlots.Should().ContainInOrder(0, 5);
-        lifeSupport.IsDestroyed.Should().BeFalse();
+        lifeSupport.Name.ShouldBe("Life Support");
+        lifeSupport.MountedAtSlots.ToList().Count.ShouldBe(2);
+        lifeSupport.MountedAtSlots.ShouldBe([0, 5]);
+        lifeSupport.IsDestroyed.ShouldBeFalse();
     }
 }

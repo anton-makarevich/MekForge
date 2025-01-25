@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Game.Dice;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Dice;
@@ -11,12 +11,9 @@ public class DiceResultTests
         // Arrange
         var diceResult = new DiceResult();
 
-        // Act
-        Action act = () => diceResult.Result = 7;
-
-        // Assert
-        act.Should().Throw<ArgumentOutOfRangeException>()
-            .WithParameterName("value");
+        // Act & Assert
+        var ex = Should.Throw<ArgumentOutOfRangeException>(() => diceResult.Result = 7);
+        ex.ParamName.ShouldBe("value");
     }
 
     [Theory]
@@ -35,6 +32,6 @@ public class DiceResultTests
         diceResult.Result = input;
 
         // Assert
-        diceResult.Result.Should().Be(expected);
+        diceResult.Result.ShouldBe(expected);
     }
 }

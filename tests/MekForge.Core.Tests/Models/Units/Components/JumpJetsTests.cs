@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Units.Components;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Components;
@@ -12,10 +12,10 @@ public class JumpJetsFacts
         var jumpJets = new JumpJets();
 
         // Assert
-        jumpJets.Name.Should().Be("Jump Jets");
-        jumpJets.Size.Should().Be(1);
-        jumpJets.JumpMp.Should().Be(1);
-        jumpJets.IsDestroyed.Should().BeFalse();
+        jumpJets.Name.ShouldBe("Jump Jets");
+        jumpJets.Size.ShouldBe(1);
+        jumpJets.JumpMp.ShouldBe(1);
+        jumpJets.IsDestroyed.ShouldBeFalse();
     }
 
     [Fact]
@@ -25,10 +25,10 @@ public class JumpJetsFacts
         var jumpJets = new JumpJets(2);
 
         // Assert
-        jumpJets.Name.Should().Be("Jump Jets");
-        jumpJets.Size.Should().Be(1);
-        jumpJets.JumpMp.Should().Be(2);
-        jumpJets.IsDestroyed.Should().BeFalse();
+        jumpJets.Name.ShouldBe("Jump Jets");
+        jumpJets.Size.ShouldBe(1);
+        jumpJets.JumpMp.ShouldBe(2);
+        jumpJets.IsDestroyed.ShouldBeFalse();
     }
 
     [Fact]
@@ -41,6 +41,6 @@ public class JumpJetsFacts
         jumpJets.Hit();
 
         // Assert
-        jumpJets.IsDestroyed.Should().BeTrue();
+        jumpJets.IsDestroyed.ShouldBeTrue();
     }
 }

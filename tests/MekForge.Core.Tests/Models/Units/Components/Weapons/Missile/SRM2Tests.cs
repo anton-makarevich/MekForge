@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Missile;
 
@@ -13,17 +13,17 @@ public class SRM2Tests
         var srm2 = new SRM2();
 
         // Assert
-        srm2.Name.Should().Be("SRM-2");
-        srm2.Size.Should().Be(1);
-        srm2.Heat.Should().Be(1);
-        srm2.Damage.Should().Be(4); // Total damage for all missiles
-        srm2.BattleValue.Should().Be(25);
-        srm2.AmmoType.Should().Be(AmmoType.SRM2);
-        srm2.MinimumRange.Should().Be(0);
-        srm2.ShortRange.Should().Be(3);
-        srm2.MediumRange.Should().Be(6);
-        srm2.LongRange.Should().Be(9);
-        srm2.IsDestroyed.Should().BeFalse();
+        srm2.Name.ShouldBe("SRM-2");
+        srm2.Size.ShouldBe(1);
+        srm2.Heat.ShouldBe(1);
+        srm2.Damage.ShouldBe(4); // Total damage for all missiles
+        srm2.BattleValue.ShouldBe(25);
+        srm2.AmmoType.ShouldBe(AmmoType.SRM2);
+        srm2.MinimumRange.ShouldBe(0);
+        srm2.ShortRange.ShouldBe(3);
+        srm2.MediumRange.ShouldBe(6);
+        srm2.LongRange.ShouldBe(9);
+        srm2.IsDestroyed.ShouldBeFalse();
     }
 
     [Fact]
@@ -36,6 +36,6 @@ public class SRM2Tests
         srm2.Hit();
 
         // Assert
-        srm2.IsDestroyed.Should().BeTrue();
+        srm2.IsDestroyed.ShouldBeTrue();
     }
 }

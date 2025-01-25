@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using Shouldly;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Tests.Data;
@@ -20,7 +20,7 @@ public class PlayerViewModelTests
         playerViewModel.AddUnitCommand.Execute(null);
     
         // Assert
-        playerViewModel.Units.First().Chassis.Should().Be(unit.Chassis);
+        playerViewModel.Units.First().Chassis.ShouldBe(unit.Chassis);
     }
 
     [Fact]
@@ -33,7 +33,7 @@ public class PlayerViewModelTests
         playerViewModel.AddUnitCommand.Execute(null);
     
         // Assert
-        playerViewModel.Units.Count.Should().Be(0);
+        playerViewModel.Units.Count.ShouldBe(0);
     }
     
     [Fact]
@@ -46,7 +46,7 @@ public class PlayerViewModelTests
         var name = playerViewModel.Name;
     
         // Assert
-        name.Should().Be("Player1");
+        name.ShouldBe("Player1");
     }
     
     [Fact]
@@ -61,7 +61,7 @@ public class PlayerViewModelTests
         var canAddUnit = playerViewModel.CanAddUnit;
     
         // Assert
-        canAddUnit.Should().BeTrue();
+        canAddUnit.ShouldBeTrue();
     }
     
     [Fact]
@@ -74,7 +74,7 @@ public class PlayerViewModelTests
         var canAddUnit = playerViewModel.CanAddUnit;
     
         // Assert
-        canAddUnit.Should().BeFalse();
+        canAddUnit.ShouldBeFalse();
     } 
     
     [Fact]
@@ -88,6 +88,6 @@ public class PlayerViewModelTests
         var availableUnits = playerViewModel.AvailableUnits.ToList();
     
         // Assert
-        availableUnits.Contains(unit).Should().BeTrue();
+        availableUnits.Contains(unit).ShouldBeTrue();
     }
 }

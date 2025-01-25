@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
@@ -44,10 +44,10 @@ public class DeployUnitCommandTests : GameCommandTestBase<DeployUnitCommand>
     protected override void AssertCommandSpecificProperties(DeployUnitCommand original, DeployUnitCommand? cloned)
     {
         base.AssertCommandSpecificProperties(original, cloned);
-        cloned!.PlayerId.Should().Be(original.PlayerId);
-        cloned.UnitId.Should().Be(original.UnitId);
-        cloned.Position.Should().BeEquivalentTo(original.Position);
-        cloned.Direction.Should().Be(original.Direction);
+        cloned!.PlayerId.ShouldBe(original.PlayerId);
+        cloned.UnitId.ShouldBe(original.UnitId);
+        cloned.Position.ShouldBeEquivalentTo(original.Position);
+        cloned.Direction.ShouldBe(original.Direction);
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public class DeployUnitCommandTests : GameCommandTestBase<DeployUnitCommand>
         var result = command.Format(_localizationService, _game);
 
         // Assert
-        result.Should().Be("formatted deploy command");
+        result.ShouldBe("formatted deploy command");
         _localizationService.Received(1).GetString("Command_DeployUnit");
     }
 
@@ -75,7 +75,7 @@ public class DeployUnitCommandTests : GameCommandTestBase<DeployUnitCommand>
         var result = command.Format(_localizationService, _game);
 
         // Assert
-        result.Should().BeEmpty();
+        result.ShouldBeEmpty();
     }
 
     [Fact]
@@ -88,6 +88,6 @@ public class DeployUnitCommandTests : GameCommandTestBase<DeployUnitCommand>
         var result = command.Format(_localizationService, _game);
 
         // Assert
-        result.Should().BeEmpty();
+        result.ShouldBeEmpty();
     }
 }

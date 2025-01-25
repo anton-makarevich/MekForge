@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Components.Weapons;
@@ -12,11 +12,11 @@ public class AmmoTests
         var ammo = new Ammo(AmmoType.MachineGun, 200);
 
         // Assert
-        ammo.Name.Should().Be("MachineGun Ammo");
-        ammo.Type.Should().Be(AmmoType.MachineGun);
-        ammo.RemainingShots.Should().Be(200);
-        ammo.MountedAtSlots.Should().HaveCount(0);
-        ammo.Size.Should().Be(1);
+        ammo.Name.ShouldBe("MachineGun Ammo");
+        ammo.Type.ShouldBe(AmmoType.MachineGun);
+        ammo.RemainingShots.ShouldBe(200);
+        ammo.MountedAtSlots.ToList().Count.ShouldBe(0);
+        ammo.Size.ShouldBe(1);
     }
 
     [Fact]
@@ -29,7 +29,7 @@ public class AmmoTests
         ammo.UseShot();
 
         // Assert
-        ammo.RemainingShots.Should().Be(199);
+        ammo.RemainingShots.ShouldBe(199);
     }
 
     [Fact]
@@ -42,7 +42,7 @@ public class AmmoTests
         ammo.UseShot();
 
         // Assert
-        ammo.RemainingShots.Should().Be(0);
+        ammo.RemainingShots.ShouldBe(0);
     }
 
     [Fact]
@@ -55,6 +55,6 @@ public class AmmoTests
         ammo.Hit();
 
         // Assert
-        ammo.IsDestroyed.Should().BeTrue();
+        ammo.IsDestroyed.ShouldBeTrue();
     }
 }

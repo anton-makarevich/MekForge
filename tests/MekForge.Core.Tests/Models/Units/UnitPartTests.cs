@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;
 
@@ -6,13 +6,8 @@ namespace Sanet.MekForge.Core.Tests.Models.Units;
 
 public class UnitPartTests
 {
-    private class TestUnitPart : UnitPart
-    {
-        public TestUnitPart(PartLocation location, int maxArmor, int maxStructure, int slots) 
-            : base("Test",location, maxArmor, maxStructure, slots)
-        {
-        }
-    }
+    private class TestUnitPart(PartLocation location, int maxArmor, int maxStructure, int slots)
+        : UnitPart("Test", location, maxArmor, maxStructure, slots);
 
     [Fact]
     public void Constructor_InitializesCorrectly()
@@ -21,16 +16,16 @@ public class UnitPartTests
         var part = new TestUnitPart(PartLocation.LeftArm, 10, 5, 12);
 
         // Assert
-        part.Location.Should().Be(PartLocation.LeftArm);
-        part.MaxArmor.Should().Be(10);
-        part.CurrentArmor.Should().Be(10);
-        part.MaxStructure.Should().Be(5);
-        part.CurrentStructure.Should().Be(5);
-        part.TotalSlots.Should().Be(12);
-        part.UsedSlots.Should().Be(0);
-        part.AvailableSlots.Should().Be(12);
-        part.Components.Should().BeEmpty();
-        part.IsDestroyed.Should().BeFalse();
+        part.Location.ShouldBe(PartLocation.LeftArm);
+        part.MaxArmor.ShouldBe(10);
+        part.CurrentArmor.ShouldBe(10);
+        part.MaxStructure.ShouldBe(5);
+        part.CurrentStructure.ShouldBe(5);
+        part.TotalSlots.ShouldBe(12);
+        part.UsedSlots.ShouldBe(0);
+        part.AvailableSlots.ShouldBe(12);
+        part.Components.ShouldBeEmpty();
+        part.IsDestroyed.ShouldBeFalse();
     }
 
     [Theory]
@@ -46,19 +41,19 @@ public class UnitPartTests
         var excessDamage = part.ApplyDamage(damage);
 
         // Assert
-        excessDamage.Should().Be(expectedExcess);
+        excessDamage.ShouldBe(expectedExcess);
         
         if (damage <= maxArmor)
         {
-            part.CurrentArmor.Should().Be(maxArmor - damage);
-            part.CurrentStructure.Should().Be(maxStructure);
-            part.IsDestroyed.Should().BeFalse();
+            part.CurrentArmor.ShouldBe(maxArmor - damage);
+            part.CurrentStructure.ShouldBe(maxStructure);
+            part.IsDestroyed.ShouldBeFalse();
         }
         else if (damage < maxArmor + maxStructure)
         {
-            part.CurrentArmor.Should().Be(0);
-            part.CurrentStructure.Should().Be(maxStructure - (damage - maxArmor));
-            part.IsDestroyed.Should().BeFalse();
+            part.CurrentArmor.ShouldBe(0);
+            part.CurrentStructure.ShouldBe(maxStructure - (damage - maxArmor));
+            part.IsDestroyed.ShouldBeFalse();
         }
     }
     
@@ -68,16 +63,16 @@ public class UnitPartTests
     {
         // Arrange
         var part = new TestUnitPart(PartLocation.LeftArm, 0, 5, 12);
-        var masc = new TestComponent("Test MASC", new[] { 0, 1 });
+        var masc = new TestComponent("Test MASC", [0, 1]);
         part.TryAddComponent(masc);
 
         // Act
         part.ApplyDamage(10); // Ensure structure is destroyed
 
         // Assert
-        part.IsDestroyed.Should().BeTrue();
-        masc.IsDestroyed.Should().BeFalse(); // Component should not be automatically destroyed
-        masc.IsActive.Should().BeTrue(); // Components start active by default
+        part.IsDestroyed.ShouldBeTrue();
+        masc.IsDestroyed.ShouldBeFalse(); // Component should not be automatically destroyed
+        masc.IsActive.ShouldBeTrue(); // Components start active by default
     }
 
     [Fact]
@@ -89,13 +84,13 @@ public class UnitPartTests
         part.TryAddComponent(testComponent);
 
         // Act
-        var testComponents = part.GetComponents<TestComponent>();
+        var testComponents = part.GetComponents<TestComponent>().ToList();
         var jumpJetComponents = part.GetComponents<JumpJets>();
 
         // Assert
-        testComponents.Should().HaveCount(1);
-        jumpJetComponents.Should().BeEmpty();
-        testComponents.First().Should().Be(testComponent);
+        testComponents.Count.ShouldBe(1);
+        jumpJetComponents.ShouldBeEmpty();
+        testComponents.First().ShouldBe(testComponent);
     }
 
     [Fact]
@@ -107,13 +102,13 @@ public class UnitPartTests
         var largeComponent = new TestComponent("Large Component", [0, 1, 2, 3]);
 
         // Act & Assert
-        part.TryAddComponent(smallComponent).Should().BeTrue();
-        part.UsedSlots.Should().Be(2);
-        part.AvailableSlots.Should().Be(1);
+        part.TryAddComponent(smallComponent).ShouldBeTrue();
+        part.UsedSlots.ShouldBe(2);
+        part.AvailableSlots.ShouldBe(1);
         
-        part.TryAddComponent(largeComponent).Should().BeFalse();
-        part.Components.Should().HaveCount(1);
-        part.UsedSlots.Should().Be(2);
+        part.TryAddComponent(largeComponent).ShouldBeFalse();
+        part.Components.Count.ShouldBe(1);
+        part.UsedSlots.ShouldBe(2);
     }
 
     [Fact]
@@ -124,18 +119,18 @@ public class UnitPartTests
         var smallComponent = new TestComponent("Small Component", [0, 1]);
 
         // Act & Assert
-        part.TryAddComponent(smallComponent).Should().BeTrue();
+        part.TryAddComponent(smallComponent).ShouldBeTrue();
     }
     
     [Fact]
-    public void CannnotAddFixedComponent_WhenSlotsAreNotAvailable()
+    public void CannotAddFixedComponent_WhenSlotsAreNotAvailable()
     {
         // Arrange
         var part = new TestUnitPart(PartLocation.LeftArm, 10, 5, 3);
         var largeComponent = new TestComponent("Large Component", [0, 1, 2, 3]);
 
         // Act & Assert
-        part.TryAddComponent(largeComponent).Should().BeFalse();
+        part.TryAddComponent(largeComponent).ShouldBeFalse();
     }
     
     [Fact]
@@ -148,9 +143,9 @@ public class UnitPartTests
 
         // Act & Assert
         part.TryAddComponent(smallComponent);
-        part.TryAddComponent(largeComponent).Should().BeFalse();
-        part.TryAddComponent(new TestComponent("Not fixed Component", [])).Should().BeTrue();
-        part.TryAddComponent(new TestComponent("Not fixed Component 2", [])).Should().BeFalse();
+        part.TryAddComponent(largeComponent).ShouldBeFalse();
+        part.TryAddComponent(new TestComponent("Not fixed Component", [])).ShouldBeTrue();
+        part.TryAddComponent(new TestComponent("Not fixed Component 2", [])).ShouldBeFalse();
     }
 
     [Fact]
@@ -165,12 +160,12 @@ public class UnitPartTests
         part.TryAddComponent(component2);
 
         // Act & Assert
-        part.GetComponentAtSlot(0).Should().Be(component1);
-        part.GetComponentAtSlot(1).Should().Be(component1);
-        part.GetComponentAtSlot(2).Should().BeNull();
-        part.GetComponentAtSlot(3).Should().Be(component2);
-        part.GetComponentAtSlot(4).Should().Be(component2);
-        part.GetComponentAtSlot(5).Should().Be(component2);
+        part.GetComponentAtSlot(0).ShouldBe(component1);
+        part.GetComponentAtSlot(1).ShouldBe(component1);
+        part.GetComponentAtSlot(2).ShouldBeNull();
+        part.GetComponentAtSlot(3).ShouldBe(component2);
+        part.GetComponentAtSlot(4).ShouldBe(component2);
+        part.GetComponentAtSlot(5).ShouldBe(component2);
     }
 
     [Fact]
@@ -182,14 +177,9 @@ public class UnitPartTests
         var component = new TestComponent("TestComponent", [], 4);
 
         // Act & Assert
-        part.TryAddComponent(fixedComponent).Should().BeTrue();
-        part.TryAddComponent(component).Should().BeFalse();
+        part.TryAddComponent(fixedComponent).ShouldBeTrue();
+        part.TryAddComponent(component).ShouldBeFalse();
     }
 
-    private class TestComponent : Component
-    {
-        public TestComponent(string name, int[] slots, int size=1) : base(name, slots,size)
-        {
-        }
-    }
+    private class TestComponent(string name, int[] slots, int size = 1) : Component(name, slots, size);
 }
