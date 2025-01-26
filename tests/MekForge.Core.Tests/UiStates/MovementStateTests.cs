@@ -569,4 +569,19 @@ public class MovementStateTests
             hex.IsHighlighted.ShouldBeFalse();
         }
     }
+
+    [Fact]
+    public void HandleMovementTypeSelection_CompletesMovement_WhenStandingStill()
+    {
+        // Arrange
+        var startPosition = new HexPosition(new HexCoordinates(1,2), HexDirection.Bottom);
+        _unit1.Deploy(startPosition);
+        _state.HandleUnitSelection(_unit1);
+        
+        // Act
+        _state.HandleMovementTypeSelection(MovementType.StandingStill);
+
+        // Assert
+        _state.ActionLabel.ShouldBe(string.Empty); // Movement should be completed
+    }
 }
