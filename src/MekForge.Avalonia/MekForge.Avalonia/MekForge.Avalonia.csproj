@@ -6,7 +6,7 @@
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <AssemblyName>Sanet.MekForge.Avalonia</AssemblyName>
         <RootNamespace>Sanet.MekForge.Avalonia</RootNamespace>
-        <Description>Avalonia UI implementation for Classic BattleTech game</Description>
+        <Description>Avalonia UI frontend for MekForge game</Description>
     </PropertyGroup>
 
     <ItemGroup>
