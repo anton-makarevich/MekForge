@@ -94,7 +94,9 @@ public class MovementState : IUiState
                     .GetReachableHexes(_selectedUnit.Position.Value, _movementPoints, _prohibitedHexes)
                     .Select(x => x.coordinates)
                     .Where(hex => !_viewModel.Units
-                        .Any(u => u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id && u.Position?.Coordinates == hex))
+                        .Any(u => u != _selectedUnit 
+                            && u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id 
+                            && u.Position?.Coordinates == hex))
                     .ToList();
 
                 // Get backward reachable hexes if unit can move backward
@@ -106,7 +108,9 @@ public class MovementState : IUiState
                         .GetReachableHexes(oppositePosition, _movementPoints, _prohibitedHexes)
                         .Select(x => x.coordinates)
                         .Where(hex => !_viewModel.Units
-                            .Any(u => u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id && u.Position?.Coordinates == hex))
+                            .Any(u => u != _selectedUnit 
+                                && u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id 
+                                && u.Position?.Coordinates == hex))
                         .ToList();
                 }
             }
