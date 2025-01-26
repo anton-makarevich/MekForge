@@ -178,6 +178,13 @@ public class MovementState : IUiState
         var isForwardReachable = _forwardReachableHexes.Contains(hex.Coordinates);
         var isBackwardReachable = _backwardReachableHexes.Contains(hex.Coordinates);
         
+        // Reset selection if clicked outside of reachable hexes during target hex selection
+        if (!isForwardReachable && !isBackwardReachable)
+        {
+            ResetUnitSelection();
+            return;
+        }
+
         if (!isForwardReachable && !isBackwardReachable) return;
 
         CurrentMovementStep = MovementStep.SelectingDirection;

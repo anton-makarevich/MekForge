@@ -596,4 +596,25 @@ public class MovementStateTests
         _viewModel.IsDirectionSelectorVisible.ShouldBeTrue();
         _viewModel.DirectionSelectorPosition.ShouldBe(position.Coordinates);
     }
+
+    [Fact]
+    public void HandleTargetHexSelection_ResetsSelection_WhenClickingOutsideReachableHexes()
+    {
+        // Arrange
+        var startPosition = new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom);
+        _unit1.Deploy(startPosition);
+        _state.HandleUnitSelection(_unit1);
+        _state.HandleMovementTypeSelection(MovementType.Walk);
+        var unreachableHex = _viewModel.Game.BattleMap.GetHex(new HexCoordinates(5, 5)); // Far away hex
+
+        // Act
+        _state.HandleHexSelection(unreachableHex);
+
+        // Assert
+        _viewModel.SelectedUnit.ShouldBeNull(); // Selection should be reset
+        _state.CurrentMovementStep.ShouldBe(MovementStep.SelectingUnit); // Back to initial step
+        _viewModel.Game.BattleMap.GetHexes()
+            .Any(h => h.IsHighlighted)
+            .ShouldBeFalse(); // No highlighted hexes
+    }
 }
