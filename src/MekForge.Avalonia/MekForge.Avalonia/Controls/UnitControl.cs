@@ -65,11 +65,13 @@ namespace Sanet.MekForge.Avalonia.Controls
                 Margin = new Thickness(4)
             };
 
+            var standStillButton = CreateMovementButton("Stand Still", MovementType.StandingStill);
             var walkButton = CreateMovementButton("Walk", MovementType.Walk);
             var runButton = CreateMovementButton("Run", MovementType.Run);
             var jumpButton = CreateMovementButton("Jump", MovementType.Jump);
             jumpButton.IsVisible = _unit.GetMovementPoints(MovementType.Jump)>0;
 
+            MovementButtons.Children.Add(standStillButton);
             MovementButtons.Children.Add(walkButton);
             MovementButtons.Children.Add(runButton);
             MovementButtons.Children.Add(jumpButton);

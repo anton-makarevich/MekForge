@@ -55,8 +55,21 @@ public class MovementState : IUiState
         if (CurrentMovementStep != MovementStep.SelectingMovementType) return;
         _selectedMovementType = movementType;
         _builder.SetMovementType(movementType);
-        CurrentMovementStep = MovementStep.SelectingTargetHex;
         
+        if (movementType == MovementType.StandingStill && _selectedUnit.Position != null)
+        {
+            // For standing still, we create a single path segment with same From and To positions
+            var currentPosition = _selectedUnit.Position.Value;
+            var path = new List<PathSegment>
+            {
+                new(currentPosition, currentPosition, 0) // Cost is 0 since we're not moving
+            };
+            _builder.SetMovementPath(path);
+            CompleteMovement();
+            return;
+        }
+
+        CurrentMovementStep = MovementStep.SelectingTargetHex;
         _movementPoints = _selectedUnit?.GetMovementPoints(movementType) ?? 0;
 
         // Get reachable hexes and highlight them
