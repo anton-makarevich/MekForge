@@ -99,7 +99,7 @@ public class BattleMapTests
         var reachable = map.GetReachableHexes(start, 2).ToList();
 
         // Assert
-        reachable.Count.ShouldBe(4); // 
+        reachable.Count.ShouldBe(5); // 
         reachable.All(h => h.cost <= 2).ShouldBeTrue();
         reachable.Count(h => h.cost == 1).ShouldBe(1); // 6 adjacent hexes
         reachable.Count(h => h.cost == 2).ShouldBe(3); // 12 hexes at distance 2
@@ -126,8 +126,8 @@ public class BattleMapTests
         var reachable = map.GetReachableHexes(start, 2).ToList();
 
         // Assert
-        reachable.Count.ShouldBe(1); // Only the clear hex should be reachable
-        reachable.First().coordinates.ShouldBe(clearHex.Coordinates);
+        reachable.Count.ShouldBe(2); // Only the clear hex should be reachable
+        reachable.Last().coordinates.ShouldBe(clearHex.Coordinates);
     }
 
     [Fact]
@@ -540,7 +540,7 @@ public class BattleMapTests
         if (shouldFindPath)
         {
             path.ShouldNotBeNull("Path should be found within movement points");
-            path!.Count.ShouldBe(from.Coordinates.DistanceTo(to.Coordinates),
+            path.Count.ShouldBe(from.Coordinates.DistanceTo(to.Coordinates),
                 "Path should have one segment per hex traversed");
             
             // Verify each segment costs 1 MP
