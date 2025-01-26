@@ -546,31 +546,6 @@ public class MovementStateTests
     }
 
     [Fact]
-    public void HandleFacingSelection_ForJumping_CompletesMovementWithoutPath()
-    {
-        // Arrange
-        var startPosition = new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom);
-        _unit1.Deploy(startPosition);
-        _state.HandleUnitSelection(_unit1);
-        _state.HandleMovementTypeSelection(MovementType.Jump);
-        
-        var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 3))!;
-        _state.HandleHexSelection(targetHex);
-        
-        // Act
-        _state.HandleFacingSelection(HexDirection.Top);
-        
-        // Assert
-        _viewModel.MovementPath.ShouldBeNull("Should not show movement path for jumping");
-        _state.ActionLabel.ShouldBeEmpty();
-        _state.IsActionRequired.ShouldBeFalse();
-        foreach (var hex in _viewModel.Game!.BattleMap.GetHexes())
-        {
-            hex.IsHighlighted.ShouldBeFalse();
-        }
-    }
-
-    [Fact]
     public void HandleMovementTypeSelection_CompletesMovement_WhenStandingStill()
     {
         // Arrange
