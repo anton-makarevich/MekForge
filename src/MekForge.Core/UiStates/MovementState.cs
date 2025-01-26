@@ -56,14 +56,10 @@ public class MovementState : IUiState
         _selectedMovementType = movementType;
         _builder.SetMovementType(movementType);
         
-        if (movementType == MovementType.StandingStill && _selectedUnit.Position != null)
+        if (movementType == MovementType.StandingStill)
         {
             // For standing still, we create a single path segment with same From and To positions
-            var currentPosition = _selectedUnit.Position.Value;
-            var path = new List<PathSegment>
-            {
-                new(currentPosition, currentPosition, 0) // Cost is 0 since we're not moving
-            };
+            var path = new List<PathSegment>();
             _builder.SetMovementPath(path);
             CompleteMovement();
             return;

@@ -345,6 +345,25 @@ public class MechTests
                 () => mech.Deploy(new HexPosition(new HexCoordinates(2, 2), HexDirection.Bottom)));
         ex.Message.ShouldBe("Test TST-1A is already deployed.");
     }
+
+    [Fact]
+    public void MoveTo_ShouldNotUpdatePosition_WhenMovementTypeIsStandingStill()
+    {
+        // Arrange
+        var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        mech.Deploy(position);
+
+        // Act
+        mech.MoveTo(MovementType.StandingStill, []);
+
+        // Assert
+        mech.Position.ShouldBe(position); // Position should remain the same
+        mech.HasMoved.ShouldBeTrue(); // Unit should be marked as moved
+        mech.MovementTypeUsed.ShouldBe(MovementType.StandingStill);
+        mech.DistanceCovered.ShouldBe(0); // Distance should be 0
+        mech.MovementPointsSpent.ShouldBe(0); // No movement points spent
+    }
 }
 
 // Helper extension for testing protected methods
