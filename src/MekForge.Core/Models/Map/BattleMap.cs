@@ -317,7 +317,7 @@ public class BattleMap
 
     public List<PathSegment>? FindJumpPath(HexPosition from, HexPosition to, int movementPoints)
     {
-        if (!IsValidPosition(from.Coordinates) || !IsValidPosition(to.Coordinates))
+        if (!IsOnMap(from.Coordinates) || !IsOnMap(to.Coordinates))
             return null;
 
         var distance = from.Coordinates.DistanceTo(to.Coordinates);
@@ -333,18 +333,24 @@ public class BattleMap
         {
             // Find the next hex in the direction of the target
             var neighbors = currentPosition.Coordinates.GetAdjacentCoordinates()
-                .Where(IsValidPosition)
+                .Where(IsOnMap)
                 .ToList();
 
-            // Get the neighbor that's closest to the target
-            var nextCoords = neighbors
-                .OrderBy(n => n.DistanceTo(to.Coordinates))
-                .First();
+            
 
             // Add path segment with cost 1 (each hex costs 1 MP for jumping)
-            var nextPosition = (to.Coordinates==nextCoords)
-                ? to 
-                : new HexPosition(nextCoords, currentPosition.Coordinates.GetDirectionToNeighbour(nextCoords));
+            HexPosition nextPosition;
+            if (remainingDistance == 1)
+                nextPosition = to;
+            else
+            {
+                // Get the neighbor that's closest to the target
+                            var nextCoords = neighbors
+                                .OrderBy(n => n.DistanceTo(to.Coordinates))
+                                .First();
+                nextPosition = new HexPosition(nextCoords,
+                                    currentPosition.Coordinates.GetDirectionToNeighbour(nextCoords));
+            }
             
             path.Add(new PathSegment(
                 currentPosition,
@@ -358,7 +364,7 @@ public class BattleMap
         return path;
     }
 
-    private bool IsValidPosition(HexCoordinates coordinates)
+    public bool IsOnMap(HexCoordinates coordinates)
     {
         return coordinates.Q >= 1 && coordinates.Q <= Width &&
                coordinates.R >= 1 && coordinates.R <= Height;

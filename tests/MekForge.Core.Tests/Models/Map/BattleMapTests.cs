@@ -591,4 +591,32 @@ public class BattleMapTests
         // Assert
         path.ShouldBeNull("Path should be null for invalid target position");
     }
+    
+    [Fact]
+    public void IsOnMap_ReturnsTrueForValidCoordinates()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(5, 5,
+            new SingleTerrainGenerator(5, 5, new ClearTerrain()));
+
+        // Act
+        var isOnMap = map.IsOnMap(new HexCoordinates(3, 3));
+
+        // Assert
+        isOnMap.ShouldBeTrue();
+    }
+    
+    [Fact]
+    public void IsOnMap_ReturnsFalseForInvalidCoordinates()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(5, 5,
+            new SingleTerrainGenerator(5, 5, new ClearTerrain()));
+
+        // Act
+        var isOnMap = map.IsOnMap(new HexCoordinates(6, 6));
+
+        // Assert
+        isOnMap.ShouldBeFalse();
+    }
 }
