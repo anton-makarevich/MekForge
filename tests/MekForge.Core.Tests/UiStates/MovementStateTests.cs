@@ -601,14 +601,17 @@ public class MovementStateTests
     public void HandleTargetHexSelection_ResetsSelection_WhenClickingOutsideReachableHexes()
     {
         // Arrange
-        var startPosition = new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom);
-        _unit1.Deploy(startPosition);
-        _state.HandleUnitSelection(_unit1);
+        var unit = _viewModel.Units.First();
+        var startPosition = new HexPosition(new HexCoordinates(1, 2), HexDirection.Top);
+        unit.Deploy(startPosition);
+        var unitHex = _game.BattleMap.GetHex(unit.Position!.Value.Coordinates)!;
+        _state.HandleHexSelection(unitHex);
+        _state.HandleUnitSelection(unit);
         _state.HandleMovementTypeSelection(MovementType.Walk);
-        var unreachableHex = _viewModel.Game.BattleMap.GetHex(new HexCoordinates(5, 5)); // Far away hex
+        var unreachableHex = _viewModel.Game!.BattleMap.GetHex(new HexCoordinates(1, 11)); // Far away hex
 
         // Act
-        _state.HandleHexSelection(unreachableHex);
+        _state.HandleHexSelection(unreachableHex!);
 
         // Assert
         _viewModel.SelectedUnit.ShouldBeNull(); // Selection should be reset
