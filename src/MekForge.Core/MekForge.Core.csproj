@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Sanet.MekForge.Core</AssemblyName>
         <RootNamespace>Sanet.MekForge.Core</RootNamespace>
-        <Description>Classic BattleTech game implementation</Description>
+        <Description>An Attempt of Classic BattleTech game implementation. Game Logic</Description>
     </PropertyGroup>
     
     <ItemGroup>
