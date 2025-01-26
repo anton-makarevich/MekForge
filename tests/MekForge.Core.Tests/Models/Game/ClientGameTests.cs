@@ -200,7 +200,7 @@ public class ClientGameTests
         
         // Assert
         _clientGame.ActivePlayer.ShouldBe(actualPlayer);
-        actualPlayer.Name.ShouldBe(player.Name);
+        actualPlayer!.Name.ShouldBe(player.Name);
         actualPlayer.Id.ShouldBe(player.Id);
     }
 
@@ -421,7 +421,7 @@ public class ClientGameTests
         // Assert
         var deployedUnit = _clientGame.Players.First().Units.First();
         deployedUnit.IsDeployed.ShouldBeTrue();
-        deployedUnit.Position.Value.Coordinates.Q.ShouldBe(1);
+        deployedUnit.Position!.Value.Coordinates.Q.ShouldBe(1);
         deployedUnit.Position.Value.Coordinates.R.ShouldBe(1);
         deployedUnit.Position.Value.Facing.ShouldBe(HexDirection.Top);
     }
@@ -511,8 +511,8 @@ public class ClientGameTests
         _clientGame.HandleCommand(moveCommand);
 
         // Assert
-        var movedUnit = _clientGame.Players.First().Units.First();
-        movedUnit.Position.Value.Coordinates.Q.ShouldBe(2);
+        var movedUnit = _clientGame.Players[0].Units[0];
+        movedUnit.Position!.Value.Coordinates.Q.ShouldBe(2);
         movedUnit.Position.Value.Coordinates.R.ShouldBe(2);
         movedUnit.Position.Value.Facing.ShouldBe(HexDirection.Top);
     }
