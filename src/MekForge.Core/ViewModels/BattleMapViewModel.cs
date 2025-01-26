@@ -279,7 +279,7 @@ public class BattleMapViewModel : BaseViewModel
     public void ShowMovementPath(List<PathSegment> path)
     {
         HideMovementPath();
-        if (path.Count < 2)
+        if (path.Count < 1)
         {
             return;
         }

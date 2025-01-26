@@ -392,4 +392,97 @@ public class BattleMapViewModelTests
         // Assert
         _viewModel.IsRecordSheetExpanded.ShouldBeFalse();
     }
+
+    [Fact]
+    public void ShowMovementPath_SetsMovementPathProperty()
+    {
+        // Arrange
+        var path = new List<PathSegment>
+        {
+            new(
+                new HexPosition(new HexCoordinates(1, 1), HexDirection.Top),
+                new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom),
+                1)
+        };
+
+        // Act
+        _viewModel.ShowMovementPath(path);
+
+        // Assert
+        _viewModel.MovementPath.ShouldNotBeNull();
+        _viewModel.MovementPath[0].From.ShouldBe(path[0].From);
+        _viewModel.MovementPath[0].To.ShouldBe(path[0].To);
+    }
+
+    [Fact]
+    public void ShowMovementPath_WithEmptyPath_ClearsMovementPath()
+    {
+        // Arrange
+        var path = new List<PathSegment>
+        {
+            new(
+                new HexPosition(new HexCoordinates(1, 1), HexDirection.Top),
+                new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom),
+                1)
+        };
+        _viewModel.ShowMovementPath(path);
+
+        // Act
+        _viewModel.ShowMovementPath([]);
+
+        // Assert
+        _viewModel.MovementPath.ShouldBeNull();
+    }
+
+    [Fact]
+    public void ShowMovementPath_NotifiesPropertyChanged()
+    {
+        // Arrange
+        var path = new List<PathSegment>
+        {
+            new(
+                new HexPosition(new HexCoordinates(1, 1), HexDirection.Top),
+                new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom),
+                1)
+        };
+        var propertyChanged = false;
+        _viewModel.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(BattleMapViewModel.MovementPath))
+                propertyChanged = true;
+        };
+
+        // Act
+        _viewModel.ShowMovementPath(path);
+
+        // Assert
+        propertyChanged.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void HideMovementPath_ClearsPathAndNotifiesChange()
+    {
+        // Arrange
+        var path = new List<PathSegment>
+        {
+            new(
+                new HexPosition(new HexCoordinates(1, 1), HexDirection.Top),
+                new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom),
+                1)
+        };
+        _viewModel.ShowMovementPath(path);
+        var propertyChanged = false;
+        _viewModel.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(BattleMapViewModel.MovementPath))
+                propertyChanged = true;
+        };
+
+        // Act
+        _viewModel.HideMovementPath();
+
+        // Assert
+        _viewModel.MovementPath.ShouldBeNull();
+        propertyChanged.ShouldBeTrue();
+    }
 }

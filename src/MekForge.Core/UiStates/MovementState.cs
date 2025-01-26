@@ -130,7 +130,7 @@ public class MovementState : IUiState
         if (CurrentMovementStep != MovementStep.SelectingDirection) return;
         var path = _possibleDirections[direction]; 
         _builder.SetMovementPath(path);
-        if (_selectedMovementType == MovementType.Jump || (_viewModel.MovementPath != null && _viewModel.MovementPath.Last().To==path.Last().To))
+        if (_viewModel.MovementPath != null && _viewModel.MovementPath.Last().To==path.Last().To)
         {
             CompleteMovement();
             return;
@@ -180,17 +180,19 @@ public class MovementState : IUiState
 
         if (_selectedMovementType == MovementType.Jump)
         {
-            // For jumping, we can face any direction and move directly to target
+            // For jumping, we can face any direction and calculate path ignoring terrain
             foreach (var direction in availableDirections)
             {
-                var path = new List<PathSegment>
+                var targetPos = new HexPosition(hex.Coordinates, direction);
+                var path = _viewModel.Game.BattleMap.FindJumpPath(
+                    _selectedUnit.Position.Value,
+                    targetPos,
+                    _movementPoints);
+
+                if (path != null)
                 {
-                    new(
-                        _selectedUnit.Position.Value,
-                        new HexPosition(hex.Coordinates, direction),
-                        1) // Cost is always 1 for jumping
-                };
-                _possibleDirections[direction] = path;
+                    _possibleDirections[direction] = path;
+                }
             }
         }
         else
