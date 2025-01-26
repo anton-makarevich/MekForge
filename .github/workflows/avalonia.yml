@@ -1,0 +1,22 @@
+name: MekForge Avalonia Library
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+  workflow_dispatch:
+env:
+  NuGetDirectory: ${{ github.workspace}}/nuget
+  
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 9.x
