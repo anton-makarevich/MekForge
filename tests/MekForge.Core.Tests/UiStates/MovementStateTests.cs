@@ -227,7 +227,7 @@ public class MovementStateTests
         var hex = new Hex(new HexCoordinates(1, 1));
         _unit1.Deploy(new HexPosition(1, 2, HexDirection.Bottom));
         var newPosition = new HexPosition(new HexCoordinates(2, 2), HexDirection.Top);
-        _unit1.MoveTo(MovementType.Walk,
+        _unit1.Move(MovementType.Walk,
             [new PathSegment(new HexPosition(1, 2, HexDirection.Bottom), newPosition, 1)
                 .ToData()]);
 

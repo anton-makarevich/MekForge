@@ -125,7 +125,7 @@ public abstract class BaseGame : IGame
         var player = _players.FirstOrDefault(p => p.Id == moveCommand.PlayerId);
         if (player == null) return;
         var unit = player.Units.FirstOrDefault(u => u.Id == moveCommand.UnitId);
-        unit?.MoveTo(
+        unit?.Move(
             moveCommand.MovementType,
             moveCommand.MovementPath);
     }

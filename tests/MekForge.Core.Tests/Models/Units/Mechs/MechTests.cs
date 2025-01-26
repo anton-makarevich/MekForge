@@ -83,7 +83,7 @@ public class MechTests
         mech.Deploy(deployPosition);
 
         // Act
-        mech.MoveTo(MovementType.Walk, new List<PathSegmentData>
+        mech.Move(MovementType.Walk, new List<PathSegmentData>
         {
             new PathSegment(deployPosition, newCoordinates, 0).ToData()
         });
@@ -104,7 +104,7 @@ public class MechTests
         var newCoordinates = new HexPosition(new HexCoordinates(1, 2), HexDirection.BottomLeft);
 
         // Act
-        var act = () => mech.MoveTo(MovementType.Walk, new List<PathSegmentData>
+        var act = () => mech.Move(MovementType.Walk, new List<PathSegmentData>
         {
             new PathSegment(new HexPosition(1, 1, HexDirection.Bottom), newCoordinates, 1).ToData()
         });
@@ -122,7 +122,7 @@ public class MechTests
         var deployPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
         var newCoordinates = new HexPosition(new HexCoordinates(1, 2), HexDirection.BottomLeft);
         mech.Deploy(deployPosition);
-        mech.MoveTo(MovementType.Walk, new List<PathSegmentData>
+        mech.Move(MovementType.Walk, new List<PathSegmentData>
         {
             new PathSegment(deployPosition, newCoordinates, 1).ToData()
         });
@@ -355,7 +355,7 @@ public class MechTests
         mech.Deploy(position);
 
         // Act
-        mech.MoveTo(MovementType.StandingStill, []);
+        mech.Move(MovementType.StandingStill, []);
 
         // Assert
         mech.Position.ShouldBe(position); // Position should remain the same
