@@ -16,7 +16,7 @@ public class MovementState : IUiState
     private readonly List<HexCoordinates> _prohibitedHexes;
     private MovementType? _selectedMovementType;
     private int _movementPoints;
-    private Dictionary<HexDirection, List<PathSegment>> _possibleDirections;
+    private Dictionary<HexDirection, List<PathSegment>> _possibleDirections =[];
 
     public MovementState(BattleMapViewModel viewModel)
     {
@@ -34,7 +34,7 @@ public class MovementState : IUiState
         // Get hexes with enemy units - these will be excluded from pathfinding
         _prohibitedHexes = _viewModel.Units
             .Where(u=>u.Owner?.Id != _viewModel.Game.ActivePlayer?.Id && u.Position.HasValue)
-            .Select(u => u.Position.Value.Coordinates)
+            .Select(u => u.Position!.Value.Coordinates)
             .ToList();
     }
 

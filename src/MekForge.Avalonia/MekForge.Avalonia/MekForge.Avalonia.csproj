@@ -55,4 +55,12 @@
         <SubType>Code</SubType>
       </Compile>
     </ItemGroup>
+
+    <!-- Debug target to print properties -->
+    <Target Name="PrintProperties" BeforeTargets="Build">
+        <Message Importance="high" Text="Project: $(MSBuildProjectName)" />
+        <Message Importance="high" Text="Version: $(Version)" />
+        <Message Importance="high" Text="Authors: $(Authors)" />
+        <Message Importance="high" Text="Company: $(Company)" />
+    </Target>
 </Project>
