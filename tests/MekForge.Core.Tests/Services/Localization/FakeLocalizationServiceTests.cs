@@ -7,7 +7,7 @@ public class FakeLocalizationServiceTests
 {
     [Theory]
     [InlineData("Command_JoinGame", "{0} has joined game with {1} units.")]
-    [InlineData("Command_MoveUnit", "{0} moved {1} to {2}.")]
+    [InlineData("Command_MoveUnit", "{0} moved {1} to {2} facing {3} using {4}.")]
     [InlineData("Command_DeployUnit", "{0} deployed {1} to {2} facing {3}.")]
     [InlineData("Command_RollDice", "{0} rolls")]
     [InlineData("Command_DiceRolled", "{0} rolled {1}.")]
