@@ -521,4 +521,74 @@ public class BattleMapTests
                 h.DistanceTo(start) <= movementPoints,
             $"All hexes should be within {movementPoints} movement points from start");
     }
+
+    [Theory]
+    [InlineData(1, 1, 1, 2, 1, true)]  // Adjacent hex, within range
+    [InlineData(1, 1, 1, 3, 2, true)]  // Two hexes away, within range
+    [InlineData(1, 1, 1, 4, 2, false)] // Three hexes away, out of range
+    public void FindJumpPath_ReturnsCorrectPath(int fromQ, int fromR, int toQ, int toR, int mp, bool shouldFindPath)
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5, 5, new HeavyWoodsTerrain()));
+        var from = new HexPosition(new HexCoordinates(fromQ, fromR), HexDirection.Top);
+        var to = new HexPosition(new HexCoordinates(toQ, toR), HexDirection.Bottom);
+
+        // Act
+        var path = map.FindJumpPath(from, to, mp);
+
+        // Assert
+        if (shouldFindPath)
+        {
+            path.ShouldNotBeNull("Path should be found within movement points");
+            path!.Count.ShouldBe(from.Coordinates.DistanceTo(to.Coordinates),
+                "Path should have one segment per hex traversed");
+            
+            // Verify each segment costs 1 MP
+            foreach (var pathSegment in path)
+            {
+                pathSegment.Cost.ShouldBe(1);
+            }
+            // Verify path leads to target
+            path.Last().To.Coordinates.ShouldBe(to.Coordinates,
+                "Path should end at target coordinates");
+            path.Last().To.Facing.ShouldBe(to.Facing,
+                "Path should end with target facing");
+        }
+        else
+        {
+            path.ShouldBeNull("Path should not be found when target is out of range");
+        }
+    }
+
+    [Fact]
+    public void FindJumpPath_IgnoresTerrainCosts()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(3, 3, new SingleTerrainGenerator(3, 3, new HeavyWoodsTerrain()));
+        var from = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
+        var to = new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom);
+
+        // Act
+        var path = map.FindJumpPath(from, to, 1);
+
+        // Assert
+        path.ShouldNotBeNull("Path should be found regardless of terrain");
+        path.Count.ShouldBe(1, "Path should have one segment for adjacent hex");
+        path[0].Cost.ShouldBe(1, "Cost should be 1 regardless of terrain");
+    }
+
+    [Fact]
+    public void FindJumpPath_ReturnsNullForInvalidPositions()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(2, 2, new SingleTerrainGenerator(2, 2, new ClearTerrain()));
+        var from = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
+        var invalidTo = new HexPosition(new HexCoordinates(3, 3), HexDirection.Bottom);
+
+        // Act
+        var path = map.FindJumpPath(from, invalidTo, 5);
+
+        // Assert
+        path.ShouldBeNull("Path should be null for invalid target position");
+    }
 }

@@ -314,4 +314,53 @@ public class BattleMap
     {
         return _hexes.Values;
     }
+
+    public List<PathSegment>? FindJumpPath(HexPosition from, HexPosition to, int movementPoints)
+    {
+        if (!IsValidPosition(from.Coordinates) || !IsValidPosition(to.Coordinates))
+            return null;
+
+        var distance = from.Coordinates.DistanceTo(to.Coordinates);
+        if (distance > movementPoints)
+            return null;
+
+        // For jumping, we want the shortest path ignoring terrain and turning costs
+        var path = new List<PathSegment>();
+        var currentPosition = from;
+        var remainingDistance = distance;
+
+        while (remainingDistance > 0)
+        {
+            // Find the next hex in the direction of the target
+            var neighbors = currentPosition.Coordinates.GetAdjacentCoordinates()
+                .Where(IsValidPosition)
+                .ToList();
+
+            // Get the neighbor that's closest to the target
+            var nextCoords = neighbors
+                .OrderBy(n => n.DistanceTo(to.Coordinates))
+                .First();
+
+            // Add path segment with cost 1 (each hex costs 1 MP for jumping)
+            var nextPosition = (to.Coordinates==nextCoords)
+                ? to 
+                : new HexPosition(nextCoords, currentPosition.Coordinates.GetDirectionToNeighbour(nextCoords));
+            
+            path.Add(new PathSegment(
+                currentPosition,
+                nextPosition,
+                1));
+
+            currentPosition = nextPosition;
+            remainingDistance--;
+        }
+
+        return path;
+    }
+
+    private bool IsValidPosition(HexCoordinates coordinates)
+    {
+        return coordinates.Q >= 1 && coordinates.Q <= Width &&
+               coordinates.R >= 1 && coordinates.R <= Height;
+    }
 }
