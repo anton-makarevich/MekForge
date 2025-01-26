@@ -40,15 +40,15 @@ MekForge/
 
 ### Project Status
 
+[![codecov](https://codecov.io/github/anton-makarevich/MekForge/graph/badge.svg?token=SAQTXWFA21)](https://codecov.io/github/anton-makarevich/MekForge)
+
 - **MekForge.Core**:
 
-[![codecov](https://codecov.io/github/anton-makarevich/MekForge/graph/badge.svg?token=SAQTXWFA21)](https://codecov.io/github/anton-makarevich/MekForge)
 [![build](https://github.com/anton-makarevich/MekForge/actions/workflows/core.yml/badge.svg)](https://github.com/anton-makarevich/MekForge/actions/workflows/core.yml)
 ![NuGet Version](https://img.shields.io/nuget/vpre/Sanet.MekForge.Core)
 
 - **MekForge.Avalonia**:
 
-[![codecov](https://codecov.io/github/anton-makarevich/MekForge/graph/badge.svg?token=SAQTXWFA21)](https://codecov.io/github/anton-makarevich/MekForge)
 [![build](https://github.com/anton-makarevich/MekForge/actions/workflows/avalonia.yml/badge.svg)](https://github.com/anton-makarevich/MekForge/actions/workflows/avalonia.yml)
 ![NuGet Version](https://img.shields.io/nuget/vpre/Sanet.MekForge.Avalonia)
 
