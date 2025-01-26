@@ -559,4 +559,41 @@ public class MovementStateTests
         // Assert
         _state.ActionLabel.ShouldBe(string.Empty); // Movement should be completed
     }
+
+    [Fact]
+    public void HandleMovementTypeSelection_IncludesCurrentHex_InReachableHexes()
+    {
+        // Arrange
+        var position = new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom);
+        _unit1.Deploy(position);
+        _state.HandleUnitSelection(_unit1);
+        
+        // Act
+        _state.HandleMovementTypeSelection(MovementType.Walk);
+
+        // Assert
+        var reachableHexes = _viewModel.Game.BattleMap.GetHexes()
+            .Where(h => h.IsHighlighted)
+            .Select(h => h.Coordinates)
+            .ToList();
+        reachableHexes.ShouldContain(position.Coordinates);
+    }
+
+    [Fact]
+    public void HandleTargetHexSelection_ShowsDirectionSelector_WhenSelectingCurrentHex()
+    {
+        // Arrange
+        var position = new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom);
+        _unit1.Deploy(position);
+        _state.HandleUnitSelection(_unit1);
+        _state.HandleMovementTypeSelection(MovementType.Walk);
+        var currentHex = _viewModel.Game.BattleMap.GetHex(position.Coordinates);
+
+        // Act
+        _state.HandleHexSelection(currentHex);
+
+        // Assert
+        _viewModel.IsDirectionSelectorVisible.ShouldBeTrue();
+        _viewModel.DirectionSelectorPosition.ShouldBe(position.Coordinates);
+    }
 }

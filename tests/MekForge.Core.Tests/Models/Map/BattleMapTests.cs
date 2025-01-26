@@ -619,4 +619,60 @@ public class BattleMapTests
         // Assert
         isOnMap.ShouldBeFalse();
     }
+
+    [Fact]
+    public void FindPath_SameHex_ReturnsOnlyTurningSegments()
+    {
+        // Arrange
+        var map = new BattleMap(2, 2);
+        var hex = new Hex(new HexCoordinates(1, 1));
+        map.AddHex(hex);
+        var start = new HexPosition(hex.Coordinates, HexDirection.Top);
+        var target = new HexPosition(hex.Coordinates, HexDirection.Bottom);
+
+        // Act
+        var path = map.FindPath(start, target, 3);
+
+        // Assert
+        path.ShouldNotBeNull();
+        path.Count.ShouldBe(3); // Should take 3 turns to rotate 180 degrees
+        path.All(segment => segment.From.Coordinates == hex.Coordinates).ShouldBeTrue(); // All segments in same hex
+        path.All(segment => segment.To.Coordinates == hex.Coordinates).ShouldBeTrue();
+        path.All(segment => segment.Cost == 1).ShouldBeTrue(); // Each turn costs 1
+        path.Last().To.Facing.ShouldBe(HexDirection.Bottom); // Should end facing target direction
+    }
+
+    [Fact]
+    public void FindPath_SameHex_ExceedingMovementPoints_ReturnsNull()
+    {
+        // Arrange
+        var map = new BattleMap(2, 2);
+        var hex = new Hex(new HexCoordinates(1, 1));
+        map.AddHex(hex);
+        var start = new HexPosition(hex.Coordinates, HexDirection.Top);
+        var target = new HexPosition(hex.Coordinates, HexDirection.Bottom);
+
+        // Act
+        var path = map.FindPath(start, target, 2); // Only 2 movement points for 3 turns
+
+        // Assert
+        path.ShouldBeNull();
+    }
+
+    [Fact]
+    public void FindPath_SameHex_NoTurningNeeded_ReturnsEmptyList()
+    {
+        // Arrange
+        var map = new BattleMap(2, 2);
+        var hex = new Hex(new HexCoordinates(1, 1));
+        map.AddHex(hex);
+        var position = new HexPosition(hex.Coordinates, HexDirection.Top);
+
+        // Act
+        var path = map.FindPath(position, position, 3);
+
+        // Assert
+        path.ShouldNotBeNull();
+        path.Count.ShouldBe(0); // No segments needed when already facing the right direction
+    }
 }
