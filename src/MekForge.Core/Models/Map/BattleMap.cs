@@ -193,7 +193,6 @@ public class BattleMap
         }
 
         return bestCosts
-            .Where(v => v.Key != start.Coordinates)
             .Select(v => (v.Key, v.Value));
     }
 

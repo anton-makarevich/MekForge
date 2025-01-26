@@ -153,6 +153,7 @@ public class MovementState : IUiState
     {
         if (_viewModel.SelectedUnit == null) return;
         _viewModel.SelectedUnit = null;
+        _selectedUnit = null;
         _viewModel.HideMovementPath();
         _viewModel.HideDirectionSelector();
         if (_forwardReachableHexes.Count > 0 || _backwardReachableHexes.Count > 0)
