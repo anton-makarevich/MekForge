@@ -99,7 +99,7 @@ public class BattleMapTests
         var reachable = map.GetReachableHexes(start, 2).ToList();
 
         // Assert
-        reachable.Count.ShouldBe(4); // 
+        reachable.Count.ShouldBe(5); // 
         reachable.All(h => h.cost <= 2).ShouldBeTrue();
         reachable.Count(h => h.cost == 1).ShouldBe(1); // 6 adjacent hexes
         reachable.Count(h => h.cost == 2).ShouldBe(3); // 12 hexes at distance 2
@@ -126,8 +126,8 @@ public class BattleMapTests
         var reachable = map.GetReachableHexes(start, 2).ToList();
 
         // Assert
-        reachable.Count.ShouldBe(1); // Only the clear hex should be reachable
-        reachable.First().coordinates.ShouldBe(clearHex.Coordinates);
+        reachable.Count.ShouldBe(2); // Only the clear hex should be reachable
+        reachable.Last().coordinates.ShouldBe(clearHex.Coordinates);
     }
 
     [Fact]
@@ -540,7 +540,7 @@ public class BattleMapTests
         if (shouldFindPath)
         {
             path.ShouldNotBeNull("Path should be found within movement points");
-            path!.Count.ShouldBe(from.Coordinates.DistanceTo(to.Coordinates),
+            path.Count.ShouldBe(from.Coordinates.DistanceTo(to.Coordinates),
                 "Path should have one segment per hex traversed");
             
             // Verify each segment costs 1 MP
@@ -618,5 +618,61 @@ public class BattleMapTests
 
         // Assert
         isOnMap.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void FindPath_SameHex_ReturnsOnlyTurningSegments()
+    {
+        // Arrange
+        var map = new BattleMap(2, 2);
+        var hex = new Hex(new HexCoordinates(1, 1));
+        map.AddHex(hex);
+        var start = new HexPosition(hex.Coordinates, HexDirection.Top);
+        var target = new HexPosition(hex.Coordinates, HexDirection.Bottom);
+
+        // Act
+        var path = map.FindPath(start, target, 3);
+
+        // Assert
+        path.ShouldNotBeNull();
+        path.Count.ShouldBe(3); // Should take 3 turns to rotate 180 degrees
+        path.All(segment => segment.From.Coordinates == hex.Coordinates).ShouldBeTrue(); // All segments in same hex
+        path.All(segment => segment.To.Coordinates == hex.Coordinates).ShouldBeTrue();
+        path.All(segment => segment.Cost == 1).ShouldBeTrue(); // Each turn costs 1
+        path.Last().To.Facing.ShouldBe(HexDirection.Bottom); // Should end facing target direction
+    }
+
+    [Fact]
+    public void FindPath_SameHex_ExceedingMovementPoints_ReturnsNull()
+    {
+        // Arrange
+        var map = new BattleMap(2, 2);
+        var hex = new Hex(new HexCoordinates(1, 1));
+        map.AddHex(hex);
+        var start = new HexPosition(hex.Coordinates, HexDirection.Top);
+        var target = new HexPosition(hex.Coordinates, HexDirection.Bottom);
+
+        // Act
+        var path = map.FindPath(start, target, 2); // Only 2 movement points for 3 turns
+
+        // Assert
+        path.ShouldBeNull();
+    }
+
+    [Fact]
+    public void FindPath_SameHex_NoTurningNeeded_ReturnsEmptyList()
+    {
+        // Arrange
+        var map = new BattleMap(2, 2);
+        var hex = new Hex(new HexCoordinates(1, 1));
+        map.AddHex(hex);
+        var position = new HexPosition(hex.Coordinates, HexDirection.Top);
+
+        // Act
+        var path = map.FindPath(position, position, 3);
+
+        // Assert
+        path.ShouldNotBeNull();
+        path.Count.ShouldBe(0); // No segments needed when already facing the right direction
     }
 }

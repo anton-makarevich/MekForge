@@ -44,6 +44,23 @@ public class BattleMap
     /// </summary>
     public List<PathSegment>? FindPath(HexPosition start, HexPosition target, int maxMovementPoints, IEnumerable<HexCoordinates>? prohibitedHexes = null)
     {
+        // If start and target are in the same hex, just return turning segments
+        if (start.Coordinates == target.Coordinates)
+        {
+            var turningSteps = start.GetTurningSteps(target.Facing).ToList();
+            if (turningSteps.Count > maxMovementPoints)
+                return null;
+
+            var segments = new List<PathSegment>();
+            var currentPos = start;
+            foreach (var step in turningSteps)
+            {
+                segments.Add(new PathSegment(currentPos, step, 1)); // Cost 1 for each turn
+                currentPos = step;
+            }
+            return segments;
+        }
+
         var frontier = new PriorityQueue<(HexPosition pos, List<HexPosition> path, int cost), int>();
         var visited = new Dictionary<(HexCoordinates coords, HexDirection facing), int>();
         var prohibited = prohibitedHexes?.ToHashSet() ?? new HashSet<HexCoordinates>();
@@ -193,7 +210,6 @@ public class BattleMap
         }
 
         return bestCosts
-            .Where(v => v.Key != start.Coordinates)
             .Select(v => (v.Key, v.Value));
     }
 

@@ -94,7 +94,9 @@ public class MovementState : IUiState
                     .GetReachableHexes(_selectedUnit.Position.Value, _movementPoints, _prohibitedHexes)
                     .Select(x => x.coordinates)
                     .Where(hex => !_viewModel.Units
-                        .Any(u => u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id && u.Position?.Coordinates == hex))
+                        .Any(u => u != _selectedUnit 
+                            && u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id 
+                            && u.Position?.Coordinates == hex))
                     .ToList();
 
                 // Get backward reachable hexes if unit can move backward
@@ -106,7 +108,9 @@ public class MovementState : IUiState
                         .GetReachableHexes(oppositePosition, _movementPoints, _prohibitedHexes)
                         .Select(x => x.coordinates)
                         .Where(hex => !_viewModel.Units
-                            .Any(u => u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id && u.Position?.Coordinates == hex))
+                            .Any(u => u != _selectedUnit 
+                                && u.Owner?.Id == _viewModel.Game.ActivePlayer?.Id 
+                                && u.Position?.Coordinates == hex))
                         .ToList();
                 }
             }
@@ -141,7 +145,9 @@ public class MovementState : IUiState
     private bool HandleUnitSelectionFromHex(Hex hex)
     {
         var unit = _viewModel.Units.FirstOrDefault(u => u.Position?.Coordinates == hex.Coordinates);
-        if (unit == null || unit.Owner?.Id != _viewModel.Game?.ActivePlayer?.Id) return false;
+        if (unit == null 
+            || unit == _selectedUnit
+            || unit.Owner?.Id != _viewModel.Game?.ActivePlayer?.Id) return false;
         ResetUnitSelection();
         _viewModel.SelectedUnit=unit;
         return true;
@@ -151,6 +157,7 @@ public class MovementState : IUiState
     {
         if (_viewModel.SelectedUnit == null) return;
         _viewModel.SelectedUnit = null;
+        _selectedUnit = null;
         _viewModel.HideMovementPath();
         _viewModel.HideDirectionSelector();
         if (_forwardReachableHexes.Count > 0 || _backwardReachableHexes.Count > 0)
