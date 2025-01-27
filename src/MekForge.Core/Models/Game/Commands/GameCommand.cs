@@ -1,8 +1,10 @@
 using Sanet.MekForge.Core.Services.Localization;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Sanet.MekForge.Core.Models.Game.Commands;
 
+[JsonConverter(typeof(GameCommandJsonConverterFactory))]
 public abstract record GameCommand
 {
     public required Guid GameOriginId { get; set; }
@@ -14,6 +16,7 @@ public abstract record GameCommand
         var options = new JsonSerializerOptions
         {
             IncludeFields = true,
+            TypeInfoResolver = GameCommandContext.Default
         };
         var json = JsonSerializer.Serialize(this, GetType(), options);
         var clone = (GameCommand)JsonSerializer.Deserialize(json, GetType(), options)!;
