@@ -1,10 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
     <PropertyGroup>
         <TargetFramework>net9.0-browser</TargetFramework>
         <OutputType>Exe</OutputType>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <AssemblyName>Sanet.MekForge.Avalonia.Browser</AssemblyName>
         <RootNamespace>Sanet.MekForge.Avalonia.Browser</RootNamespace>
+        <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
     </PropertyGroup>
 
     <ItemGroup>

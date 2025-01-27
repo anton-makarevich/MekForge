@@ -267,3 +267,7 @@ __pycache__/
 
 # Coverage reports
 **/coverage.opencover.xml
+
+# Scripts
+
+serve-wasm.ps1
