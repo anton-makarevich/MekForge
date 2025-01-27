@@ -93,7 +93,7 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
                 {
                     _isManipulating = true; // Set flag if the delay completes
                 }
-            }, TaskScheduler.FromCurrentSynchronizationContext());
+            }, TaskScheduler.Current);
         _isPressed = true;
     }
 
