@@ -31,7 +31,8 @@ jobs:
         run: dotnet workload install wasm-tools
 
       - name: Publish WASM
-        run: dotnet publish src/MekForge.Avalonia/MekForge.Avalonia.Browser/MekForge.Avalonia.Browser.csproj -c Release -o dist/wasm
+        run: |
+          dotnet publish src/MekForge.Avalonia/MekForge.Avalonia.Browser/MekForge.Avalonia.Browser.csproj -c Release -o dist/wasm --self-contained true
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
