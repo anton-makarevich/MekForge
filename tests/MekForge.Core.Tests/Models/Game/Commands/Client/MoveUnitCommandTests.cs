@@ -58,6 +58,7 @@ public class MoveUnitCommandTests : GameCommandTestBase<MoveUnitCommand>
     {
         // Arrange
         var command = CreateCommand();
+        _unit.Deploy(new HexPosition(1, 1, HexDirection.Top));
         _localizationService.GetString("Command_MoveUnit").Returns("formatted move command");
 
         // Act
