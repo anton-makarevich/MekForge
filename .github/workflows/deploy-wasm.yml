@@ -32,7 +32,12 @@ jobs:
 
       - name: Publish WASM
         run: |
-          dotnet publish src/MekForge.Avalonia/MekForge.Avalonia.Browser/MekForge.Avalonia.Browser.csproj -c Debug --self-contained true
+          dotnet publish src/MekForge.Avalonia/MekForge.Avalonia.Browser/MekForge.Avalonia.Browser.csproj -c Release --self-contained true
+
+      - name: Copy Resources
+        run: |
+          mkdir -p src/MekForge.Avalonia/MekForge.Avalonia.Browser/bin/Release/net9.0-browser/publish/wwwroot/Resources
+          cp -r src/MekForge.Avalonia/MekForge.Avalonia/Resources/* src/MekForge.Avalonia/MekForge.Avalonia.Browser/bin/Release/net9.0-browser/publish/wwwroot/Resources/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -40,7 +45,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: src/MekForge.Avalonia/MekForge.Avalonia.Browser/bin/Debug/net9.0-browser/publish/wwwroot
+          path: src/MekForge.Avalonia/MekForge.Avalonia.Browser/bin/Release/net9.0-browser/publish/wwwroot
 
   deploy:
     environment:
