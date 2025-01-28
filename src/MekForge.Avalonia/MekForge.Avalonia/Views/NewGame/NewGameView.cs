@@ -34,7 +34,9 @@ public abstract class NewGameView : BaseView<NewGameViewModel>
             if (stream == null) continue;
             using var reader = new StreamReader(stream);
             var mtfData = await reader.ReadToEndAsync();
-            var mechData = mtfDataProvider.LoadMechFromTextData(mtfData.Split("\r\n"));
+            // Use Environment.NewLine or split on both types of line endings
+            var lines = mtfData.Split(["\r\n", "\n"], StringSplitOptions.None);
+            var mechData = mtfDataProvider.LoadMechFromTextData(lines);
                 
             units.Add(mechData);
         }
