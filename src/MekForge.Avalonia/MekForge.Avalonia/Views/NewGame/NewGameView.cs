@@ -19,13 +19,6 @@ public abstract class NewGameView : BaseView<NewGameViewModel>
         var assembly = typeof(App).Assembly;
         var resources = assembly.GetManifestResourceNames();
 
-        // Debug output to see what resources are available
-        Console.WriteLine("Available resources:");
-        foreach (var resource in resources)
-        {
-            Console.WriteLine($"Resource: {resource}");
-        }
-
         var units = new List<UnitData>();
         foreach (var resourceName in resources)
         {
