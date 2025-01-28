@@ -3,7 +3,7 @@ using Sanet.MekForge.Core.Models.Units;
 
 namespace Sanet.MekForge.Core.Data.Community;
 
-public partial class MtfDataProvider:IMechDataProvider
+public class MtfDataProvider:IMechDataProvider
 {
     public UnitData LoadMechFromTextData(IEnumerable<string> lines)
     {
@@ -28,7 +28,7 @@ public partial class MtfDataProvider:IMechDataProvider
 
     private Dictionary<string, string> ParseBasicData(IEnumerable<string> lines)
     {
-        var mechData = new Dictionary<string, string>();
+        var mechData = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var quirksCount = 0;
         var systemsCount = 0;
         foreach (var line in lines)
