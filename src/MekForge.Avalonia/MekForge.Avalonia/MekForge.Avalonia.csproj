@@ -18,6 +18,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <EmbeddedResource Include="Resources\**\*.mtf" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Avalonia" Version="11.2.3" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.3" />
         <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.3" />
@@ -34,17 +38,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\MekForge.Core\MekForge.Core.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="Resources\Units\Mechs\LCT-1V.mtf" />
-      <EmbeddedResource Include="Resources\Units\Mechs\LCT-1V.mtf">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </EmbeddedResource>
-      <None Remove="Resources\Units\Mechs\SHD-2D.mtf" />
-      <EmbeddedResource Include="Resources\Units\Mechs\SHD-2D.mtf">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
