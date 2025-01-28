@@ -41,11 +41,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Resources\Units\Mechs\LCT-1V.mtf" />
-      <None Remove="Resources\Units\Mechs\SHD-2D.mtf" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Compile Update="Views\NewGame\NewGameViewNarrow.axaml.cs">
         <SubType>Code</SubType>
       </Compile>
