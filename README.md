@@ -46,12 +46,17 @@ MekForge/
 - **MekForge.Core**:
 
 [![build](https://github.com/anton-makarevich/MekForge/actions/workflows/core.yml/badge.svg)](https://github.com/anton-makarevich/MekForge/actions/workflows/core.yml)
-![NuGet Version](https://img.shields.io/nuget/vpre/Sanet.MekForge.Core)
+![NuGet Version](https://img.shields.io/nuget/vpre/Sanet.MekForge.Core?logo=nuget)
 
 - **MekForge.Avalonia**:
 
 [![build](https://github.com/anton-makarevich/MekForge/actions/workflows/avalonia.yml/badge.svg)](https://github.com/anton-makarevich/MekForge/actions/workflows/avalonia.yml)
-![NuGet Version](https://img.shields.io/nuget/vpre/Sanet.MekForge.Avalonia)
+![NuGet Version](https://img.shields.io/nuget/vpre/Sanet.MekForge.Avalonia?logo=nuget)
+
+- **Web Version (WASM)**:
+
+[![Deploy WASM to GitHub Pages](https://github.com/anton-makarevich/MekForge/actions/workflows/deploy-wasm.yml/badge.svg)](https://github.com/anton-makarevich/MekForge/actions/workflows/deploy-wasm.yml)
+[![Play in Browser](https://img.shields.io/badge/Play-in%20Browser-blue?logo=github)](https://anton-makarevich.github.io/MekForge/)
 
 ## Development Setup
 
@@ -82,4 +87,4 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 ## Disclaimer
 
 This is a fan-made game and is not affiliated with or endorsed by any commercial mech combat game properties. All trademarks belong to their respective owners.
-I'm working on it not to build a game (there are more efficient ways of achieving the same) but just for fun of the process itself.
+This project is primarily a learning experience and a labor of love - developed for the enjoyment of the development process itself.

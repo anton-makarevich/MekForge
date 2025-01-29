@@ -34,11 +34,6 @@ jobs:
         run: |
           dotnet publish src/MekForge.Avalonia/MekForge.Avalonia.Browser/MekForge.Avalonia.Browser.csproj -c Release --self-contained true
 
-      - name: Copy Resources
-        run: |
-          mkdir -p src/MekForge.Avalonia/MekForge.Avalonia.Browser/bin/Release/net9.0-browser/publish/wwwroot/Resources
-          cp -r src/MekForge.Avalonia/MekForge.Avalonia/Resources/* src/MekForge.Avalonia/MekForge.Avalonia.Browser/bin/Release/net9.0-browser/publish/wwwroot/Resources/
-
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
