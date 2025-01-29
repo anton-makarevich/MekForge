@@ -20,7 +20,7 @@ namespace Sanet.MekForge.Core.Tests.UiStates;
 
 public class DeploymentStateTests
 {
-    private readonly DeploymentState _state;
+    private DeploymentState _state;
     private readonly ClientGame _game;
     private readonly Unit _unit;
     private readonly Hex _hex1;
@@ -35,7 +35,7 @@ public class DeploymentStateTests
         _viewModel = new BattleMapViewModel(imageService, localizationService);
 
         var rules = new ClassicBattletechRulesProvider();
-        _unit = new MechFactory(rules).Create(MechFactoryTests.CreateDummyMechData());
+        var unitData = MechFactoryTests.CreateDummyMechData();
         
         // Create two adjacent hexes
         _hex1 = new Hex(new HexCoordinates(1, 1));
@@ -48,7 +48,8 @@ public class DeploymentStateTests
             Substitute.For<ICommandPublisher>());
         
         _viewModel.Game = _game;
-        SetActivePlayer(player);
+        SetActivePlayer(player, unitData);
+        _unit = _viewModel.Units.First();
         _state = new DeploymentState(_viewModel);
     }
 
@@ -60,12 +61,12 @@ public class DeploymentStateTests
         _state.IsActionRequired.ShouldBeTrue();
     }
 
-    private void SetActivePlayer(Player player)
+    private void SetActivePlayer(Player player, UnitData unitData)
     {
         _game.HandleCommand(new JoinGameCommand
         {
             PlayerName = player.Name,
-            Units = [],
+            Units = [unitData],
             GameOriginId = Guid.NewGuid(),
             PlayerId = player.Id,
             Tint = "#FF0000"
@@ -189,9 +190,11 @@ public class DeploymentStateTests
         // Deploy first unit
         _state.HandleHexSelection(_hex1);
         _state.HandleFacingSelection(HexDirection.Top);
+        _unit.Deploy(new HexPosition(_hex1.Coordinates,HexDirection.Top));
         
         // Try to deploy second unit to the same hex
         var secondUnit = new MechFactory(new ClassicBattletechRulesProvider()).Create(MechFactoryTests.CreateDummyMechData());
+        _state = new DeploymentState(_viewModel);
         _state.HandleUnitSelection(secondUnit);
         
         // Act
