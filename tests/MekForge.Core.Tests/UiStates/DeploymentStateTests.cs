@@ -180,4 +180,24 @@ public class DeploymentStateTests
         // Assert
         _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
     }
+
+    [Fact]
+    public void HandleHexSelection_WhenHexIsOccupied_ShouldNotShowDirectionSelector()
+    {
+        // Arrange
+        _state.HandleUnitSelection(_unit);
+        // Deploy first unit
+        _state.HandleHexSelection(_hex1);
+        _state.HandleFacingSelection(HexDirection.Top);
+        
+        // Try to deploy second unit to the same hex
+        var secondUnit = new MechFactory(new ClassicBattletechRulesProvider()).Create(MechFactoryTests.CreateDummyMechData());
+        _state.HandleUnitSelection(secondUnit);
+        
+        // Act
+        _state.HandleHexSelection(_hex1);
+
+        // Assert
+        _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
+    }
 }
