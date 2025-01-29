@@ -11,7 +11,6 @@ namespace Sanet.MekForge.Core.Models.Game.Commands;
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     GenerationMode = JsonSourceGenerationMode.Metadata | JsonSourceGenerationMode.Serialization)]
 [JsonSerializable(typeof(GameCommand), TypeInfoPropertyName = "GameCommand")]
-[JsonSerializable(typeof(ClientCommand), TypeInfoPropertyName = "ClientCommand")]
 [JsonSerializable(typeof(DeployUnitCommand), TypeInfoPropertyName = "DeployUnitCommand")]
 [JsonSerializable(typeof(JoinGameCommand), TypeInfoPropertyName = "JoinGameCommand")]
 [JsonSerializable(typeof(MoveUnitCommand), TypeInfoPropertyName = "MoveUnitCommand")]
@@ -31,7 +30,6 @@ public static class GameCommandTypeRegistry
         // Manual registration of all command types with their JsonTypeInfo
         TypeMap = new Dictionary<string, (Type Type, JsonTypeInfo TypeInfo)>
         {
-            ["client"] = (typeof(ClientCommand), GameCommandJsonContext.Default.ClientCommand),
             ["deploy"] = (typeof(DeployUnitCommand), GameCommandJsonContext.Default.DeployUnitCommand),
             ["join"] = (typeof(JoinGameCommand), GameCommandJsonContext.Default.JoinGameCommand),
             ["move"] = (typeof(MoveUnitCommand), GameCommandJsonContext.Default.MoveUnitCommand),
