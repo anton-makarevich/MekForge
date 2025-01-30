@@ -1,4 +1,4 @@
-﻿namespace Sanet.MekForge.Core.Models.Game.Phases;
+namespace Sanet.MekForge.Core.Models.Game.Phases;
 
 public enum PhaseNames
 {
@@ -6,6 +6,7 @@ public enum PhaseNames
     Deployment,
     Initiative,
     Movement,
-    Attack,
+    WeaponsAttack,
+    PhysicalAttack,
     End
 }

@@ -130,6 +130,21 @@ public abstract class BaseGame : IGame
             moveCommand.MovementPath);
     }
     
+    public void OnWeaponConfiguration(WeaponConfigurationCommand configCommand)
+    {
+        Console.WriteLine("weapons configured");
+    }
+    
+    public void OnWeaponsAttack(WeaponsAttackCommand attackCommand)
+    {
+        Console.WriteLine("weapons wired");
+    }
+    
+    public void OnPhysicalAttack(PhysicalAttackCommand attackCommand)
+    {
+        Console.WriteLine("physical attack");
+    }
+    
     protected bool ValidateCommand(GameCommand command)
     {
         return command switch

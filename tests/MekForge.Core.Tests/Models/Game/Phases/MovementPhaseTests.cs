@@ -163,6 +163,6 @@ public class MovementPhaseTests : GameStateTestsBase
         }
     
         // Assert
-        Game.TurnPhase.ShouldBe(PhaseNames.Attack);
+        Game.TurnPhase.ShouldBe(PhaseNames.WeaponsAttack);
     }
 }

@@ -24,7 +24,7 @@ public class MovementPhase : GamePhase
         var nextStep = _turnOrder.GetNextStep();
         if (nextStep == null)
         {
-            Game.TransitionToPhase(new AttackPhase(Game));
+            Game.TransitionToPhase(new WeaponsAttackPhase(Game));
             return;
         }
 

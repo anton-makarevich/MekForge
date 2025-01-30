@@ -118,7 +118,7 @@ public class DeploymentStateTests
         _game.HandleCommand(new ChangePhaseCommand
         {
             GameOriginId = Guid.NewGuid(),
-            Phase = PhaseNames.Attack,
+            Phase = PhaseNames.WeaponsAttack,
         });
         // Act & Assert
         Should.Throw<InvalidOperationException>(() => new DeploymentState(_viewModel));
