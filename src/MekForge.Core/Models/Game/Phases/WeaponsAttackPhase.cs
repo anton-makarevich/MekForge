@@ -40,10 +40,14 @@ public class WeaponsAttackPhase : GamePhase
         switch (clientCommand)
         {
             case WeaponConfigurationCommand configCommand:
+                var broadcastConfig = configCommand.CloneWithGameId(Game.Id);
                 Game.OnWeaponConfiguration(configCommand);
+                Game.CommandPublisher.PublishCommand(broadcastConfig);
                 break;
             case WeaponsAttackCommand attackCommand:
+                var broadcastAttack = attackCommand.CloneWithGameId(Game.Id);
                 Game.OnWeaponsAttack(attackCommand);
+                Game.CommandPublisher.PublishCommand(broadcastAttack);
                 _remainingUnitsToAttack--;
                 if (_remainingUnitsToAttack <= 0)
                 {

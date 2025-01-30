@@ -37,7 +37,9 @@ public class PhysicalAttackPhase : GamePhase
         if (command is not PhysicalAttackCommand attackCommand) return;
         if (attackCommand.PlayerId != Game.ActivePlayer?.Id) return;
 
+        var broadcastCommand = attackCommand.CloneWithGameId(Game.Id);
         Game.OnPhysicalAttack(attackCommand);
+        Game.CommandPublisher.PublishCommand(broadcastCommand);
         
         _remainingUnitsToAttack--;
         if (_remainingUnitsToAttack <= 0)

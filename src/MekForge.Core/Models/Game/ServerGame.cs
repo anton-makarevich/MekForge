@@ -49,10 +49,6 @@ public class ServerGame : BaseGame
         if (command is not ClientCommand) return;
         if (!ShouldHandleCommand(command)) return;
         if (!ValidateCommand(command)) return;
-
-        // Clone the command before broadcasting with server's GameId
-        var broadcastCommand = command.CloneWithGameId(Id);
-        CommandPublisher.PublishCommand(broadcastCommand);
         
         _currentPhase.HandleCommand(command);
     }
