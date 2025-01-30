@@ -21,11 +21,13 @@ public class DeploymentPhase : GamePhase
 
     public override void HandleCommand(GameCommand command)
     {
-        if (command is DeployUnitCommand deployCommand)
-        {
-            Game.OnDeployUnit(deployCommand);
-            HandleDeploymentProgress();
-        }
+        if (command is not DeployUnitCommand deployCommand) return;
+        if (deployCommand.PlayerId != Game.ActivePlayer?.Id) return;
+
+        var broadcastCommand = deployCommand.CloneWithGameId(Game.Id);
+        Game.OnDeployUnit(deployCommand);
+        Game.CommandPublisher.PublishCommand(broadcastCommand);
+        HandleDeploymentProgress();
     }
 
     private void HandleDeploymentProgress()

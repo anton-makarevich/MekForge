@@ -37,7 +37,9 @@ public class MovementPhase : GamePhase
         if (command is not MoveUnitCommand moveCommand) return;
         if (moveCommand.PlayerId != Game.ActivePlayer?.Id) return;
 
+        var broadcastCommand = moveCommand.CloneWithGameId(Game.Id);
         Game.OnMoveUnit(moveCommand);
+        Game.CommandPublisher.PublishCommand(broadcastCommand);
         
         _remainingUnitsToMove--;
         if (_remainingUnitsToMove <= 0)
