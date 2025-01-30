@@ -25,7 +25,7 @@ public class PhysicalAttackPhaseTests : GameStateTestsBase
         Game.HandleCommand(CreateJoinCommand(_player2Id, "Player 2"));
         Game.HandleCommand(CreateStatusCommand(_player1Id, PlayerStatus.Playing));
         Game.HandleCommand(CreateStatusCommand(_player2Id, PlayerStatus.Playing));
-
+        
         // Get unit IDs
         var player1 = Game.Players[0];
         _unit1Id = player1.Units[0].Id;
@@ -142,6 +142,7 @@ public class PhysicalAttackPhaseTests : GameStateTestsBase
     public void HandleCommand_WhenInvalidCommand_ShouldIgnoreCommand()
     {
         // Arrange
+        Game.TransitionToPhase(new PhysicalAttackPhase(Game));
         _sut.Enter();
         
         // Act
