@@ -76,11 +76,19 @@ public class DeploymentState : IUiState
 
     private void HandleHexForDeployment(Hex hex)
     {
+        if (IsHexOccupied(hex))
+            return;
+            
         _selectedHex = hex;
         _builder.SetPosition(hex.Coordinates);
         _currentSubState = SubState.SelectingDirection;
         
         _viewModel.ShowDirectionSelector(_selectedHex.Coordinates, GetAllDirections());
+    }
+
+    private bool IsHexOccupied(Hex hex)
+    {
+        return _viewModel.Units.Any(u => u.IsDeployed &&u.Position!.Value.Coordinates == hex.Coordinates);
     }
 
     private void CompleteDeployment()
