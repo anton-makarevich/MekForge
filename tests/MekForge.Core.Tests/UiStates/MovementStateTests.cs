@@ -251,7 +251,7 @@ public class MovementStateTests
     public void Constructor_ShouldThrow_IfActivePlayerNull()
     {
         // Arrange
-        SetPhase(PhaseNames.Attack);
+        SetPhase(PhaseNames.WeaponsAttack);
         // Act & Assert
         Should.Throw<InvalidOperationException>(() => new MovementState(_viewModel));
     }

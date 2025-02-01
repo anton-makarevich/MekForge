@@ -61,6 +61,9 @@ public class InitiativePhase : GamePhase
         if (command is not RollDiceCommand rollCommand) return;
         if (rollCommand.PlayerId != Game.ActivePlayer?.Id) return;
 
+        var broadcastRollCommand = rollCommand.CloneWithGameId(Game.Id);
+        Game.CommandPublisher.PublishCommand(broadcastRollCommand);
+
         var roll = Roll2D6();
         _initiativeOrder.AddResult(Game.ActivePlayer, roll);
 

@@ -24,7 +24,7 @@ public class MovementPhase : GamePhase
         var nextStep = _turnOrder.GetNextStep();
         if (nextStep == null)
         {
-            Game.TransitionToPhase(new AttackPhase(Game));
+            Game.TransitionToPhase(new WeaponsAttackPhase(Game));
             return;
         }
 
@@ -37,7 +37,9 @@ public class MovementPhase : GamePhase
         if (command is not MoveUnitCommand moveCommand) return;
         if (moveCommand.PlayerId != Game.ActivePlayer?.Id) return;
 
+        var broadcastCommand = moveCommand.CloneWithGameId(Game.Id);
         Game.OnMoveUnit(moveCommand);
+        Game.CommandPublisher.PublishCommand(broadcastCommand);
         
         _remainingUnitsToMove--;
         if (_remainingUnitsToMove <= 0)

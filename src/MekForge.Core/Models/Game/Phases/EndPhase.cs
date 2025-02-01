@@ -9,7 +9,6 @@ public class EndPhase : GamePhase
     public override void Enter()
     {
         Game.IncrementTurn();
-        Game.TransitionToPhase(new DeploymentPhase(Game));
     }
 
     public override void HandleCommand(GameCommand command)

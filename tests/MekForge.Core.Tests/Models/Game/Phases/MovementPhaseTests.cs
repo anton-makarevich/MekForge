@@ -1,6 +1,5 @@
 using Shouldly;
 using NSubstitute;
-using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
@@ -53,7 +52,6 @@ public class MovementPhaseTests : GameStateTestsBase
     {
         // Arrange
         _sut.Enter();
-        var newPosition = new HexCoordinateData(3, 1);
         var unit = Game.ActivePlayer.Units.Single(u => u.Id == _unit1Id);
         unit.Deploy(new HexPosition(1,2,HexDirection.Top));
         
@@ -163,6 +161,6 @@ public class MovementPhaseTests : GameStateTestsBase
         }
     
         // Assert
-        Game.TurnPhase.ShouldBe(PhaseNames.Attack);
+        Game.TurnPhase.ShouldBe(PhaseNames.WeaponsAttack);
     }
 }
