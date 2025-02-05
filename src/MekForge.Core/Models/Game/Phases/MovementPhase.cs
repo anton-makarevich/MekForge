@@ -3,51 +3,26 @@ using Sanet.MekForge.Core.Models.Game.Commands.Client;
 
 namespace Sanet.MekForge.Core.Models.Game.Phases;
 
-public class MovementPhase : GamePhase
+public class MovementPhase : MainGamePhase
 {
-    private readonly TurnOrder _turnOrder;
-    private int _remainingUnitsToMove;
-
     public MovementPhase(ServerGame game) : base(game)
     {
-        _turnOrder = new TurnOrder();
     }
 
-    public override void Enter()
-    {
-        _turnOrder.CalculateOrder(Game.InitiativeOrder);
-        SetNextPlayerActive();
-    }
-
-    private void SetNextPlayerActive()
-    {
-        var nextStep = _turnOrder.GetNextStep();
-        if (nextStep == null)
-        {
-            Game.TransitionToPhase(new WeaponsAttackPhase(Game));
-            return;
-        }
-
-        _remainingUnitsToMove = nextStep.UnitsToMove;
-        Game.SetActivePlayer(nextStep.Player,_remainingUnitsToMove);
-    }
+    protected override GamePhase GetNextPhase() => new WeaponsAttackPhase(Game);
 
     public override void HandleCommand(GameCommand command)
     {
         if (command is not MoveUnitCommand moveCommand) return;
-        if (moveCommand.PlayerId != Game.ActivePlayer?.Id) return;
+        HandleUnitAction(command, moveCommand.PlayerId);
+    }
 
+    protected override void ProcessCommand(GameCommand command)
+    {
+        var moveCommand = (MoveUnitCommand)command;
         var broadcastCommand = moveCommand.CloneWithGameId(Game.Id);
         Game.OnMoveUnit(moveCommand);
         Game.CommandPublisher.PublishCommand(broadcastCommand);
-        
-        _remainingUnitsToMove--;
-        if (_remainingUnitsToMove <= 0)
-        {
-            SetNextPlayerActive();
-            return;
-        }
-        Game.SetActivePlayer(Game.ActivePlayer, _remainingUnitsToMove);
     }
 
     public override PhaseNames Name => PhaseNames.Movement;
