@@ -1,5 +1,3 @@
-using Sanet.MekForge.Core.Models.Game;
-using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.ViewModels;
@@ -9,10 +7,20 @@ namespace Sanet.MekForge.Core.UiStates;
 public class WeaponsAttackState : IUiState
 {
     private readonly BattleMapViewModel _viewModel;
-    private readonly WeaponsAttackCommandBuilder _builder;
     private Unit? _selectedUnit;
 
     public WeaponsAttackStep CurrentStep { get; private set; } = WeaponsAttackStep.SelectingUnit;
+
+    public string ActionLabel => CurrentStep switch
+    {
+        WeaponsAttackStep.SelectingUnit => "Select unit to fire weapons",
+        WeaponsAttackStep.SelectingTarget => "Select target",
+        WeaponsAttackStep.ConfiguringWeapons => "Configure weapons",
+        WeaponsAttackStep.SelectingTorsoRotation => "Select torso rotation",
+        _ => string.Empty
+    };
+
+    public bool IsActionRequired => true;
 
     public WeaponsAttackState(BattleMapViewModel viewModel)
     {
@@ -25,16 +33,14 @@ public class WeaponsAttackState : IUiState
         {
             throw new InvalidOperationException("Active player is null"); 
         }
-        _builder = new WeaponsAttackCommandBuilder(_viewModel.Game.Id, _viewModel.Game.ActivePlayer.Id);
     }
 
     public void HandleUnitSelection(Unit? unit)
     {
         if (unit == null) return;
-        if (unit.HasAttacked) return;
+        if (unit.HasFiredWeapons) return;
         
         _selectedUnit = unit;
-        _builder.SetUnit(unit);
         CurrentStep = WeaponsAttackStep.SelectingTarget;
         _viewModel.NotifyStateChanged();
     }
@@ -43,6 +49,18 @@ public class WeaponsAttackState : IUiState
     {
         if (HandleUnitSelectionFromHex(hex)) return;
         // Target selection will be implemented next
+    }
+
+    public void HandleFacingSelection(HexDirection direction)
+    {
+        if (CurrentStep != WeaponsAttackStep.SelectingTorsoRotation || _selectedUnit == null) return;
+
+        // Handle torso rotation for the selected unit
+        // This will be implemented when we add torso rotation functionality to Unit
+        //_selectedUnit.SetTorsoRotation(direction);
+        
+        CurrentStep = WeaponsAttackStep.ConfiguringWeapons;
+        _viewModel.NotifyStateChanged();
     }
 
     private bool HandleUnitSelectionFromHex(Hex hex)
@@ -71,6 +89,7 @@ public enum WeaponsAttackStep
 {
     SelectingUnit,
     SelectingTarget,
+    SelectingTorsoRotation,
     ConfiguringWeapons,
     Confirming
 }

@@ -94,6 +94,8 @@ public abstract class Unit
 
     public bool HasMoved => MovementTypeUsed.HasValue;
 
+    public bool HasFiredWeapons { get; private set; }
+
     public void ResetMovement()
     { 
         MovementPointsSpent = 0;
@@ -101,6 +103,15 @@ public abstract class Unit
         DistanceCovered = 0;
     }
 
+    public void FireWeapons()
+    {
+        if (!IsDeployed)
+        {
+            throw new InvalidOperationException("Unit is not deployed.");
+        }
+        HasFiredWeapons = true;
+    }
+    
     // Methods
     public abstract int CalculateBattleValue();
     
