@@ -122,10 +122,7 @@ public class MechTests
         var deployPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
         var newCoordinates = new HexPosition(new HexCoordinates(1, 2), HexDirection.BottomLeft);
         mech.Deploy(deployPosition);
-        mech.Move(MovementType.Walk, new List<PathSegmentData>
-        {
-            new PathSegment(deployPosition, newCoordinates, 1).ToData()
-        });
+        mech.Move(MovementType.Walk, [new PathSegment(deployPosition, newCoordinates, 1).ToData()]);
 
         // Act
         mech.ResetMovement();
@@ -363,6 +360,45 @@ public class MechTests
         mech.MovementTypeUsed.ShouldBe(MovementType.StandingStill);
         mech.DistanceCovered.ShouldBe(0); // Distance should be 0
         mech.MovementPointsSpent.ShouldBe(0); // No movement points spent
+    }
+
+    [Fact]
+    public void FireWeapons_ShouldThrowException_WhenNotDeployed()
+    {
+        // Arrange
+        var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
+
+        // Act
+        var act = () => mech.FireWeapons();
+
+        // Assert
+        var ex = Should.Throw<InvalidOperationException>(act);
+        ex.Message.ShouldBe("Unit is not deployed.");
+    }
+
+    [Fact]
+    public void FireWeapons_ShouldSetHasFiredWeapons_WhenDeployed()
+    {
+        // Arrange
+        var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        mech.Deploy(position);
+
+        // Act
+        mech.FireWeapons();
+
+        // Assert
+        mech.HasFiredWeapons.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void HasFiredWeapons_ShouldBeFalse_ByDefault()
+    {
+        // Arrange & Act
+        var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
+
+        // Assert
+        mech.HasFiredWeapons.ShouldBeFalse();
     }
 }
 
