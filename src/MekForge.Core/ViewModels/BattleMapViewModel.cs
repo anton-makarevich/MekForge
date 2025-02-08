@@ -54,7 +54,7 @@ public class BattleMapViewModel : BaseViewModel
 
     public void DirectionSelectedCommand(HexDirection direction) 
     {
-        CurrentState?.HandleFacingSelection(direction);
+        CurrentState.HandleFacingSelection(direction);
     }
 
     public BattleMapViewModel(IImageService imageService, ILocalizationService localizationService)
@@ -91,9 +91,9 @@ public class BattleMapViewModel : BaseViewModel
                 NotifyPropertyChanged(nameof(CommandLog));
             });
         
-        _gameSubscription = Observable.CombineLatest<int, PhaseNames, IPlayer?, int, (int Turn, PhaseNames Phase, IPlayer? Player, int UnitsToPlay)>(
-                localGame.TurnChanges.StartWith(localGame.Turn),
-                localGame.PhaseChanges.StartWith(localGame.TurnPhase),
+        _gameSubscription = localGame.TurnChanges
+            .StartWith(localGame.Turn)
+            .CombineLatest<int, PhaseNames, IPlayer?, int, (int Turn, PhaseNames Phase, IPlayer? Player, int UnitsToPlay)>(localGame.PhaseChanges.StartWith(localGame.TurnPhase),
                 localGame.ActivePlayerChanges.StartWith(localGame.ActivePlayer),
                 localGame.UnitsToPlayChanges.StartWith(localGame.UnitsToPlayCurrentStep),
                 (turn, phase, player, units) => (turn, phase, player, units))
