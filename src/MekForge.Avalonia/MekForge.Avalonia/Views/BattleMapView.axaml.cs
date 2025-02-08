@@ -125,8 +125,8 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
             {
                 foreach (var unit in _unitControls)
                 {
-                    if (!unit.MovementButtons.Bounds.Contains(_clickPosition.Value)) continue;
-                    var unitPosition = _clickPosition.Value - unit.MovementButtons.Bounds.Position;
+                    if (!unit.ActionButtons.Bounds.Contains(_clickPosition.Value)) continue;
+                    var unitPosition = _clickPosition.Value - unit.ActionButtons.Bounds.Position;
                     if (unit.HandleInteraction(unitPosition)) return;
                 }
             }

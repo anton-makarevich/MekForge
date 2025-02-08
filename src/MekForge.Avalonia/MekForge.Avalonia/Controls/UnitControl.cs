@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Layout;
@@ -23,13 +24,12 @@ namespace Sanet.MekForge.Avalonia.Controls
         private readonly Unit _unit;
         private readonly IDisposable _subscription;
         private readonly Border _tintBorder;
-        private readonly BattleMapViewModel _viewModel;
+        private readonly StackPanel _actionButtons;
 
         public UnitControl(Unit unit, IImageService<Bitmap> imageService, BattleMapViewModel viewModel)
         {
             _unit = unit;
             _imageService = imageService;
-            _viewModel = viewModel;
 
             IsHitTestVisible = false;
             Width = HexCoordinates.HexWidth;
@@ -54,7 +54,7 @@ namespace Sanet.MekForge.Avalonia.Controls
                 Opacity = 0.7
             };
             
-            MovementButtons = new StackPanel
+            _actionButtons = new StackPanel
             {
                 Orientation = Orientation.Vertical,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -64,17 +64,6 @@ namespace Sanet.MekForge.Avalonia.Controls
                 Spacing = 4,
                 Margin = new Thickness(4)
             };
-
-            var standStillButton = CreateMovementButton("Stand Still", MovementType.StandingStill);
-            var walkButton = CreateMovementButton("Walk", MovementType.Walk);
-            var runButton = CreateMovementButton("Run", MovementType.Run);
-            var jumpButton = CreateMovementButton("Jump", MovementType.Jump);
-            jumpButton.IsVisible = _unit.GetMovementPoints(MovementType.Jump)>0;
-
-            MovementButtons.Children.Add(standStillButton);
-            MovementButtons.Children.Add(walkButton);
-            MovementButtons.Children.Add(runButton);
-            MovementButtons.Children.Add(jumpButton);
 
             var color = _unit.Owner!=null 
                 ?Color.Parse(_unit.Owner.Tint)
@@ -103,21 +92,53 @@ namespace Sanet.MekForge.Avalonia.Controls
                 {
                     _unit.Position,
                     _unit.IsDeployed,
-                    _viewModel.SelectedUnit
+                    viewModel.SelectedUnit,
+                    Actions = viewModel.CurrentState.GetAvailableActions(_unit)
                 })
                 .ObserveOn(SynchronizationContext.Current) // Ensure events are processed on the UI thread
                 .Subscribe(state => 
                 {
                     Render();
                     selectionBorder.IsVisible = state.SelectedUnit == _unit;
-                    MovementButtons.IsVisible = state.SelectedUnit == _unit
-                                                && _viewModel.CurrentState is MovementState
-                                                    { CurrentMovementStep: MovementStep.SelectingMovementType };
+                    UpdateActionButtons(state.Actions);
                 });
             
             // Initial update
             Render();
             UpdateImage();
+        }
+
+        private void UpdateActionButtons(IEnumerable<StateAction> actions)
+        {
+            _actionButtons.Children.Clear();
+            _actionButtons.IsVisible = false;
+
+            foreach (var action in actions)
+            {
+                if (!action.IsVisible) continue;
+
+                var button = new Button
+                {
+                    Background = new SolidColorBrush(Colors.Aqua),
+                    Padding = new Thickness(8, 4),
+                    CornerRadius = new CornerRadius(4),
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    Content = new TextBlock
+                    {
+                        Text = action.Label,
+                        HorizontalAlignment = HorizontalAlignment.Center
+                    }
+                };
+
+                button.Click += (_, _) =>
+                {
+                    action.OnExecute();
+                    _actionButtons.IsVisible = false;
+                };
+
+                _actionButtons.Children.Add(button);
+                _actionButtons.IsVisible = true;
+            }
         }
 
         private void Render()
@@ -133,12 +154,12 @@ namespace Sanet.MekForge.Avalonia.Controls
             SetValue(Canvas.TopProperty, topPos);
             
             // Update buttons position to follow the unit
-            if (MovementButtons.Parent == null && Parent is Canvas canvas)
+            if (_actionButtons.Parent == null && Parent is Canvas canvas)
             {
-                canvas.Children.Add(MovementButtons);
+                canvas.Children.Add(_actionButtons);
             }
-            Canvas.SetLeft(MovementButtons, leftPos);
-            Canvas.SetTop(MovementButtons, topPos + Height);
+            Canvas.SetLeft(_actionButtons, leftPos);
+            Canvas.SetTop(_actionButtons, topPos + Height);
             
             double rotationAngle = _unit.Position.Value.Facing switch
             {
@@ -169,41 +190,13 @@ namespace Sanet.MekForge.Avalonia.Controls
             _tintBorder.Background = new SolidColorBrush(color);
         }
 
-        private Button CreateMovementButton(string text, MovementType type)
-        {
-            var button = new Button
-            {
-                Background = new SolidColorBrush(Colors.Aqua),
-                Padding = new Thickness(8, 4),
-                CornerRadius = new CornerRadius(4),
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-            };
-
-            var content = new TextBlock
-            {
-                Text = $"{text} | MP: {_unit.GetMovementPoints(type)}",
-                HorizontalAlignment = HorizontalAlignment.Center
-            };
-
-            button.Content = content;
-
-            button.Click += (_, _) =>
-            {
-                if (_viewModel.CurrentState is not MovementState state) return;
-                state.HandleMovementTypeSelection(type);
-                MovementButtons.IsVisible = false;
-            };
-
-            return button;
-        }
-
         public bool HandleInteraction(Point position)
         {
-            if (!MovementButtons.IsVisible)
+            if (!_actionButtons.IsVisible)
                 return false;
             
             // Find which button was clicked based on position
-            var clickedButton = MovementButtons.Children
+            var clickedButton = _actionButtons.Children
                 .OfType<Button>()
                 .FirstOrDefault(b => b.Bounds.Contains(position));
 
@@ -218,6 +211,6 @@ namespace Sanet.MekForge.Avalonia.Controls
             _subscription.Dispose();
         }
         
-        public StackPanel MovementButtons { get; }
+        public StackPanel ActionButtons => _actionButtons;
     }
 }
