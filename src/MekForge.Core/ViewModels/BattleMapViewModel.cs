@@ -124,6 +124,10 @@ public class BattleMapViewModel : BaseViewModel
                 TransitionToState(new MovementState(this));
                 break;
             
+            case PhaseNames.WeaponsAttack when clientGame.UnitsToPlayCurrentStep > 0:
+                TransitionToState(new WeaponsAttackState(this));
+                break;
+            
             default:
                 TransitionToState(new IdleState());
                 break;
