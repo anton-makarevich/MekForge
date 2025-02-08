@@ -84,9 +84,9 @@ public class WeaponsAttackState : IUiState
         _viewModel.NotifyStateChanged();
     }
 
-    public IEnumerable<StateAction> GetAvailableActions(Unit unit)
+    public IEnumerable<StateAction> GetAvailableActions()
     {
-        if (unit != _selectedUnit)
+        if (_selectedUnit == null)
             return new List<StateAction>();
 
         var actions = new List<StateAction>();

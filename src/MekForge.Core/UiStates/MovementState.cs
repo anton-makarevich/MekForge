@@ -305,9 +305,9 @@ public class MovementState : IUiState
     
     public MovementStep CurrentMovementStep { get; private set; } = MovementStep.SelectingUnit;
 
-    public IEnumerable<StateAction> GetAvailableActions(Unit unit)
+    public IEnumerable<StateAction> GetAvailableActions()
     {
-        if (CurrentMovementStep != MovementStep.SelectingMovementType || unit != _selectedUnit)
+        if (CurrentMovementStep != MovementStep.SelectingMovementType || _selectedUnit == null)
             return new List<StateAction>();
 
         var actions = new List<StateAction>();
@@ -320,18 +320,18 @@ public class MovementState : IUiState
 
         // Walk
         actions.Add(new StateAction(
-            $"Walk | MP: {unit.GetMovementPoints(MovementType.Walk)}",
+            $"Walk | MP: {_selectedUnit.GetMovementPoints(MovementType.Walk)}",
             true,
             () => HandleMovementTypeSelection(MovementType.Walk)));
 
         // Run
         actions.Add(new StateAction(
-            $"Run | MP: {unit.GetMovementPoints(MovementType.Run)}",
+            $"Run | MP: {_selectedUnit.GetMovementPoints(MovementType.Run)}",
             true,
             () => HandleMovementTypeSelection(MovementType.Run)));
 
         // Jump
-        var jumpPoints = unit.GetMovementPoints(MovementType.Jump);
+        var jumpPoints = _selectedUnit.GetMovementPoints(MovementType.Jump);
         if (jumpPoints > 0)
         {
             actions.Add(new StateAction(

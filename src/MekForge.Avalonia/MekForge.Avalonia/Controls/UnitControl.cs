@@ -93,7 +93,7 @@ namespace Sanet.MekForge.Avalonia.Controls
                     _unit.Position,
                     _unit.IsDeployed,
                     viewModel.SelectedUnit,
-                    Actions = viewModel.CurrentState.GetAvailableActions(_unit)
+                    Actions = viewModel.CurrentState.GetAvailableActions()
                 })
                 .ObserveOn(SynchronizationContext.Current) // Ensure events are processed on the UI thread
                 .Subscribe(state => 

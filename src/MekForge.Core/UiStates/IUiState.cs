@@ -10,5 +10,5 @@ public interface IUiState
     void HandleUnitSelection(Unit? unit);
     void HandleHexSelection(Hex hex);
     void HandleFacingSelection(HexDirection direction);
-    IEnumerable<StateAction> GetAvailableActions(Unit unit) => new List<StateAction>();
+    IEnumerable<StateAction> GetAvailableActions() => new List<StateAction>();
 }
