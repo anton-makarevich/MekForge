@@ -5,9 +5,10 @@ namespace Sanet.MekForge.Core.UiStates;
 
 public interface IUiState
 {
+    string ActionLabel { get; }
+    bool IsActionRequired { get; }
     void HandleUnitSelection(Unit? unit);
     void HandleHexSelection(Hex hex);
     void HandleFacingSelection(HexDirection direction);
-    string ActionLabel { get; }
-    bool IsActionRequired { get; }
+    IEnumerable<StateAction> GetAvailableActions() => new List<StateAction>();
 }

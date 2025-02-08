@@ -182,4 +182,59 @@ public class WeaponsAttackStateTests
         // Assert
         _viewModel.SelectedUnit.ShouldBeNull();
     }
+
+    [Fact]
+    public void GetAvailableActions_NoSelectedUnit_ReturnsEmpty()
+    {
+        // Act
+        var actions = _state.GetAvailableActions();
+
+        // Assert
+        actions.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void GetAvailableActions_SelectingTarget_ReturnsTorsoAndTargetOptions()
+    {
+        // Arrange
+        _state.HandleUnitSelection(_unit1);
+
+        // Act
+        var actions = _state.GetAvailableActions().ToList();
+
+        // Assert
+        actions.Count.ShouldBe(2);
+        actions[0].Label.ShouldBe("Turn Torso/Turret");
+        actions[1].Label.ShouldBe("Select Target");
+    }
+
+    [Fact]
+    public void GetAvailableActions_TorsoRotationAction_UpdatesState()
+    {
+        // Arrange
+        _state.HandleUnitSelection(_unit1);
+        var actions = _state.GetAvailableActions().ToList();
+        var torsoAction = actions.First(a => a.Label == "Turn Torso/Turret");
+
+        // Act
+        torsoAction.OnExecute();
+
+        // Assert
+        _state.CurrentStep.ShouldBe(WeaponsAttackStep.SelectingTorsoRotation);
+    }
+
+    [Fact]
+    public void GetAvailableActions_SelectTargetAction_UpdatesState()
+    {
+        // Arrange
+        _state.HandleUnitSelection(_unit1);
+        var actions = _state.GetAvailableActions().ToList();
+        var selectTargetAction = actions.First(a => a.Label == "Select Target");
+
+        // Act
+        selectTargetAction.OnExecute();
+
+        // Assert
+        _state.CurrentStep.ShouldBe(WeaponsAttackStep.SelectingTarget);
+    }
 }

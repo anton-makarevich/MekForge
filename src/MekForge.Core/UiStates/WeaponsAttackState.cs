@@ -83,6 +83,38 @@ public class WeaponsAttackState : IUiState
         CurrentStep = WeaponsAttackStep.SelectingUnit;
         _viewModel.NotifyStateChanged();
     }
+
+    public IEnumerable<StateAction> GetAvailableActions()
+    {
+        if (_selectedUnit == null)
+            return new List<StateAction>();
+
+        var actions = new List<StateAction>();
+
+        switch (CurrentStep)
+        {
+            case WeaponsAttackStep.SelectingTarget:
+                actions.Add(new StateAction(
+                    "Turn Torso/Turret",
+                    true,
+                    () => 
+                    {
+                        CurrentStep = WeaponsAttackStep.SelectingTorsoRotation;
+                        _viewModel.NotifyStateChanged();
+                    }));
+                actions.Add(new StateAction(
+                    "Select Target",
+                    true,
+                    () => 
+                    {
+                        CurrentStep = WeaponsAttackStep.SelectingTarget;
+                        _viewModel.NotifyStateChanged();
+                    }));
+                break;
+        }
+
+        return actions;
+    }
 }
 
 public enum WeaponsAttackStep
@@ -90,6 +122,5 @@ public enum WeaponsAttackStep
     SelectingUnit,
     SelectingTarget,
     SelectingTorsoRotation,
-    ConfiguringWeapons,
-    Confirming
+    ConfiguringWeapons
 }

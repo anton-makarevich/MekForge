@@ -620,4 +620,77 @@ public class MovementStateTests
             .Any(h => h.IsHighlighted)
             .ShouldBeFalse(); // No highlighted hexes
     }
+
+    [Fact]
+    public void GetAvailableActions_NoSelectedUnit_ReturnsEmpty()
+    {
+        // Act
+        var actions = _state.GetAvailableActions();
+
+        // Assert
+        actions.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void GetAvailableActions_NotInMovementTypeSelection_ReturnsEmpty()
+    {
+        // Arrange
+        _state.HandleUnitSelection(_unit1);
+        _state.HandleMovementTypeSelection(MovementType.Walk); // This moves us past movement type selection
+
+        // Act
+        var actions = _state.GetAvailableActions();
+
+        // Assert
+        actions.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void GetAvailableActions_InMovementTypeSelection_ReturnsMovementOptions()
+    {
+        // Arrange
+        _state.HandleUnitSelection(_unit1);
+
+        // Act
+        var actions = _state.GetAvailableActions().ToList();
+
+        // Assert
+        actions.Count.ShouldBe(4); // Stand Still, Walk, Run, Jump (since unit has jump jets)
+        actions[0].Label.ShouldBe("Stand Still");
+        actions[1].Label.ShouldBe($"Walk | MP: {_unit1.GetMovementPoints(MovementType.Walk)}");
+        actions[2].Label.ShouldBe($"Run | MP: {_unit1.GetMovementPoints(MovementType.Run)}");
+        actions[3].Label.ShouldBe($"Jump | MP: {_unit1.GetMovementPoints(MovementType.Jump)}");
+    }
+
+    [Fact]
+    public void GetAvailableActions_NoJumpJets_DoesNotShowJumpOption()
+    {
+        // Arrange
+        var unitData = MechFactoryTests.CreateDummyMechData();
+        var rules = new ClassicBattletechRulesProvider();
+        var unitWithoutJumpJets = new MechFactory(rules).Create(unitData);
+        _state.HandleUnitSelection(unitWithoutJumpJets);
+
+        // Act
+        var actions = _state.GetAvailableActions().ToList();
+
+        // Assert
+        actions.Count.ShouldBe(3); // Stand Still, Walk, Run
+        actions.ShouldNotContain(a => a.Label.StartsWith("Jump"));
+    }
+
+    [Fact]
+    public void GetAvailableActions_ExecutingAction_UpdatesState()
+    {
+        // Arrange
+        _state.HandleUnitSelection(_unit1);
+        var actions = _state.GetAvailableActions().ToList();
+        var walkAction = actions.First(a => a.Label.StartsWith("Walk"));
+
+        // Act
+        walkAction.OnExecute();
+
+        // Assert
+        _state.CurrentMovementStep.ShouldBe(MovementStep.SelectingTargetHex);
+    }
 }
