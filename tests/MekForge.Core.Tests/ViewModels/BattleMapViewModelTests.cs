@@ -273,6 +273,82 @@ public class BattleMapViewModelTests
     }
 
     [Fact]
+    public void WeaponsAttackPhase_WithUnitsToPlay_ShouldShowCorrectActionLabel()
+    {
+        // Arrange
+        var player = new Player(Guid.NewGuid(), "Player1");
+        _game = new ClientGame(BattleMap.GenerateMap(2, 2,
+                new SingleTerrainGenerator(2, 2, new ClearTerrain())),
+            [player], new ClassicBattletechRulesProvider(),
+            Substitute.For<ICommandPublisher>());
+        _viewModel.Game = _game;
+        ((ClientGame)_game).HandleCommand(new JoinGameCommand()
+        {
+            PlayerId = player.Id,
+            Units = [],
+            PlayerName = player.Name,
+            GameOriginId = Guid.NewGuid(),
+            Tint = "#FF0000"
+        });
+        ((ClientGame)_game).HandleCommand(new ChangePhaseCommand()
+        {
+            Phase = PhaseNames.WeaponsAttack,
+            GameOriginId = Guid.NewGuid()
+        });
+        
+        
+        // Act
+        ((ClientGame)_game).HandleCommand(new ChangeActivePlayerCommand
+        {
+            PlayerId = player.Id,
+            GameOriginId = Guid.NewGuid(),
+            UnitsToPlay = 1
+        });
+        
+        // Assert
+        _viewModel.UserActionLabel.ShouldBe("Select unit to fire weapons");
+        _viewModel.IsUserActionLabelVisible.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void WeaponsAttackPhase_WithNoUnitsToPlay_ShouldBeIdle()
+    {
+        // Arrange
+        var player = new Player(Guid.NewGuid(), "Player1");
+        _game = new ClientGame(BattleMap.GenerateMap(2, 2,
+                new SingleTerrainGenerator(2, 2, new ClearTerrain())),
+            [player], new ClassicBattletechRulesProvider(),
+            Substitute.For<ICommandPublisher>());
+        _viewModel.Game = _game;
+
+        ((ClientGame)_game).HandleCommand(new ChangePhaseCommand()
+        {
+            Phase = PhaseNames.WeaponsAttack,
+            GameOriginId = Guid.NewGuid()
+        });
+        ((ClientGame)_game).HandleCommand(new JoinGameCommand()
+        {
+            PlayerId = player.Id,
+            Units = [],
+            PlayerName = player.Name,
+            GameOriginId = Guid.NewGuid(),
+            Tint = "#FF0000"
+        });
+        
+        // Act
+        ((ClientGame)_game).HandleCommand(new ChangeActivePlayerCommand
+        {
+            PlayerId = player.Id,
+            GameOriginId = Guid.NewGuid(),
+            UnitsToPlay = 0
+        });
+        
+        // Assert
+        _viewModel.UserActionLabel.ShouldBe("Wait");
+        _viewModel.IsUserActionLabelVisible.ShouldBeFalse();
+    }
+
+    [Fact]
     public void ShowDirectionSelector_SetsPositionAndDirections()
     {
         // Arrange

@@ -68,6 +68,7 @@ public class WeaponsAttackState : IUiState
         var unit = _viewModel.Units.FirstOrDefault(u => u.Position?.Coordinates == hex.Coordinates);
         if (unit == null 
             || unit == _selectedUnit
+            || unit.HasFiredWeapons
             || unit.Owner?.Id != _viewModel.Game?.ActivePlayer?.Id) return false;
         
         ResetUnitSelection();
