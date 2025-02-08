@@ -1,6 +1,7 @@
 using Shouldly;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Mechs;
+using Sanet.MekForge.Core.Models.Map;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Mechs;
 
@@ -102,5 +103,44 @@ public class TorsoTests
             torso.CurrentRearArmor.ShouldBe(0);
             torso.CurrentStructure.ShouldBe(maxStructure - (damage - maxRearArmor));
         }
+    }
+
+    [Fact]
+    public void Rotate_ShouldSetNewFacing()
+    {
+        // Arrange
+        var torso = new TestTorso("Test Torso", PartLocation.LeftTorso, 10, 3, 5);
+        
+        // Act
+        torso.Rotate(HexDirection.TopRight);
+
+        // Assert
+        torso.Facing.ShouldBe(HexDirection.TopRight);
+    }
+
+    [Fact]
+    public void ResetRotation_WhenUnitNotSet_ShouldNotThrow()
+    {
+        // Arrange
+        var torso = new TestTorso("Test Torso", PartLocation.LeftTorso, 10, 3, 5);
+        
+        // Act & Assert
+        Should.NotThrow(() => torso.ResetRotation());
+    }
+
+    [Fact]
+    public void ResetRotation_WhenUnitSet_ShouldMatchUnitFacing()
+    {
+        // Arrange
+        var torso = new TestTorso("Test Torso", PartLocation.LeftTorso, 10, 3, 5);
+        var mech = new Mech("Test", "TST-1A", 50, 4, new List<UnitPart> { torso });
+        var position = new HexPosition(new HexCoordinates(0, 0), HexDirection.TopRight);
+        mech.Deploy(position);
+
+        // Act
+        torso.ResetRotation();
+
+        // Assert
+        torso.Facing.ShouldBe(HexDirection.TopRight);
     }
 }
