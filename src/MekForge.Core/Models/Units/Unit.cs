@@ -19,6 +19,11 @@ public abstract class Unit
         Tonnage = tonnage;
         BaseMovement = walkMp;
         _parts = parts.ToList();
+        // Set the Unit reference for each part
+        foreach (var part in _parts)
+        {
+            part.Unit = this;
+        }
         if (id.HasValue)
         {
             Id = id.Value;

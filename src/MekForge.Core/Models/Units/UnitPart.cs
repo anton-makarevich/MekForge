@@ -17,6 +17,9 @@ public abstract class UnitPart
     public string Name { get; }
     public PartLocation Location { get; }
     
+    // Reference to parent unit
+    public Unit? Unit { get; internal set; }
+    
     // Armor and Structure
     public int MaxArmor { get; }
     public int CurrentArmor { get; protected set; }
@@ -43,7 +46,7 @@ public abstract class UnitPart
         return Enumerable.Range(0, TotalSlots - size + 1)
             .FirstOrDefault(i => Enumerable.Range(i, size).All(slot => !occupiedSlots.Contains(slot)), -1);
     }
-    
+
     private bool CanAddComponent(Component component)
     {
         if (component.Size > AvailableSlots)
