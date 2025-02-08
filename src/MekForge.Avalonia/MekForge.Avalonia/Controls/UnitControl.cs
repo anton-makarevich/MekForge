@@ -21,6 +21,7 @@ namespace Sanet.MekForge.Avalonia.Controls
     {
         private readonly Image _unitImage;
         private readonly IImageService<Bitmap> _imageService;
+        private readonly BattleMapViewModel _viewModel;
         private readonly Unit _unit;
         private readonly IDisposable _subscription;
         private readonly Border _tintBorder;
@@ -30,6 +31,7 @@ namespace Sanet.MekForge.Avalonia.Controls
         {
             _unit = unit;
             _imageService = imageService;
+            _viewModel = viewModel;
 
             IsHitTestVisible = false;
             Width = HexCoordinates.HexWidth;
@@ -112,6 +114,8 @@ namespace Sanet.MekForge.Avalonia.Controls
         {
             _actionButtons.Children.Clear();
             _actionButtons.IsVisible = false;
+            
+            if (_viewModel.SelectedUnit != _unit) return;
 
             foreach (var action in actions)
             {
