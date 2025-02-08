@@ -400,6 +400,30 @@ public class MechTests
         // Assert
         mech.HasFiredWeapons.ShouldBeFalse();
     }
+
+    [Fact]
+    public void Deploy_ShouldResetTorsoRotation()
+    {
+        // Arrange
+        var parts = CreateBasicPartsData();
+        var torsos = parts.OfType<Torso>().ToList();
+        var mech = new Mech("Test", "TST-1A", 50, 4, parts);
+        
+        // Set initial torso rotation
+        foreach (var torso in torsos)
+        {
+            torso.Rotate(HexDirection.Bottom);
+        }
+        
+        // Act
+        mech.Deploy(new HexPosition(new HexCoordinates(0, 0), HexDirection.TopRight));
+        
+        // Assert
+        foreach (var torso in torsos)
+        {
+            torso.Facing.ShouldBe(HexDirection.TopRight, $"Torso {torso.Name} facing should be reset to match unit facing");
+        }
+    }
 }
 
 // Helper extension for testing protected methods

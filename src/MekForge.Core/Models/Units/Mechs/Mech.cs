@@ -1,3 +1,4 @@
+using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
@@ -85,5 +86,19 @@ public class Mech : Unit
     public void StandUp()
     {
         Status &= ~UnitStatus.Prone;
+    }
+
+    public override HexPosition? Position
+    {
+        get => base.Position;
+        protected set
+        {
+            base.Position = value;
+            // Reset torso rotation when position changes
+            foreach (var torso in _parts.OfType<Torso>())
+            {
+                torso.ResetRotation();
+            }
+        }
     }
 }

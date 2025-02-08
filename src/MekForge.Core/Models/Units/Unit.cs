@@ -71,7 +71,7 @@ public abstract class Unit
     public abstract bool CanMoveBackward(MovementType type);
 
     // Location and facing
-    public HexPosition? Position { get; private set; }
+    public virtual HexPosition? Position { get; protected set; }
 
     public bool IsDeployed => Position != null;
 

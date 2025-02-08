@@ -136,11 +136,15 @@ public class TorsoTests
         var mech = new Mech("Test", "TST-1A", 50, 4, new List<UnitPart> { torso });
         var position = new HexPosition(new HexCoordinates(0, 0), HexDirection.TopRight);
         mech.Deploy(position);
+        
+        // Set different rotation
+        torso.Rotate(HexDirection.Bottom);
+        torso.Facing.ShouldBe(HexDirection.Bottom, "Torso should be rotated before reset");
 
         // Act
         torso.ResetRotation();
 
         // Assert
-        torso.Facing.ShouldBe(HexDirection.TopRight);
+        torso.Facing.ShouldBe(HexDirection.TopRight, "Torso should match unit facing after reset");
     }
 }
