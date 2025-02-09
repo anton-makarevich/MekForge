@@ -11,7 +11,7 @@ public class WeaponsAttackState : IUiState
 {
     private readonly BattleMapViewModel _viewModel;
     private Unit? _selectedUnit;
-    private List<HexDirection> _availableDirections = [];
+    private readonly List<HexDirection> _availableDirections = [];
 
     public WeaponsAttackStep CurrentStep { get; private set; } = WeaponsAttackStep.SelectingUnit;
 
@@ -119,9 +119,8 @@ public class WeaponsAttackState : IUiState
         var actions = new List<StateAction>();
 
         // Add torso rotation action if available
-        if (_selectedUnit is Mech mech)
+        if (_selectedUnit is Mech { CanRotateTorso: true } mech)
         {
-            var t = mech.CanRotateTorso;
             actions.Add(new StateAction(
                 "Turn Torso",
                 true,

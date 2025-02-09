@@ -240,6 +240,7 @@ public class WeaponsAttackStateTests
 
         // Assert
         _state.CurrentStep.ShouldBe(WeaponsAttackStep.WeaponsConfiguration);
+        _state.ActionLabel.ShouldBe("Configure weapons");
     }
 
     [Fact]
@@ -255,6 +256,7 @@ public class WeaponsAttackStateTests
 
         // Assert
         _state.CurrentStep.ShouldBe(WeaponsAttackStep.TargetSelection);
+        _state.ActionLabel.ShouldBe("Select target");
     }
 
     [Fact]
@@ -272,5 +274,6 @@ public class WeaponsAttackStateTests
 
         // Assert
         _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
+        _state.ActionLabel.ShouldBe("Select action");
     }
 }
