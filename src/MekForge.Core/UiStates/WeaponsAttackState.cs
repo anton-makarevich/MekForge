@@ -11,14 +11,16 @@ public class WeaponsAttackState : IUiState
 {
     private readonly BattleMapViewModel _viewModel;
     private Unit? _selectedUnit;
-    private List<HexDirection> _availableDirections = new List<HexDirection>();
+    private List<HexDirection> _availableDirections = [];
 
     public WeaponsAttackStep CurrentStep { get; private set; } = WeaponsAttackStep.SelectingUnit;
 
     public string ActionLabel => CurrentStep switch
     {
         WeaponsAttackStep.SelectingUnit => "Select unit to fire weapons",
-        WeaponsAttackStep.SelectingTarget => "Select target",
+        WeaponsAttackStep.ActionSelection => "Select action",
+        WeaponsAttackStep.WeaponsConfiguration => "Configure weapons",
+        WeaponsAttackStep.TargetSelection => "Select target",
         _ => string.Empty
     };
 
@@ -43,22 +45,30 @@ public class WeaponsAttackState : IUiState
         if (unit.HasFiredWeapons) return;
         
         _selectedUnit = unit;
-        CurrentStep = WeaponsAttackStep.SelectingTarget;
+        CurrentStep = WeaponsAttackStep.ActionSelection;
         _viewModel.NotifyStateChanged();
     }
 
     public void HandleHexSelection(Hex hex)
     {
         if (HandleUnitSelectionFromHex(hex)) return;
-        // Target selection will be implemented next
+
+        if (CurrentStep == WeaponsAttackStep.TargetSelection)
+        {
+            // Target selection will be implemented next
+        }
     }
 
     public void HandleFacingSelection(HexDirection direction)
     {
-        if (_selectedUnit is not Mech mech || !_availableDirections.Contains(direction)) return;
+        if (CurrentStep != WeaponsAttackStep.WeaponsConfiguration 
+            || _selectedUnit is not Mech mech 
+            || !_availableDirections.Contains(direction)) return;
 
         // Handle torso rotation
         mech.RotateTorso(direction);
+        
+        _viewModel.HideDirectionSelector();
         
         // Send command to server
         var command = new WeaponConfigurationCommand
@@ -73,7 +83,9 @@ public class WeaponsAttackState : IUiState
         {
             clientGame.ConfigureUnitWeapons(command);
         }
-        
+
+        // Return to action selection after rotation
+        CurrentStep = WeaponsAttackStep.ActionSelection;
         _viewModel.NotifyStateChanged();
     }
 
@@ -101,36 +113,35 @@ public class WeaponsAttackState : IUiState
 
     public IEnumerable<StateAction> GetAvailableActions()
     {
-        if (_selectedUnit == null)
+        if (_selectedUnit == null || CurrentStep != WeaponsAttackStep.ActionSelection)
             return new List<StateAction>();
 
         var actions = new List<StateAction>();
 
-        switch (CurrentStep)
+        // Add torso rotation action if available
+        if (_selectedUnit is Mech mech && mech.CanRotateTorso())
         {
-            case WeaponsAttackStep.SelectingTarget:
-                if (_selectedUnit is Mech mech && mech.CanRotateTorso())
+            actions.Add(new StateAction(
+                "Turn Torso",
+                true,
+                () => 
                 {
-                    actions.Add(new StateAction(
-                        "Turn Torso",
-                        true,
-                        () => 
-                        {
-                            UpdateAvailableDirections();
-                            _viewModel.ShowDirectionSelector(mech.Position!.Value.Coordinates, _availableDirections);
-                            _viewModel.NotifyStateChanged();
-                        }));
-                }
-                actions.Add(new StateAction(
-                    "Select Target",
-                    true,
-                    () => 
-                    {
-                        CurrentStep = WeaponsAttackStep.SelectingTarget;
-                        _viewModel.NotifyStateChanged();
-                    }));
-                break;
+                    UpdateAvailableDirections();
+                    _viewModel.ShowDirectionSelector(mech.Position!.Value.Coordinates, _availableDirections);
+                    CurrentStep = WeaponsAttackStep.WeaponsConfiguration;
+                    _viewModel.NotifyStateChanged();
+                }));
         }
+
+        // Add target selection action
+        actions.Add(new StateAction(
+            "Select Target",
+            true,
+            () => 
+            {
+                CurrentStep = WeaponsAttackStep.TargetSelection;
+                _viewModel.NotifyStateChanged();
+            }));
 
         return actions;
     }
@@ -162,5 +173,7 @@ public class WeaponsAttackState : IUiState
 public enum WeaponsAttackStep
 {
     SelectingUnit,
-    SelectingTarget
+    ActionSelection,
+    WeaponsConfiguration,
+    TargetSelection
 }
