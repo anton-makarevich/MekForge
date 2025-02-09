@@ -167,8 +167,6 @@ public class WeaponsAttackState : IUiState
             }
         }
     }
-
-    public List<HexDirection> GetDirectionAvailability() => _availableDirections;
 }
 
 public enum WeaponsAttackStep
