@@ -572,7 +572,11 @@ public class ClientGameTests
             GameOriginId = Guid.NewGuid(),
             PlayerId = player.Id,
             UnitId = unitData.Id.Value,
-            TurretRotation = 1
+            Configuration = new WeaponConfiguration
+            {
+                Type = WeaponConfigurationType.TorsoRotation,
+                Value = 1
+            }
         };
 
         // Act
@@ -591,7 +595,11 @@ public class ClientGameTests
             GameOriginId = Guid.NewGuid(),
             PlayerId = Guid.NewGuid(),
             UnitId = Guid.NewGuid(),
-            TurretRotation = 1
+            Configuration = new WeaponConfiguration
+            {
+                Type = WeaponConfigurationType.TorsoRotation,
+                Value = 1
+            }
         };
 
         // Act

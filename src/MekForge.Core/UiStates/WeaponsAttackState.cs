@@ -76,7 +76,11 @@ public class WeaponsAttackState : IUiState
             GameOriginId = _viewModel.Game!.Id,
             PlayerId = _viewModel.Game.ActivePlayer!.Id,
             UnitId = mech.Id,
-            TurretRotation = (int)direction
+            Configuration = new WeaponConfiguration
+            {
+                Type = WeaponConfigurationType.TorsoRotation,
+                Value = (int)direction
+            }
         };
         
         if (_viewModel.Game is ClientGame clientGame)
