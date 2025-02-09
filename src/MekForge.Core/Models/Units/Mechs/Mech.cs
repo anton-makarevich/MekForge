@@ -1,21 +1,64 @@
-using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
+using Sanet.MekForge.Core.Models.Map;
 
 namespace Sanet.MekForge.Core.Models.Units.Mechs;
 
 public class Mech : Unit
 {
+    public int PossibleTorsoRotation { get; }
+    
+    public bool HasUsedTorsoTwist
+    {
+        get
+        {
+            if (Position == null) return false;
+            var torsos = _parts.OfType<Torso>();
+            return torsos.Any(t => t.Facing != Position.Value.Facing);
+        }
+    }
+
     public Mech(
         string chassis,
         string model, 
         int tonnage, 
         int walkMp,
         IEnumerable<UnitPart> parts,
+        int possibleTorsoRotation = 1,
         Guid? id = null) 
-        : base(chassis, model, tonnage, walkMp, parts,id)
+        : base(chassis, model, tonnage, walkMp, parts, id)
     {
+        PossibleTorsoRotation = possibleTorsoRotation;
         Status = UnitStatus.Active;
+    }
+
+    public bool CanRotateTorso()
+    {
+        return Position != null && PossibleTorsoRotation > 0 && !HasUsedTorsoTwist;
+    }
+
+    public bool TryRotateTorso(HexDirection newFacing)
+    {
+        if (!CanRotateTorso())
+            return false;
+
+        var currentUnitFacing = (int)Position!.Value.Facing;
+        var newFacingInt = (int)newFacing;
+        
+        // Calculate steps in both directions (clockwise and counterclockwise)
+        var clockwiseSteps = (newFacingInt - currentUnitFacing + 6) % 6;
+        var counterClockwiseSteps = (currentUnitFacing - newFacingInt + 6) % 6;
+        
+        // Use the smaller number of steps
+        var steps = Math.Min(clockwiseSteps, counterClockwiseSteps);
+        
+        // Check if rotation is within allowed range
+        if (steps > PossibleTorsoRotation) return false;
+        foreach (var torso in _parts.OfType<Torso>())
+        {
+            torso.Rotate(newFacing);
+        }
+        return true;
     }
 
     protected override PartLocation? GetTransferLocation(PartLocation location) => location switch

@@ -33,6 +33,7 @@ public class MechFactory
             unitData.Mass,
             unitData.WalkMp,
             parts,
+            1,
             unitData.Id);
         
         // Add equipment to parts

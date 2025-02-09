@@ -424,6 +424,116 @@ public class MechTests
             torso.Facing.ShouldBe(HexDirection.TopRight, $"Torso {torso.Name} facing should be reset to match unit facing");
         }
     }
+
+    [Theory]
+    [InlineData(0, HexDirection.Top, HexDirection.TopRight, false)] // No rotation allowed
+    [InlineData(1, HexDirection.Top, HexDirection.TopRight, true)]  // 60 degrees allowed, within limit
+    [InlineData(1, HexDirection.Top, HexDirection.Bottom, false)]   // 60 degrees allowed, beyond limit
+    [InlineData(2, HexDirection.Top, HexDirection.BottomRight, true)] // 120 degrees allowed, within limit
+    [InlineData(3, HexDirection.Top, HexDirection.Bottom, true)]    // 180 degrees allowed, within limit
+    public void TryRotateTorso_ShouldRespectPossibleTorsoRotation(
+        int possibleRotation, 
+        HexDirection unitFacing, 
+        HexDirection targetFacing, 
+        bool expectedResult)
+    {
+        // Arrange
+        var parts = CreateBasicPartsData();
+        var torsos = parts.OfType<Torso>().ToList();
+        var mech = new Mech("Test", "TST-1A", 50, 4, parts, possibleRotation);
+        mech.Deploy(new HexPosition(new HexCoordinates(0, 0), unitFacing));
+
+        // Act
+        var result = mech.TryRotateTorso(targetFacing);
+
+        // Assert
+        result.ShouldBe(expectedResult);
+        foreach (var torso in torsos)
+        {
+            torso.Facing.ShouldBe(expectedResult ? targetFacing : unitFacing);
+        }
+    }
+
+    [Fact]
+    public void HasUsedTorsoTwist_WhenTorsosAlignedWithUnit_ShouldBeFalse()
+    {
+        // Arrange
+        var parts = CreateBasicPartsData();
+        var mech = new Mech("Test", "TST-1A", 50, 4, parts);
+        mech.Deploy(new HexPosition(new HexCoordinates(0, 0), HexDirection.Top));
+
+        // Assert
+        mech.HasUsedTorsoTwist.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void HasUsedTorsoTwist_WhenTorsosRotated_ShouldBeTrue()
+    {
+        // Arrange
+        var parts = CreateBasicPartsData();
+        var mech = new Mech("Test", "TST-1A", 50, 4, parts);
+        mech.Deploy(new HexPosition(new HexCoordinates(0, 0), HexDirection.Top));
+
+        // Act
+        mech.TryRotateTorso(HexDirection.TopRight);
+
+        // Assert
+        mech.HasUsedTorsoTwist.ShouldBeTrue();
+    }
+
+    [Theory]
+    [InlineData(0, false)]  // No rotation possible
+    [InlineData(1, true)]   // Normal rotation
+    [InlineData(2, true)]   // Extended rotation
+    public void CanRotateTorso_ShouldRespectPossibleTorsoRotation(int possibleRotation, bool expected)
+    {
+        // Arrange
+        var parts = CreateBasicPartsData();
+        var mech = new Mech("Test", "TST-1A", 50, 4, parts, possibleRotation);
+        mech.Deploy(new HexPosition(new HexCoordinates(0, 0), HexDirection.Top));
+
+        // Act & Assert
+        mech.CanRotateTorso().ShouldBe(expected);
+    }
+
+    [Fact]
+    public void CanRotateTorso_WhenTorsoAlreadyRotated_ShouldBeFalse()
+    {
+        // Arrange
+        var parts = CreateBasicPartsData();
+        var mech = new Mech("Test", "TST-1A", 50, 4, parts, 1);
+        mech.Deploy(new HexPosition(new HexCoordinates(0, 0), HexDirection.Top));
+        
+        // Act
+        mech.TryRotateTorso(HexDirection.TopRight);
+
+        // Assert
+        mech.CanRotateTorso().ShouldBeFalse();
+    }
+
+    [Fact]
+    public void Constructor_ShouldSetDefaultPossibleTorsoRotation()
+    {
+        // Arrange & Act
+        var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
+
+        // Assert
+        mech.PossibleTorsoRotation.ShouldBe(1);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void Constructor_ShouldSetSpecifiedPossibleTorsoRotation(int rotation)
+    {
+        // Arrange & Act
+        var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData(), rotation);
+
+        // Assert
+        mech.PossibleTorsoRotation.ShouldBe(rotation);
+    }
 }
 
 // Helper extension for testing protected methods
