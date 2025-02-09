@@ -1,3 +1,4 @@
+using System;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Services.Localization;
 
@@ -11,14 +12,23 @@ public record WeaponConfigurationCommand : ClientCommand
     public override string Format(ILocalizationService localizationService, IGame game)
     {
         var player = game.Players.FirstOrDefault(p => p.Id == PlayerId);
+        if (player == null) return string.Empty;
 
-        var unit = player?.Units.FirstOrDefault(u => u.Id == UnitId);
+        var unit = player.Units.FirstOrDefault(u => u.Id == UnitId);
         if (unit == null) return string.Empty;
 
         return Configuration.Type switch
         {
-            WeaponConfigurationType.TorsoRotation => $"{player.Name}'s {unit.Name} rotates torso to {(HexDirection)Configuration.Value}",
-            WeaponConfigurationType.ArmsFlip => $"{player.Name}'s {unit.Name} flips arms to {(Configuration.Value == 1 ? "forward" : "backward")}",
+            WeaponConfigurationType.TorsoRotation => string.Format(
+                localizationService.GetString("Command_WeaponConfiguration_TorsoRotation"),
+                player.Name,
+                unit.Name,
+                (HexDirection)Configuration.Value),
+            WeaponConfigurationType.ArmsFlip => string.Format(
+                localizationService.GetString("Command_WeaponConfiguration_ArmsFlip"),
+                player.Name,
+                unit.Name,
+                Configuration.Value == 1 ? "forward" : "backward"),
             _ => string.Empty
         };
     }
