@@ -168,6 +168,7 @@ public abstract class BaseGame : IGame
             UpdatePlayerStatusCommand playerStateCommand => ValidatePlayer(playerStateCommand),
             DeployUnitCommand deployUnitCommand => ValidateDeployCommand(deployUnitCommand),
             MoveUnitCommand => true,
+            WeaponConfigurationCommand => true,
             _ => false
         };
     }
