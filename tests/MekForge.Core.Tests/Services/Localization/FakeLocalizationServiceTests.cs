@@ -1,4 +1,4 @@
-﻿using Shouldly;
+using Shouldly;
 using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.Tests.Services.Localization;
@@ -15,6 +15,8 @@ public class FakeLocalizationServiceTests
     [InlineData("Command_ChangePhase", "Game changed phase to {0}.")]
     [InlineData("Command_ChangeActivePlayer", "{0}'s turn.")]
     [InlineData("Command_ChangeActivePlayerUnits", "{0}'s turn to play {1} units.")]
+    [InlineData("Command_WeaponConfiguration_TorsoRotation", "{0}'s {1} rotates torso to {2}")]
+    [InlineData("Command_WeaponConfiguration_ArmsFlip", "{0}'s {1} flips arms {2}")]
     public void GetString_ShouldReturnCorrectString(string key, string expectedValue)
     {
         // Arrange
@@ -25,5 +27,15 @@ public class FakeLocalizationServiceTests
 
         // Assert
         result.ShouldBe(expectedValue);
+    }
+
+    [Fact]
+    public void GetString_ShouldThrowArgumentOutOfRangeException_WhenKeyNotFound()
+    {
+        // Arrange
+        var localizationService = new FakeLocalizationService();
+
+        // Act & Assert
+        Should.Throw<ArgumentOutOfRangeException>(() => localizationService.GetString("NonExistentKey"));
     }
 }
