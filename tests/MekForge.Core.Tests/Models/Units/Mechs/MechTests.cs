@@ -431,11 +431,11 @@ public class MechTests
     [InlineData(1, HexDirection.Top, HexDirection.Bottom, false)]   // 60 degrees allowed, beyond limit
     [InlineData(2, HexDirection.Top, HexDirection.BottomRight, true)] // 120 degrees allowed, within limit
     [InlineData(3, HexDirection.Top, HexDirection.Bottom, true)]    // 180 degrees allowed, within limit
-    public void TryRotateTorso_ShouldRespectPossibleTorsoRotation(
+    public void RotateTorso_ShouldRespectPossibleTorsoRotation(
         int possibleRotation, 
         HexDirection unitFacing, 
         HexDirection targetFacing, 
-        bool expectedResult)
+        bool shouldRotate)
     {
         // Arrange
         var parts = CreateBasicPartsData();
@@ -444,13 +444,12 @@ public class MechTests
         mech.Deploy(new HexPosition(new HexCoordinates(0, 0), unitFacing));
 
         // Act
-        var result = mech.TryRotateTorso(targetFacing);
+        mech.RotateTorso(targetFacing);
 
         // Assert
-        result.ShouldBe(expectedResult);
         foreach (var torso in torsos)
         {
-            torso.Facing.ShouldBe(expectedResult ? targetFacing : unitFacing);
+            torso.Facing.ShouldBe(shouldRotate ? targetFacing : unitFacing);
         }
     }
 
@@ -475,7 +474,7 @@ public class MechTests
         mech.Deploy(new HexPosition(new HexCoordinates(0, 0), HexDirection.Top));
 
         // Act
-        mech.TryRotateTorso(HexDirection.TopRight);
+        mech.RotateTorso(HexDirection.TopRight);
 
         // Assert
         mech.HasUsedTorsoTwist.ShouldBeTrue();
@@ -505,7 +504,7 @@ public class MechTests
         mech.Deploy(new HexPosition(new HexCoordinates(0, 0), HexDirection.Top));
         
         // Act
-        mech.TryRotateTorso(HexDirection.TopRight);
+        mech.RotateTorso(HexDirection.TopRight);
 
         // Assert
         mech.CanRotateTorso().ShouldBeFalse();

@@ -37,10 +37,10 @@ public class Mech : Unit
         return Position != null && PossibleTorsoRotation > 0 && !HasUsedTorsoTwist;
     }
 
-    public bool TryRotateTorso(HexDirection newFacing)
+    public void RotateTorso(HexDirection newFacing)
     {
         if (!CanRotateTorso())
-            return false;
+            return;
 
         var currentUnitFacing = (int)Position!.Value.Facing;
         var newFacingInt = (int)newFacing;
@@ -53,12 +53,11 @@ public class Mech : Unit
         var steps = Math.Min(clockwiseSteps, counterClockwiseSteps);
         
         // Check if rotation is within allowed range
-        if (steps > PossibleTorsoRotation) return false;
+        if (steps > PossibleTorsoRotation) return;
         foreach (var torso in _parts.OfType<Torso>())
         {
             torso.Rotate(newFacing);
         }
-        return true;
     }
 
     protected override PartLocation? GetTransferLocation(PartLocation location) => location switch
