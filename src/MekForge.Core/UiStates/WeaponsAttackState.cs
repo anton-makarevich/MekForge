@@ -11,7 +11,7 @@ public class WeaponsAttackState : IUiState
 {
     private readonly BattleMapViewModel _viewModel;
     private Unit? _selectedUnit;
-    private Dictionary<HexDirection, bool> _availableDirections = new Dictionary<HexDirection, bool>();
+    private List<HexDirection> _availableDirections = new List<HexDirection>();
 
     public WeaponsAttackStep CurrentStep { get; private set; } = WeaponsAttackStep.SelectingUnit;
 
@@ -55,7 +55,7 @@ public class WeaponsAttackState : IUiState
 
     public void HandleFacingSelection(HexDirection direction)
     {
-        if (_selectedUnit is not Mech mech || !_availableDirections[direction]) return;
+        if (_selectedUnit is not Mech mech || !_availableDirections.Contains(direction)) return;
 
         // Handle torso rotation
         mech.RotateTorso(direction);
@@ -116,8 +116,8 @@ public class WeaponsAttackState : IUiState
                         true,
                         () => 
                         {
-                            UpdateAvailableDirections(mech);
-                            _viewModel.ShowDirectionSelector(mech.Position!.Value.Coordinates, _availableDirections.Where(kv => kv.Value).Select(kv => kv.Key).ToList());
+                            UpdateAvailableDirections();
+                            _viewModel.ShowDirectionSelector(mech.Position!.Value.Coordinates, _availableDirections);
                             _viewModel.NotifyStateChanged();
                         }));
                 }
@@ -135,21 +135,15 @@ public class WeaponsAttackState : IUiState
         return actions;
     }
 
-    private void UpdateAvailableDirections(Mech mech)
+    private void UpdateAvailableDirections()
     {
-        if (mech.Position == null) return;
+        if (_selectedUnit is not Mech mech || mech.Position == null) return;
         
         var currentFacing = (int)mech.Position.Value.Facing;
-        _availableDirections = new Dictionary<HexDirection, bool>();
+        _availableDirections.Clear();
 
-        // Initialize all directions as unavailable
-        foreach (HexDirection direction in Enum.GetValues(typeof(HexDirection)))
-        {
-            _availableDirections[direction] = false;
-        }
-
-        // Enable available directions based on PossibleTorsoRotation
-        for (int i = 0; i < 6; i++)
+        // Add available directions based on PossibleTorsoRotation
+        for (var i = 0; i < 6; i++)
         {
             var clockwiseSteps = (i - currentFacing + 6) % 6;
             var counterClockwiseSteps = (currentFacing - i + 6) % 6;
@@ -157,12 +151,12 @@ public class WeaponsAttackState : IUiState
 
             if (steps <= mech.PossibleTorsoRotation && steps > 0)
             {
-                _availableDirections[(HexDirection)i] = true;
+                _availableDirections.Add((HexDirection)i);
             }
         }
     }
 
-    public Dictionary<HexDirection, bool> GetDirectionAvailability() => _availableDirections;
+    public List<HexDirection> GetDirectionAvailability() => _availableDirections;
 }
 
 public enum WeaponsAttackStep
