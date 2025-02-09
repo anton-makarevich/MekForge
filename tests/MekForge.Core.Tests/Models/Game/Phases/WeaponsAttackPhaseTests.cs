@@ -65,13 +65,18 @@ public class WeaponsAttackPhaseTests : GameStateTestsBase
             GameOriginId = Game.Id,
             PlayerId = Game.ActivePlayer!.Id,
             UnitId = _unit1Id,
-            TurretRotation = 60
+            Configuration = new WeaponConfiguration
+            {
+
+                Type = WeaponConfigurationType.TorsoRotation,
+                Value = 1
+            }
         });
     
         // Assert
         CommandPublisher.Received(1).PublishCommand(Arg.Is<WeaponConfigurationCommand>(cmd => 
             cmd.UnitId == _unit1Id && 
-            cmd.TurretRotation == 60));
+            cmd.Configuration.Value == 1));
     }
 
     [Fact]
