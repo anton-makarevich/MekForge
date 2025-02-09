@@ -1,5 +1,8 @@
+using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
+using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.ViewModels;
 
 namespace Sanet.MekForge.Core.UiStates;
@@ -8,6 +11,7 @@ public class WeaponsAttackState : IUiState
 {
     private readonly BattleMapViewModel _viewModel;
     private Unit? _selectedUnit;
+    private Dictionary<HexDirection, bool> _availableDirections = new Dictionary<HexDirection, bool>();
 
     public WeaponsAttackStep CurrentStep { get; private set; } = WeaponsAttackStep.SelectingUnit;
 
@@ -15,8 +19,6 @@ public class WeaponsAttackState : IUiState
     {
         WeaponsAttackStep.SelectingUnit => "Select unit to fire weapons",
         WeaponsAttackStep.SelectingTarget => "Select target",
-        WeaponsAttackStep.ConfiguringWeapons => "Configure weapons",
-        WeaponsAttackStep.SelectingTorsoRotation => "Select torso rotation",
         _ => string.Empty
     };
 
@@ -53,13 +55,25 @@ public class WeaponsAttackState : IUiState
 
     public void HandleFacingSelection(HexDirection direction)
     {
-        if (CurrentStep != WeaponsAttackStep.SelectingTorsoRotation || _selectedUnit == null) return;
+        if (_selectedUnit is not Mech mech || !_availableDirections[direction]) return;
 
-        // Handle torso rotation for the selected unit
-        // This will be implemented when we add torso rotation functionality to Unit
-        //_selectedUnit.SetTorsoRotation(direction);
+        // Handle torso rotation
+        mech.RotateTorso(direction);
         
-        CurrentStep = WeaponsAttackStep.ConfiguringWeapons;
+        // Send command to server
+        var command = new WeaponConfigurationCommand
+        {
+            GameOriginId = _viewModel.Game!.Id,
+            PlayerId = _viewModel.Game.ActivePlayer!.Id,
+            UnitId = mech.Id,
+            TurretRotation = (int)direction
+        };
+        
+        if (_viewModel.Game is ClientGame clientGame)
+        {
+            clientGame.ConfigureUnitWeapons(command);
+        }
+        
         _viewModel.NotifyStateChanged();
     }
 
@@ -95,14 +109,17 @@ public class WeaponsAttackState : IUiState
         switch (CurrentStep)
         {
             case WeaponsAttackStep.SelectingTarget:
-                actions.Add(new StateAction(
-                    "Turn Torso/Turret",
-                    true,
-                    () => 
-                    {
-                        CurrentStep = WeaponsAttackStep.SelectingTorsoRotation;
-                        _viewModel.NotifyStateChanged();
-                    }));
+                if (_selectedUnit is Mech mech && mech.CanRotateTorso())
+                {
+                    actions.Add(new StateAction(
+                        "Turn Torso",
+                        true,
+                        () => 
+                        {
+                            UpdateAvailableDirections(mech);
+                            _viewModel.NotifyStateChanged();
+                        }));
+                }
                 actions.Add(new StateAction(
                     "Select Target",
                     true,
@@ -116,12 +133,39 @@ public class WeaponsAttackState : IUiState
 
         return actions;
     }
+
+    private void UpdateAvailableDirections(Mech mech)
+    {
+        if (mech.Position == null) return;
+        
+        var currentFacing = (int)mech.Position.Value.Facing;
+        _availableDirections = new Dictionary<HexDirection, bool>();
+
+        // Initialize all directions as unavailable
+        foreach (HexDirection direction in Enum.GetValues(typeof(HexDirection)))
+        {
+            _availableDirections[direction] = false;
+        }
+
+        // Enable available directions based on PossibleTorsoRotation
+        for (int i = 0; i < 6; i++)
+        {
+            var clockwiseSteps = (i - currentFacing + 6) % 6;
+            var counterClockwiseSteps = (currentFacing - i + 6) % 6;
+            var steps = Math.Min(clockwiseSteps, counterClockwiseSteps);
+
+            if (steps <= mech.PossibleTorsoRotation && steps > 0)
+            {
+                _availableDirections[(HexDirection)i] = true;
+            }
+        }
+    }
+
+    public Dictionary<HexDirection, bool> GetDirectionAvailability() => _availableDirections;
 }
 
 public enum WeaponsAttackStep
 {
     SelectingUnit,
-    SelectingTarget,
-    SelectingTorsoRotation,
-    ConfiguringWeapons
+    SelectingTarget
 }
