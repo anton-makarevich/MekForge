@@ -543,4 +543,61 @@ public class ClientGameTests
         // Act & Assert
         Should.NotThrow(() => _clientGame.HandleCommand(moveCommand));
     }
+
+    [Fact]
+    public void ConfigureUnitWeapons_ShouldPublishCommand_WhenActivePlayerExists()
+    {
+        // Arrange
+        var player = new Player(Guid.NewGuid(), "Player1");
+        var unitData = MechFactoryTests.CreateDummyMechData();
+        unitData.Id = Guid.NewGuid();
+        _clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = player.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = player.Name,
+            Units = [unitData],
+            Tint = "#FF0000"
+        });
+
+        _clientGame.HandleCommand(new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id,
+            UnitsToPlay = 1
+        });
+
+        var command = new WeaponConfigurationCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id,
+            UnitId = unitData.Id.Value,
+            TurretRotation = 1
+        };
+
+        // Act
+        _clientGame.ConfigureUnitWeapons(command);
+
+        // Assert
+        _commandPublisher.Received(1).PublishCommand(command);
+    }
+
+    [Fact]
+    public void ConfigureUnitWeapons_ShouldNotPublishCommand_WhenNoActivePlayer()
+    {
+        // Arrange
+        var command = new WeaponConfigurationCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = Guid.NewGuid(),
+            UnitId = Guid.NewGuid(),
+            TurretRotation = 1
+        };
+
+        // Act
+        _clientGame.ConfigureUnitWeapons(command);
+
+        // Assert
+        _commandPublisher.DidNotReceive().PublishCommand(command);
+    }
 }

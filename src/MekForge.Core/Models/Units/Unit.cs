@@ -19,6 +19,11 @@ public abstract class Unit
         Tonnage = tonnage;
         BaseMovement = walkMp;
         _parts = parts.ToList();
+        // Set the Unit reference for each part
+        foreach (var part in _parts)
+        {
+            part.Unit = this;
+        }
         if (id.HasValue)
         {
             Id = id.Value;
@@ -66,7 +71,7 @@ public abstract class Unit
     public abstract bool CanMoveBackward(MovementType type);
 
     // Location and facing
-    public HexPosition? Position { get; private set; }
+    public virtual HexPosition? Position { get; protected set; }
 
     public bool IsDeployed => Position != null;
 

@@ -1,5 +1,8 @@
+using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
+using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.ViewModels;
 
 namespace Sanet.MekForge.Core.UiStates;
@@ -8,15 +11,16 @@ public class WeaponsAttackState : IUiState
 {
     private readonly BattleMapViewModel _viewModel;
     private Unit? _selectedUnit;
+    private readonly List<HexDirection> _availableDirections = [];
 
     public WeaponsAttackStep CurrentStep { get; private set; } = WeaponsAttackStep.SelectingUnit;
 
     public string ActionLabel => CurrentStep switch
     {
         WeaponsAttackStep.SelectingUnit => "Select unit to fire weapons",
-        WeaponsAttackStep.SelectingTarget => "Select target",
-        WeaponsAttackStep.ConfiguringWeapons => "Configure weapons",
-        WeaponsAttackStep.SelectingTorsoRotation => "Select torso rotation",
+        WeaponsAttackStep.ActionSelection => "Select action",
+        WeaponsAttackStep.WeaponsConfiguration => "Configure weapons",
+        WeaponsAttackStep.TargetSelection => "Select target",
         _ => string.Empty
     };
 
@@ -41,25 +45,47 @@ public class WeaponsAttackState : IUiState
         if (unit.HasFiredWeapons) return;
         
         _selectedUnit = unit;
-        CurrentStep = WeaponsAttackStep.SelectingTarget;
+        CurrentStep = WeaponsAttackStep.ActionSelection;
         _viewModel.NotifyStateChanged();
     }
 
     public void HandleHexSelection(Hex hex)
     {
         if (HandleUnitSelectionFromHex(hex)) return;
-        // Target selection will be implemented next
+
+        if (CurrentStep == WeaponsAttackStep.TargetSelection)
+        {
+            // Target selection will be implemented next
+        }
     }
 
     public void HandleFacingSelection(HexDirection direction)
     {
-        if (CurrentStep != WeaponsAttackStep.SelectingTorsoRotation || _selectedUnit == null) return;
+        if (CurrentStep != WeaponsAttackStep.WeaponsConfiguration 
+            || _selectedUnit is not Mech mech 
+            || !_availableDirections.Contains(direction)) return;
 
-        // Handle torso rotation for the selected unit
-        // This will be implemented when we add torso rotation functionality to Unit
-        //_selectedUnit.SetTorsoRotation(direction);
+        // Handle torso rotation
+        mech.RotateTorso(direction);
         
-        CurrentStep = WeaponsAttackStep.ConfiguringWeapons;
+        _viewModel.HideDirectionSelector();
+        
+        // Send command to server
+        var command = new WeaponConfigurationCommand
+        {
+            GameOriginId = _viewModel.Game!.Id,
+            PlayerId = _viewModel.Game.ActivePlayer!.Id,
+            UnitId = mech.Id,
+            TurretRotation = (int)direction
+        };
+        
+        if (_viewModel.Game is ClientGame clientGame)
+        {
+            clientGame.ConfigureUnitWeapons(command);
+        }
+
+        // Return to action selection after rotation
+        CurrentStep = WeaponsAttackStep.ActionSelection;
         _viewModel.NotifyStateChanged();
     }
 
@@ -87,41 +113,65 @@ public class WeaponsAttackState : IUiState
 
     public IEnumerable<StateAction> GetAvailableActions()
     {
-        if (_selectedUnit == null)
+        if (_selectedUnit == null || CurrentStep != WeaponsAttackStep.ActionSelection)
             return new List<StateAction>();
 
         var actions = new List<StateAction>();
 
-        switch (CurrentStep)
+        // Add torso rotation action if available
+        if (_selectedUnit is Mech { CanRotateTorso: true } mech)
         {
-            case WeaponsAttackStep.SelectingTarget:
-                actions.Add(new StateAction(
-                    "Turn Torso/Turret",
-                    true,
-                    () => 
-                    {
-                        CurrentStep = WeaponsAttackStep.SelectingTorsoRotation;
-                        _viewModel.NotifyStateChanged();
-                    }));
-                actions.Add(new StateAction(
-                    "Select Target",
-                    true,
-                    () => 
-                    {
-                        CurrentStep = WeaponsAttackStep.SelectingTarget;
-                        _viewModel.NotifyStateChanged();
-                    }));
-                break;
+            actions.Add(new StateAction(
+                "Turn Torso",
+                true,
+                () => 
+                {
+                    UpdateAvailableDirections();
+                    _viewModel.ShowDirectionSelector(mech.Position!.Value.Coordinates, _availableDirections);
+                    CurrentStep = WeaponsAttackStep.WeaponsConfiguration;
+                    _viewModel.NotifyStateChanged();
+                }));
         }
 
+        // Add target selection action
+        actions.Add(new StateAction(
+            "Select Target",
+            true,
+            () => 
+            {
+                CurrentStep = WeaponsAttackStep.TargetSelection;
+                _viewModel.NotifyStateChanged();
+            }));
+
         return actions;
+    }
+
+    private void UpdateAvailableDirections()
+    {
+        if (_selectedUnit is not Mech mech || mech.Position == null) return;
+        
+        var currentFacing = (int)mech.Position.Value.Facing;
+        _availableDirections.Clear();
+
+        // Add available directions based on PossibleTorsoRotation
+        for (var i = 0; i < 6; i++)
+        {
+            var clockwiseSteps = (i - currentFacing + 6) % 6;
+            var counterClockwiseSteps = (currentFacing - i + 6) % 6;
+            var steps = Math.Min(clockwiseSteps, counterClockwiseSteps);
+
+            if (steps <= mech.PossibleTorsoRotation && steps > 0)
+            {
+                _availableDirections.Add((HexDirection)i);
+            }
+        }
     }
 }
 
 public enum WeaponsAttackStep
 {
     SelectingUnit,
-    SelectingTarget,
-    SelectingTorsoRotation,
-    ConfiguringWeapons
+    ActionSelection,
+    WeaponsConfiguration,
+    TargetSelection
 }
