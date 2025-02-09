@@ -119,8 +119,9 @@ public class WeaponsAttackState : IUiState
         var actions = new List<StateAction>();
 
         // Add torso rotation action if available
-        if (_selectedUnit is Mech mech && mech.CanRotateTorso())
+        if (_selectedUnit is Mech mech)
         {
+            var t = mech.CanRotateTorso;
             actions.Add(new StateAction(
                 "Turn Torso",
                 true,

@@ -492,7 +492,7 @@ public class MechTests
         mech.Deploy(new HexPosition(new HexCoordinates(0, 0), HexDirection.Top));
 
         // Act & Assert
-        mech.CanRotateTorso().ShouldBe(expected);
+        mech.CanRotateTorso.ShouldBe(expected);
     }
 
     [Fact]
@@ -507,7 +507,7 @@ public class MechTests
         mech.RotateTorso(HexDirection.TopRight);
 
         // Assert
-        mech.CanRotateTorso().ShouldBeFalse();
+        mech.CanRotateTorso.ShouldBeFalse();
     }
 
     [Fact]

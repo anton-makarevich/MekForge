@@ -32,14 +32,11 @@ public class Mech : Unit
         Status = UnitStatus.Active;
     }
 
-    public bool CanRotateTorso()
-    {
-        return Position != null && PossibleTorsoRotation > 0 && !HasUsedTorsoTwist;
-    }
+    public bool CanRotateTorso=> PossibleTorsoRotation > 0 && !HasUsedTorsoTwist;
 
     public void RotateTorso(HexDirection newFacing)
     {
-        if (!CanRotateTorso())
+        if (!CanRotateTorso)
             return;
 
         var currentUnitFacing = (int)Position!.Value.Facing;
