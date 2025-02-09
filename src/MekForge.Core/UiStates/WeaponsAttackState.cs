@@ -117,6 +117,7 @@ public class WeaponsAttackState : IUiState
                         () => 
                         {
                             UpdateAvailableDirections(mech);
+                            _viewModel.ShowDirectionSelector(mech.Position!.Value.Coordinates, _availableDirections.Where(kv => kv.Value).Select(kv => kv.Key).ToList());
                             _viewModel.NotifyStateChanged();
                         }));
                 }
