@@ -17,6 +17,8 @@ public class FakeLocalizationServiceTests
     [InlineData("Command_ChangeActivePlayerUnits", "{0}'s turn to play {1} units.")]
     [InlineData("Command_WeaponConfiguration_TorsoRotation", "{0}'s {1} rotates torso to {2}")]
     [InlineData("Command_WeaponConfiguration_ArmsFlip", "{0}'s {1} flips arms {2}")]
+    [InlineData("Direction_Forward", "forward")]
+    [InlineData("Direction_Backward", "backward")]
     public void GetString_ShouldReturnCorrectString(string key, string expectedValue)
     {
         // Arrange

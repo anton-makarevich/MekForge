@@ -28,7 +28,9 @@ public record WeaponConfigurationCommand : ClientCommand
                 localizationService.GetString("Command_WeaponConfiguration_ArmsFlip"),
                 player.Name,
                 unit.Name,
-                Configuration.Value == 1 ? "forward" : "backward"),
+                Configuration.Value == 1 
+                    ? localizationService.GetString("Direction_Forward")
+                    : localizationService.GetString("Direction_Backward")),
             _ => string.Empty
         };
     }

@@ -31,6 +31,10 @@ public class WeaponConfigurationCommandTests : GameCommandTestBase<WeaponConfigu
             .Returns("{0}'s {1} rotates torso to {2}");
         _localizationService.GetString("Command_WeaponConfiguration_ArmsFlip")
             .Returns("{0}'s {1} flips arms {2}");
+        _localizationService.GetString("Direction_Forward")
+            .Returns("forward");
+        _localizationService.GetString("Direction_Backward")
+            .Returns("backward");
     }
 
     protected override WeaponConfigurationCommand CreateCommand()

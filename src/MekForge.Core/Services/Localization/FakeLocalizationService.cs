@@ -17,6 +17,8 @@ public class FakeLocalizationService: ILocalizationService
             "Command_ChangeActivePlayerUnits" => "{0}'s turn to play {1} units.",
             "Command_WeaponConfiguration_TorsoRotation" => "{0}'s {1} rotates torso to {2}",
             "Command_WeaponConfiguration_ArmsFlip" => "{0}'s {1} flips arms {2}",
+            "Direction_Forward" => "forward",
+            "Direction_Backward" => "backward",
             _ => throw new ArgumentOutOfRangeException(nameof(key), key, null)
         };
     }
