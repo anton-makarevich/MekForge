@@ -10,8 +10,10 @@ using Sanet.MekForge.Core.Services;
 using System.Reactive.Linq;
 using System.Threading;
 using Avalonia;
+using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
 using Sanet.MekForge.Core.Models.Map;
+using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.UiStates;
 using Sanet.MekForge.Core.ViewModels;
 
@@ -83,9 +85,41 @@ namespace Sanet.MekForge.Avalonia.Controls
                 IsVisible = false
             };
 
+            // Create torso direction indicator
+            var torsoArrow = new Path
+            {
+                Data = new StreamGeometry(),
+                Stroke = new SolidColorBrush(Colors.Black),
+                StrokeThickness = 1,
+                Fill = new SolidColorBrush(color),
+                Opacity = 0.8,
+                IsVisible = false,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Width = Width * 0.2,
+                Height = Height * 0.2
+            };
+
+            // Create arrow geometry using the same style as PathSegmentControl
+            var arrowSize = torsoArrow.Width;
+            using (var context = ((StreamGeometry)torsoArrow.Data).Open())
+            {
+                var arrowEndPoint = new Point(arrowSize * 0.5, -arrowSize);
+                var leftPoint = new Point(0, 0);
+                var rightPoint = new Point(arrowSize, 0);
+
+                context.BeginFigure(arrowEndPoint, true);
+                context.LineTo(leftPoint);
+                context.LineTo(rightPoint);
+                context.LineTo(arrowEndPoint);
+                context.EndFigure(true);
+                context.SetFillRule(FillRule.NonZero);
+            }
+
             Children.Add(selectionBorder);
             Children.Add(_unitImage);
             Children.Add(_tintBorder);
+            Children.Add(torsoArrow);
 
             // Create an observable that polls the unit's position and selection state
              Observable
@@ -95,7 +129,9 @@ namespace Sanet.MekForge.Avalonia.Controls
                     _unit.Position,
                     _unit.IsDeployed,
                     viewModel.SelectedUnit,
-                    Actions = viewModel.CurrentState.GetAvailableActions()
+                    Actions = viewModel.CurrentState.GetAvailableActions(),
+                    IsWeaponsPhase = viewModel.CurrentState is WeaponsAttackState,
+                    (_unit as Mech)?.TorsoDirection
                 })
                 .ObserveOn(SynchronizationContext.Current) // Ensure events are processed on the UI thread
                 .Subscribe(state => 
@@ -103,6 +139,26 @@ namespace Sanet.MekForge.Avalonia.Controls
                     Render();
                     selectionBorder.IsVisible = state.SelectedUnit == _unit;
                     UpdateActionButtons(state.Actions);
+
+                    // Update torso direction arrow
+                    if (_unit is Mech)
+                    {
+                        torsoArrow.IsVisible = state.IsWeaponsPhase && state.TorsoDirection.HasValue && state.Position.HasValue;
+                        if (torsoArrow.IsVisible)
+                        {
+                            // Calculate the delta angle between unit facing and torso direction
+                            var unitFacing = (int)state.Position!.Value.Facing;
+                            var torsoFacing = (int)state.TorsoDirection!.Value;
+                            var deltaAngle = (torsoFacing - unitFacing + 6) % 6 * 60;
+
+                            // Apply the delta rotation
+                            torsoArrow.RenderTransform = new RotateTransform(deltaAngle);
+                        }
+                    }
+                    else
+                    {
+                        torsoArrow.IsVisible = false;
+                    }
                 });
             
             // Initial update
