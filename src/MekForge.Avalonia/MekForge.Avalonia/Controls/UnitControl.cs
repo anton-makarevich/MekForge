@@ -221,16 +221,8 @@ namespace Sanet.MekForge.Avalonia.Controls
             Canvas.SetLeft(_actionButtons, leftPos);
             Canvas.SetTop(_actionButtons, topPos + Height);
             
-            double rotationAngle = _unit.Position.Value.Facing switch
-            {
-                HexDirection.Top => 0,
-                HexDirection.TopRight => 60,
-                HexDirection.BottomRight => 120,
-                HexDirection.Bottom => 180,
-                HexDirection.BottomLeft => 240,
-                HexDirection.TopLeft => 300,
-                _ => 0
-            };
+            // Calculate rotation angle directly from facing direction
+            var rotationAngle = (int)_unit.Position.Value.Facing * 60;
 
             RenderTransform = new RotateTransform(rotationAngle, 0, 0);
         }
