@@ -322,4 +322,64 @@ public class HexCoordinatesTests
                 $"Missing hex at Q:{expected.Q}, R:{expected.R}");
         }
     }
+
+    [Fact]
+    public void GetHexesInFiringArc_ForwardArcRange2_FacingBottomRight_ReturnsCorrectHexes()
+    {
+        // Arrange
+        var unitPosition = new HexCoordinates(5, 5);
+        var expectedHexes = new[]
+        {
+            // Range 1 (3 hexes)
+            new HexCoordinates(6, 4),
+            new HexCoordinates(6, 6),
+            new HexCoordinates(5, 6),
+            
+            // Range 2 (5 hexes)
+            new HexCoordinates(7, 5),
+            new HexCoordinates(7, 6),
+            new HexCoordinates(7, 4),
+            new HexCoordinates(5, 7),
+            new HexCoordinates(6, 6)
+        };
+
+        // Act
+        var hexesInArc = unitPosition.GetHexesInFiringArc(HexDirection.BottomRight, FiringArc.Forward, 2).ToList();
+
+        // Assert
+        hexesInArc.Count.ShouldBe(8);
+        foreach (var expected in expectedHexes)
+        {
+            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
+                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
+        }
+    }
+
+    [Fact]
+    public void GetHexesInFiringArc_RearArcRange2_FacingBottomRight_ReturnsCorrectHexes()
+    {
+        // Arrange
+        var unitPosition = new HexCoordinates(5, 5);
+        var expectedHexes = new[]
+        {
+            // Range 1 (1 hex)
+            new HexCoordinates(4, 4),
+            
+            // Range 2 (3 hexes)
+            new HexCoordinates(4, 3),
+            new HexCoordinates(3, 4),
+            new HexCoordinates(3, 5)
+        };
+
+        // Act
+        var hexesInArc = unitPosition.GetHexesInFiringArc(HexDirection.BottomRight, FiringArc.Rear, 2).ToList();
+
+        // Assert
+        hexesInArc.Count.ShouldBe(4);
+        foreach (var expected in expectedHexes)
+        {
+            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
+                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
+        }
+    }
 }
