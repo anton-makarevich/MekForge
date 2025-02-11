@@ -180,4 +180,74 @@ public readonly record struct HexCoordinates
     {
         return $"{Q:D2}{R:D2}";
     }
+
+    public IEnumerable<HexCoordinates> GetHexesInFiringArc(HexDirection facing, FiringArc arc, int range)
+    {
+        var result = new HashSet<HexCoordinates>();
+        
+        // Get the cube direction vector for the facing direction
+        var facingVector = GetCubeDirectionVector(facing);
+        
+        foreach (var hex in GetCoordinatesInRange(range))
+        {
+            if (hex == this) continue; // Skip the center hex
+            
+            // Get the vector to the target hex in cube coordinates
+            var dx = hex.X - this.X;
+            var dy = hex.Y - this.Y;
+            var dz = hex.Z - this.Z;
+
+            // Check if the hex is in the arc using dot product
+            if (IsInArc(dx, dy, dz, facingVector.dx, facingVector.dy, facingVector.dz, arc))
+            {
+                result.Add(hex);
+            }
+        }
+
+        return result;
+    }
+
+    private (int dx, int dy, int dz) GetCubeDirectionVector(HexDirection dir)
+    {
+        return dir switch
+        {
+            HexDirection.Top => (0, 1, -1),         // +y, -z
+            HexDirection.TopRight => (1, 0, -1),    // +x, -z
+            HexDirection.BottomRight => (1, -1, 0), // +x, -y
+            HexDirection.Bottom => (0, -1, 1),      // -y, +z
+            HexDirection.BottomLeft => (-1, 0, 1),  // -x, +z
+            HexDirection.TopLeft => (-1, 1, 0),     // -x, +y
+            _ => throw new ArgumentException("Invalid direction", nameof(dir))
+        };
+    }
+
+    private bool IsInArc(int dx, int dy, int dz, int fdx, int fdy, int fdz, FiringArc arc)
+    {
+        // Calculate dot product between the target vector and facing vector
+        var dot = dx * fdx + dy * fdy + dz * fdz;
+        var targetLength = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+        var facingLength = Math.Sqrt(fdx * fdx + fdy * fdy + fdz * fdz);
+        
+        // Calculate angle in radians
+        var cosAngle = dot / (targetLength * facingLength);
+        // Handle floating point precision issues
+        cosAngle = Math.Max(-1.0, Math.Min(1.0, cosAngle));
+        var angle = Math.Acos(cosAngle);
+        var degrees = angle * (180 / Math.PI);
+
+        const double epsilon = 0.0001; // Small value to handle floating point comparisons
+
+        return arc switch
+        {
+            // Forward arc: -60° to +60° inclusive
+            FiringArc.Forward => degrees <= 60 + epsilon,
+            // Left arc: -120° to -60° inclusive on -120° side
+            FiringArc.Left => degrees > 60 - epsilon && degrees <= 120 + epsilon,
+            // Right arc: +60° to +120° inclusive on +120° side
+            FiringArc.Right => degrees > 60 - epsilon && degrees <= 120 + epsilon,
+            // Rear arc: +120° to +180° exclusive
+            FiringArc.Rear => degrees > 120 + epsilon && degrees < 180,
+            _ => throw new ArgumentException("Invalid arc", nameof(arc))
+        };
+    }
 }
