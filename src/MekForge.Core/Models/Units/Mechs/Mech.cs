@@ -8,6 +8,8 @@ public class Mech : Unit
 {
     public int PossibleTorsoRotation { get; }
     
+    public HexDirection? TorsoDirection=> _parts.OfType<Torso>().FirstOrDefault()?.Facing;
+
     public bool HasUsedTorsoTwist
     {
         get

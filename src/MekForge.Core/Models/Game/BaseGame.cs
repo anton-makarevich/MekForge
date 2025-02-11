@@ -8,6 +8,7 @@ using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Utils.TechRules;
 using System.Reactive.Subjects;
+using Sanet.MekForge.Core.Models.Units.Mechs;
 
 namespace Sanet.MekForge.Core.Models.Game;
 
@@ -132,12 +133,26 @@ public abstract class BaseGame : IGame
     
     public void OnWeaponConfiguration(WeaponConfigurationCommand configCommand)
     {
-        Console.WriteLine("weapons configured");
+        var player = _players.FirstOrDefault(p => p.Id == configCommand.PlayerId);
+        if (player == null) return;
+
+        var unit = player.Units.FirstOrDefault(u => u.Id == configCommand.UnitId);
+        if (unit == null) return;
+
+        switch (configCommand.Configuration.Type)
+        {
+            case WeaponConfigurationType.TorsoRotation when unit is Mech mech:
+                mech.RotateTorso((HexDirection)configCommand.Configuration.Value);
+                break;
+            case WeaponConfigurationType.ArmsFlip:
+                // Handle arms flip when implemented
+                break;
+        }
     }
     
     public void OnWeaponsAttack(WeaponsAttackCommand attackCommand)
     {
-        Console.WriteLine("weapons wired");
+        Console.WriteLine("weapons fired");
     }
     
     public void OnPhysicalAttack(PhysicalAttackCommand attackCommand)
@@ -153,6 +168,7 @@ public abstract class BaseGame : IGame
             UpdatePlayerStatusCommand playerStateCommand => ValidatePlayer(playerStateCommand),
             DeployUnitCommand deployUnitCommand => ValidateDeployCommand(deployUnitCommand),
             MoveUnitCommand => true,
+            WeaponConfigurationCommand => true,
             _ => false
         };
     }
