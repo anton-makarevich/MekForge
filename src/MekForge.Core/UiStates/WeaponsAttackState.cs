@@ -2,6 +2,7 @@ using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.ViewModels;
 
@@ -44,8 +45,18 @@ public class WeaponsAttackState : IUiState
         if (unit == null) return;
         if (unit.HasFiredWeapons) return;
         
+        // Clear previous highlights if any
+        if (_selectedUnit != null)
+        {
+            ClearWeaponRangeHighlights();
+        }
+        
         _selectedUnit = unit;
         CurrentStep = WeaponsAttackStep.ActionSelection;
+        
+        // Highlight weapon ranges for the newly selected unit
+        HighlightWeaponRanges();
+        
         _viewModel.NotifyStateChanged();
     }
 
@@ -109,6 +120,9 @@ public class WeaponsAttackState : IUiState
     private void ResetUnitSelection()
     {
         if (_viewModel.SelectedUnit == null) return;
+        
+        ClearWeaponRangeHighlights();
+        
         _viewModel.SelectedUnit = null;
         _selectedUnit = null;
         CurrentStep = WeaponsAttackStep.SelectingUnit;
@@ -169,6 +183,66 @@ public class WeaponsAttackState : IUiState
                 _availableDirections.Add((HexDirection)i);
             }
         }
+    }
+
+    private void HighlightWeaponRanges()
+    {
+        if (_selectedUnit?.Position == null) return;
+
+        var reachableHexes = new HashSet<HexCoordinates>();
+        var unitPosition = _selectedUnit.Position.Value;
+
+        foreach (var part in _selectedUnit.Parts)
+        {
+            var weapons = part.GetComponents<Weapon>();
+            foreach (var weapon in weapons)
+            {
+                var maxRange = weapon.LongRange;
+                var facing = part.Location switch
+                {
+                    PartLocation.LeftLeg or PartLocation.RightLeg => unitPosition.Facing,
+                    _ => _selectedUnit is Mech mech ? mech.TorsoDirection : unitPosition.Facing
+                };
+                if (facing == null)
+                {
+                    return;
+                }
+                // For arms, we need to check both forward and side arcs
+                if (part.Location is PartLocation.LeftArm or PartLocation.RightArm)
+                {
+                    var forwardHexes = unitPosition.Coordinates.GetHexesInFiringArc(facing.Value, FiringArc.Forward, maxRange);
+                    var sideArc = part.Location == PartLocation.LeftArm ? FiringArc.Left : FiringArc.Right;
+                    var sideHexes = unitPosition.Coordinates.GetHexesInFiringArc(facing.Value, sideArc, maxRange);
+                    
+                    reachableHexes.UnionWith(forwardHexes);
+                    reachableHexes.UnionWith(sideHexes);
+                }
+                else
+                {
+                    // For torso, legs, and head weapons - only forward arc
+                    var hexes = unitPosition.Coordinates.GetHexesInFiringArc(facing.Value, FiringArc.Forward, maxRange);
+                    reachableHexes.UnionWith(hexes);
+                }
+            }
+        }
+
+        // Highlight the hexes
+        _viewModel.HighlightHexes(reachableHexes.ToList(), true);
+    }
+
+    private void ClearWeaponRangeHighlights()
+    {
+        if (_selectedUnit?.Position == null) return;
+
+        // Get all hexes in maximum weapon range and unhighlight them
+        var maxRange = _selectedUnit.Parts
+            .SelectMany(p => p.GetComponents<Weapon>())
+            .Max(w => w.LongRange);
+
+        var allPossibleHexes = _selectedUnit.Position.Value.Coordinates
+            .GetCoordinatesInRange(maxRange);
+
+        _viewModel.HighlightHexes(allPossibleHexes.ToList(), false);
     }
 }
 
