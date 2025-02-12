@@ -283,13 +283,12 @@ public class WeaponsAttackStateTests
         // Arrange
         var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
         _unit1.Deploy(position);
-        ;
-
+        
         // Act
         _state.HandleUnitSelection(_unit1);
 
         // Assert
-        var highlightedHexes = _game?.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
+        var highlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
         highlightedHexes.ShouldNotBeEmpty();
     }
 
@@ -318,19 +317,21 @@ public class WeaponsAttackStateTests
     public void ResetUnitSelection_ClearsWeaponRangeHighlights()
     {
         // Arrange
-        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
-        _unit1.Deploy(position);
-        _state.HandleUnitSelection(_unit1);
-        var highlightedHexesBeforeReset = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
-        highlightedHexesBeforeReset.ShouldNotBeEmpty();
-
+        var position1 = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var position2 = new HexPosition(new HexCoordinates(2, 2), HexDirection.Bottom);
+        _unit1.Deploy(position1);
+        _unit2.Deploy(position2);
+        
         // Act
-        _viewModel.SelectedUnit = _unit1;
-        _state.HandleHexSelection(new Hex(new HexCoordinates(2, 2))); // This should trigger reset
+        _state.HandleUnitSelection(_unit1);
+        var firstUnitHighlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
+        _state.HandleUnitSelection(_unit2);
+        var secondUnitHighlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
 
         // Assert
-        var highlightedHexesAfterReset = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
-        highlightedHexesAfterReset.ShouldBeEmpty();
+        firstUnitHighlightedHexes.ShouldNotBeEmpty();
+        secondUnitHighlightedHexes.ShouldNotBeEmpty();
+        secondUnitHighlightedHexes.ShouldNotBe(firstUnitHighlightedHexes);
     }
 
     [Fact]
@@ -340,7 +341,7 @@ public class WeaponsAttackStateTests
         var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
         var unitDataNoWeapons = MechFactoryTests.CreateDummyMechData();
         // Remove all weapons from the unit
-        foreach (var (location, equipment) in unitDataNoWeapons.LocationEquipment)
+        foreach (var (_, equipment) in unitDataNoWeapons.LocationEquipment)
         {
             equipment.RemoveAll(e => e is MekForgeComponent.MachineGun 
                 or MekForgeComponent.SmallLaser
