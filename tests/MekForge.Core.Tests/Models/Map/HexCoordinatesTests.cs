@@ -271,7 +271,7 @@ public class HexCoordinatesTests
         var expectedHexes = new[]
         {
             // Range 1 (3 hexes)
-            new HexCoordinates(3, 4),
+            new HexCoordinates(4, 4),
             new HexCoordinates(5, 4),
             new HexCoordinates(6, 4),
             
@@ -288,11 +288,7 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(8);
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 
     [Fact]
@@ -316,11 +312,7 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(4);
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 
     [Fact]
@@ -332,7 +324,7 @@ public class HexCoordinatesTests
         {
             // Range 1 (3 hexes)
             new HexCoordinates(6, 4),
-            new HexCoordinates(6, 6),
+            new HexCoordinates(6, 5),
             new HexCoordinates(5, 6),
             
             // Range 2 (5 hexes)
@@ -348,11 +340,7 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(8);
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 
     [Fact]
@@ -376,11 +364,7 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(4);
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 
     [Fact]
@@ -408,11 +392,7 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(8);
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 
     [Fact]
@@ -436,11 +416,7 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(4);
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 
     [Fact]
@@ -501,11 +477,7 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(35); // 3 + 5 + 7 + 9 + 11 hexes
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 
     [Fact]
@@ -556,11 +528,7 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(25); // 1 + 3 + 5 + 7 + 9 hexes
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 
     [Fact]
@@ -586,7 +554,7 @@ public class HexCoordinatesTests
             new HexCoordinates(9, 5),
             new HexCoordinates(9, 6),
             new HexCoordinates(8, 4),
-            new HexCoordinates(7, 3),
+            new HexCoordinates(7, 4),
             new HexCoordinates(6, 3),
             new HexCoordinates(9, 7),
             new HexCoordinates(9, 8),
@@ -621,11 +589,7 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(35); // 3 + 5 + 7 + 9 + 11 hexes
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 
     [Fact]
@@ -676,11 +640,7 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(25); // 1 + 3 + 5 + 7 + 9 hexes
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 
     [Fact]
@@ -741,11 +701,7 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(35); // 3 + 5 + 7 + 9 + 11 hexes
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 
     [Fact]
@@ -796,11 +752,7 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(25); // 1 + 3 + 5 + 7 + 9 hexes
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 
     [Fact]
@@ -861,11 +813,7 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(35); // 3 + 5 + 7 + 9 + 11 hexes
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 
     [Fact]
@@ -916,11 +864,7 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(25); // 1 + 3 + 5 + 7 + 9 hexes
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 
     [Fact]
@@ -981,11 +925,7 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(35); // 3 + 5 + 7 + 9 + 11 hexes
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 
     [Fact]
@@ -1036,11 +976,7 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(25); // 1 + 3 + 5 + 7 + 9 hexes
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 
     [Fact]
@@ -1052,7 +988,7 @@ public class HexCoordinatesTests
         {
             // Range 1 (3 hexes)
             new HexCoordinates(5, 7),
-            new HexCoordinates(5, 5),
+            new HexCoordinates(5, 6),
             new HexCoordinates(6, 5),
             
             // Range 2 (5 hexes)
@@ -1101,11 +1037,7 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(35); // 3 + 5 + 7 + 9 + 11 hexes
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 
     [Fact]
@@ -1156,10 +1088,6 @@ public class HexCoordinatesTests
 
         // Assert
         hexesInArc.Count.ShouldBe(25); // 1 + 3 + 5 + 7 + 9 hexes
-        foreach (var expected in expectedHexes)
-        {
-            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
-                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
-        }
+        hexesInArc.ShouldBe(expectedHexes, true);
     }
 }
