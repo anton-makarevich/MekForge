@@ -245,8 +245,8 @@ public readonly record struct HexCoordinates
             FiringArc.Left => degrees > 60 - epsilon && degrees <= 120 + epsilon,
             // Right arc: +60° to +120° inclusive on +120° side
             FiringArc.Right => degrees > 60 - epsilon && degrees <= 120 + epsilon,
-            // Rear arc: +120° to +180° exclusive
-            FiringArc.Rear => degrees > 120 + epsilon && degrees < 180,
+            // Rear arc: +120° to +180° exclusive of 120° lines but inclusive of 180°
+            FiringArc.Rear => degrees >= 120 + epsilon && degrees <= 180 + epsilon,
             _ => throw new ArgumentException("Invalid arc", nameof(arc))
         };
     }

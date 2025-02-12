@@ -442,4 +442,124 @@ public class HexCoordinatesTests
                 $"Missing hex at Q:{expected.Q}, R:{expected.R}");
         }
     }
+
+    [Fact]
+    public void GetHexesInFiringArc_ForwardArcRange5_ReturnsCorrectHexes()
+    {
+        // Arrange
+        var unitPosition = new HexCoordinates(6, 6);
+        var expectedHexes = new[]
+        {
+            // Range 1 (3 hexes)
+            new HexCoordinates(5, 6),
+            new HexCoordinates(6, 5),
+            new HexCoordinates(7, 6),
+            
+            // Range 2 (5 hexes)
+            new HexCoordinates(4, 5),
+            new HexCoordinates(5, 5),
+            new HexCoordinates(6, 4),
+            new HexCoordinates(7, 5),
+            new HexCoordinates(8, 5),
+
+            // Range 3 (7 hexes)
+            new HexCoordinates(3, 5),
+            new HexCoordinates(4, 4),
+            new HexCoordinates(5, 4),
+            new HexCoordinates(6, 3),
+            new HexCoordinates(7, 4),
+            new HexCoordinates(8, 4),
+            new HexCoordinates(9, 5),
+
+            // Range 4 (9 hexes)
+            new HexCoordinates(2, 4),
+            new HexCoordinates(3, 4),
+            new HexCoordinates(4, 3),
+            new HexCoordinates(5, 3),
+            new HexCoordinates(6, 2),
+            new HexCoordinates(7, 3),
+            new HexCoordinates(8, 3),
+            new HexCoordinates(9, 4),
+            new HexCoordinates(10, 4),
+
+            // Range 5 (11 hexes)
+            new HexCoordinates(1, 4),
+            new HexCoordinates(2, 3),
+            new HexCoordinates(3, 3),
+            new HexCoordinates(4, 2),
+            new HexCoordinates(5, 2),
+            new HexCoordinates(6, 1),
+            new HexCoordinates(7, 2),
+            new HexCoordinates(8, 2),
+            new HexCoordinates(9, 3),
+            new HexCoordinates(10, 3),
+            new HexCoordinates(11, 4)
+        };
+
+        // Act
+        var hexesInArc = unitPosition.GetHexesInFiringArc(HexDirection.Top, FiringArc.Forward, 5).ToList();
+
+        // Assert
+        hexesInArc.Count.ShouldBe(35); // 3 + 5 + 7 + 9 + 11 hexes
+        foreach (var expected in expectedHexes)
+        {
+            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
+                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
+        }
+    }
+
+    [Fact]
+    public void GetHexesInFiringArc_RearArcRange5_ReturnsCorrectHexes()
+    {
+        // Arrange
+        var unitPosition = new HexCoordinates(6, 6);
+        var expectedHexes = new[]
+        {
+            // Range 1 (1 hex)
+            new HexCoordinates(6, 7),
+            
+            // Range 2 (3 hexes)
+            new HexCoordinates(5, 8),
+            new HexCoordinates(6, 8),
+            new HexCoordinates(7, 8),
+
+            // Range 3 (5 hexes)
+            new HexCoordinates(4, 8),
+            new HexCoordinates(5, 9),
+            new HexCoordinates(6, 9),
+            new HexCoordinates(7, 9),
+            new HexCoordinates(8, 8),
+
+            // Range 4 (7 hexes)
+            new HexCoordinates(3, 9),
+            new HexCoordinates(4, 9),
+            new HexCoordinates(5, 10),
+            new HexCoordinates(6, 10),
+            new HexCoordinates(7, 10),
+            new HexCoordinates(8, 9),
+            new HexCoordinates(9, 9),
+
+            // Range 5 (9 hexes)
+            new HexCoordinates(2, 9),
+            new HexCoordinates(3, 10),
+            new HexCoordinates(4, 10),
+            new HexCoordinates(5, 11),
+            new HexCoordinates(6, 11),
+            new HexCoordinates(7, 11),
+            new HexCoordinates(8, 10),
+            new HexCoordinates(9, 10),
+            new HexCoordinates(10, 9)
+        };
+
+        // Act
+        var hexesInArc = unitPosition.GetHexesInFiringArc(HexDirection.Top, FiringArc.Rear, 5).ToList();
+
+        // Assert
+        hexesInArc.Count.ShouldBe(25); // 1 + 3 + 5 + 7 + 9 hexes
+        foreach (var expected in expectedHexes)
+        {
+            hexesInArc.ShouldContain(hex => hex.Q == expected.Q && hex.R == expected.R,
+                $"Missing hex at Q:{expected.Q}, R:{expected.R}");
+        }
+    }
 }
