@@ -1172,4 +1172,86 @@ public class HexCoordinatesTests
         hexesInArc.Count.ShouldBe(15); // 1 + 2 + 3 + 4 + 5 hexes
         hexesInArc.ShouldBe(expectedHexes, true);
     }
+
+    [Fact]
+    public void GetHexesInFiringArc_LeftArcRange5_FacingBottomRight_ReturnsCorrectHexes()
+    {
+        // Arrange
+        var unitPosition = new HexCoordinates(6, 6);
+        var expectedHexes = new[]
+        {
+            // Range 1 (1 hex)
+            new HexCoordinates(6, 5),
+            
+            // Range 2 (2 hexes)
+            new HexCoordinates(6, 4),
+            new HexCoordinates(7, 5),
+
+            // Range 3 (3 hexes)
+            new HexCoordinates(6, 3),
+            new HexCoordinates(7, 4),
+            new HexCoordinates(8, 4),
+
+            // Range 4 (4 hexes)
+            new HexCoordinates(6, 2),
+            new HexCoordinates(7, 3),
+            new HexCoordinates(8, 3),
+            new HexCoordinates(9, 4),
+
+            // Range 5 (5 hexes)
+            new HexCoordinates(6, 1),
+            new HexCoordinates(7, 2),
+            new HexCoordinates(8, 2),
+            new HexCoordinates(9, 3),
+            new HexCoordinates(10, 3)
+        };
+
+        // Act
+        var hexesInArc = unitPosition.GetHexesInFiringArc(HexDirection.BottomRight, FiringArc.Left, 5).ToList();
+
+        // Assert
+        hexesInArc.Count.ShouldBe(15); // 1 + 2 + 3 + 4 + 5 hexes
+        hexesInArc.ShouldBe(expectedHexes, true);
+    }
+
+    [Fact]
+    public void GetHexesInFiringArc_RightArcRange5_FacingBottomRight_ReturnsCorrectHexes()
+    {
+        // Arrange
+        var unitPosition = new HexCoordinates(6, 6);
+        var expectedHexes = new[]
+        {
+            // Range 1 (1 hex)
+            new HexCoordinates(5, 7),
+            
+            // Range 2 (2 hexes)
+            new HexCoordinates(4, 7),
+            new HexCoordinates(5, 8),
+
+            // Range 3 (3 hexes)
+            new HexCoordinates(3, 8),
+            new HexCoordinates(4, 8),
+            new HexCoordinates(5, 9),
+
+            // Range 4 (4 hexes)
+            new HexCoordinates(2, 8),
+            new HexCoordinates(3, 9),
+            new HexCoordinates(4, 9),
+            new HexCoordinates(5, 10),
+
+            // Range 5 (5 hexes)
+            new HexCoordinates(1, 9),
+            new HexCoordinates(2, 9),
+            new HexCoordinates(3, 10),
+            new HexCoordinates(4, 10),
+            new HexCoordinates(5, 11)
+        };
+
+        // Act
+        var hexesInArc = unitPosition.GetHexesInFiringArc(HexDirection.BottomRight, FiringArc.Right, 5).ToList();
+
+        // Assert
+        hexesInArc.Count.ShouldBe(15); // 1 + 2 + 3 + 4 + 5 hexes
+        hexesInArc.ShouldBe(expectedHexes, true);
+    }
 }
