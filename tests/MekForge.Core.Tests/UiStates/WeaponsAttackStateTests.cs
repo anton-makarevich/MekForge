@@ -370,4 +370,57 @@ public class WeaponsAttackStateTests
         var highlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
         highlightedHexes.ShouldBeEmpty();
     }
+
+    [Fact]
+    public void HandleUnitSelection_HighlightsWeaponRanges_FromDifferentLocations()
+    {
+        // Arrange
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var unitData = MechFactoryTests.CreateDummyMechData();
+        
+        // Initialize all locations with empty lists if they don't exist
+        foreach (PartLocation location in Enum.GetValues(typeof(PartLocation)))
+        {
+            if (!unitData.LocationEquipment.ContainsKey(location))
+                unitData.LocationEquipment[location] = new List<MekForgeComponent>();
+        }
+        
+        // First remove all weapons
+        foreach (var (location, equipment) in unitData.LocationEquipment)
+        {
+            equipment.RemoveAll(e => e is MekForgeComponent.MachineGun 
+                or MekForgeComponent.SmallLaser
+                or MekForgeComponent.MediumLaser
+                or MekForgeComponent.LargeLaser
+                or MekForgeComponent.PPC
+                or MekForgeComponent.LRM5
+                or MekForgeComponent.LRM10
+                or MekForgeComponent.LRM15
+                or MekForgeComponent.LRM20
+                or MekForgeComponent.SRM2
+                or MekForgeComponent.SRM4
+                or MekForgeComponent.SRM6
+                or MekForgeComponent.AC2
+                or MekForgeComponent.AC5
+                or MekForgeComponent.AC10
+                or MekForgeComponent.AC20);
+        }
+        
+        // Add weapons to different locations
+        unitData.LocationEquipment[PartLocation.LeftTorso].Add(MekForgeComponent.LRM5);
+        unitData.LocationEquipment[PartLocation.RightTorso].Add(MekForgeComponent.MediumLaser);
+        unitData.LocationEquipment[PartLocation.CenterTorso].Add(MekForgeComponent.MediumLaser);
+        unitData.LocationEquipment[PartLocation.LeftLeg].Add(MekForgeComponent.MediumLaser);
+        unitData.LocationEquipment[PartLocation.RightLeg].Add(MekForgeComponent.MediumLaser);
+
+        var unit = new MechFactory(new ClassicBattletechRulesProvider()).Create(unitData);
+        unit.Deploy(position);
+
+        // Act
+        _state.HandleUnitSelection(unit);
+
+        // Assert
+        var highlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
+        highlightedHexes.ShouldNotBeEmpty();
+    }
 }

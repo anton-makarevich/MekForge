@@ -205,7 +205,7 @@ public class WeaponsAttackState : IUiState
                 };
                 if (facing == null)
                 {
-                    return;
+                    continue;
                 }
                 // For arms, we need to check both forward and side arcs
                 if (part.Location is PartLocation.LeftArm or PartLocation.RightArm)
