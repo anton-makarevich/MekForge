@@ -13,6 +13,7 @@ public class WeaponsAttackState : IUiState
     private readonly BattleMapViewModel _viewModel;
     private Unit? _selectedUnit;
     private readonly List<HexDirection> _availableDirections = [];
+    private readonly Dictionary<Weapon, HashSet<HexCoordinates>> _weaponRanges = [];
 
     public WeaponsAttackStep CurrentStep { get; private set; } = WeaponsAttackStep.SelectingUnit;
 
@@ -195,6 +196,7 @@ public class WeaponsAttackState : IUiState
 
         var reachableHexes = new HashSet<HexCoordinates>();
         var unitPosition = _selectedUnit.Position.Value;
+        _weaponRanges.Clear();
 
         foreach (var part in _selectedUnit.Parts)
         {
@@ -211,6 +213,8 @@ public class WeaponsAttackState : IUiState
                 {
                     continue;
                 }
+
+                var weaponHexes = new HashSet<HexCoordinates>();
                 // For arms, we need to check both forward and side arcs
                 if (part.Location is PartLocation.LeftArm or PartLocation.RightArm)
                 {
@@ -218,15 +222,18 @@ public class WeaponsAttackState : IUiState
                     var sideArc = part.Location == PartLocation.LeftArm ? FiringArc.Left : FiringArc.Right;
                     var sideHexes = unitPosition.Coordinates.GetHexesInFiringArc(facing.Value, sideArc, maxRange);
                     
-                    reachableHexes.UnionWith(forwardHexes);
-                    reachableHexes.UnionWith(sideHexes);
+                    weaponHexes.UnionWith(forwardHexes);
+                    weaponHexes.UnionWith(sideHexes);
                 }
                 else
                 {
                     // For torso, legs, and head weapons - only forward arc
                     var hexes = unitPosition.Coordinates.GetHexesInFiringArc(facing.Value, FiringArc.Forward, maxRange);
-                    reachableHexes.UnionWith(hexes);
+                    weaponHexes.UnionWith(hexes);
                 }
+
+                _weaponRanges[weapon] = weaponHexes;
+                reachableHexes.UnionWith(weaponHexes);
             }
         }
 
@@ -246,7 +253,21 @@ public class WeaponsAttackState : IUiState
         var allPossibleHexes = _selectedUnit.Position.Value.Coordinates
             .GetCoordinatesInRange(maxRange);
 
+        _weaponRanges.Clear();
         _viewModel.HighlightHexes(allPossibleHexes.ToList(), false);
+    }
+
+    /// <summary>
+    /// Gets all weapons that can fire at a given hex coordinate
+    /// </summary>
+    /// <param name="target">The target hex coordinates</param>
+    /// <returns>List of weapons that can fire at the target</returns>
+    public IReadOnlyList<Weapon> GetWeaponsInRange(HexCoordinates target)
+    {
+        return _weaponRanges
+            .Where(kvp => kvp.Value.Contains(target))
+            .Select(kvp => kvp.Key)
+            .ToList();
     }
 }
 
