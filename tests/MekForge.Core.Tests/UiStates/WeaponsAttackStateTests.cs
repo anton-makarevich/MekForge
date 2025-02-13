@@ -10,6 +10,7 @@ using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
 using Sanet.MekForge.Core.Models.Units;
+using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.Services.Localization;
 using Sanet.MekForge.Core.Tests.Data;
@@ -332,6 +333,48 @@ public class WeaponsAttackStateTests
         firstUnitHighlightedHexes.ShouldNotBeEmpty();
         secondUnitHighlightedHexes.ShouldNotBeEmpty();
         secondUnitHighlightedHexes.ShouldNotBe(firstUnitHighlightedHexes);
+    }
+
+    [Fact]
+    public void HandleTorsoRotation_UpdatesWeaponRangeHighlights()
+    {
+        // Arrange
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        _unit1.Deploy(position);
+        _state.HandleUnitSelection(_unit1);
+        var firstHighlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
+        
+        // Act
+        ((Mech)_unit1).RotateTorso(HexDirection.BottomLeft);
+        _state.HandleTorsoRotation(_unit1.Id);
+        var secondHighlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
+
+        // Assert
+        firstHighlightedHexes.ShouldNotBeEmpty();
+        secondHighlightedHexes.ShouldNotBeEmpty();
+        // Since we rotated the torso, the highlighted hexes should be different
+        secondHighlightedHexes.ShouldNotBe(firstHighlightedHexes);
+    }
+
+    [Fact]
+    public void HandleTorsoRotation_DoesNotUpdateHighlights_WhenDifferentUnit()
+    {
+        // Arrange
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        _unit1.Deploy(position);
+        _state.HandleUnitSelection(_unit1);
+        var firstHighlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
+        
+        // Act
+        ((Mech)_unit1).RotateTorso(HexDirection.BottomLeft);
+        _state.HandleTorsoRotation(Guid.NewGuid()); // Different unit ID
+        var secondHighlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
+
+        // Assert
+        firstHighlightedHexes.ShouldNotBeEmpty();
+        secondHighlightedHexes.ShouldNotBeEmpty();
+        // Since we tried to rotate a different unit's torso, the highlighted hexes should remain the same
+        secondHighlightedHexes.ShouldBe(firstHighlightedHexes);
     }
 
     [Fact]

@@ -11,6 +11,7 @@ using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
 using Sanet.MekForge.Core.Models.Units;
+using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MekForge.Core.Utils.TechRules;
@@ -607,5 +608,52 @@ public class ClientGameTests
 
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(command);
+    }
+
+    [Fact]
+    public void HandleCommand_ShouldRotateTorso_WhenWeaponConfigurationCommandIsReceived()
+    {
+        // Arrange
+        var player = new Player(Guid.NewGuid(), "Player1");
+        var unitData = MechFactoryTests.CreateDummyMechData();
+        unitData.Id = Guid.NewGuid();
+        _clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = player.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = player.Name,
+            Units = [unitData],
+            Tint = "#FF0000"
+        });
+
+        // First deploy the unit
+        var deployCommand = new DeployUnitCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id,
+            Position = new HexCoordinateData(1, 1),
+            Direction = 0,
+            UnitId = unitData.Id.Value
+        };
+        _clientGame.HandleCommand(deployCommand);
+
+        var configCommand = new WeaponConfigurationCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id,
+            UnitId = unitData.Id.Value,
+            Configuration = new WeaponConfiguration
+            {
+                Type = WeaponConfigurationType.TorsoRotation,
+                Value = (int)HexDirection.TopRight
+            }
+        };
+
+        // Act
+        _clientGame.HandleCommand(configCommand);
+
+        // Assert
+        var unit = _clientGame.Players[0].Units[0];
+        (unit as Mech)!.TorsoDirection.ShouldBe(HexDirection.TopRight);
     }
 }

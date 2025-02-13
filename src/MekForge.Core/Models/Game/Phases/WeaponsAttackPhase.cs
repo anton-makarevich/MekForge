@@ -29,7 +29,6 @@ public class WeaponsAttackPhase : MainGamePhase
     private void ProcessWeaponConfiguration(WeaponConfigurationCommand configCommand)
     {
         var broadcastConfig = configCommand.CloneWithGameId(Game.Id);
-        Game.OnWeaponConfiguration(configCommand);
         Game.CommandPublisher.PublishCommand(broadcastConfig);
     }
 

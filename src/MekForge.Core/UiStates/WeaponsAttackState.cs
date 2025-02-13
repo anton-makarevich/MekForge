@@ -75,9 +75,6 @@ public class WeaponsAttackState : IUiState
         if (CurrentStep != WeaponsAttackStep.WeaponsConfiguration 
             || _selectedUnit is not Mech mech 
             || !_availableDirections.Contains(direction)) return;
-
-        // Handle torso rotation
-        mech.RotateTorso(direction);
         
         _viewModel.HideDirectionSelector();
         
@@ -102,6 +99,13 @@ public class WeaponsAttackState : IUiState
         // Return to action selection after rotation
         CurrentStep = WeaponsAttackStep.ActionSelection;
         _viewModel.NotifyStateChanged();
+    }
+
+    public void HandleTorsoRotation(Guid unitId)
+    {
+        if (_selectedUnit?.Id != unitId) return;
+        ClearWeaponRangeHighlights();
+        HighlightWeaponRanges();
     }
 
     private bool HandleUnitSelectionFromHex(Hex hex)
