@@ -122,7 +122,7 @@ namespace Sanet.MekForge.Avalonia.Controls
             Children.Add(torsoArrow);
 
             // Create an observable that polls the unit's position and selection state
-             Observable
+            Observable
                 .Interval(TimeSpan.FromMilliseconds(32)) // ~60fps
                 .Select(_ => new
                 {
@@ -141,9 +141,10 @@ namespace Sanet.MekForge.Avalonia.Controls
                     UpdateActionButtons(state.Actions);
 
                     // Update torso direction arrow
-                    if (_unit is Mech)
+                    if (_unit is Mech mech)
                     {
-                        torsoArrow.IsVisible = state.IsWeaponsPhase && state.TorsoDirection.HasValue && state.Position.HasValue;
+                        torsoArrow.IsVisible = state.IsWeaponsPhase && state.TorsoDirection.HasValue &&
+                                               state.Position.HasValue;
                         if (torsoArrow.IsVisible)
                         {
                             // Calculate the delta angle between unit facing and torso direction
@@ -153,6 +154,13 @@ namespace Sanet.MekForge.Avalonia.Controls
 
                             // Apply the delta rotation
                             torsoArrow.RenderTransform = new RotateTransform(deltaAngle);
+                            // Check if torso direction has changed
+                            if (!state.IsWeaponsPhase || !mech.HasUsedTorsoTwist) return;
+                            if (state.TorsoDirection.HasValue)
+                            {
+                                (_viewModel.CurrentState as WeaponsAttackState)?.HandleTorsoRotation(_unit.Id,
+                                    state.TorsoDirection.Value);
+                            }
                         }
                     }
                     else

@@ -101,6 +101,13 @@ public class WeaponsAttackState : IUiState
         _viewModel.NotifyStateChanged();
     }
 
+    public void HandleTorsoRotation(Guid unitId, HexDirection rotation)
+    {
+        if (_selectedUnit?.Id != unitId) return;
+        ClearWeaponRangeHighlights();
+        HighlightWeaponRanges();
+    }
+
     private bool HandleUnitSelectionFromHex(Hex hex)
     {
         var unit = _viewModel.Units.FirstOrDefault(u => u.Position?.Coordinates == hex.Coordinates);
