@@ -36,20 +36,20 @@ public class WeaponsAttackStateTests
         var localizationService = Substitute.For<ILocalizationService>();
         _viewModel = new BattleMapViewModel(imageService, localizationService);
         var playerId = Guid.NewGuid();
-        
+
         var rules = new ClassicBattletechRulesProvider();
         _unitData = MechFactoryTests.CreateDummyMechData();
         _unit1 = new MechFactory(rules).Create(_unitData);
         _unit2 = new MechFactory(rules).Create(_unitData);
-        
+
         var battleMap = BattleMap.GenerateMap(
             2, 11,
-            new SingleTerrainGenerator(2,11, new ClearTerrain()));
+            new SingleTerrainGenerator(2, 11, new ClearTerrain()));
         _player = new Player(playerId, "Player1");
         _game = new ClientGame(
             battleMap, [_player], rules,
             Substitute.For<ICommandPublisher>());
-        
+
         _viewModel.Game = _game;
         AddPlayerUnits();
         SetActivePlayer();
@@ -98,7 +98,7 @@ public class WeaponsAttackStateTests
             UnitsToPlay = 1
         });
     }
-    
+
     private void SetPhase(PhaseNames phase)
     {
         _game.HandleCommand(new ChangePhaseCommand
@@ -198,7 +198,7 @@ public class WeaponsAttackStateTests
     public void GetAvailableActions_NotInActionSelectionStep_ReturnsEmpty()
     {
         // Arrange
-        _unit1.Deploy(new HexPosition(1,1,HexDirection.Bottom));
+        _unit1.Deploy(new HexPosition(1, 1, HexDirection.Bottom));
         _state.HandleUnitSelection(_unit1);
         IEnumerable<StateAction> actions = _state.GetAvailableActions().ToList();
         var torsoAction = actions.First(a => a.Label == "Turn Torso");
@@ -230,7 +230,7 @@ public class WeaponsAttackStateTests
     public void GetAvailableActions_TorsoRotationAction_TransitionsToWeaponsConfiguration()
     {
         // Arrange
-        _unit1.Deploy(new HexPosition(1,1,HexDirection.Bottom));
+        _unit1.Deploy(new HexPosition(1, 1, HexDirection.Bottom));
         _state.HandleUnitSelection(_unit1);
         var actions = _state.GetAvailableActions().ToList();
         var torsoAction = actions.First(a => a.Label == "Turn Torso");
@@ -263,7 +263,7 @@ public class WeaponsAttackStateTests
     public void HandleFacingSelection_HidesDirectionSelector()
     {
         // Arrange
-        _unit1.Deploy(new HexPosition(1,1,HexDirection.Bottom));
+        _unit1.Deploy(new HexPosition(1, 1, HexDirection.Bottom));
         _state.HandleUnitSelection(_unit1);
         var actions = _state.GetAvailableActions().ToList();
         var torsoAction = actions.First(a => a.Label == "Turn Torso");
@@ -275,5 +275,152 @@ public class WeaponsAttackStateTests
         // Assert
         _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
         _state.ActionLabel.ShouldBe("Select action");
+    }
+
+    [Fact]
+    public void HandleUnitSelection_HighlightsWeaponRanges_WhenUnitIsSelected()
+    {
+        // Arrange
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        _unit1.Deploy(position);
+        
+        // Act
+        _state.HandleUnitSelection(_unit1);
+
+        // Assert
+        var highlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
+        highlightedHexes.ShouldNotBeEmpty();
+    }
+
+    [Fact]
+    public void HandleUnitSelection_ClearsPreviousHighlights_WhenSelectingNewUnit()
+    {
+        // Arrange
+        var position1 = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var position2 = new HexPosition(new HexCoordinates(2, 2), HexDirection.Bottom);
+        _unit1.Deploy(position1);
+        _unit2.Deploy(position2);
+        _state.HandleUnitSelection(_unit1);
+        var firstHighlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
+
+        // Act
+        _state.HandleUnitSelection(_unit2);
+
+        // Assert
+        var secondHighlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
+        secondHighlightedHexes.ShouldNotBeEmpty();
+        // Check that at least some hexes are different (since units are in different positions)
+        secondHighlightedHexes.ShouldNotBe(firstHighlightedHexes);
+    }
+
+    [Fact]
+    public void ResetUnitSelection_ClearsWeaponRangeHighlights()
+    {
+        // Arrange
+        var position1 = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var position2 = new HexPosition(new HexCoordinates(2, 2), HexDirection.Bottom);
+        _unit1.Deploy(position1);
+        _unit2.Deploy(position2);
+        
+        // Act
+        _state.HandleUnitSelection(_unit1);
+        var firstUnitHighlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
+        _state.HandleUnitSelection(_unit2);
+        var secondUnitHighlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
+
+        // Assert
+        firstUnitHighlightedHexes.ShouldNotBeEmpty();
+        secondUnitHighlightedHexes.ShouldNotBeEmpty();
+        secondUnitHighlightedHexes.ShouldNotBe(firstUnitHighlightedHexes);
+    }
+
+    [Fact]
+    public void HandleUnitSelection_DoesNotHighlightRanges_WhenUnitHasNoWeapons()
+    {
+        // Arrange
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var unitDataNoWeapons = MechFactoryTests.CreateDummyMechData();
+        // Remove all weapons from the unit
+        foreach (var (_, equipment) in unitDataNoWeapons.LocationEquipment)
+        {
+            equipment.RemoveAll(e => e is MekForgeComponent.MachineGun 
+                or MekForgeComponent.SmallLaser
+                or MekForgeComponent.MediumLaser
+                or MekForgeComponent.LargeLaser
+                or MekForgeComponent.PPC
+                or MekForgeComponent.LRM5
+                or MekForgeComponent.LRM10
+                or MekForgeComponent.LRM15
+                or MekForgeComponent.LRM20
+                or MekForgeComponent.SRM2
+                or MekForgeComponent.SRM4
+                or MekForgeComponent.SRM6
+                or MekForgeComponent.AC2
+                or MekForgeComponent.AC5
+                or MekForgeComponent.AC10
+                or MekForgeComponent.AC20);
+        }
+        var unitNoWeapons = new MechFactory(new ClassicBattletechRulesProvider()).Create(unitDataNoWeapons);
+        unitNoWeapons.Deploy(position);
+
+        // Act
+        _state.HandleUnitSelection(unitNoWeapons);
+
+        // Assert
+        var highlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
+        highlightedHexes.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void HandleUnitSelection_HighlightsWeaponRanges_FromDifferentLocations()
+    {
+        // Arrange
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var unitData = MechFactoryTests.CreateDummyMechData();
+        
+        // Initialize all locations with empty lists if they don't exist
+        foreach (PartLocation location in Enum.GetValues(typeof(PartLocation)))
+        {
+            if (!unitData.LocationEquipment.ContainsKey(location))
+                unitData.LocationEquipment[location] = new List<MekForgeComponent>();
+        }
+        
+        // First remove all weapons
+        foreach (var (location, equipment) in unitData.LocationEquipment)
+        {
+            equipment.RemoveAll(e => e is MekForgeComponent.MachineGun 
+                or MekForgeComponent.SmallLaser
+                or MekForgeComponent.MediumLaser
+                or MekForgeComponent.LargeLaser
+                or MekForgeComponent.PPC
+                or MekForgeComponent.LRM5
+                or MekForgeComponent.LRM10
+                or MekForgeComponent.LRM15
+                or MekForgeComponent.LRM20
+                or MekForgeComponent.SRM2
+                or MekForgeComponent.SRM4
+                or MekForgeComponent.SRM6
+                or MekForgeComponent.AC2
+                or MekForgeComponent.AC5
+                or MekForgeComponent.AC10
+                or MekForgeComponent.AC20);
+        }
+        
+        // Add weapons to different locations
+        unitData.LocationEquipment[PartLocation.LeftTorso].Add(MekForgeComponent.LRM5);
+        unitData.LocationEquipment[PartLocation.RightTorso].Add(MekForgeComponent.MediumLaser);
+        unitData.LocationEquipment[PartLocation.CenterTorso].Add(MekForgeComponent.MediumLaser);
+        unitData.LocationEquipment[PartLocation.LeftLeg].Add(MekForgeComponent.MediumLaser);
+        unitData.LocationEquipment[PartLocation.RightLeg].Add(MekForgeComponent.MediumLaser);
+
+        var unit = new MechFactory(new ClassicBattletechRulesProvider()).Create(unitData);
+        unit.Deploy(position);
+
+        // Act
+        _state.HandleUnitSelection(unit);
+
+        // Assert
+        var highlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
+        highlightedHexes.ShouldNotBeEmpty();
     }
 }
