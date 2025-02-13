@@ -34,4 +34,14 @@ public class ClearTerrainTests
         // Act & Assert
         terrain.Id.ShouldBe("Clear");
     }
+
+    [Fact]
+    public void InterveningFactor_IsZero()
+    {
+        // Arrange
+        var terrain = new ClearTerrain();
+
+        // Act & Assert
+        terrain.InterveningFactor.ShouldBe(0);
+    }
 }

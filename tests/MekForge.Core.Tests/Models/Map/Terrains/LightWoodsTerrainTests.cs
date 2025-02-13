@@ -34,4 +34,14 @@ public class LightWoodsTerrainTests
         // Act & Assert
         terrain.Id.ShouldBe("LightWoods");
     }
+
+    [Fact]
+    public void InterveningFactor_IsOne()
+    {
+        // Arrange
+        var terrain = new LightWoodsTerrain();
+
+        // Act & Assert
+        terrain.InterveningFactor.ShouldBe(1);
+    }
 }

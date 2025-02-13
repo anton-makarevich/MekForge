@@ -34,4 +34,14 @@ public class HeavyWoodsTerrainTests
         // Act & Assert
         terrain.Id.ShouldBe("HeavyWoods");
     }
+
+    [Fact]
+    public void InterveningFactor_IsTwo()
+    {
+        // Arrange
+        var terrain = new HeavyWoodsTerrain();
+
+        // Act & Assert
+        terrain.InterveningFactor.ShouldBe(2);
+    }
 }

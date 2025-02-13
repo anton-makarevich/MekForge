@@ -279,7 +279,7 @@ public class BattleMap
                 totalDistance);
 
             // If the hex is higher than the line between start and end points, it blocks LOS
-            if (hex.GetCeiling() > requiredHeight)
+            if (hex.Level > requiredHeight)
                 return false;
 
             distance++;
