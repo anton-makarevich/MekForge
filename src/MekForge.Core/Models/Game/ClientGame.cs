@@ -60,12 +60,6 @@ public class ClientGame : BaseGame
             case WeaponConfigurationCommand weaponConfigurationCommand:
                 OnWeaponConfiguration(weaponConfigurationCommand);
                 break;
-            case WeaponsAttackCommand weaponsAttackCommand:
-                OnWeaponsAttack(weaponsAttackCommand);
-                break;
-            case PhysicalAttackCommand physicalAttackCommand:
-                OnPhysicalAttack(physicalAttackCommand);
-                break;
         }
     }
     
