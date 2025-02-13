@@ -10,6 +10,7 @@ using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
 using Sanet.MekForge.Core.Models.Units;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.Services.Localization;
@@ -429,7 +430,7 @@ public class WeaponsAttackStateTests
         }
         
         // First remove all weapons
-        foreach (var (location, equipment) in unitData.LocationEquipment)
+        foreach (var (_, equipment) in unitData.LocationEquipment)
         {
             equipment.RemoveAll(e => e is MekForgeComponent.MachineGun 
                 or MekForgeComponent.SmallLaser
@@ -465,5 +466,59 @@ public class WeaponsAttackStateTests
         // Assert
         var highlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
         highlightedHexes.ShouldNotBeEmpty();
+    }
+
+    [Fact]
+    public void GetWeaponsInRange_ReturnsEmptyList_WhenNoUnitSelected()
+    {
+        // Arrange
+        var targetCoordinates = new HexCoordinates(2, 2);
+
+        // Act
+        var weapons = _state.GetWeaponsInRange(targetCoordinates);
+
+        // Assert
+        weapons.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void GetWeaponsInRange_ReturnsWeaponsInRange_WhenTargetInForwardArc()
+    {
+        // Arrange
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        _unit1.Deploy(position);
+        _state.HandleUnitSelection(_unit1);
+        var targetCoordinates = new HexCoordinates(1, 3); // Two hexes directly in front
+
+        // Act
+        var weapons = _state.GetWeaponsInRange(targetCoordinates);
+
+        // Assert
+        weapons.ShouldNotBeEmpty();
+        // All weapons from torso and arms should be able to fire forward
+        weapons.Count.ShouldBe(_unit1.Parts
+            .Where(p => p.Location is PartLocation.LeftArm or PartLocation.RightArm or PartLocation.CenterTorso)
+            .SelectMany(p => p.GetComponents<Weapon>())
+            .Count());
+    }
+
+    [Fact]
+    public void GetWeaponsInRange_ReturnsNoWeapons_WhenTargetOutOfRange()
+    {
+        // Arrange
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        _unit1.Deploy(position);
+        _state.HandleUnitSelection(_unit1);
+        // Get maximum weapon range
+        var maxRange = _unit1.Parts
+            .SelectMany(p => p.GetComponents<Weapon>())
+            .Max(w => w.LongRange);
+        var targetCoordinates = new HexCoordinates(1, maxRange + 2); // Beyond maximum range
+
+        // Act
+        var weapons = _state.GetWeaponsInRange(targetCoordinates);
+
+        // Assert
+        weapons.ShouldBeEmpty();
     }
 }
