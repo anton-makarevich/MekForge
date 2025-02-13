@@ -158,8 +158,7 @@ namespace Sanet.MekForge.Avalonia.Controls
                             if (!state.IsWeaponsPhase || !mech.HasUsedTorsoTwist) return;
                             if (state.TorsoDirection.HasValue)
                             {
-                                (_viewModel.CurrentState as WeaponsAttackState)?.HandleTorsoRotation(_unit.Id,
-                                    state.TorsoDirection.Value);
+                                (_viewModel.CurrentState as WeaponsAttackState)?.HandleTorsoRotation(_unit.Id);
                             }
                         }
                     }

@@ -101,7 +101,7 @@ public class WeaponsAttackState : IUiState
         _viewModel.NotifyStateChanged();
     }
 
-    public void HandleTorsoRotation(Guid unitId, HexDirection rotation)
+    public void HandleTorsoRotation(Guid unitId)
     {
         if (_selectedUnit?.Id != unitId) return;
         ClearWeaponRangeHighlights();
