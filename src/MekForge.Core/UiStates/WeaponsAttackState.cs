@@ -232,6 +232,9 @@ public class WeaponsAttackState : IUiState
                     weaponHexes.UnionWith(hexes);
                 }
 
+                // Filter out hexes without line of sight
+                weaponHexes.RemoveWhere(h => !_viewModel.Game!.BattleMap.HasLineOfSight(unitPosition.Coordinates, h));
+
                 _weaponRanges[weapon] = weaponHexes;
                 reachableHexes.UnionWith(weaponHexes);
             }
