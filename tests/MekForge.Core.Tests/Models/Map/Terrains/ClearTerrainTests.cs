@@ -22,7 +22,7 @@ public class ClearTerrainTests
         var terrain = new ClearTerrain();
 
         // Act & Assert
-        terrain.TerrainFactor.ShouldBe(1);
+        terrain.MovementCost.ShouldBe(1);
     }
 
     [Fact]

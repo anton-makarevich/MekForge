@@ -6,13 +6,13 @@ namespace Sanet.MekForge.Core.Tests.Models.Map.Terrains;
 public class LightWoodsTerrainTests
 {
     [Fact]
-    public void Height_Returns1()
+    public void Height_Returns_2()
     {
         // Arrange
         var terrain = new LightWoodsTerrain();
 
         // Act & Assert
-        terrain.Height.ShouldBe(1);
+        terrain.Height.ShouldBe(2);
     }
 
     [Fact]
@@ -22,7 +22,7 @@ public class LightWoodsTerrainTests
         var terrain = new LightWoodsTerrain();
 
         // Act & Assert
-        terrain.TerrainFactor.ShouldBe(2);
+        terrain.MovementCost.ShouldBe(2);
     }
 
     [Fact]

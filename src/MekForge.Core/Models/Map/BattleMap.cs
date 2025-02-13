@@ -242,17 +242,30 @@ public class BattleMap
     /// </summary>
     public bool HasLineOfSight(HexCoordinates from, HexCoordinates to)
     {
+        if (!IsOnMap(from) || !IsOnMap(to))
+            return false;
+
+        // If same hex, always has LOS
+        if (from == to)
+            return true;
+
         var fromHex = GetHex(from);
         var toHex = GetHex(to);
+        
         if (fromHex == null || toHex == null)
             return false;
 
-        // Get hexes along the line
-        var hexLine = from.LineTo(to);
-        var distance = 1;
-        var totalDistance = from.DistanceTo(to);
+        // Get all hexes along the line
+        var hexLine = from.LineTo(to).ToList();
+        
+        // Remove first and last hex (attacker and target positions)
+        hexLine = hexLine.Skip(1).SkipLast(1).ToList();
 
-        foreach (var coordinates in hexLine.Skip(1)) // Skip the starting hex
+        if (!hexLine.Any())
+            return true; // No intervening hexes
+        var distance = 1;
+        var totalDistance = hexLine.Count;
+        foreach (var coordinates in hexLine) // Skip the starting hex
         {
             var hex = GetHex(coordinates);
             if (hex == null)
@@ -271,7 +284,17 @@ public class BattleMap
 
             distance++;
         }
+        
+        // Calculate total intervening factor
+        var totalInterveningFactor = hexLine
+            .Select(coord => GetHex(coord)?.GetTerrains().Sum(t => t.InterveningFactor))
+            .Sum();
 
+        // LOS is blocked if total intervening factor is 3 or more
+        if (totalInterveningFactor >= 3)
+            return false;
+
+        
         return true;
     }
     
