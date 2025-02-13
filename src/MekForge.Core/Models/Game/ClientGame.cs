@@ -57,6 +57,15 @@ public class ClientGame : BaseGame
             case MoveUnitCommand moveUnitCommand:
                 OnMoveUnit(moveUnitCommand);
                 break;
+            case WeaponConfigurationCommand weaponConfigurationCommand:
+                OnWeaponConfiguration(weaponConfigurationCommand);
+                break;
+            case WeaponsAttackCommand weaponsAttackCommand:
+                OnWeaponsAttack(weaponsAttackCommand);
+                break;
+            case PhysicalAttackCommand physicalAttackCommand:
+                OnPhysicalAttack(physicalAttackCommand);
+                break;
         }
     }
     
