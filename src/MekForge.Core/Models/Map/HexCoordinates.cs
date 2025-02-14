@@ -156,18 +156,20 @@ public readonly record struct HexCoordinates
         var result = new List<HexCoordinates>();
         var current = this;
         result.Add(current);
+        
+        // Get the direction vector in cube coordinates
+        var dx = target.X - X;
+        var dy = target.Y - Y;
+        var dz = target.Z - Z;
 
+        // Get the primary direction and its two adjacent directions
+        var mainDir = GetMainDirection(dx, dy, dz);
+        var leftDir = (mainDir + 5) % 6;  // Counter-clockwise
+        var rightDir = (mainDir + 1) % 6;  // Clockwise
+            
         while (!current.Equals(target))
         {
-            // Get the direction vector in cube coordinates
-            var dx = target.X - current.X;
-            var dy = target.Y - current.Y;
-            var dz = target.Z - current.Z;
 
-            // Get the primary direction and its two adjacent directions
-            var mainDir = GetMainDirection(dx, dy, dz);
-            var leftDir = (mainDir + 5) % 6;  // Counter-clockwise
-            var rightDir = (mainDir + 1) % 6;  // Clockwise
             // Check the three possible next hexes (left, center, right)
             var nextHex = GetNextHexInLine(current, target, mainDir, leftDir, rightDir);
             
@@ -191,23 +193,61 @@ public readonly record struct HexCoordinates
         var leftNext = current.Neighbor((HexDirection)leftDir);
         var rightNext = current.Neighbor((HexDirection)rightDir);
 
-        // Calculate distances to target for each potential next hex
-        var mainDist = mainNext.DistanceTo(target);
-        var leftDist = leftNext.DistanceTo(target);
-        var rightDist = rightNext.DistanceTo(target);
+        // Calculate distances from current to next and from next to target
+        var mainToNext = GetActualDistance(this, mainNext);
+        var leftToNext = GetActualDistance(this, leftNext);
+        var rightToNext = GetActualDistance(this, rightNext);
 
-        // Choose the hex that gets us closest to the target
-        // If distances are equal, prefer the side hexes to catch corner cases
-        if (leftDist <= mainDist && leftDist <= rightDist)
+        var mainToTarget = GetActualDistance(mainNext, target);
+        var leftToTarget = GetActualDistance(leftNext, target);
+        var rightToTarget = GetActualDistance(rightNext, target);
+
+        // Calculate total distances
+        var mainTotal = mainToNext + mainToTarget;
+        var leftTotal = leftToNext + leftToTarget;
+        var rightTotal = rightToNext + rightToTarget;
+
+        // If total distances are equal (within a small epsilon), prefer the shorter next step
+        const double epsilon = 0.0001;
+        
+        // First check if left path is best or equal
+        if (leftTotal <= mainTotal + epsilon && leftTotal <= rightTotal + epsilon)
         {
+            // If left total equals main total, prefer the shorter next step
+            if (Math.Abs(leftTotal - mainTotal) < epsilon)
+            {
+                return leftToNext <= mainToNext ? leftNext : mainNext;
+            }
+            // If left total equals right total, prefer the shorter next step
+            if (Math.Abs(leftTotal - rightTotal) < epsilon)
+            {
+                return leftToNext <= rightToNext ? leftNext : rightNext;
+            }
             return leftNext;
         }
 
-        if (rightDist <= mainDist)
+        // Then check if right path is best or equal to main
+        if (rightTotal <= mainTotal + epsilon)
         {
+            // If right total equals main total, prefer the shorter next step
+            if (Math.Abs(rightTotal - mainTotal) < epsilon)
+            {
+                return rightToNext <= mainToNext ? rightNext : mainNext;
+            }
             return rightNext;
         }
+
         return mainNext;
+    }
+
+    private double GetActualDistance(HexCoordinates from, HexCoordinates to)
+    {
+        var dx = to.X - from.X;
+        var dy = to.Y - from.Y;
+        var dz = to.Z - from.Z;
+        
+        // Divide by 2 because in cube coordinates, moving one hex changes two coordinates by 1
+        return Math.Sqrt((dx * dx + dy * dy + dz * dz) / 2.0);
     }
 
     private int GetMainDirection(int dx, int dy, int dz)

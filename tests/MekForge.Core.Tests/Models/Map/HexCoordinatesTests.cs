@@ -1277,4 +1277,27 @@ public class HexCoordinatesTests
         // Assert
         actualSequence.ShouldBe(expectedSequence,true);
     }
+    
+    [Fact]
+    public void LineTo_HorizontalLine_ShouldReturnCorrectHexSequence2()
+    {
+        // Arrange
+        var start = new HexCoordinates(6, 7);
+        var end = new HexCoordinates(10, 6);
+        var expectedSequence = new[]
+        {
+            new HexCoordinates(6, 7),
+            new HexCoordinates(7, 7),
+            new HexCoordinates(8, 7),
+            new HexCoordinates(8, 6),
+            new HexCoordinates(9, 7),
+            new HexCoordinates(10,6)
+        };
+
+        // Act
+        var actualSequence = start.LineTo(end);
+
+        // Assert
+        actualSequence.ShouldBe(expectedSequence,true);
+    }
 }
