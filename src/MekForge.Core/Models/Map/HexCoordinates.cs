@@ -171,29 +171,33 @@ public readonly record struct HexCoordinates
         {
 
             // Check the three possible next hexes (left, center, right)
-            var nextHex = GetNextHexInLine(current, target, mainDir, leftDir, rightDir);
-            
-            if (nextHex == null)
+            var (next, additional) = GetNextHexInLine(current, target, mainDir, leftDir, rightDir);
+
+            // Add both hexes if we have an additional one
+            if (additional != null && !result.Contains(additional.Value))
             {
-                // If we can't find a next hex, we've reached the target
-                break;
+                result.Add(additional.Value);
             }
 
-            current = nextHex.Value;
-            result.Add(current);
+            if (!result.Contains(next))
+            {
+                result.Add(next);
+            }
+
+            current = additional??next;
         }
 
         return result;
     }
 
-    private HexCoordinates? GetNextHexInLine(HexCoordinates current, HexCoordinates target, int mainDir, int leftDir, int rightDir)
+    private (HexCoordinates next, HexCoordinates? additional) GetNextHexInLine(HexCoordinates current, HexCoordinates target, int mainDir, int leftDir, int rightDir)
     {
         // Calculate vectors to potential next hexes
         var mainNext = current.Neighbor((HexDirection)mainDir);
         var leftNext = current.Neighbor((HexDirection)leftDir);
         var rightNext = current.Neighbor((HexDirection)rightDir);
 
-        // Calculate distances from current to next and from next to target
+        // Calculate distances from this to next and from next to target
         var mainToNext = GetActualDistance(this, mainNext);
         var leftToNext = GetActualDistance(this, leftNext);
         var rightToNext = GetActualDistance(this, rightNext);
@@ -207,37 +211,37 @@ public readonly record struct HexCoordinates
         var leftTotal = leftToNext + leftToTarget;
         var rightTotal = rightToNext + rightToTarget;
 
-        // If total distances are equal (within a small epsilon), prefer the shorter next step
+        // If total distances are equal (within a small epsilon), return both hexes
         const double epsilon = 0.0001;
         
         // First check if left path is best or equal
         if (leftTotal <= mainTotal + epsilon && leftTotal <= rightTotal + epsilon)
         {
-            // If left total equals main total, prefer the shorter next step
+            // If left total equals main total, return both
             if (Math.Abs(leftTotal - mainTotal) < epsilon)
             {
-                return leftToNext <= mainToNext ? leftNext : mainNext;
+                return (leftNext, mainNext);
             }
-            // If left total equals right total, prefer the shorter next step
+            // If left total equals right total, return both
             if (Math.Abs(leftTotal - rightTotal) < epsilon)
             {
-                return leftToNext <= rightToNext ? leftNext : rightNext;
+                return (leftNext, rightNext);
             }
-            return leftNext;
+            return (leftNext, null);
         }
 
         // Then check if right path is best or equal to main
         if (rightTotal <= mainTotal + epsilon)
         {
-            // If right total equals main total, prefer the shorter next step
+            // If right total equals main total, return both
             if (Math.Abs(rightTotal - mainTotal) < epsilon)
             {
-                return rightToNext <= mainToNext ? rightNext : mainNext;
+                return (rightNext, mainNext);
             }
-            return rightNext;
+            return (rightNext, null);
         }
 
-        return mainNext;
+        return (mainNext, null);
     }
 
     private double GetActualDistance(HexCoordinates from, HexCoordinates to)
