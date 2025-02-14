@@ -143,7 +143,8 @@ public readonly record struct HexCoordinates
     }
     
     /// <summary>
-    /// Gets coordinates of hexes that form a line between two points
+    /// Gets coordinates of hexes that form a line between two points.
+    /// Uses cube coordinates to handle odd/even columns correctly.
     /// </summary>
     public List<HexCoordinates> LineTo(HexCoordinates target)
     {
@@ -151,22 +152,74 @@ public readonly record struct HexCoordinates
         {
             return [target];
         }
-        var n = DistanceTo(target);
+
         var result = new List<HexCoordinates>();
+        var current = this;
+        result.Add(current);
 
-        for (var i = 0; i <= n; i++)
+        while (!current.Equals(target))
         {
-            var t = 1.0f * i / n;
-            var x = (int)Math.Round(X * (1 - t) + target.X * t);
-            var z = (int)Math.Round(Z * (1 - t) + target.Z * t);
+            // Get the direction vector in cube coordinates
+            var dx = target.X - current.X;
+            var dy = target.Y - current.Y;
+            var dz = target.Z - current.Z;
 
-            // Convert back to axial coordinates
-            var q = x;
-            var r = z + (x + (x & 1)) / 2;
-            result.Add(new HexCoordinates(q, r));
+            // Get the primary direction and its two adjacent directions
+            var mainDir = GetMainDirection(dx, dy, dz);
+            var leftDir = (mainDir + 5) % 6;  // Counter-clockwise
+            var rightDir = (mainDir + 1) % 6;  // Clockwise
+            // Check the three possible next hexes (left, center, right)
+            var nextHex = GetNextHexInLine(current, target, mainDir, leftDir, rightDir);
+            
+            if (nextHex == null)
+            {
+                // If we can't find a next hex, we've reached the target
+                break;
+            }
+
+            current = nextHex.Value;
+            result.Add(current);
         }
 
         return result;
+    }
+
+    private HexCoordinates? GetNextHexInLine(HexCoordinates current, HexCoordinates target, int mainDir, int leftDir, int rightDir)
+    {
+        // Calculate vectors to potential next hexes
+        var mainNext = current.Neighbor((HexDirection)mainDir);
+        var leftNext = current.Neighbor((HexDirection)leftDir);
+        var rightNext = current.Neighbor((HexDirection)rightDir);
+
+        // Calculate distances to target for each potential next hex
+        var mainDist = mainNext.DistanceTo(target);
+        var leftDist = leftNext.DistanceTo(target);
+        var rightDist = rightNext.DistanceTo(target);
+
+        // Choose the hex that gets us closest to the target
+        // If distances are equal, prefer the side hexes to catch corner cases
+        if (leftDist <= mainDist && leftDist <= rightDist)
+        {
+            return leftNext;
+        }
+
+        if (rightDist <= mainDist)
+        {
+            return rightNext;
+        }
+        return mainNext;
+    }
+
+    private int GetMainDirection(int dx, int dy, int dz)
+    {
+        // Convert cube coordinates difference to angle
+        var angle = Math.Atan2(3.0 / 2 * dx, -Math.Sqrt(3) * (dz + dx / 2.0));
+        
+        // Convert angle to direction (0-5)
+        var dir = (int)Math.Round(angle / (Math.PI / 3));
+        
+        // Normalize to 0-5 range
+        return ((dir % 6) + 6) % 6;
     }
     
     public HexCoordinateData ToData() => new(Q, R);

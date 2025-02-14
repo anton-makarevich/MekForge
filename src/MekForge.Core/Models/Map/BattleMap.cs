@@ -263,9 +263,10 @@ public class BattleMap
 
         if (!hexLine.Any())
             return true; // No intervening hexes
+
         var distance = 1;
         var totalDistance = hexLine.Count;
-        foreach (var coordinates in hexLine) // Skip the starting hex
+        foreach (var coordinates in hexLine)
         {
             var hex = GetHex(coordinates);
             if (hex == null)
@@ -285,16 +286,22 @@ public class BattleMap
             distance++;
         }
         
-        // Calculate total intervening factor
-        var totalInterveningFactor = hexLine
-            .Select(coord => GetHex(coord)?.GetTerrains().Sum(t => t.InterveningFactor))
-            .Sum();
+        // Calculate total intervening factor, handling nulls properly
+        var totalInterveningFactor = 0;
+        foreach (var coordinates in hexLine)
+        {
+            var hex = GetHex(coordinates);
+            if (hex != null)
+            {
+                var hexFactor = hex.GetTerrains().Sum(t => t.InterveningFactor);
+                totalInterveningFactor += hexFactor;
 
-        // LOS is blocked if total intervening factor is 3 or more
-        if (totalInterveningFactor >= 3)
-            return false;
+                // Early exit if we already know LOS is blocked
+                if (totalInterveningFactor >= 3)
+                    return false;
+            }
+        }
 
-        
         return true;
     }
     

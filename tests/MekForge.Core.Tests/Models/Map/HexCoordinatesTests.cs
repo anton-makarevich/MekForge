@@ -1254,4 +1254,27 @@ public class HexCoordinatesTests
         hexesInArc.Count.ShouldBe(15); // 1 + 2 + 3 + 4 + 5 hexes
         hexesInArc.ShouldBe(expectedHexes, true);
     }
+    
+    [Fact]
+    public void LineTo_HorizontalLine_ShouldReturnCorrectHexSequence()
+    {
+        // Arrange
+        var start = new HexCoordinates(2, 3);
+        var end = new HexCoordinates(7, 3);
+        var expectedSequence = new[]
+        {
+            new HexCoordinates(2, 3),
+            new HexCoordinates(3, 3),
+            new HexCoordinates(4, 3),
+            new HexCoordinates(5, 3),
+            new HexCoordinates(6, 3),
+            new HexCoordinates(7, 3)
+        };
+
+        // Act
+        var actualSequence = start.LineTo(end);
+
+        // Assert
+        actualSequence.ShouldBe(expectedSequence,true);
+    }
 }

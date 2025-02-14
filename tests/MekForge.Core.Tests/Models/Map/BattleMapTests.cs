@@ -812,4 +812,36 @@ public class BattleMapTests
         // Act & Assert
         map.HasLineOfSight(from, to).ShouldBeTrue();
     }
+
+    [Fact]
+    public void HasLineOfSight_WithHeavyWoodsCluster_ShouldBlockLOS()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new ClearTerrain()));
+        var attacker = new HexCoordinates(2, 3);
+        var target = new HexCoordinates(7, 3);
+        
+        // Set up heavy woods cluster
+        var heavyWoodsCoords = new[]
+        {
+            new HexCoordinates(3, 3),
+            new HexCoordinates(3, 4),
+            new HexCoordinates(4, 3)
+        };
+
+        foreach (var coord in heavyWoodsCoords)
+        {
+            var hex = map.GetHex(coord)!;
+            hex.RemoveTerrain("Clear");
+            hex.AddTerrain(new HeavyWoodsTerrain());
+        }
+
+        // Act
+        var hasLOS = map.HasLineOfSight(attacker, target);
+
+        // Assert
+        // LOS should be blocked because the line passes through multiple heavy woods hexes
+        // Each heavy woods has intervening factor of 2, and total intervening factor >= 3 blocks LOS
+        hasLOS.ShouldBeFalse($"LOS should be blocked by heavy woods cluster between {attacker} and {target}");
+    }
 }
