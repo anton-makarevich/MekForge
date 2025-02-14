@@ -675,4 +675,141 @@ public class BattleMapTests
         path.ShouldNotBeNull();
         path.Count.ShouldBe(0); // No segments needed when already facing the right direction
     }
+
+    [Fact]
+    public void HasLineOfSight_ReturnsFalse_WhenCoordinatesAreInvalid()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5, 5, new ClearTerrain()));
+        var invalidCoord = new HexCoordinates(0, 0);
+        var validCoord = new HexCoordinates(1, 1);
+
+        // Act & Assert
+        map.HasLineOfSight(invalidCoord, validCoord).ShouldBeFalse();
+        map.HasLineOfSight(validCoord, invalidCoord).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void HasLineOfSight_ReturnsTrue_WhenSameHex()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5, 5, new ClearTerrain()));
+        var coord = new HexCoordinates(1, 1);
+
+        // Act & Assert
+        map.HasLineOfSight(coord, coord).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void HasLineOfSight_ReturnsTrue_WhenNoInterveningTerrain()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5, 5, new ClearTerrain()));
+        var from = new HexCoordinates(1, 1);
+        var to = new HexCoordinates(1, 3);
+
+        // Act & Assert
+        map.HasLineOfSight(from, to).ShouldBeTrue();
+    }
+    
+    [Fact]
+    public void HasLineOfSight_ReturnsTrue_WhenAdjacentHexes()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5, 5, new ClearTerrain()));
+        var from = new HexCoordinates(1, 1);
+        var to = new HexCoordinates(1, 2);
+
+        // Act & Assert
+        map.HasLineOfSight(from, to).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void HasLineOfSight_ReturnsTrue_WhenInterveningFactorLessThanThree()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5, 5, new ClearTerrain()));
+        var from = new HexCoordinates(1, 1);
+        var to = new HexCoordinates(1, 4);
+        
+        // Set two light woods (factor 1 each) in between
+        var hex1 = map.GetHex(new HexCoordinates(1, 2))!;
+        hex1.RemoveTerrain("Clear");
+        hex1.AddTerrain(new LightWoodsTerrain());
+        
+        var hex2 = map.GetHex(new HexCoordinates(1, 3))!;
+        hex2.RemoveTerrain("Clear");
+        hex2.AddTerrain(new LightWoodsTerrain());
+
+        // Act & Assert
+        map.HasLineOfSight(from, to).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void HasLineOfSight_ReturnsFalse_WhenInterveningFactorEqualsThree()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5, 5, new ClearTerrain()));
+        var from = new HexCoordinates(1, 1);
+        var to = new HexCoordinates(1, 4);
+        
+        // Set terrain with total factor of 3 (HeavyWoods=2, LightWoods=1)
+        var hex1 = map.GetHex(new HexCoordinates(1, 2))!;
+        hex1.RemoveTerrain("Clear");
+        hex1.AddTerrain(new HeavyWoodsTerrain());
+        
+        var hex2 = map.GetHex(new HexCoordinates(1, 3))!;
+        hex2.RemoveTerrain("Clear");
+        hex2.AddTerrain(new LightWoodsTerrain());
+
+        // Act & Assert
+        map.HasLineOfSight(from, to).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void HasLineOfSight_ReturnsFalse_WhenInterveningFactorGreaterThanThree()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5, 5, new ClearTerrain()));
+        var from = new HexCoordinates(1, 1);
+        var to = new HexCoordinates(1, 4);
+        
+        // Set terrain with total factor of 4 (HeavyWoods=2 each)
+        var hex1 = map.GetHex(new HexCoordinates(1, 2))!;
+        hex1.RemoveTerrain("Clear");
+        hex1.AddTerrain(new HeavyWoodsTerrain());
+        
+        var hex2 = map.GetHex(new HexCoordinates(1, 3))!;
+        hex2.RemoveTerrain("Clear");
+        hex2.AddTerrain(new HeavyWoodsTerrain());
+
+        // Act & Assert
+        map.HasLineOfSight(from, to).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void HasLineOfSight_IgnoresStartAndEndHexTerrain()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5, 5, new ClearTerrain()));
+        var from = new HexCoordinates(1, 1);
+        var to = new HexCoordinates(1, 3);
+        
+        // Set HeavyWoods (factor 2) at start and end - should be ignored
+        var fromHex = map.GetHex(from)!;
+        fromHex.RemoveTerrain("Clear");
+        fromHex.AddTerrain(new HeavyWoodsTerrain());
+        
+        var toHex = map.GetHex(to)!;
+        toHex.RemoveTerrain("Clear");
+        toHex.AddTerrain(new HeavyWoodsTerrain());
+        
+        // Set LightWoods (factor 1) in between - not enough to block LOS
+        var middleHex = map.GetHex(new HexCoordinates(1, 2))!;
+        middleHex.RemoveTerrain("Clear");
+        middleHex.AddTerrain(new LightWoodsTerrain());
+
+        // Act & Assert
+        map.HasLineOfSight(from, to).ShouldBeTrue();
+    }
 }

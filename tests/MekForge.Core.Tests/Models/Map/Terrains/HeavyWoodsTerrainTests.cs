@@ -22,7 +22,7 @@ public class HeavyWoodsTerrainTests
         var terrain = new HeavyWoodsTerrain();
 
         // Act & Assert
-        terrain.TerrainFactor.ShouldBe(3);
+        terrain.MovementCost.ShouldBe(3);
     }
 
     [Fact]
@@ -33,5 +33,15 @@ public class HeavyWoodsTerrainTests
 
         // Act & Assert
         terrain.Id.ShouldBe("HeavyWoods");
+    }
+
+    [Fact]
+    public void InterveningFactor_IsTwo()
+    {
+        // Arrange
+        var terrain = new HeavyWoodsTerrain();
+
+        // Act & Assert
+        terrain.InterveningFactor.ShouldBe(2);
     }
 }

@@ -1,4 +1,5 @@
 using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Models.Map.Terrains;
 
 namespace Sanet.MekForge.Core.Models.Map;
 
@@ -47,7 +48,7 @@ public class Hex
     /// Gets the movement cost for entering this hex (highest terrain factor)
     /// </summary>
     public int MovementCost => _terrains.Count != 0 
-        ? _terrains.Values.Max(t => t.TerrainFactor)
+        ? _terrains.Values.Max(t => t.MovementCost)
         : 1; // Default cost for empty hex
 
     public bool IsHighlighted { get; set; }
