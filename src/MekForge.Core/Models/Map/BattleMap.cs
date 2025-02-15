@@ -256,7 +256,7 @@ public class BattleMap
             return false;
 
         // Get all hexes along the line, resolving any divided line segments
-        var hexLine = ToLineOfHexes(from.LineTo(to));
+        var hexLine = ResolvePathAlongTheLine(from.LineTo(to));
 
         // Remove first and last hex (attacker and target positions)
         hexLine = hexLine.Skip(1).SkipLast(1).ToList();
@@ -305,13 +305,13 @@ public class BattleMap
         return true;
     }
 
-    private List<HexCoordinates> ToLineOfHexes(List<LineOfSightSegment> segments)
+    private List<HexCoordinates> ResolvePathAlongTheLine(List<LineOfSightSegment> segments)
     {
         // Find segments with secondary options
         var dividedSegments = segments.Where(s => s.SecondOption != null).ToList();
         
         // If no divided segments, just return main options
-        if (!dividedSegments.Any())
+        if (dividedSegments.Count == 0)
         {
             return segments.Select(s => s.MainOption).ToList();
         }
