@@ -255,9 +255,9 @@ public class BattleMap
         if (fromHex == null || toHex == null)
             return false;
 
-        // Get all hexes along the line
-        var hexLine = from.LineTo(to).ToList();
-        
+        // Get all hexes along the line, resolving any divided line segments
+        var hexLine = ToLineOfHexes(from.LineTo(to));
+
         // Remove first and last hex (attacker and target positions)
         hexLine = hexLine.Skip(1).SkipLast(1).ToList();
 
@@ -304,7 +304,37 @@ public class BattleMap
 
         return true;
     }
-    
+
+    private List<HexCoordinates> ToLineOfHexes(List<LineOfSightSegment> segments)
+    {
+        // Find segments with secondary options
+        var dividedSegments = segments.Where(s => s.SecondOption != null).ToList();
+        
+        // If no divided segments, just return main options
+        if (!dividedSegments.Any())
+        {
+            return segments.Select(s => s.MainOption).ToList();
+        }
+
+        // Create two possible paths using just the divided segments
+        var mainPath = segments.Select(s => s.MainOption).ToList();
+        var secondaryPath = segments.Select(s => 
+            dividedSegments.Contains(s) ? s.SecondOption!.Value : s.MainOption).ToList();
+
+        // Calculate total intervening factor for both paths
+        var mainPathFactor = mainPath
+            .Skip(1)
+            .SkipLast(1)
+            .Sum(hex => GetHex(hex)?.GetTerrains().Sum(t => t.InterveningFactor) ?? 0);
+
+        var secondaryPathFactor = secondaryPath
+            .Skip(1)
+            .SkipLast(1)
+            .Sum(hex => GetHex(hex)?.GetTerrains().Sum(t => t.InterveningFactor) ?? 0);
+
+        // Return the path that gives the defender the most advantage (higher intervening factor)
+        return secondaryPathFactor > mainPathFactor ? secondaryPath : mainPath;
+    }
 
     /// <summary>
     /// Interpolate height between two points for LOS calculation
