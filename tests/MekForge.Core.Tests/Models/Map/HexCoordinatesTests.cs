@@ -1256,6 +1256,40 @@ public class HexCoordinatesTests
     }
 
     [Fact]
+    public void LineTo_HorizontalLine_WithDividedSegments()
+    {
+        // Arrange
+        var start = new HexCoordinates(2, 2);
+        var end = new HexCoordinates(6, 2);
+        
+        // Act
+        var segments = start.LineTo(end);
+
+        // Assert
+        segments.Count.ShouldBe(5);
+        
+        // {(2,2)}
+        segments[0].MainOption.ShouldBe(new HexCoordinates(2, 2));
+        segments[0].SecondOption.ShouldBeNull();
+        
+        // {(3,2)(3,3)}
+        segments[1].MainOption.ShouldBe(new HexCoordinates(3, 2));
+        segments[1].SecondOption.ShouldBe(new HexCoordinates(3, 3));
+        
+        // {(4,2)}
+        segments[2].MainOption.ShouldBe(new HexCoordinates(4, 2));
+        segments[2].SecondOption.ShouldBeNull();
+        
+        // {(5,2)(5,3)}
+        segments[3].MainOption.ShouldBe(new HexCoordinates(5, 2));
+        segments[3].SecondOption.ShouldBe(new HexCoordinates(5, 3));
+        
+        // {(6,2)}
+        segments[4].MainOption.ShouldBe(new HexCoordinates(6, 2));
+        segments[4].SecondOption.ShouldBeNull();
+    }
+
+    [Fact]
     public void LineTo_ShouldReturnCorrectHexSequence()
     {
         // Arrange
