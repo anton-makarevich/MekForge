@@ -291,15 +291,13 @@ public class BattleMap
         foreach (var coordinates in hexLine)
         {
             var hex = GetHex(coordinates);
-            if (hex != null)
-            {
-                var hexFactor = hex.GetTerrains().Sum(t => t.InterveningFactor);
-                totalInterveningFactor += hexFactor;
+            if (hex == null) return false; //Hex doesn't exist on the map
+            var hexFactor = hex.GetTerrains().Sum(t => t.InterveningFactor);
+            totalInterveningFactor += hexFactor;
 
-                // Early exit if we already know LOS is blocked
-                if (totalInterveningFactor >= 3)
-                    return false;
-            }
+            // Early exit if we already know LOS is blocked
+            if (totalInterveningFactor >= 3)
+                return false;
         }
 
         return true;
