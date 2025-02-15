@@ -206,14 +206,14 @@ public class HexCoordinatesTests
     }
     
     [Fact]
-    public void GetHexesAlongLine_ShouldReturnHexes_WhenClearPath()
+    public void LineTo_ShouldReturnHexes_WhenClearPath()
     {
         // Arrange
         var start = new HexCoordinates(1, 1);
         var end = new HexCoordinates(3, 3);
 
         // Act
-        var hexes = start.LineTo(end);
+        var hexes = start.LineTo(end).Select(s => s.MainOption).ToList();
 
         // Assert
         hexes.ShouldNotBeNull();
@@ -222,13 +222,13 @@ public class HexCoordinatesTests
     }
 
     [Fact]
-    public void GetHexesAlongLine_ShouldHandleSameHex()
+    public void LineTo_ShouldHandleSameHex()
     {
         // Arrange
         var coordinates = new HexCoordinates(2, 2);
         
         // Act
-        var hexes = coordinates.LineTo(coordinates);
+        var hexes = coordinates.LineTo(coordinates).Select(s => s.MainOption).ToList();
 
         // Assert
         hexes.ShouldNotBeNull();
@@ -1253,5 +1253,85 @@ public class HexCoordinatesTests
         // Assert
         hexesInArc.Count.ShouldBe(15); // 1 + 2 + 3 + 4 + 5 hexes
         hexesInArc.ShouldBe(expectedHexes, true);
+    }
+
+    [Fact]
+    public void LineTo_HorizontalLine_WithDividedSegments()
+    {
+        // Arrange
+        var start = new HexCoordinates(2, 2);
+        var end = new HexCoordinates(6, 2);
+        
+        // Act
+        var segments = start.LineTo(end);
+
+        // Assert
+        segments.Count.ShouldBe(5);
+        
+        // {(2,2)}
+        segments[0].MainOption.ShouldBe(new HexCoordinates(2, 2));
+        segments[0].SecondOption.ShouldBeNull();
+        
+        // {(3,2)(3,3)}
+        segments[1].MainOption.ShouldBe(new HexCoordinates(3, 2));
+        segments[1].SecondOption.ShouldBe(new HexCoordinates(3, 3));
+        
+        // {(4,2)}
+        segments[2].MainOption.ShouldBe(new HexCoordinates(4, 2));
+        segments[2].SecondOption.ShouldBeNull();
+        
+        // {(5,2)(5,3)}
+        segments[3].MainOption.ShouldBe(new HexCoordinates(5, 2));
+        segments[3].SecondOption.ShouldBe(new HexCoordinates(5, 3));
+        
+        // {(6,2)}
+        segments[4].MainOption.ShouldBe(new HexCoordinates(6, 2));
+        segments[4].SecondOption.ShouldBeNull();
+    }
+
+    [Fact]
+    public void LineTo_ShouldReturnCorrectHexSequence()
+    {
+        // Arrange
+        var start = new HexCoordinates(2, 3);
+        var end = new HexCoordinates(7, 3);
+        var expectedSequence = new[]
+        {
+            new HexCoordinates(2, 3),
+            new HexCoordinates(3, 3),
+            new HexCoordinates(4, 3),
+            new HexCoordinates(5, 3),
+            new HexCoordinates(6, 3),
+            new HexCoordinates(7, 3)
+        };
+
+        // Act
+        var actualSequence = start.LineTo(end).Select(s => s.MainOption).ToList();
+
+        // Assert
+        actualSequence.ShouldBe(expectedSequence,true);
+    }
+
+    [Fact]
+    public void LineTo_ShouldReturnCorrectHexSequence2()
+    {
+        // Arrange
+        var start = new HexCoordinates(6, 7);
+        var end = new HexCoordinates(10, 6);
+        var expectedSequence = new[]
+        {
+            new HexCoordinates(6, 7),
+            new HexCoordinates(7, 7),
+            new HexCoordinates(8, 7),
+            new HexCoordinates(8, 6),
+            new HexCoordinates(9, 7),
+            new HexCoordinates(10,6)
+        };
+
+        // Act
+        var actualSequence = start.LineTo(end).Select(s => s.MainOption).ToList();
+
+        // Assert
+        actualSequence.ShouldBe(expectedSequence,true);
     }
 }

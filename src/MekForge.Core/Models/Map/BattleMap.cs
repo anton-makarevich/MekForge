@@ -255,17 +255,18 @@ public class BattleMap
         if (fromHex == null || toHex == null)
             return false;
 
-        // Get all hexes along the line
-        var hexLine = from.LineTo(to).ToList();
-        
+        // Get all hexes along the line, resolving any divided line segments
+        var hexLine = ResolvePathAlongTheLine(from.LineTo(to));
+
         // Remove first and last hex (attacker and target positions)
         hexLine = hexLine.Skip(1).SkipLast(1).ToList();
 
         if (!hexLine.Any())
             return true; // No intervening hexes
+
         var distance = 1;
         var totalDistance = hexLine.Count;
-        foreach (var coordinates in hexLine) // Skip the starting hex
+        foreach (var coordinates in hexLine)
         {
             var hex = GetHex(coordinates);
             if (hex == null)
@@ -285,19 +286,50 @@ public class BattleMap
             distance++;
         }
         
-        // Calculate total intervening factor
-        var totalInterveningFactor = hexLine
-            .Select(coord => GetHex(coord)?.GetTerrains().Sum(t => t.InterveningFactor))
-            .Sum();
+        // Calculate total intervening factor, handling nulls properly
+        var totalInterveningFactor = 0;
+        foreach (var coordinates in hexLine)
+        {
+            var hex = GetHex(coordinates);
+            if (hex == null) return false; //Hex doesn't exist on the map
+            var hexFactor = hex.GetTerrains().Sum(t => t.InterveningFactor);
+            totalInterveningFactor += hexFactor;
 
-        // LOS is blocked if total intervening factor is 3 or more
-        if (totalInterveningFactor >= 3)
-            return false;
+            // Early exit if we already know LOS is blocked
+            if (totalInterveningFactor >= 3)
+                return false;
+        }
 
-        
         return true;
     }
-    
+
+    private List<HexCoordinates> ResolvePathAlongTheLine(List<LineOfSightSegment> segments)
+    {
+        // Find segments with secondary options
+        var dividedSegments = segments.Where(s => s.SecondOption != null).ToList();
+        
+        // If no divided segments, just return main options
+        if (dividedSegments.Count == 0)
+        {
+            return segments.Select(s => s.MainOption).ToList();
+        }
+
+        // Calculate intervening factors only for the divided segments
+        var mainOptionsFactor = dividedSegments
+            .Sum(s => GetHex(s.MainOption)?.GetTerrains().Sum(t => t.InterveningFactor) ?? 0);
+
+        var secondaryOptionsFactor = dividedSegments
+            .Sum(s => GetHex(s.SecondOption!.Value)?.GetTerrains().Sum(t => t.InterveningFactor) ?? 0);
+
+        // Choose whether to use secondary options based on which gives better defense
+        var useSecondaryOptions = secondaryOptionsFactor > mainOptionsFactor;
+
+        // Build the final path using the chosen option for divided segments
+        return segments.Select(s => 
+            dividedSegments.Contains(s) && useSecondaryOptions 
+                ? s.SecondOption!.Value 
+                : s.MainOption).ToList();
+    }
 
     /// <summary>
     /// Interpolate height between two points for LOS calculation
