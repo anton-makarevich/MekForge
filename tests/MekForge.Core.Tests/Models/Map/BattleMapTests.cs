@@ -837,11 +837,45 @@ public class BattleMapTests
         }
 
         // Act
-        var hasLOS = map.HasLineOfSight(attacker, target);
+        var hasLos = map.HasLineOfSight(attacker, target);
 
         // Assert
         // LOS should be blocked because the line passes through multiple heavy woods hexes
         // Each heavy woods has intervening factor of 2, and total intervening factor >= 3 blocks LOS
-        hasLOS.ShouldBeFalse($"LOS should be blocked by heavy woods cluster between {attacker} and {target}");
+        hasLos.ShouldBeFalse($"LOS should be blocked by heavy woods cluster between {attacker} and {target}");
+    }
+
+    [Fact]
+    public void HasLineOfSight_DividedLine_ShouldPreferDefenderOption()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new ClearTerrain()));
+        var start = new HexCoordinates(2, 2);
+        var end = new HexCoordinates(6, 2);
+        
+        // Add heavy forest to (3,2) and (4,2)
+        map.GetHex(new HexCoordinates(3, 2))!.AddTerrain(new HeavyWoodsTerrain());
+        map.GetHex(new HexCoordinates(4, 2))!.AddTerrain(new HeavyWoodsTerrain());
+
+        // Act & Assert
+        map.HasLineOfSight(start, end).ShouldBeFalse(
+            "LOS should be blocked because the defender's path through (3,2) with heavy forest is preferred");
+    }
+    
+    [Fact]
+    public void HasLineOfSight_DividedLine_ShouldPreferDefenderSecondaryOption()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new ClearTerrain()));
+        var start = new HexCoordinates(2, 2);
+        var end = new HexCoordinates(6, 2);
+        
+        // Add heavy forest to (3,2) and (4,2)
+        map.GetHex(new HexCoordinates(3, 3))!.AddTerrain(new HeavyWoodsTerrain());
+        map.GetHex(new HexCoordinates(4, 2))!.AddTerrain(new HeavyWoodsTerrain());
+
+        // Act & Assert
+        map.HasLineOfSight(start, end).ShouldBeFalse(
+            "LOS should be blocked because the defender's path through (3,2) with heavy forest is preferred");
     }
 }
