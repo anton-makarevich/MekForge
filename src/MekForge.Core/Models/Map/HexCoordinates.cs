@@ -161,11 +161,10 @@ public readonly record struct HexCoordinates
 
         // Get the direction vector in cube coordinates
         var dx = target.X - X;
-        var dy = target.Y - Y;
         var dz = target.Z - Z;
 
         // Get the primary direction and its two adjacent directions
-        var mainDir = GetMainDirection(dx, dy, dz);
+        var mainDir = GetMainDirection(dx, dz);
         var leftDir = (mainDir + 5) % 6;  // Counter-clockwise
         var rightDir = (mainDir + 1) % 6;  // Clockwise
 
@@ -179,7 +178,7 @@ public readonly record struct HexCoordinates
                 if (areEqual)
                 {
                     // When options are equal, create one segment with both hexes
-                    result.Add(new LineOfSightSegment(next, additional, true));
+                    result.Add(new LineOfSightSegment(next, additional));
                 }
                 else
                 {
@@ -270,7 +269,7 @@ public readonly record struct HexCoordinates
         return Math.Sqrt((dx * dx + dy * dy + dz * dz) / 2.0);
     }
 
-    private int GetMainDirection(int dx, int dy, int dz)
+    private int GetMainDirection(int dx, int dz)
     {
         // Convert cube coordinates difference to angle
         var angle = Math.Atan2(3.0 / 2 * dx, -Math.Sqrt(3) * (dz + dx / 2.0));
@@ -359,11 +358,11 @@ public readonly record struct HexCoordinates
             // Forward arc: -60° to +60° inclusive
             FiringArc.Forward => degrees <= 60 + epsilon,
             // Left arc: -60° to -120° exclusive of forward boundary but inclusive of rear boundary
-            FiringArc.Left => degrees > 60 + epsilon && degrees <= 120 + epsilon && cross > 0,
+            FiringArc.Left => degrees is > 60 + epsilon and <= 120 + epsilon && cross > 0,
             // Right arc: +60° to +120° exclusive of forward boundary but inclusive of rear boundary
-            FiringArc.Right => degrees > 60 + epsilon && degrees <= 120 + epsilon && cross < 0,
+            FiringArc.Right => degrees is > 60 + epsilon and <= 120 + epsilon && cross < 0,
             // Rear arc: +120° to +180° exclusive 
-            FiringArc.Rear => degrees > 120 + epsilon && degrees <= 180 + epsilon,
+            FiringArc.Rear => degrees is > 120 + epsilon and <= 180 + epsilon,
             _ => throw new ArgumentException("Invalid arc", nameof(arc))
         };
     }
