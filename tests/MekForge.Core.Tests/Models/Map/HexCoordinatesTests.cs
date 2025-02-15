@@ -206,14 +206,14 @@ public class HexCoordinatesTests
     }
     
     [Fact]
-    public void GetHexesAlongLine_ShouldReturnHexes_WhenClearPath()
+    public void LineTo_ShouldReturnHexes_WhenClearPath()
     {
         // Arrange
         var start = new HexCoordinates(1, 1);
         var end = new HexCoordinates(3, 3);
 
         // Act
-        var hexes = start.LineTo(end);
+        var hexes = start.LineTo(end).Select(s => s.MainOption).ToList();
 
         // Assert
         hexes.ShouldNotBeNull();
@@ -222,13 +222,13 @@ public class HexCoordinatesTests
     }
 
     [Fact]
-    public void GetHexesAlongLine_ShouldHandleSameHex()
+    public void LineTo_ShouldHandleSameHex()
     {
         // Arrange
         var coordinates = new HexCoordinates(2, 2);
         
         // Act
-        var hexes = coordinates.LineTo(coordinates);
+        var hexes = coordinates.LineTo(coordinates).Select(s => s.MainOption).ToList();
 
         // Assert
         hexes.ShouldNotBeNull();
@@ -1254,9 +1254,9 @@ public class HexCoordinatesTests
         hexesInArc.Count.ShouldBe(15); // 1 + 2 + 3 + 4 + 5 hexes
         hexesInArc.ShouldBe(expectedHexes, true);
     }
-    
+
     [Fact]
-    public void LineTo_HorizontalLine_ShouldReturnCorrectHexSequence()
+    public void LineTo_ShouldReturnCorrectHexSequence()
     {
         // Arrange
         var start = new HexCoordinates(2, 3);
@@ -1272,14 +1272,14 @@ public class HexCoordinatesTests
         };
 
         // Act
-        var actualSequence = start.LineTo(end);
+        var actualSequence = start.LineTo(end).Select(s => s.MainOption).ToList();
 
         // Assert
         actualSequence.ShouldBe(expectedSequence,true);
     }
-    
+
     [Fact]
-    public void LineTo_HorizontalLine_ShouldReturnCorrectHexSequence2()
+    public void LineTo_ShouldReturnCorrectHexSequence2()
     {
         // Arrange
         var start = new HexCoordinates(6, 7);
@@ -1295,7 +1295,7 @@ public class HexCoordinatesTests
         };
 
         // Act
-        var actualSequence = start.LineTo(end);
+        var actualSequence = start.LineTo(end).Select(s => s.MainOption).ToList();
 
         // Assert
         actualSequence.ShouldBe(expectedSequence,true);
