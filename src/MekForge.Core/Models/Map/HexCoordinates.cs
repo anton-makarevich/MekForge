@@ -144,19 +144,21 @@ public readonly record struct HexCoordinates
     
     /// <summary>
     /// Gets coordinates of hexes that form a line between two points.
-    /// Uses cube coordinates to handle odd/even columns correctly.
+    /// Returns a list of LineOfSightSegments, where each segment may contain one or two hexes.
+    /// When a segment contains two hexes with AreOptionsEqual=true, they represent equally valid
+    /// options for the line of sight, and the defender should choose which one to use.
     /// </summary>
-    public List<HexCoordinates> LineTo(HexCoordinates target)
+    public List<LineOfSightSegment> LineTo(HexCoordinates target)
     {
         if (Equals(target))
         {
-            return [target];
+            return [new LineOfSightSegment(target)];
         }
 
-        var result = new List<HexCoordinates>();
+        var result = new List<LineOfSightSegment>();
         var current = this;
-        result.Add(current);
-        
+        result.Add(new LineOfSightSegment(current));
+
         // Get the direction vector in cube coordinates
         var dx = target.X - X;
         var dy = target.Y - Y;
@@ -166,31 +168,38 @@ public readonly record struct HexCoordinates
         var mainDir = GetMainDirection(dx, dy, dz);
         var leftDir = (mainDir + 5) % 6;  // Counter-clockwise
         var rightDir = (mainDir + 1) % 6;  // Clockwise
-            
+
         while (!current.Equals(target))
         {
-
             // Check the three possible next hexes (left, center, right)
-            var (next, additional) = GetNextHexInLine(current, target, mainDir, leftDir, rightDir);
+            var (next, additional, areEqual) = GetNextHexInLine(current, target, mainDir, leftDir, rightDir);
 
-            // Add both hexes if we have an additional one
-            if (additional != null && !result.Contains(additional.Value))
+            if (additional != null)
             {
-                result.Add(additional.Value);
+                if (areEqual)
+                {
+                    // When options are equal, create one segment with both hexes
+                    result.Add(new LineOfSightSegment(next, additional, true));
+                }
+                else
+                {
+                    // When options are not equal, create two separate segments
+                    result.Add(new LineOfSightSegment(next));
+                    result.Add(new LineOfSightSegment(additional.Value));
+                }
+            }
+            else
+            {
+                result.Add(new LineOfSightSegment(next));
             }
 
-            if (!result.Contains(next))
-            {
-                result.Add(next);
-            }
-
-            current = additional??next;
+            current = next;
         }
 
         return result;
     }
 
-    private (HexCoordinates next, HexCoordinates? additional) GetNextHexInLine(HexCoordinates current, HexCoordinates target, int mainDir, int leftDir, int rightDir)
+    private (HexCoordinates next, HexCoordinates? additional, bool areEqual) GetNextHexInLine(HexCoordinates current, HexCoordinates target, int mainDir, int leftDir, int rightDir)
     {
         // Calculate vectors to potential next hexes
         var mainNext = current.Neighbor((HexDirection)mainDir);
@@ -211,37 +220,44 @@ public readonly record struct HexCoordinates
         var leftTotal = leftToNext + leftToTarget;
         var rightTotal = rightToNext + rightToTarget;
 
-        // If total distances are equal (within a small epsilon), return both hexes
         const double epsilon = 0.0001;
         
-        // First check if left path is best or equal
+        // First check if left path's total distance is equal or better
         if (leftTotal <= mainTotal + epsilon && leftTotal <= rightTotal + epsilon)
         {
-            // If left total equals main total, return both
+            // If left total equals main total, we have two options
             if (Math.Abs(leftTotal - mainTotal) < epsilon)
             {
-                return (leftNext, mainNext);
+                // If distances to next are equal, it's a divided line
+                bool areEqual = Math.Abs(leftToNext - mainToNext) < epsilon;
+                return (leftNext, mainNext, areEqual);
             }
-            // If left total equals right total, return both
+            
+            // If left total equals right total, we have two options
             if (Math.Abs(leftTotal - rightTotal) < epsilon)
             {
-                return (leftNext, rightNext);
+                // If distances to next are equal, it's a divided line
+                bool areEqual = Math.Abs(leftToNext - rightToNext) < epsilon;
+                return (leftNext, rightNext, areEqual);
             }
-            return (leftNext, null);
+            
+            return (leftNext, null, false);
         }
 
-        // Then check if right path is best or equal to main
+        // Then check if right path's total distance equals main
         if (rightTotal <= mainTotal + epsilon)
         {
-            // If right total equals main total, return both
+            // If right total equals main total, we have two options
             if (Math.Abs(rightTotal - mainTotal) < epsilon)
             {
-                return (rightNext, mainNext);
+                // If distances to next are equal, it's a divided line
+                bool areEqual = Math.Abs(rightToNext - mainToNext) < epsilon;
+                return (rightNext, mainNext, areEqual);
             }
-            return (rightNext, null);
+            return (rightNext, null, false);
         }
 
-        return (mainNext, null);
+        return (mainNext, null, false);
     }
 
     private double GetActualDistance(HexCoordinates from, HexCoordinates to)
