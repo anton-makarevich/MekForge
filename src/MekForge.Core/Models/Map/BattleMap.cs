@@ -316,24 +316,21 @@ public class BattleMap
             return segments.Select(s => s.MainOption).ToList();
         }
 
-        // Create two possible paths using just the divided segments
-        var mainPath = segments.Select(s => s.MainOption).ToList();
-        var secondaryPath = segments.Select(s => 
-            dividedSegments.Contains(s) ? s.SecondOption!.Value : s.MainOption).ToList();
+        // Calculate intervening factors only for the divided segments
+        var mainOptionsFactor = dividedSegments
+            .Sum(s => GetHex(s.MainOption)?.GetTerrains().Sum(t => t.InterveningFactor) ?? 0);
 
-        // Calculate total intervening factor for both paths
-        var mainPathFactor = mainPath
-            .Skip(1)
-            .SkipLast(1)
-            .Sum(hex => GetHex(hex)?.GetTerrains().Sum(t => t.InterveningFactor) ?? 0);
+        var secondaryOptionsFactor = dividedSegments
+            .Sum(s => GetHex(s.SecondOption!.Value)?.GetTerrains().Sum(t => t.InterveningFactor) ?? 0);
 
-        var secondaryPathFactor = secondaryPath
-            .Skip(1)
-            .SkipLast(1)
-            .Sum(hex => GetHex(hex)?.GetTerrains().Sum(t => t.InterveningFactor) ?? 0);
+        // Choose whether to use secondary options based on which gives better defense
+        var useSecondaryOptions = secondaryOptionsFactor > mainOptionsFactor;
 
-        // Return the path that gives the defender the most advantage (higher intervening factor)
-        return secondaryPathFactor > mainPathFactor ? secondaryPath : mainPath;
+        // Build the final path using the chosen option for divided segments
+        return segments.Select(s => 
+            dividedSegments.Contains(s) && useSecondaryOptions 
+                ? s.SecondOption!.Value 
+                : s.MainOption).ToList();
     }
 
     /// <summary>
