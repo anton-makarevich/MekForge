@@ -183,13 +183,19 @@ public readonly record struct HexCoordinates
                 else
                 {
                     // When options are not equal, create two separate segments
-                    result.Add(new LineOfSightSegment(next));
-                    result.Add(new LineOfSightSegment(additional.Value));
+                    var nextSegment = new LineOfSightSegment(next);
+                    var additionalSegment = new LineOfSightSegment(additional.Value);
+                    if (!result.Contains(nextSegment))
+                        result.Add(new LineOfSightSegment(next));
+                    if (!result.Contains(additionalSegment))
+                        result.Add(new LineOfSightSegment(additional.Value));
                 }
             }
             else
             {
-                result.Add(new LineOfSightSegment(next));
+                var nextSegment = new LineOfSightSegment(next);
+                if (!result.Contains(nextSegment))
+                    result.Add(new LineOfSightSegment(next));
             }
 
             current = next;
@@ -219,7 +225,7 @@ public readonly record struct HexCoordinates
         var leftTotal = leftToNext + leftToTarget;
         var rightTotal = rightToNext + rightToTarget;
 
-        const double epsilon = 0.1;  //Adjusting epsilon we can control how close the line
+        const double epsilon = 0.05; //Adjusting epsilon we can control how close the line
                                      //should be to the "corners" of the hexes    
         
         // First check if left path's total distance is equal or better

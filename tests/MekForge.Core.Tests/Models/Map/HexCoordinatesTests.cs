@@ -1349,4 +1349,18 @@ public class HexCoordinatesTests
         // Assert
         actualSequence.ShouldContain(new HexCoordinates(6,11));
     }
+    
+    [Fact]
+    public void LineTo_ShouldReturnCorrectHexSequence4()
+    {
+        // Arrange
+        var start = new HexCoordinates(2, 8);
+        var end = new HexCoordinates(5, 3);
+
+        // Act
+        var actualSequence = start.LineTo(end).Select(s => s.MainOption).ToList();
+
+        // Assert
+        actualSequence.ShouldContain(new HexCoordinates(2,7));
+    }
 }
