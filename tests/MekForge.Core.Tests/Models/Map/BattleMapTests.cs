@@ -866,7 +866,8 @@ public class BattleMapTests
     public void HasLineOfSight_DividedLine_ShouldPreferDefenderSecondaryOption()
     {
         // Arrange
-        var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new ClearTerrain()));
+        var map = BattleMap.GenerateMap(10, 10, 
+            new SingleTerrainGenerator(10, 10, new ClearTerrain()));
         var start = new HexCoordinates(2, 2);
         var end = new HexCoordinates(6, 2);
         
@@ -877,5 +878,57 @@ public class BattleMapTests
         // Act & Assert
         map.HasLineOfSight(start, end).ShouldBeFalse(
             "LOS should be blocked because the defender's path through (3,2) with heavy forest is preferred");
+    }
+
+    [Fact]
+    public void HasLineOfSight_CacheCleared_ShouldRecalculatePath()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(10, 10, 
+            new SingleTerrainGenerator(10, 10, new ClearTerrain()));
+        var from = new HexCoordinates(2, 2);
+        var to = new HexCoordinates(6, 2);
+        
+        // Initial LOS with no obstacles
+        var initialLos = map.HasLineOfSight(from, to);
+        initialLos.ShouldBeTrue("Should have LOS with no obstacles");
+
+        // Add heavy forest to block LOS
+        map.GetHex(new HexCoordinates(3, 3))!.AddTerrain(new HeavyWoodsTerrain());
+        map.GetHex(new HexCoordinates(4, 2))!.AddTerrain(new HeavyWoodsTerrain());
+
+        // Clear cache to force recalculation
+        map.ClearLosCache();
+
+        // Act
+        var losAfterChange = map.HasLineOfSight(from, to);
+
+        // Assert
+        losAfterChange.ShouldBeFalse("LOS should be blocked after adding forest and clearing cache");
+    }
+
+    [Fact]
+    public void HasLineOfSight_CacheNotCleared_ShouldUseCachedPath()
+    {
+        // Arrange
+        var map = BattleMap.GenerateMap(10, 10, 
+            new SingleTerrainGenerator(10, 10, new ClearTerrain()));
+        var from = new HexCoordinates(2, 2);
+        var to = new HexCoordinates(6, 2);
+        
+        // Initial LOS with no obstacles
+        var initialLos = map.HasLineOfSight(from, to);
+        initialLos.ShouldBeTrue("Should have LOS with no obstacles");
+
+        // Add heavy forest but don't clear cache
+        map.GetHex(new HexCoordinates(3, 3))!.AddTerrain(new HeavyWoodsTerrain());
+        map.GetHex(new HexCoordinates(4, 2))!.AddTerrain(new HeavyWoodsTerrain());
+
+        // Act
+        var losWithCache = map.HasLineOfSight(from, to);
+
+        // Assert
+        losWithCache.ShouldBeTrue("Should still have LOS when using cached path");
+        losWithCache.ShouldBe(initialLos, "LOS result should not change without cache clear");
     }
 }
