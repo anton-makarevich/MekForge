@@ -11,6 +11,7 @@ namespace Sanet.MekForge.Core.Models.Map;
 public class BattleMap
 {
     private readonly Dictionary<HexCoordinates, Hex> _hexes = new();
+    private readonly LineOfSightCache _losCache = new();
 
     public int Width { get; }
     public int Height { get; }
@@ -64,7 +65,7 @@ public class BattleMap
 
         var frontier = new PriorityQueue<(HexPosition pos, List<HexPosition> path, int cost), int>();
         var visited = new Dictionary<(HexCoordinates coords, HexDirection facing), int>();
-        var prohibited = prohibitedHexes?.ToHashSet() ?? new HashSet<HexCoordinates>();
+        var prohibited = prohibitedHexes?.ToHashSet() ?? [];
         
         frontier.Enqueue((start, [start], 0), 0);
         visited[(start.Coordinates, start.Facing)] = 0;
@@ -256,7 +257,7 @@ public class BattleMap
             return false;
 
         // Get all hexes along the line, resolving any divided line segments
-        var hexLine = ResolvePathAlongTheLine(from.LineTo(to));
+        var hexLine = ResolveHexesAlongTheLine(from, to);
 
         // Remove first and last hex (attacker and target positions)
         hexLine = hexLine.Skip(1).SkipLast(1).ToList();
@@ -303,18 +304,27 @@ public class BattleMap
         return true;
     }
 
-    private List<HexCoordinates> ResolvePathAlongTheLine(List<LineOfSightSegment> segments)
+    private List<HexCoordinates> ResolveHexesAlongTheLine(HexCoordinates from, HexCoordinates to)
     {
-        // Find segments with secondary options
-        var dividedSegments = segments.Where(s => s.SecondOption != null).ToList();
+        // Check cache first
+        if (_losCache.TryGetPath(from, to, out var cachedPath))
+        {
+            return cachedPath!;
+        }
+
+        // Get all possible segments in the line of sight
+        var segments = from.LineTo(to);
         
         // If no divided segments, just return main options
-        if (dividedSegments.Count == 0)
+        if (!segments.Any(s => s.SecondOption != null))
         {
-            return segments.Select(s => s.MainOption).ToList();
+            var path = segments.Select(s => s.MainOption).ToList();
+            _losCache.AddPath(from, to, path);
+            return path;
         }
 
         // Calculate intervening factors only for the divided segments
+        var dividedSegments = segments.Where(s => s.SecondOption != null).ToList();
         var mainOptionsFactor = dividedSegments
             .Sum(s => GetHex(s.MainOption)?.GetTerrains().Sum(t => t.InterveningFactor) ?? 0);
 
@@ -325,10 +335,15 @@ public class BattleMap
         var useSecondaryOptions = secondaryOptionsFactor > mainOptionsFactor;
 
         // Build the final path using the chosen option for divided segments
-        return segments.Select(s => 
+        var resolvedPath = segments.Select(s => 
             dividedSegments.Contains(s) && useSecondaryOptions 
                 ? s.SecondOption!.Value 
                 : s.MainOption).ToList();
+
+        // Cache the resolved path
+        _losCache.AddPath(from, to, resolvedPath);
+
+        return resolvedPath;
     }
 
     /// <summary>
@@ -434,6 +449,14 @@ public class BattleMap
         }
 
         return path;
+    }
+
+    /// <summary>
+    /// Clears the line of sight cache. Should be called at the end of each turn.
+    /// </summary>
+    public void ClearLosCache()
+    {
+        _losCache.Clear();
     }
 
     public bool IsOnMap(HexCoordinates coordinates)
