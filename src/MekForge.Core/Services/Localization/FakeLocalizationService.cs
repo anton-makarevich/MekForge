@@ -15,7 +15,7 @@ public class FakeLocalizationService: ILocalizationService
             "Command_ChangePhase" => "Game changed phase to {0}.",
             "Command_ChangeActivePlayer" => "{0}'s turn.",
             "Command_ChangeActivePlayerUnits" => "{0}'s turn to play {1} units.",
-            "Command_WeaponConfiguration_TorsoRotation" => "{0}'s {1} rotates torso to {2}",
+            "Command_WeaponConfiguration_TorsoRotation" => "{0}'s {1} rotates torso to face {2}",
             "Command_WeaponConfiguration_ArmsFlip" => "{0}'s {1} flips arms {2}",
             "Direction_Forward" => "forward",
             "Direction_Backward" => "backward",
