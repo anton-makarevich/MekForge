@@ -1,4 +1,3 @@
-using System;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Services.Localization;
 
@@ -15,7 +14,7 @@ public record WeaponConfigurationCommand : ClientCommand
         if (player == null) return string.Empty;
 
         var unit = player.Units.FirstOrDefault(u => u.Id == UnitId);
-        if (unit == null) return string.Empty;
+        if (unit == null || !unit.IsDeployed) return string.Empty;
 
         return Configuration.Type switch
         {
@@ -23,7 +22,7 @@ public record WeaponConfigurationCommand : ClientCommand
                 localizationService.GetString("Command_WeaponConfiguration_TorsoRotation"),
                 player.Name,
                 unit.Name,
-                (HexDirection)Configuration.Value),
+                unit.Position!.Value.Coordinates.Neighbor((HexDirection)Configuration.Value)),
             WeaponConfigurationType.ArmsFlip => string.Format(
                 localizationService.GetString("Command_WeaponConfiguration_ArmsFlip"),
                 player.Name,
