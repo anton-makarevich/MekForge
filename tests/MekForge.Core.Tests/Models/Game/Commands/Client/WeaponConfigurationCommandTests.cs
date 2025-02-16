@@ -28,7 +28,7 @@ public class WeaponConfigurationCommandTests : GameCommandTestBase<WeaponConfigu
         _player1.AddUnit(_unit);
 
         _localizationService.GetString("Command_WeaponConfiguration_TorsoRotation")
-            .Returns("{0}'s {1} rotates torso to {2}");
+            .Returns("{0}'s {1} rotates torso to face {2}");
         _localizationService.GetString("Command_WeaponConfiguration_ArmsFlip")
             .Returns("{0}'s {1} flips arms {2}");
         _localizationService.GetString("Direction_Forward")
@@ -88,7 +88,7 @@ public class WeaponConfigurationCommandTests : GameCommandTestBase<WeaponConfigu
     }
 
     [Fact]
-    public void Format_ReturnsTorsoRotationMessage_WhenConfigurationIsTorsoRotation()
+    public void Format_ReturnsEmpty_WhenUnitNotDeployed()
     {
         // Arrange
         var command = CreateCommand();
@@ -97,8 +97,23 @@ public class WeaponConfigurationCommandTests : GameCommandTestBase<WeaponConfigu
         var result = command.Format(_localizationService, _game);
 
         // Assert
+        result.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void Format_ReturnsTorsoRotationMessage_WhenConfigurationIsTorsoRotation()
+    {
+        // Arrange
+        var command = CreateCommand();
+        _unit.Deploy(new HexPosition(new HexCoordinates(1,1), HexDirection.Top));
+        var expectedHex = _unit.Position!.Value.Coordinates.Neighbor(HexDirection.Bottom);
+
+        // Act
+        var result = command.Format(_localizationService, _game);
+
+        // Assert
         _localizationService.Received(1).GetString("Command_WeaponConfiguration_TorsoRotation");
-        result.ShouldBe($"{_player1.Name}'s {_unit.Name} rotates torso to {HexDirection.Bottom}");
+        result.ShouldBe($"{_player1.Name}'s {_unit.Name} rotates torso to face {expectedHex}");
     }
 
     [Fact]
@@ -106,6 +121,7 @@ public class WeaponConfigurationCommandTests : GameCommandTestBase<WeaponConfigu
     {
         // Arrange
         var command = CreateCommand();
+        _unit.Deploy(new HexPosition(new HexCoordinates(1,1), HexDirection.Top));
         command.Configuration = new WeaponConfiguration
         {
             Type = WeaponConfigurationType.ArmsFlip,
@@ -125,6 +141,7 @@ public class WeaponConfigurationCommandTests : GameCommandTestBase<WeaponConfigu
     {
         // Arrange
         var command = CreateCommand();
+        _unit.Deploy(new HexPosition(new HexCoordinates(1,1), HexDirection.Top));
         command.Configuration = new WeaponConfiguration
         {
             Type = WeaponConfigurationType.ArmsFlip,
