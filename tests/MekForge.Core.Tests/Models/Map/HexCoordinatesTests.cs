@@ -1329,9 +1329,38 @@ public class HexCoordinatesTests
         };
 
         // Act
-        var actualSequence = start.LineTo(end).Select(s => s.MainOption).ToList();
+        var lineSegments = start.LineTo(end);
+        var actualSequence = lineSegments.Select(s => s.MainOption).ToList();
 
         // Assert
         actualSequence.ShouldBe(expectedSequence,true);
+    }
+    
+    [Fact]
+    public void LineTo_ShouldReturnCorrectHexSequence3()
+    {
+        // Arrange
+        var start = new HexCoordinates(7, 10);
+        var end = new HexCoordinates(5, 17);
+
+        // Act
+        var actualSequence = start.LineTo(end).Select(s => s.MainOption).ToList();
+
+        // Assert
+        actualSequence.ShouldContain(new HexCoordinates(6,11));
+    }
+    
+    [Fact]
+    public void LineTo_ShouldReturnCorrectHexSequence4()
+    {
+        // Arrange
+        var start = new HexCoordinates(2, 8);
+        var end = new HexCoordinates(5, 3);
+
+        // Act
+        var actualSequence = start.LineTo(end).Select(s => s.MainOption).ToList();
+
+        // Assert
+        actualSequence.ShouldContain(new HexCoordinates(2,7));
     }
 }

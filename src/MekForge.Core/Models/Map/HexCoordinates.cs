@@ -183,13 +183,19 @@ public readonly record struct HexCoordinates
                 else
                 {
                     // When options are not equal, create two separate segments
-                    result.Add(new LineOfSightSegment(next));
-                    result.Add(new LineOfSightSegment(additional.Value));
+                    var nextSegment = new LineOfSightSegment(next);
+                    var additionalSegment = new LineOfSightSegment(additional.Value);
+                    if (!result.Contains(nextSegment))
+                        result.Add(new LineOfSightSegment(next));
+                    if (!result.Contains(additionalSegment))
+                        result.Add(new LineOfSightSegment(additional.Value));
                 }
             }
             else
             {
-                result.Add(new LineOfSightSegment(next));
+                var nextSegment = new LineOfSightSegment(next);
+                if (!result.Contains(nextSegment))
+                    result.Add(new LineOfSightSegment(next));
             }
 
             current = next;
@@ -219,7 +225,8 @@ public readonly record struct HexCoordinates
         var leftTotal = leftToNext + leftToTarget;
         var rightTotal = rightToNext + rightToTarget;
 
-        const double epsilon = 0.0001;
+        const double epsilon = 0.05; //Adjusting epsilon we can control how close the line
+                                     //should be to the "corners" of the hexes    
         
         // First check if left path's total distance is equal or better
         if (leftTotal <= mainTotal + epsilon && leftTotal <= rightTotal + epsilon)
@@ -228,7 +235,7 @@ public readonly record struct HexCoordinates
             if (Math.Abs(leftTotal - mainTotal) < epsilon)
             {
                 // If distances to next are equal, it's a divided line
-                bool areEqual = Math.Abs(leftToNext - mainToNext) < epsilon;
+                var areEqual = Math.Abs(leftToNext - mainToNext) < epsilon;
                 return (leftNext, mainNext, areEqual);
             }
             
@@ -236,7 +243,7 @@ public readonly record struct HexCoordinates
             if (Math.Abs(leftTotal - rightTotal) < epsilon)
             {
                 // If distances to next are equal, it's a divided line
-                bool areEqual = Math.Abs(leftToNext - rightToNext) < epsilon;
+                var areEqual = Math.Abs(leftToNext - rightToNext) < epsilon;
                 return (leftNext, rightNext, areEqual);
             }
             
@@ -250,7 +257,7 @@ public readonly record struct HexCoordinates
             if (Math.Abs(rightTotal - mainTotal) < epsilon)
             {
                 // If distances to next are equal, it's a divided line
-                bool areEqual = Math.Abs(rightToNext - mainToNext) < epsilon;
+                var areEqual = Math.Abs(rightToNext - mainToNext) < epsilon;
                 return (rightNext, mainNext, areEqual);
             }
             return (rightNext, null, false);
