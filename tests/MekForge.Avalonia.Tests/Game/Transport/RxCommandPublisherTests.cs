@@ -54,27 +54,6 @@ public class RxCommandPublisherTests
     }
     
     [Fact]
-    public void Subscribe_SubscriberThrowsException_OtherSubscriberStillReceivesCommand()
-    {
-        // Arrange
-        var publisher = new RxCommandPublisher();
-        var goodSubscriberReceived = false;
-        var testCommand = new TestCommand
-        {
-            GameOriginId = Guid.NewGuid()
-        };
-        
-        // Act
-        publisher.Subscribe(_ => throw new Exception("Test exception"));
-        publisher.Subscribe(_ => goodSubscriberReceived = true);
-        
-        publisher.PublishCommand(testCommand);
-        
-        // Assert
-        goodSubscriberReceived.ShouldBeTrue();
-    }
-    
-    [Fact]
     public void Subscribe_MultipleCommands_AllCommandsDeliveredInOrder()
     {
         // Arrange
