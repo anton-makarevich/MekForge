@@ -17,7 +17,7 @@ public static class CoreServices
     {
         services.AddSingleton<IImageService, AvaloniaAssetImageService>();
         services.AddSingleton<ILocalizationService, FakeLocalizationService>();
-        services.AddSingleton<ICommandPublisher, RxCommandPublisher>();
+        services.AddSingleton<ICommandPublisher, ChannelCommandPublisher>();
         services.AddSingleton<IRulesProvider, ClassicBattletechRulesProvider>();
         services.AddSingleton<IDiceRoller, RandomDiceRoller>();
         services.AddSingleton<IGameManager, GameManager>();
