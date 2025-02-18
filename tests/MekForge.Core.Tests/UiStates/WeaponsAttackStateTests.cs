@@ -136,7 +136,7 @@ public class WeaponsAttackStateTests
         SetPhase(PhaseNames.WeaponsAttack);
         SetActivePlayer();
         var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
-        var unit = _viewModel.Units.First();
+        var unit = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
         unit.Deploy(position);
         var hex = new Hex(position.Coordinates);
 

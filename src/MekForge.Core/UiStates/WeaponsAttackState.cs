@@ -11,7 +11,8 @@ namespace Sanet.MekForge.Core.UiStates;
 public class WeaponsAttackState : IUiState
 {
     private readonly BattleMapViewModel _viewModel;
-    private Unit? _selectedUnit;
+    private Unit? _attacker;
+    private Unit? _target;
     private readonly List<HexDirection> _availableDirections = [];
     private readonly Dictionary<Weapon, HashSet<HexCoordinates>> _weaponRanges = [];
 
@@ -47,12 +48,12 @@ public class WeaponsAttackState : IUiState
         if (unit.HasFiredWeapons) return;
         
         // Clear previous highlights if any
-        if (_selectedUnit != null)
+        if (_attacker != null)
         {
             ClearWeaponRangeHighlights();
         }
         
-        _selectedUnit = unit;
+        _attacker = unit;
         CurrentStep = WeaponsAttackStep.ActionSelection;
         
         // Highlight weapon ranges for the newly selected unit
@@ -63,18 +64,48 @@ public class WeaponsAttackState : IUiState
 
     public void HandleHexSelection(Hex hex)
     {
-        if (HandleUnitSelectionFromHex(hex)) return;
+        HandleUnitSelectionFromHex(hex);
+    }
+
+    private bool HandleUnitSelectionFromHex(Hex hex)
+    {
+        var unit = _viewModel.Units.FirstOrDefault(u => u.Position?.Coordinates == hex.Coordinates);
+        if (unit == null) return false;
+        if (CurrentStep == WeaponsAttackStep.SelectingUnit)
+        {
+            if (unit.Owner != _viewModel.Game!.ActivePlayer
+              || unit.HasFiredWeapons) return false;
+            
+            if (unit == _attacker)
+                ResetUnitSelection();
+
+            _viewModel.SelectedUnit = unit;
+            return true;
+        }
 
         if (CurrentStep == WeaponsAttackStep.TargetSelection)
         {
-            // Target selection will be implemented next
+            if (unit.Owner == _viewModel.Game!.ActivePlayer) return false;
+            if (!IsHexInWeaponRange(hex.Coordinates)) return false;
+
+            _target = unit;
+            CurrentStep = WeaponsAttackStep.WeaponsConfiguration;
+            _viewModel.NotifyStateChanged();
+            return true;
         }
+
+        return false;
+    }
+
+    private bool IsHexInWeaponRange(HexCoordinates coordinates)
+    {
+        return _weaponRanges.Values.Any(range => range.Contains(coordinates));
     }
 
     public void HandleFacingSelection(HexDirection direction)
     {
         if (CurrentStep != WeaponsAttackStep.WeaponsConfiguration 
-            || _selectedUnit is not Mech mech 
+            || _attacker is not Mech mech 
             || !_availableDirections.Contains(direction)) return;
         
         _viewModel.HideDirectionSelector();
@@ -104,22 +135,9 @@ public class WeaponsAttackState : IUiState
 
     public void HandleTorsoRotation(Guid unitId)
     {
-        if (_selectedUnit?.Id != unitId) return;
+        if (_attacker?.Id != unitId) return;
         ClearWeaponRangeHighlights();
         HighlightWeaponRanges();
-    }
-
-    private bool HandleUnitSelectionFromHex(Hex hex)
-    {
-        var unit = _viewModel.Units.FirstOrDefault(u => u.Position?.Coordinates == hex.Coordinates);
-        if (unit == null 
-            || unit == _selectedUnit
-            || unit.HasFiredWeapons
-            || unit.Owner?.Id != _viewModel.Game?.ActivePlayer?.Id) return false;
-        
-        ResetUnitSelection();
-        _viewModel.SelectedUnit = unit;
-        return true;
     }
 
     private void ResetUnitSelection()
@@ -129,20 +147,21 @@ public class WeaponsAttackState : IUiState
         ClearWeaponRangeHighlights();
         
         _viewModel.SelectedUnit = null;
-        _selectedUnit = null;
+        _attacker = null;
+        _target = null;
         CurrentStep = WeaponsAttackStep.SelectingUnit;
         _viewModel.NotifyStateChanged();
     }
 
     public IEnumerable<StateAction> GetAvailableActions()
     {
-        if (_selectedUnit == null || CurrentStep != WeaponsAttackStep.ActionSelection)
+        if (_attacker == null || CurrentStep != WeaponsAttackStep.ActionSelection)
             return new List<StateAction>();
 
         var actions = new List<StateAction>();
 
         // Add torso rotation action if available
-        if (_selectedUnit is Mech { CanRotateTorso: true } mech)
+        if (_attacker is Mech { CanRotateTorso: true } mech)
         {
             actions.Add(new StateAction(
                 "Turn Torso",
@@ -171,7 +190,7 @@ public class WeaponsAttackState : IUiState
 
     private void UpdateAvailableDirections()
     {
-        if (_selectedUnit is not Mech mech || mech.Position == null) return;
+        if (_attacker is not Mech mech || mech.Position == null) return;
         
         var currentFacing = (int)mech.Position.Value.Facing;
         _availableDirections.Clear();
@@ -192,13 +211,13 @@ public class WeaponsAttackState : IUiState
 
     private void HighlightWeaponRanges()
     {
-        if (_selectedUnit?.Position == null) return;
+        if (_attacker?.Position == null) return;
 
         var reachableHexes = new HashSet<HexCoordinates>();
-        var unitPosition = _selectedUnit.Position.Value;
+        var unitPosition = _attacker.Position.Value;
         _weaponRanges.Clear();
 
-        foreach (var part in _selectedUnit.Parts)
+        foreach (var part in _attacker.Parts)
         {
             var weapons = part.GetComponents<Weapon>();
             foreach (var weapon in weapons)
@@ -207,7 +226,7 @@ public class WeaponsAttackState : IUiState
                 var facing = part.Location switch
                 {
                     PartLocation.LeftLeg or PartLocation.RightLeg => unitPosition.Facing,
-                    _ => _selectedUnit is Mech mech ? mech.TorsoDirection : unitPosition.Facing
+                    _ => _attacker is Mech mech ? mech.TorsoDirection : unitPosition.Facing
                 };
                 if (facing == null)
                 {
@@ -246,14 +265,14 @@ public class WeaponsAttackState : IUiState
 
     private void ClearWeaponRangeHighlights()
     {
-        if (_selectedUnit?.Position == null) return;
+        if (_attacker?.Position == null) return;
 
         // Get all hexes in maximum weapon range and unhighlight them
-        var maxRange = _selectedUnit.Parts
+        var maxRange = _attacker.Parts
             .SelectMany(p => p.GetComponents<Weapon>())
             .Max(w => w.LongRange);
 
-        var allPossibleHexes = _selectedUnit.Position.Value.Coordinates
+        var allPossibleHexes = _attacker.Position.Value.Coordinates
             .GetCoordinatesInRange(maxRange);
 
         _weaponRanges.Clear();
