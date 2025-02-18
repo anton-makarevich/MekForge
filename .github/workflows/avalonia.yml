@@ -24,6 +24,13 @@ jobs:
       - name: Run Avalonia tests
         run: dotnet test tests/MekForge.Avalonia.Tests/MekForge.Avalonia.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute=GeneratedCodeAttribute /p:Include=[Sanet.MekForge.Avalonia.Converters]*
 
+      - name: Upload coverage report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: tests/MekForge.Avalonia.Tests/coverage.opencover.xml
+          if-no-files-found: error
+
       - name: Upload Avalonia tests results
         run: bash <(curl -s https://codecov.io/bash) -f "tests/MekForge.Avalonia.Tests/coverage.opencover.xml" -t ${{ secrets.CODECOV_TOKEN }}
   
