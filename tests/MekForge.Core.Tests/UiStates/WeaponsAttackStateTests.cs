@@ -214,6 +214,7 @@ public class WeaponsAttackStateTests
 
         // Act
         _state.HandleHexSelection(targetHex);
+        _state.HandleUnitSelection(target);
 
         // Assert
         _state.CurrentStep.ShouldBe(WeaponsAttackStep.TargetSelection);
@@ -425,13 +426,17 @@ public class WeaponsAttackStateTests
         // Arrange
         var position1 = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
         var position2 = new HexPosition(new HexCoordinates(2, 2), HexDirection.Bottom);
-        _unit1.Deploy(position1);
-        _unit2.Deploy(position2);
-        _state.HandleUnitSelection(_unit1);
+        var unit1= _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        var unit2 = _viewModel.Units.Last(u => u.Owner!.Id == _player.Id);
+        unit1.Deploy(position1);
+        unit2.Deploy(position2);
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h=>h.Coordinates==position1.Coordinates));
+        _state.HandleUnitSelection(unit1);
         var firstHighlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
 
         // Act
-        _state.HandleUnitSelection(_unit2);
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h=>h.Coordinates==position2.Coordinates));
+        _state.HandleUnitSelection(unit2);
 
         // Assert
         var secondHighlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
