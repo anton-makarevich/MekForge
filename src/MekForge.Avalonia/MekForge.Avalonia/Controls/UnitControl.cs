@@ -137,7 +137,8 @@ namespace Sanet.MekForge.Avalonia.Controls
                 .Subscribe(state => 
                 {
                     Render();
-                    selectionBorder.IsVisible = state.SelectedUnit == _unit;
+                    selectionBorder.IsVisible = state.SelectedUnit == _unit
+                                                || _viewModel.CurrentState is WeaponsAttackState attackState && (attackState.Attacker == _unit || attackState.SelectedTarget == _unit);
                     UpdateActionButtons(state.Actions);
 
                     // Update torso direction arrow
