@@ -76,32 +76,30 @@ public class WeaponsAttackState : IUiState
         HandleUnitSelectionFromHex(hex);
     }
 
-    private bool HandleUnitSelectionFromHex(Hex hex)
+    private void HandleUnitSelectionFromHex(Hex hex)
     {
         var unit = _viewModel.Units.FirstOrDefault(u => u.Position?.Coordinates == hex.Coordinates);
-        if (unit == null) return false;
+        if (unit == null) return;
         if (CurrentStep is WeaponsAttackStep.SelectingUnit or WeaponsAttackStep.ActionSelection)
         {
             if (unit.Owner != _viewModel.Game!.ActivePlayer
-              || unit.HasFiredWeapons) return false;
-            
+              || unit.HasFiredWeapons)
+                return;
+
             if (_attacker is not null)
                 ResetUnitSelection();
 
             _viewModel.SelectedUnit = unit;
-            return true;
+            return;
         }
 
         if (CurrentStep == WeaponsAttackStep.TargetSelection)
         {
-            if (unit.Owner == _viewModel.Game!.ActivePlayer) return false;
-            if (!IsHexInWeaponRange(hex.Coordinates)) return false;
+            if (unit.Owner == _viewModel.Game!.ActivePlayer) return;
+            if (!IsHexInWeaponRange(hex.Coordinates)) return;
 
             _viewModel.SelectedUnit = unit;
-            return true;
         }
-
-        return false;
     }
 
     private bool IsHexInWeaponRange(HexCoordinates coordinates)
@@ -298,6 +296,9 @@ public class WeaponsAttackState : IUiState
             .Select(kvp => kvp.Key)
             .ToList();
     }
+    
+    public Unit? Attacker => _attacker;
+    public Unit? SelectedTarget => _target;
 }
 
 public enum WeaponsAttackStep

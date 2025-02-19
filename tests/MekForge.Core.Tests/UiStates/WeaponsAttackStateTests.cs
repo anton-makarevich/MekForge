@@ -219,6 +219,8 @@ public class WeaponsAttackStateTests
         // Assert
         _state.CurrentStep.ShouldBe(WeaponsAttackStep.TargetSelection);
         _viewModel.SelectedUnit.ShouldBe(target);
+        _state.Attacker.ShouldBe(attacker);
+        _state.SelectedTarget.ShouldBe(target);
     }
 
     [Fact]
@@ -253,6 +255,8 @@ public class WeaponsAttackStateTests
         // Assert
         _state.CurrentStep.ShouldBe(WeaponsAttackStep.TargetSelection);
         _viewModel.SelectedUnit.ShouldBeNull();
+        _state.Attacker.ShouldBe(attacker);
+        _state.SelectedTarget.ShouldBeNull();
     }
 
     [Fact]
@@ -276,6 +280,7 @@ public class WeaponsAttackStateTests
         // Assert
         _state.CurrentStep.ShouldBe(WeaponsAttackStep.SelectingUnit);
         _viewModel.SelectedUnit.ShouldBeNull();
+        _state.SelectedTarget.ShouldBeNull();
     }
 
     [Fact]
@@ -310,6 +315,8 @@ public class WeaponsAttackStateTests
         // Assert
         _state.CurrentStep.ShouldBe(WeaponsAttackStep.TargetSelection);
         _viewModel.SelectedUnit.ShouldBeNull();
+        _state.Attacker.ShouldBe(attacker);
+        _state.SelectedTarget.ShouldBeNull();
     }
 
     [Fact]
