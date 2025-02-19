@@ -45,20 +45,29 @@ public class WeaponsAttackState : IUiState
     public void HandleUnitSelection(Unit? unit)
     {
         if (unit == null) return;
-        if (unit.HasFiredWeapons) return;
-        
-        // Clear previous highlights if any
-        if (_attacker != null)
+
+        if (CurrentStep is WeaponsAttackStep.SelectingUnit or WeaponsAttackStep.ActionSelection)
         {
-            ClearWeaponRangeHighlights();
+            if (unit.HasFiredWeapons) return;
+
+            // Clear previous highlights if any
+            if (_attacker != null)
+            {
+                ClearWeaponRangeHighlights();
+            }
+
+            _attacker = unit;
+            CurrentStep = WeaponsAttackStep.ActionSelection;
+
+            // Highlight weapon ranges for the newly selected unit
+            HighlightWeaponRanges();
         }
-        
-        _attacker = unit;
-        CurrentStep = WeaponsAttackStep.ActionSelection;
-        
-        // Highlight weapon ranges for the newly selected unit
-        HighlightWeaponRanges();
-        
+
+        if (CurrentStep == WeaponsAttackStep.TargetSelection)
+        {
+            _target = unit;
+        }
+
         _viewModel.NotifyStateChanged();
     }
 
@@ -71,7 +80,7 @@ public class WeaponsAttackState : IUiState
     {
         var unit = _viewModel.Units.FirstOrDefault(u => u.Position?.Coordinates == hex.Coordinates);
         if (unit == null) return false;
-        if (CurrentStep == WeaponsAttackStep.SelectingUnit)
+        if (CurrentStep is WeaponsAttackStep.SelectingUnit or WeaponsAttackStep.ActionSelection)
         {
             if (unit.Owner != _viewModel.Game!.ActivePlayer
               || unit.HasFiredWeapons) return false;
@@ -88,8 +97,7 @@ public class WeaponsAttackState : IUiState
             if (unit.Owner == _viewModel.Game!.ActivePlayer) return false;
             if (!IsHexInWeaponRange(hex.Coordinates)) return false;
 
-            _target = unit;
-            _viewModel.NotifyStateChanged();
+            _viewModel.SelectedUnit = unit;
             return true;
         }
 
