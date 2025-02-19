@@ -76,7 +76,7 @@ public class WeaponsAttackState : IUiState
             if (unit.Owner != _viewModel.Game!.ActivePlayer
               || unit.HasFiredWeapons) return false;
             
-            if (unit == _attacker)
+            if (_attacker is not null)
                 ResetUnitSelection();
 
             _viewModel.SelectedUnit = unit;
