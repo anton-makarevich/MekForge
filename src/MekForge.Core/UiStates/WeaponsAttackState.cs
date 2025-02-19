@@ -89,7 +89,6 @@ public class WeaponsAttackState : IUiState
             if (!IsHexInWeaponRange(hex.Coordinates)) return false;
 
             _target = unit;
-            CurrentStep = WeaponsAttackStep.WeaponsConfiguration;
             _viewModel.NotifyStateChanged();
             return true;
         }
