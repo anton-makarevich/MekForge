@@ -33,7 +33,7 @@ public class WeaponSelectionViewModel : BindableBase
         get => _isSelected;
         set
         {
-            if (!IsEnabled && value) return;
+            if (!IsEnabled) return;
             if (value==_isSelected) return;
             SetProperty(ref _isSelected, value);
             _onSelectionChanged(Weapon, value);

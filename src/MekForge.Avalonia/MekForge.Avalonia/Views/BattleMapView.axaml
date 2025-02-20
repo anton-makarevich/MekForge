@@ -70,18 +70,20 @@
                       Margin="10"
                       Spacing="5">
                 <TextBlock Text="Target:" FontWeight="Bold"/>
-                <TextBlock Text="{Binding SelectedUnit.Name}"/>
-                <TextBlock Text="{Binding SelectedUnit.Position}"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding SelectedUnit.Name}"/>
+                    <TextBlock Text="{Binding SelectedUnit.Position.Value.Coordinates}"/>
+                </StackPanel>
             </StackPanel>
-            <ListBox Grid.Row="2"
+            <ItemsControl Grid.Row="2"
                     Margin="10"
                     ItemsSource="{Binding WeaponSelectionItems}">
-                <ListBox.ItemTemplate>
+                <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="wrappers:WeaponSelectionViewModel">
                         <Grid ColumnDefinitions="Auto,*"
                               IsEnabled="{Binding IsEnabled}">
                             <CheckBox Grid.Column="0"
-                                     IsChecked="{Binding IsSelected}"
+                                     IsChecked="{Binding IsSelected, Mode=TwoWay}"
                                      IsEnabled="{Binding IsEnabled}"
                                      Margin="0,0,10,0"/>
                             <StackPanel Grid.Column="1" 
@@ -99,8 +101,8 @@
                             </StackPanel>
                         </Grid>
                     </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </Grid>
         
         <StackPanel x:Name="PlayerAction"

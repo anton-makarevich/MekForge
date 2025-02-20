@@ -314,7 +314,7 @@ public class WeaponsAttackState : IUiState
                 weapon: w,
                 isInRange: IsWeaponInRange(w, targetCoords),
                 isSelected: _weaponTargets.ContainsKey(w),
-                isEnabled: !_weaponTargets.ContainsKey(w) && IsWeaponInRange(w, targetCoords),
+                isEnabled: (!_weaponTargets.ContainsKey(w) || _weaponTargets[w] == _target) && IsWeaponInRange(w, targetCoords),
                 target: _weaponTargets.GetValueOrDefault(w),
                 onSelectionChanged: HandleWeaponSelection
             ));
@@ -328,7 +328,9 @@ public class WeaponsAttackState : IUiState
 
     private void HandleWeaponSelection(Weapon weapon, bool selected)
     {
-        if (_target == null || !selected) 
+        if (_target == null)
+            return;
+        if (!selected) 
         {
             _weaponTargets.Remove(weapon);
         }
