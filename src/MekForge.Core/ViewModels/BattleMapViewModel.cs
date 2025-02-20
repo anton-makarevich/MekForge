@@ -168,6 +168,8 @@ public class BattleMapViewModel : BaseViewModel
         NotifyPropertyChanged(nameof(UserActionLabel));
         NotifyPropertyChanged(nameof(IsUserActionLabelVisible));
         NotifyPropertyChanged(nameof(AreUnitsToDeployVisible));
+        NotifyPropertyChanged(nameof(IsWeaponSelectionVisible));
+        NotifyPropertyChanged(nameof(WeaponSelectionItems));
     }
 
     internal void HighlightHexes(List<HexCoordinates> coordinates, bool isHighlighted)

@@ -16,7 +16,7 @@ public class WeaponsAttackState : IUiState
     private Unit? _target;
     private readonly List<HexDirection> _availableDirections = [];
     private readonly Dictionary<Weapon, HashSet<HexCoordinates>> _weaponRanges = [];
-    private readonly Dictionary<Weapon, Unit> _weaponTargets = new();
+    private readonly Dictionary<Weapon, Unit> _weaponTargets = [];
 
     public WeaponsAttackStep CurrentStep { get; private set; } = WeaponsAttackStep.SelectingUnit;
 
