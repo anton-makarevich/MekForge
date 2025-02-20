@@ -4,22 +4,25 @@ using Sanet.MVVM.Core.ViewModels;
 
 namespace Sanet.MekForge.Core.ViewModels.Wrappers;
 
-public class WeaponSelectionViewModel:BindableBase
+public class WeaponSelectionViewModel : BindableBase
 {
     private bool _isSelected;
+    private readonly Action<Weapon, bool> _onSelectionChanged;
 
     public WeaponSelectionViewModel(
         Weapon weapon,
         bool isInRange,
         bool isSelected,
         bool isEnabled,
-        Unit? target)
+        Unit? target,
+        Action<Weapon, bool> onSelectionChanged)
     {
         Weapon = weapon;
         IsInRange = isInRange;
         IsSelected = isSelected;
         IsEnabled = isEnabled;
         Target = target;
+        _onSelectionChanged = onSelectionChanged;
     }
 
     public Weapon Weapon { get; }
@@ -28,7 +31,13 @@ public class WeaponSelectionViewModel:BindableBase
     public bool IsSelected
     {
         get => _isSelected;
-        set => SetProperty(ref _isSelected, value);
+        set
+        {
+            if (!IsEnabled && value) return;
+            if (value==_isSelected) return;
+            SetProperty(ref _isSelected, value);
+            _onSelectionChanged(Weapon, value);
+        }
     }
 
     public bool IsEnabled { get; }
