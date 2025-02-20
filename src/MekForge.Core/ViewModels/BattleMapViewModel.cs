@@ -76,6 +76,15 @@ public class BattleMapViewModel : BaseViewModel
 
     public IReadOnlyCollection<string> CommandLog => _commandLog;
 
+    public IEnumerable<WeaponSelectionViewModel> WeaponSelectionItems => 
+        CurrentState is WeaponsAttackState state ? state.GetWeaponSelectionItems() : [];
+
+    public bool IsWeaponSelectionVisible => 
+        CurrentState is WeaponsAttackState
+        {
+            CurrentStep: WeaponsAttackStep.TargetSelection, SelectedTarget: not null
+        };
+
     private void SubscribeToGameChanges()
     {
         _gameSubscription?.Dispose();
