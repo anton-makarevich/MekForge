@@ -64,7 +64,7 @@ public class WeaponsAttackStateTests
         _game.HandleCommand(new JoinGameCommand
         {
             PlayerName = "Player1",
-            Units = [_unitData],
+            Units = [_unitData, _unitData],
             Tint = "#FF0000",
             GameOriginId = Guid.NewGuid(),
             PlayerId = _player.Id
@@ -136,7 +136,7 @@ public class WeaponsAttackStateTests
         SetPhase(PhaseNames.WeaponsAttack);
         SetActivePlayer();
         var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
-        var unit = _viewModel.Units.First();
+        var unit = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
         unit.Deploy(position);
         var hex = new Hex(position.Coordinates);
 
@@ -184,6 +184,139 @@ public class WeaponsAttackStateTests
 
         // Assert
         _viewModel.SelectedUnit.ShouldBeNull();
+    }
+
+    [Fact]
+    public void HandleHexSelection_SelectsEnemyTarget_WhenInTargetSelectionStep_AndInRange()
+    {
+        // Arrange
+        SetPhase(PhaseNames.WeaponsAttack);
+        SetActivePlayer();
+        
+        // Setup attacker (player's unit)
+        var attackerPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        attacker.Deploy(attackerPosition);
+        _state.HandleUnitSelection(attacker);
+        
+        // Setup target (enemy unit)
+        var targetPosition = new HexPosition(new HexCoordinates(2, 1), HexDirection.Bottom);
+        var target = _viewModel.Units.First(u => u.Owner!.Id != _player.Id);
+        target.Deploy(targetPosition);
+        
+        // Activate target selection
+        var targetSelectionAction = _state.GetAvailableActions()
+            .First(a => a.Label == "Select Target");
+        targetSelectionAction.OnExecute();
+        
+        // Create hex with enemy unit
+        var targetHex = new Hex(targetPosition.Coordinates);
+
+        // Act
+        _state.HandleHexSelection(targetHex);
+        _state.HandleUnitSelection(target);
+
+        // Assert
+        _state.CurrentStep.ShouldBe(WeaponsAttackStep.TargetSelection);
+        _viewModel.SelectedUnit.ShouldBe(target);
+        _state.Attacker.ShouldBe(attacker);
+        _state.SelectedTarget.ShouldBe(target);
+    }
+
+    [Fact]
+    public void HandleHexSelection_DoesNotSelectFriendlyUnit_WhenInTargetSelectionStep()
+    {
+        // Arrange
+        SetPhase(PhaseNames.WeaponsAttack);
+        SetActivePlayer();
+        
+        // Setup attacker (player's unit)
+        var attackerPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        attacker.Deploy(attackerPosition);
+        _state.HandleUnitSelection(attacker);
+        
+        // Setup another friendly unit
+        var friendlyPosition = new HexPosition(new HexCoordinates(2, 1), HexDirection.Bottom);
+        var friendlyUnit = _viewModel.Units.First(u => u.Owner!.Id == _player.Id && u != attacker);
+        friendlyUnit.Deploy(friendlyPosition);
+        
+        // Activate target selection
+        var targetSelectionAction = _state.GetAvailableActions()
+            .First(a => a.Label == "Select Target");
+        targetSelectionAction.OnExecute();
+        
+        // Create hex with friendly unit
+        var friendlyHex = new Hex(friendlyPosition.Coordinates);
+
+        // Act
+        _state.HandleHexSelection(friendlyHex);
+
+        // Assert
+        _state.CurrentStep.ShouldBe(WeaponsAttackStep.TargetSelection);
+        _viewModel.SelectedUnit.ShouldBeNull();
+        _state.Attacker.ShouldBe(attacker);
+        _state.SelectedTarget.ShouldBeNull();
+    }
+
+    [Fact]
+    public void HandleHexSelection_DoesNotSelectEnemyUnit_WhenNotInTargetSelectionStep()
+    {
+        // Arrange
+        SetPhase(PhaseNames.WeaponsAttack);
+        SetActivePlayer();
+        
+        // Setup enemy unit
+        var enemyPosition = new HexPosition(new HexCoordinates(2, 1), HexDirection.Bottom);
+        var enemyUnit = _viewModel.Units.First(u => u.Owner!.Id != _player.Id);
+        enemyUnit.Deploy(enemyPosition);
+        
+        // Create hex with enemy unit
+        var enemyHex = new Hex(enemyPosition.Coordinates);
+
+        // Act
+        _state.HandleHexSelection(enemyHex);
+
+        // Assert
+        _state.CurrentStep.ShouldBe(WeaponsAttackStep.SelectingUnit);
+        _viewModel.SelectedUnit.ShouldBeNull();
+        _state.SelectedTarget.ShouldBeNull();
+    }
+
+    [Fact]
+    public void HandleHexSelection_DoesNotSelectEnemyUnit_WhenOutOfWeaponRange()
+    {
+        // Arrange
+        SetPhase(PhaseNames.WeaponsAttack);
+        SetActivePlayer();
+        
+        // Setup attacker (player's unit)
+        var attackerPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        attacker.Deploy(attackerPosition);
+        _state.HandleUnitSelection(attacker);
+        
+        // Setup enemy unit far away (out of weapon range)
+        var enemyPosition = new HexPosition(new HexCoordinates(10, 10), HexDirection.Bottom);
+        var enemyUnit = _viewModel.Units.First(u => u.Owner!.Id != _player.Id);
+        enemyUnit.Deploy(enemyPosition);
+        
+        // Activate target selection
+        var targetSelectionAction = _state.GetAvailableActions()
+            .First(a => a.Label == "Select Target");
+        targetSelectionAction.OnExecute();
+        
+        // Create hex with enemy unit
+        var enemyHex = new Hex(enemyPosition.Coordinates);
+
+        // Act
+        _state.HandleHexSelection(enemyHex);
+
+        // Assert
+        _state.CurrentStep.ShouldBe(WeaponsAttackStep.TargetSelection);
+        _viewModel.SelectedUnit.ShouldBeNull();
+        _state.Attacker.ShouldBe(attacker);
+        _state.SelectedTarget.ShouldBeNull();
     }
 
     [Fact]
@@ -300,13 +433,17 @@ public class WeaponsAttackStateTests
         // Arrange
         var position1 = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
         var position2 = new HexPosition(new HexCoordinates(2, 2), HexDirection.Bottom);
-        _unit1.Deploy(position1);
-        _unit2.Deploy(position2);
-        _state.HandleUnitSelection(_unit1);
+        var unit1= _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        var unit2 = _viewModel.Units.Last(u => u.Owner!.Id == _player.Id);
+        unit1.Deploy(position1);
+        unit2.Deploy(position2);
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h=>h.Coordinates==position1.Coordinates));
+        _state.HandleUnitSelection(unit1);
         var firstHighlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
 
         // Act
-        _state.HandleUnitSelection(_unit2);
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h=>h.Coordinates==position2.Coordinates));
+        _state.HandleUnitSelection(unit2);
 
         // Assert
         var secondHighlightedHexes = _game.BattleMap.GetHexes().Where(h => h.IsHighlighted).ToList();
