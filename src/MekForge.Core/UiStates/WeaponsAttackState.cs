@@ -14,9 +14,10 @@ public class WeaponsAttackState : IUiState
     private readonly BattleMapViewModel _viewModel;
     private Unit? _attacker;
     private Unit? _target;
-    private readonly List<HexDirection> _availableDirections = [];
-    private readonly Dictionary<Weapon, HashSet<HexCoordinates>> _weaponRanges = [];
-    private readonly Dictionary<Weapon, Unit> _weaponTargets = [];
+    private readonly List<HexDirection> _availableDirections = new();
+    private readonly Dictionary<Weapon, HashSet<HexCoordinates>> _weaponRanges = new();
+    private readonly Dictionary<Weapon, Unit> _weaponTargets = new();
+    private readonly List<WeaponSelectionViewModel> _weaponViewModels = new();
 
     public WeaponsAttackStep CurrentStep { get; private set; } = WeaponsAttackStep.SelectingUnit;
 
@@ -59,6 +60,7 @@ public class WeaponsAttackState : IUiState
             }
 
             _attacker = unit;
+            CreateWeaponViewModels();
             CurrentStep = WeaponsAttackStep.ActionSelection;
 
             // Highlight weapon ranges for the newly selected unit
@@ -68,6 +70,7 @@ public class WeaponsAttackState : IUiState
         if (CurrentStep == WeaponsAttackStep.TargetSelection)
         {
             _target = unit;
+            UpdateWeaponViewModels();
         }
 
         _viewModel.NotifyStateChanged();
@@ -91,6 +94,7 @@ public class WeaponsAttackState : IUiState
             if (_attacker is not null)
                 ResetUnitSelection();
 
+            
             _viewModel.SelectedUnit = unit;
             return;
         }
@@ -99,9 +103,10 @@ public class WeaponsAttackState : IUiState
         {
             if (unit.Owner == _viewModel.Game!.ActivePlayer) return;
             if (!IsHexInWeaponRange(hex.Coordinates)) return;
-
+            
             _viewModel.SelectedUnit = unit;
         }
+        _viewModel.NotifyStateChanged();
     }
 
     private bool IsHexInWeaponRange(HexCoordinates coordinates)
@@ -149,13 +154,12 @@ public class WeaponsAttackState : IUiState
 
     private void ResetUnitSelection()
     {
-        if (_viewModel.SelectedUnit == null) return;
-        
-        ClearWeaponRangeHighlights();
-        
-        _viewModel.SelectedUnit = null;
         _attacker = null;
         _target = null;
+        _weaponTargets.Clear();
+        _weaponRanges.Clear();
+        _weaponViewModels.Clear();
+        _viewModel.SelectedUnit = null;
         CurrentStep = WeaponsAttackStep.SelectingUnit;
         _viewModel.NotifyStateChanged();
     }
@@ -302,24 +306,44 @@ public class WeaponsAttackState : IUiState
     public Unit? Attacker => _attacker;
     public Unit? SelectedTarget => _target;
 
-    public IEnumerable<WeaponSelectionViewModel> GetWeaponSelectionItems()
+    private void CreateWeaponViewModels()
     {
-        if (_attacker == null || _target?.Position == null) 
-            return [];
+        _weaponViewModels.Clear();
+        if (_attacker == null) return;
 
-        var targetCoords = _target.Position.Value.Coordinates;
-        return _attacker.Parts
+        _weaponViewModels.AddRange(_attacker.Parts
             .SelectMany(p => p.GetComponents<Weapon>())
             .Select(w => new WeaponSelectionViewModel(
                 weapon: w,
-                isInRange: IsWeaponInRange(w, targetCoords),
-                isSelected: _weaponTargets.ContainsKey(w),
-                isEnabled: (!_weaponTargets.ContainsKey(w) || _weaponTargets[w] == _target) && IsWeaponInRange(w, targetCoords),
-                target: _weaponTargets.GetValueOrDefault(w),
+                isInRange: false,
+                isSelected: false,
+                isEnabled: false,
+                target: null,
                 onSelectionChanged: HandleWeaponSelection
-            ));
+            )));
     }
-    
+
+    private void UpdateWeaponViewModels()
+    {
+        if (_attacker == null || _target?.Position == null) return;
+
+        var targetCoords = _target.Position.Value.Coordinates;
+        foreach (var vm in _weaponViewModels)
+        {
+            var isInRange = IsWeaponInRange(vm.Weapon, targetCoords);
+            var isSelected = _weaponTargets.ContainsKey(vm.Weapon) && _weaponTargets[vm.Weapon] == _target;
+            vm.IsInRange = isInRange;
+            vm.IsSelected = isSelected;
+            vm.IsEnabled = (!_weaponTargets.ContainsKey(vm.Weapon) || _weaponTargets[vm.Weapon] == _target) && isInRange;
+            vm.Target = _weaponTargets.GetValueOrDefault(vm.Weapon);
+        }
+    }
+
+    public IEnumerable<WeaponSelectionViewModel> GetWeaponSelectionItems()
+    {
+        return _weaponViewModels;
+    }
+
     private bool IsWeaponInRange(Weapon weapon, HexCoordinates targetCoords)
     {
         return _weaponRanges.TryGetValue(weapon, out var range) && 

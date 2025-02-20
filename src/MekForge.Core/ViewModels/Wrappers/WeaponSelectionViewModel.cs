@@ -8,6 +8,9 @@ public class WeaponSelectionViewModel : BindableBase
 {
     private bool _isSelected;
     private readonly Action<Weapon, bool> _onSelectionChanged;
+    private Unit? _target;
+    private bool _isEnabled;
+    private bool _isInRange;
 
     public WeaponSelectionViewModel(
         Weapon weapon,
@@ -26,7 +29,12 @@ public class WeaponSelectionViewModel : BindableBase
     }
 
     public Weapon Weapon { get; }
-    public bool IsInRange { get; }
+
+    public bool IsInRange
+    {
+        get => _isInRange;
+        set => SetProperty(ref _isInRange, value);
+    }
 
     public bool IsSelected
     {
@@ -40,9 +48,18 @@ public class WeaponSelectionViewModel : BindableBase
         }
     }
 
-    public bool IsEnabled { get; }
-    public Unit? Target { get; }
-    
+    public bool IsEnabled
+    {
+        get => _isEnabled;
+        set => SetProperty(ref _isEnabled, value);
+    }
+
+    public Unit? Target
+    {
+        get => _target;
+        set => SetProperty(ref _target, value);
+    }
+
     // Additional properties for UI display
     public string Name => Weapon.Name;
     public string RangeInfo => $"{Weapon.MinimumRange}-{Weapon.LongRange}";
