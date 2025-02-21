@@ -351,7 +351,7 @@ public class WeaponsAttackState : IUiState
                range.Contains(targetCoords);
     }
 
-    public void HandleWeaponSelection(Weapon weapon, bool selected)
+    private void HandleWeaponSelection(Weapon weapon, bool selected)
     {
         if (_target == null)
             return;
