@@ -331,11 +331,12 @@ public class WeaponsAttackState : IUiState
         foreach (var vm in _weaponViewModels)
         {
             var isInRange = IsWeaponInRange(vm.Weapon, targetCoords);
-            var isSelected = _weaponTargets.ContainsKey(vm.Weapon) && _weaponTargets[vm.Weapon] == _target;
+            var target = _weaponTargets.GetValueOrDefault(vm.Weapon);
+            var isSelected = _weaponTargets.ContainsKey(vm.Weapon) && _weaponTargets[vm.Weapon] == target;
             vm.IsInRange = isInRange;
             vm.IsSelected = isSelected;
             vm.IsEnabled = (!_weaponTargets.ContainsKey(vm.Weapon) || _weaponTargets[vm.Weapon] == _target) && isInRange;
-            vm.Target = _weaponTargets.GetValueOrDefault(vm.Weapon);
+            vm.Target = target;
         }
     }
 
@@ -362,7 +363,7 @@ public class WeaponsAttackState : IUiState
         {
             _weaponTargets[weapon] = _target;
         }
-        
+        UpdateWeaponViewModels();
         _viewModel.NotifyStateChanged();
     }
 }
