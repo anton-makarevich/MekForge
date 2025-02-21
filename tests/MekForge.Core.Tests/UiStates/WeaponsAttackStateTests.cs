@@ -658,4 +658,187 @@ public class WeaponsAttackStateTests
         // Assert
         weapons.ShouldBeEmpty();
     }
+
+    [Fact]
+    public void GetWeaponSelectionItems_WhenNoAttackerOrTarget_ReturnsEmptyList()
+    {
+        // Act
+        var items = _state.GetWeaponSelectionItems();
+
+        // Assert
+        items.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void GetWeaponSelectionItems_WhenAttackerSelected_CreatesViewModelsForAllWeapons()
+    {
+        // Arrange
+        var unit = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        _state.HandleUnitSelection(unit);
+
+        // Act
+        var items = _state.GetWeaponSelectionItems().ToList();
+
+        // Assert
+        items.ShouldNotBeEmpty();
+        items.Count.ShouldBe(unit.Parts.Sum(p => p.GetComponents<Weapon>().Count()));
+        items.All(i => i.IsEnabled == false).ShouldBeTrue();
+        items.All(i => i.IsSelected == false).ShouldBeTrue();
+        items.All(i => i.Target == null).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void GetWeaponSelectionItems_WhenTargetSelected_UpdatesAvailabilityBasedOnRange()
+    {
+        // Arrange
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        var target = _viewModel.Units.First(u => u.Owner!.Id != _player.Id);
+        
+        // Place units next to each other
+        var attackerPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        attacker.Deploy(attackerPosition);
+        var targetPosition = new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom);
+        target.Deploy(targetPosition);
+        
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h=>h.Coordinates==attackerPosition.Coordinates));
+        _state.HandleUnitSelection(attacker);
+        var selectTargetAction = _state.GetAvailableActions().First(a => a.Label == "Select Target");
+        selectTargetAction.OnExecute();
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h=>h.Coordinates==targetPosition.Coordinates));
+        _state.HandleUnitSelection(target);
+
+        // Act
+        var items = _state.GetWeaponSelectionItems().ToList();
+
+        // Assert
+        items.ShouldNotBeEmpty();
+        items.Any(i => i.IsEnabled).ShouldBeTrue(); // At least one weapon should be in range
+        items.All(i => i.IsSelected == false).ShouldBeTrue();
+        items.All(i => i.Target == null).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void HandleWeaponSelection_WhenWeaponSelected_AssignsTargetAndUpdatesViewModel()
+    {
+        // Arrange
+        var attacker = _viewModel.Units.First(u => u.Owner == _player);
+        var target = _viewModel.Units.First(u => u.Owner != _player);
+        
+        // Place units next to each other
+        attacker.Deploy(new HexPosition(new HexCoordinates(1, 1), HexDirection.Top));
+        target.Deploy(new HexPosition(new HexCoordinates(1, 2), HexDirection.Top));
+        
+        _state.HandleUnitSelection(attacker);
+        _state.HandleUnitSelection(target);
+
+        var weapon = attacker.Parts
+            .SelectMany(p => p.GetComponents<Weapon>())
+            .First();
+
+        // Act
+        _state.HandleWeaponSelection(weapon, true);
+        var items = _state.GetWeaponSelectionItems().ToList();
+
+        // Assert
+        var weaponItem = items.First(i => i.Weapon == weapon);
+        weaponItem.IsSelected.ShouldBeTrue();
+        weaponItem.Target.ShouldBe(target);
+    }
+
+    [Fact]
+    public void HandleWeaponSelection_WhenWeaponDeselected_RemovesTargetAndUpdatesViewModel()
+    {
+        // Arrange
+        var attacker = _viewModel.Units.First(u => u.Owner == _player);
+        var target = _viewModel.Units.First(u => u.Owner != _player);
+        
+        // Place units next to each other
+        attacker.Deploy(new HexPosition(new HexCoordinates(1, 1), HexDirection.Top));
+        target.Deploy(new HexPosition(new HexCoordinates(1, 2), HexDirection.Top));
+        
+        _state.HandleUnitSelection(attacker);
+        _state.HandleUnitSelection(target);
+
+        var weapon = attacker.Parts
+            .SelectMany(p => p.GetComponents<Weapon>())
+            .First();
+
+        // Select weapon first
+        _state.HandleWeaponSelection(weapon, true);
+
+        // Act
+        _state.HandleWeaponSelection(weapon, false);
+        var items = _state.GetWeaponSelectionItems().ToList();
+
+        // Assert
+        var weaponItem = items.First(i => i.Weapon == weapon);
+        weaponItem.IsSelected.ShouldBeFalse();
+        weaponItem.Target.ShouldBeNull();
+    }
+
+    [Fact]
+    public void HandleWeaponSelection_WhenWeaponSelectedForDifferentTarget_DisablesWeaponForCurrentTarget()
+    {
+        // Arrange
+        var attacker = _viewModel.Units.First(u => u.Owner == _player);
+        var target1 = _viewModel.Units.First(u => u.Owner != _player);
+        var target2 = _viewModel.Units.Last(u => u.Owner != _player);
+        
+        // Place units in a triangle
+        attacker.Deploy(new HexPosition(new HexCoordinates(1, 1), HexDirection.Top));
+        target1.Deploy(new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom));
+        target2.Deploy(new HexPosition(new HexCoordinates(2, 1), HexDirection.Bottom));
+        
+        _state.HandleUnitSelection(attacker);
+        _state.HandleUnitSelection(target1);
+
+        var weapon = attacker.Parts
+            .SelectMany(p => p.GetComponents<Weapon>())
+            .First();
+
+        // Select weapon for first target
+        _state.HandleWeaponSelection(weapon, true);
+
+        // Act - select second target
+        _state.HandleUnitSelection(target2);
+        var items = _state.GetWeaponSelectionItems().ToList();
+
+        // Assert
+        var weaponItem = items.First(i => i.Weapon == weapon);
+        weaponItem.IsEnabled.ShouldBeFalse(); // Should be disabled because it's targeting target1
+        weaponItem.Target.ShouldBe(target1);
+    }
+
+    [Fact]
+    public void HandleUnitSelection_WhenNewAttackerSelected_ResetsWeaponSelections()
+    {
+        // Arrange
+        var attacker1 = _viewModel.Units.First(u => u.Owner == _player);
+        var attacker2 = _viewModel.Units.Last(u => u.Owner == _player);
+        var target = _viewModel.Units.First(u => u.Owner != _player);
+        
+        // Place units
+        attacker1.Deploy(new HexPosition(new HexCoordinates(1, 1), HexDirection.Top));
+        attacker2.Deploy(new HexPosition(new HexCoordinates(2, 1), HexDirection.Top));
+        target.Deploy(new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom));
+        
+        _state.HandleUnitSelection(attacker1);
+        _state.HandleUnitSelection(target);
+
+        var weapon = attacker1.Parts
+            .SelectMany(p => p.GetComponents<Weapon>())
+            .First();
+
+        // Select weapon
+        _state.HandleWeaponSelection(weapon, true);
+
+        // Act - select new attacker
+        _state.HandleUnitSelection(attacker2);
+        var items = _state.GetWeaponSelectionItems().ToList();
+
+        // Assert
+        items.All(i => i.IsSelected == false).ShouldBeTrue();
+        items.All(i => i.Target == null).ShouldBeTrue();
+        items.All(i => i.Weapon.GetType() != weapon.GetType()).ShouldBeTrue(); // Should be attacker2's weapons
+    }
 }
