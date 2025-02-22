@@ -8,6 +8,8 @@
              xmlns:controls="clr-namespace:Sanet.MekForge.Avalonia.Controls"
              xmlns:templatedControls="clr-namespace:Sanet.MekForge.Avalonia.Views.TemplatedControls"
              xmlns:converters="clr-namespace:Sanet.MekForge.Avalonia.Converters"
+             xmlns:views="clr-namespace:Sanet.MekForge.Avalonia.Views"
+             xmlns:wrappers="clr-namespace:Sanet.MekForge.Core.ViewModels.Wrappers;assembly=Sanet.MekForge.Core"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Sanet.MekForge.Avalonia.Views.BattleMapView"
              x:CompileBindings="True"
@@ -56,6 +58,53 @@
             </ListBox>
         </Grid>
         
+        <Grid x:Name="WeaponSelection"
+              Background="Aqua"
+              IsVisible="{Binding IsWeaponSelectionVisible}"
+              Grid.RowDefinitions="Auto,Auto,*"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              Width="300">
+            <Label Content="Select weapons to attack"/>
+            <StackPanel Grid.Row="1" 
+                      Margin="10"
+                      Spacing="5">
+                <TextBlock Text="Target:" FontWeight="Bold"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding SelectedUnit.Name}"/>
+                    <TextBlock Text="{Binding SelectedUnit.Position.Value.Coordinates}"/>
+                </StackPanel>
+            </StackPanel>
+            <ItemsControl Grid.Row="2"
+                    Margin="10"
+                    ItemsSource="{Binding WeaponSelectionItems}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="wrappers:WeaponSelectionViewModel">
+                        <Grid ColumnDefinitions="Auto,*"
+                              IsEnabled="{Binding IsEnabled}">
+                            <CheckBox Grid.Column="0"
+                                     IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                     IsEnabled="{Binding IsEnabled}"
+                                     Margin="0,0,10,0"/>
+                            <StackPanel Grid.Column="1" 
+                                      Spacing="2">
+                                <TextBlock Text="{Binding Name}"
+                                         FontWeight="Bold"/>
+                                <StackPanel Orientation="Horizontal"
+                                          Spacing="10">
+                                    <TextBlock Text="{Binding Damage}"/>
+                                    <TextBlock Text="{Binding Heat}"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding Target.Name}"
+                                         Foreground="Gray"
+                                         FontStyle="Italic"/>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+        
         <StackPanel x:Name="PlayerAction"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"
@@ -65,7 +114,6 @@
             <Label Content="{Binding UserActionLabel}"/>
         </StackPanel>
         
-        <!-- Buttons Stack -->
         <StackPanel HorizontalAlignment="Right"
                     VerticalAlignment="Bottom"
                     Margin="10"
@@ -172,22 +220,7 @@
             IsVisible="{Binding IsCommandLogExpanded}"
             Title="Command Log"
             CloseCommand="{Binding ToggleCommandLog}">
-            <ScrollViewer Grid.Row="1" 
-                          MaxHeight="360">
-                <i:Interaction.Behaviors>
-                    <behaviors:AutoScrollBehavior />
-                </i:Interaction.Behaviors>
-                <ItemsControl ItemsSource="{Binding CommandLog}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding}"
-                                       Foreground="Black"
-                                       Margin="5"
-                                       TextWrapping="Wrap"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+            <ListBox ItemsSource="{Binding CommandLog}"/>
         </templatedControls:GamePanel>
     </Grid>
 </UserControl>

@@ -76,6 +76,15 @@ public class BattleMapViewModel : BaseViewModel
 
     public IReadOnlyCollection<string> CommandLog => _commandLog;
 
+    public IEnumerable<WeaponSelectionViewModel> WeaponSelectionItems => 
+        CurrentState is WeaponsAttackState state ? state.GetWeaponSelectionItems() : [];
+
+    public bool IsWeaponSelectionVisible => 
+        CurrentState is WeaponsAttackState
+        {
+            CurrentStep: WeaponsAttackStep.TargetSelection, SelectedTarget: not null
+        };
+
     private void SubscribeToGameChanges()
     {
         _gameSubscription?.Dispose();
@@ -159,6 +168,8 @@ public class BattleMapViewModel : BaseViewModel
         NotifyPropertyChanged(nameof(UserActionLabel));
         NotifyPropertyChanged(nameof(IsUserActionLabelVisible));
         NotifyPropertyChanged(nameof(AreUnitsToDeployVisible));
+        NotifyPropertyChanged(nameof(IsWeaponSelectionVisible));
+        NotifyPropertyChanged(nameof(WeaponSelectionItems));
     }
 
     internal void HighlightHexes(List<HexCoordinates> coordinates, bool isHighlighted)
