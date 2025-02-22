@@ -690,6 +690,28 @@ public class WeaponsAttackStateTests
         items.All(i => i.IsSelected == false).ShouldBeTrue();
         items.All(i => i.Target == null).ShouldBeTrue();
     }
+    
+    [Fact]
+    public void GetWeaponSelectionItems_WhenTargetIsNotSelected_UpdatesAvailabilityBasedOnRange()
+    {
+        // Arrange
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        
+        // Place units next to each other
+        var attackerPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        attacker.Deploy(attackerPosition);
+        
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h=>h.Coordinates==attackerPosition.Coordinates));
+        _state.HandleUnitSelection(attacker);
+
+        // Act
+        var item = _state.GetWeaponSelectionItems().First();
+        item.IsSelected = true;
+
+        // Assert
+        item.IsSelected.ShouldBeFalse();
+        item.Target.ShouldBeNull();
+    }
 
     [Fact]
     public void GetWeaponSelectionItems_WhenTargetSelected_UpdatesAvailabilityBasedOnRange()
