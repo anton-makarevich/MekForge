@@ -9,6 +9,7 @@ using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.Services.Localization;
@@ -560,5 +561,217 @@ public class BattleMapViewModelTests
         // Assert
         _viewModel.MovementPath.ShouldBeNull();
         propertyChanged.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void WeaponSelectionItems_WhenNotInWeaponsAttackState_ReturnsEmptyList()
+    {
+        // Arrange
+        _game.TurnPhase.Returns(PhaseNames.Movement);
+        
+        // Act
+        var items = _viewModel.WeaponSelectionItems;
+
+        // Assert
+        items.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void WeaponSelectionItems_WhenInWeaponsAttackState_ReturnsWeaponsFromState()
+    {
+        // Arrange
+        var rules = new ClassicBattletechRulesProvider();
+        var mechData = MechFactoryTests.CreateDummyMechData();
+        var battleMap = BattleMap.GenerateMap(
+            2, 11,
+            new SingleTerrainGenerator(2, 11, new ClearTerrain()));
+        var player = new Player(Guid.NewGuid(), "Player1");
+        var game = new ClientGame(
+            battleMap, [player], rules,
+            Substitute.For<ICommandPublisher>());
+        
+        _viewModel.Game = game;
+        game.HandleCommand(new JoinGameCommand
+        {
+            PlayerName = "Player1",
+            Units = [mechData],
+            Tint = "#FF0000",
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id
+        });
+        game.HandleCommand(new UpdatePlayerStatusCommand
+        {
+            PlayerStatus = PlayerStatus.Playing,
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id
+        });
+        game.HandleCommand(new ChangePhaseCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            Phase = PhaseNames.WeaponsAttack
+        });
+        game.HandleCommand(new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id,
+            UnitsToPlay = 1
+        });
+
+
+        // Place unit
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var unit = _viewModel.Units.First();
+        unit.Deploy(position);
+        
+        // Select unit
+        _viewModel.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==position.Coordinates));
+
+        // Act
+        var items = _viewModel.WeaponSelectionItems.ToList();
+
+        // Assert
+        items.ShouldNotBeEmpty();
+        items.Count.ShouldBe(unit.Parts.Sum(p => p.GetComponents<Weapon>().Count()));
+    }
+
+    [Fact]
+    public void IsWeaponSelectionVisible_WhenNotInWeaponsAttackState_ReturnsFalse()
+    {
+        // Arrange
+        _game.TurnPhase.Returns(PhaseNames.Movement);
+        
+        // Act & Assert
+        _viewModel.IsWeaponSelectionVisible.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void IsWeaponSelectionVisible_WhenInWeaponsAttackStateWithoutTarget_ReturnsFalse()
+    {
+        // Arrange
+        var rules = new ClassicBattletechRulesProvider();
+        var mechData = MechFactoryTests.CreateDummyMechData();
+        var battleMap = BattleMap.GenerateMap(
+            2, 11,
+            new SingleTerrainGenerator(2, 11, new ClearTerrain()));
+        var player = new Player(Guid.NewGuid(), "Player1");
+        var game = new ClientGame(
+            battleMap, [player], rules,
+            Substitute.For<ICommandPublisher>());
+        
+        _viewModel.Game = game;
+        game.HandleCommand(new JoinGameCommand
+        {
+            PlayerName = "Player1",
+            Units = [mechData],
+            Tint = "#FF0000",
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id
+        });
+        game.HandleCommand(new UpdatePlayerStatusCommand
+        {
+            PlayerStatus = PlayerStatus.Playing,
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id
+        });
+        game.HandleCommand(new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id,
+            UnitsToPlay = 1
+        });
+        game.HandleCommand(new ChangePhaseCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            Phase = PhaseNames.WeaponsAttack
+        });
+
+        // Place unit
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var unit = _viewModel.Units.First();
+        unit.Deploy(position);
+        
+        // Select unit
+        _viewModel.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==position.Coordinates));
+        
+        // Act & Assert
+        _viewModel.IsWeaponSelectionVisible.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void IsWeaponSelectionVisible_WhenInWeaponsAttackStateWithTarget_ReturnsTrue()
+    {
+        // Arrange
+        var rules = new ClassicBattletechRulesProvider();
+        var mechData = MechFactoryTests.CreateDummyMechData();
+        var battleMap = BattleMap.GenerateMap(
+            2, 11,
+            new SingleTerrainGenerator(2, 11, new ClearTerrain()));
+        var player1 = new Player(Guid.NewGuid(), "Player1");
+        var player2 = new Player(Guid.NewGuid(), "Player2");
+        var game = new ClientGame(
+            battleMap, [player1, player2], rules,
+            Substitute.For<ICommandPublisher>());
+        
+        _viewModel.Game = game;
+        game.HandleCommand(new JoinGameCommand
+        {
+            PlayerName = "Player1",
+            Units = [mechData],
+            Tint = "#FF0000",
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player1.Id
+        });
+        game.HandleCommand(new JoinGameCommand
+        {
+            PlayerName = "Player2",
+            Units = [mechData],
+            Tint = "#00FF00",
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player2.Id
+        });
+        game.HandleCommand(new UpdatePlayerStatusCommand
+        {
+            PlayerStatus = PlayerStatus.Playing,
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player1.Id
+        });
+        game.HandleCommand(new UpdatePlayerStatusCommand
+        {
+            PlayerStatus = PlayerStatus.Playing,
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player2.Id
+        });
+        game.HandleCommand(new ChangePhaseCommand
+                   {
+                       GameOriginId = Guid.NewGuid(),
+                       Phase = PhaseNames.WeaponsAttack
+                   });
+        game.HandleCommand(new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player1.Id,
+            UnitsToPlay = 2
+        });
+
+
+        // Place units
+        var attackerPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == player1.Id);
+        attacker.Deploy(attackerPosition);
+        
+        var targetPosition = new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom);
+        var target = _viewModel.Units.First(u => u.Owner!.Id == player2.Id);
+        target.Deploy(targetPosition);
+        
+        // Select attacker
+        _viewModel.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==attackerPosition.Coordinates));
+        
+        // Select target
+        var selectTargetAction = _viewModel.CurrentState.GetAvailableActions().First(a => a.Label == "Select Target");
+        selectTargetAction.OnExecute();
+        _viewModel.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==targetPosition.Coordinates));
+        
+        // Act & Assert
+        _viewModel.IsWeaponSelectionVisible.ShouldBeTrue();
     }
 }
