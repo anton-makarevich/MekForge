@@ -852,7 +852,7 @@ public class BattleMapViewModelTests
         _viewModel.IsWeaponSelectionVisible.ShouldBeTrue();
 
         // Act & Assert - Can be closed
-        _viewModel.IsWeaponSelectionVisible = false;
+        _viewModel.CloseWeaponSelectionCommand();
         _viewModel.IsWeaponSelectionVisible.ShouldBeFalse();
 
         // Act & Assert - Can be reopened
