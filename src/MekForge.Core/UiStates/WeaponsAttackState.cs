@@ -71,6 +71,7 @@ public class WeaponsAttackState : IUiState
         {
             _target = unit;
             UpdateWeaponViewModels();
+            _viewModel.IsWeaponSelectionVisible = true;
         }
 
         _viewModel.NotifyStateChanged();
@@ -105,6 +106,7 @@ public class WeaponsAttackState : IUiState
             if (!IsHexInWeaponRange(hex.Coordinates)) return;
             
             _viewModel.SelectedUnit = unit;
+            _viewModel.IsWeaponSelectionVisible = true;
         }
         _viewModel.NotifyStateChanged();
     }
