@@ -88,6 +88,11 @@ public class BattleMapViewModel : BaseViewModel
         set => SetProperty(ref _isWeaponSelectionVisible, value);
     }
 
+    public void CloseWeaponSelectionCommand()
+    {
+        IsWeaponSelectionVisible = false;
+    }
+
     private void SubscribeToGameChanges()
     {
         _gameSubscription?.Dispose();
