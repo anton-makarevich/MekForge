@@ -148,10 +148,11 @@ namespace Sanet.MekForge.Avalonia.Controls
                                                state.Position.HasValue;
                         if (torsoArrow.IsVisible)
                         {
-                            // Calculate the delta angle between unit facing and torso direction
-                            var unitFacing = (int)state.Position!.Value.Facing;
+                            // Calculate the delta angle between torso direction and unit facing
                             var torsoFacing = (int)state.TorsoDirection!.Value;
-                            var deltaAngle = (torsoFacing - unitFacing + 6) % 6 * 60;
+                            var unitFacing = (int)state.Position!.Value.Facing;
+                            // Since control is rotated to torso direction, we need opposite delta
+                            var deltaAngle = (unitFacing - torsoFacing + 6) % 6 * 60;
 
                             // Apply the delta rotation
                             torsoArrow.RenderTransform = new RotateTransform(deltaAngle);
@@ -167,6 +168,13 @@ namespace Sanet.MekForge.Avalonia.Controls
                     {
                         torsoArrow.IsVisible = false;
                     }
+
+                    // Calculate rotation angle from torso direction if available, otherwise use facing direction
+                    var rotationAngle = _unit is Mech mech1 && mech1.TorsoDirection.HasValue
+                        ? (int)mech1.TorsoDirection.Value * 60
+                        : (int)_unit.Position.Value.Facing * 60;
+
+                    RenderTransform = new RotateTransform(rotationAngle, 0, 0);
                 });
             
             // Initial update
@@ -228,11 +236,6 @@ namespace Sanet.MekForge.Avalonia.Controls
             }
             Canvas.SetLeft(_actionButtons, leftPos);
             Canvas.SetTop(_actionButtons, topPos + Height);
-            
-            // Calculate rotation angle directly from facing direction
-            var rotationAngle = (int)_unit.Position.Value.Facing * 60;
-
-            RenderTransform = new RotateTransform(rotationAngle, 0, 0);
         }
         
         private void UpdateImage()
