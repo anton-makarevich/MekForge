@@ -105,8 +105,8 @@ public class WeaponsAttackState : IUiState
             if (unit.Owner == _viewModel.Game!.ActivePlayer) return;
             if (!IsHexInWeaponRange(hex.Coordinates)) return;
             
+            _viewModel.SelectedUnit = null;
             _viewModel.SelectedUnit = unit;
-            _viewModel.IsWeaponSelectionVisible = true;
         }
         _viewModel.NotifyStateChanged();
     }
