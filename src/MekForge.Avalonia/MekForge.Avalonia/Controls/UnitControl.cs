@@ -136,14 +136,15 @@ namespace Sanet.MekForge.Avalonia.Controls
                 .ObserveOn(SynchronizationContext.Current) // Ensure events are processed on the UI thread
                 .Subscribe(state => 
                 {
+                    if (state.Position == null) return; // unit is not deployed, no need to display
+                    
                     Render();
                     selectionBorder.IsVisible = state.SelectedUnit == _unit
                                                 || _viewModel.CurrentState is WeaponsAttackState attackState && (attackState.Attacker == _unit || attackState.SelectedTarget == _unit);
                     UpdateActionButtons(state.Actions);
-
+                    
                     // Calculate rotation angles
                     var isMech = _unit is Mech;
-                    if (state.Position == null) return;
 
                     var torsoFacing = isMech && state.TorsoDirection.HasValue 
                         ? (int)state.TorsoDirection.Value 
