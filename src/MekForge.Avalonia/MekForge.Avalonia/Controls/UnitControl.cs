@@ -136,31 +136,39 @@ namespace Sanet.MekForge.Avalonia.Controls
                 .ObserveOn(SynchronizationContext.Current) // Ensure events are processed on the UI thread
                 .Subscribe(state => 
                 {
+                    if (state.Position == null) return; // unit is not deployed, no need to display
+                    
                     Render();
                     selectionBorder.IsVisible = state.SelectedUnit == _unit
                                                 || _viewModel.CurrentState is WeaponsAttackState attackState && (attackState.Attacker == _unit || attackState.SelectedTarget == _unit);
                     UpdateActionButtons(state.Actions);
+                    
+                    // Calculate rotation angles
+                    var isMech = _unit is Mech;
 
-                    // Update torso direction arrow
-                    if (_unit is Mech mech)
+                    var torsoFacing = isMech && state.TorsoDirection.HasValue 
+                        ? (int)state.TorsoDirection.Value 
+                        : (int)state.Position!.Value.Facing;
+                    var unitFacing = (int)state.Position!.Value.Facing;
+                    
+                    // Rotate entire control to show torso/unit direction
+                    RenderTransform = new RotateTransform(torsoFacing * 60, 0, 0);
+
+                    // Update direction indicator for mechs
+                    if (isMech)
                     {
                         torsoArrow.IsVisible = state.IsWeaponsPhase && state.TorsoDirection.HasValue &&
                                                state.Position.HasValue;
-                        if (torsoArrow.IsVisible)
-                        {
-                            // Calculate the delta angle between unit facing and torso direction
-                            var unitFacing = (int)state.Position!.Value.Facing;
-                            var torsoFacing = (int)state.TorsoDirection!.Value;
-                            var deltaAngle = (torsoFacing - unitFacing + 6) % 6 * 60;
+                        if (!torsoArrow.IsVisible) return;
+                        // Since control is rotated to torso direction, we need opposite delta
+                        var deltaAngle = (unitFacing - torsoFacing + 6) % 6 * 60;
+                        torsoArrow.RenderTransform = new RotateTransform(deltaAngle);
 
-                            // Apply the delta rotation
-                            torsoArrow.RenderTransform = new RotateTransform(deltaAngle);
-                            // Check if torso direction has changed
-                            if (!state.IsWeaponsPhase || !mech.HasUsedTorsoTwist) return;
-                            if (state.TorsoDirection.HasValue)
-                            {
-                                (_viewModel.CurrentState as WeaponsAttackState)?.HandleTorsoRotation(_unit.Id);
-                            }
+                        // Check if torso direction has changed
+                        if (!state.IsWeaponsPhase || !((Mech)_unit).HasUsedTorsoTwist) return;
+                        if (state.TorsoDirection.HasValue)
+                        {
+                            (_viewModel.CurrentState as WeaponsAttackState)?.HandleTorsoRotation(_unit.Id);
                         }
                     }
                     else
@@ -228,11 +236,6 @@ namespace Sanet.MekForge.Avalonia.Controls
             }
             Canvas.SetLeft(_actionButtons, leftPos);
             Canvas.SetTop(_actionButtons, topPos + Height);
-            
-            // Calculate rotation angle directly from facing direction
-            var rotationAngle = (int)_unit.Position.Value.Facing * 60;
-
-            RenderTransform = new RotateTransform(rotationAngle, 0, 0);
         }
         
         private void UpdateImage()
