@@ -5,6 +5,7 @@ using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Energy;
 using Sanet.MekForge.Core.Models.Units.Mechs;
+using Sanet.MekForge.Core.Models.Units.Pilots;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units.Mechs;
 
@@ -532,6 +533,22 @@ public class MechTests
 
         // Assert
         mech.PossibleTorsoRotation.ShouldBe(rotation);
+    }
+    
+    [Fact]
+    public void Constructor_AssignsDefaultMechwarrior()
+    {
+        // Arrange & Act
+        var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
+
+        // Assert
+        mech.Crew.ShouldNotBeNull();
+        mech.Crew.ShouldBeOfType<MechWarrior>();
+        var pilot = (MechWarrior)mech.Crew;
+        pilot.FirstName.ShouldBe("MechWarrior");
+        pilot.LastName.Length.ShouldBe(6); // Random GUID substring
+        pilot.Gunnery.ShouldBe(MechWarrior.DefaultGunnery);
+        pilot.Piloting.ShouldBe(MechWarrior.DefaultPiloting);
     }
 }
 

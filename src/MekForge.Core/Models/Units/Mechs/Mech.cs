@@ -1,5 +1,6 @@
 using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
+using Sanet.MekForge.Core.Models.Units.Pilots;
 using Sanet.MekForge.Core.Models.Map;
 
 namespace Sanet.MekForge.Core.Models.Units.Mechs;
@@ -32,6 +33,9 @@ public class Mech : Unit
     {
         PossibleTorsoRotation = possibleTorsoRotation;
         Status = UnitStatus.Active;
+        // Assign a default mechwarrior with a generated name
+        var randomId = Guid.NewGuid().ToString()[..6];
+        Crew = new MechWarrior($"MechWarrior", randomId);
     }
 
     public bool CanRotateTorso=> PossibleTorsoRotation > 0 && !HasUsedTorsoTwist;

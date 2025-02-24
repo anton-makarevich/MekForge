@@ -2,6 +2,7 @@ using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units.Components;
+using Sanet.MekForge.Core.Models.Units.Pilots;
 
 namespace Sanet.MekForge.Core.Models.Units;
 
@@ -91,6 +92,7 @@ public abstract class Unit
     // Parts management
     public IReadOnlyList<UnitPart> Parts =>_parts;
     public Guid Id { get; private set; } = Guid.Empty;
+    public IPilot? Crew { get; protected set; }
 
     // Movement tracking
     public int MovementPointsSpent { get; private set; }
