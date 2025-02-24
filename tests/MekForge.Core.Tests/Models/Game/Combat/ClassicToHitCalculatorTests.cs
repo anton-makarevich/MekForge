@@ -1,0 +1,192 @@
+using NSubstitute;
+using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Models.Game.Combat;
+using Sanet.MekForge.Core.Models.Map;
+using Sanet.MekForge.Core.Models.Map.Terrains;
+using Sanet.MekForge.Core.Models.Units;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons.Energy;
+using Sanet.MekForge.Core.Tests.Data;
+using Sanet.MekForge.Core.Utils.Generators;
+using Sanet.MekForge.Core.Utils.TechRules;
+using Shouldly;
+
+namespace Sanet.MekForge.Core.Tests.Models.Game.Combat;
+
+public class ClassicToHitCalculatorTests
+{
+    private readonly IRulesProvider _rules;
+    private readonly ClassicToHitCalculator _calculator;
+    private Unit _attacker;
+    private Unit _target;
+    private readonly Weapon _weapon;
+    private readonly MechFactory _mechFactory;
+
+    public ClassicToHitCalculatorTests()
+    {
+        _rules = Substitute.For<IRulesProvider>();
+        _calculator = new ClassicToHitCalculator(_rules);
+
+        // Setup rules for structure values (needed for MechFactory)
+        _rules.GetStructureValues(20).Returns(new Dictionary<PartLocation, int>
+        {
+            { PartLocation.Head, 8 },
+            { PartLocation.CenterTorso, 10 },
+            { PartLocation.LeftTorso, 8 },
+            { PartLocation.RightTorso, 8 },
+            { PartLocation.LeftArm, 4 },
+            { PartLocation.RightArm, 4 },
+            { PartLocation.LeftLeg, 8 },
+            { PartLocation.RightLeg, 8 }
+        });
+
+        _mechFactory = new MechFactory(_rules);
+
+        // Setup weapon
+        _weapon = new MediumLaser();
+
+        // Default rules setup
+        _rules.GetAttackerMovementModifier(MovementType.StandingStill).Returns(0);
+        _rules.GetTargetMovementModifier(1).Returns(0);
+        _rules.GetRangeModifier(WeaponRange.Short).Returns(0);
+        _rules.GetHeatModifier(0).Returns(0);
+    }
+
+    private void SetupAttackerAndTarget(HexPosition attackerPosition, HexPosition targetEndPosition)
+    {
+        // Setup attacker
+        var attackerData = MechFactoryTests.CreateDummyMechData();
+        _attacker = _mechFactory.Create(attackerData);
+        _attacker.Deploy(attackerPosition);
+        _attacker.Move(MovementType.StandingStill, []);
+
+        // Setup target
+        var targetData = MechFactoryTests.CreateDummyMechData();
+        _target = _mechFactory.Create(targetData);
+        var targetStartPosition = new HexPosition(new HexCoordinates(targetEndPosition.Coordinates.Q-1, targetEndPosition.Coordinates.R), HexDirection.Bottom);
+        _target.Deploy(targetStartPosition);
+        _target.Move(MovementType.Walk, [new PathSegment(targetStartPosition, targetEndPosition, 1).ToData()]);
+    }
+
+    [Fact]
+    public void GetToHitModifier_NoLineOfSight_ReturnsMaxValue()
+    {
+        // Arrange
+        SetupAttackerAndTarget(
+            new HexPosition(new HexCoordinates(2,2), HexDirection.Bottom),
+            new HexPosition(new HexCoordinates(8, 2), HexDirection.Bottom));
+        var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new HeavyWoodsTerrain()));
+
+        // Act
+        var result = _calculator.GetToHitModifier(_attacker, _target, _weapon, map);
+
+        // Assert
+        result.ShouldBe(int.MaxValue);
+    }
+
+    [Fact]
+    public void GetToHitModifier_OutOfRange_ReturnsMaxValue()
+    {
+        // Arrange
+        SetupAttackerAndTarget(
+            new HexPosition(new HexCoordinates(1,1), HexDirection.Bottom),
+            new HexPosition(new HexCoordinates(10, 10), HexDirection.Bottom));
+        var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new ClearTerrain()));
+        _rules.GetRangeModifier(WeaponRange.OutOfRange).Returns(int.MaxValue);
+
+        // Act
+        var result = _calculator.GetToHitModifier(_attacker, _target, _weapon, map);
+
+        // Assert
+        result.ShouldBe(int.MaxValue);
+    }
+
+    [Fact]
+    public void GetToHitModifier_ValidShot_ReturnsCorrectModifier()
+    {
+        // Arrange
+        SetupAttackerAndTarget(
+            new HexPosition(new HexCoordinates(2,2), HexDirection.Bottom),
+            new HexPosition(new HexCoordinates(5, 2), HexDirection.Bottom));
+        var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new ClearTerrain()));
+        _rules.GetTerrainToHitModifier("LightWoods").Returns(1);
+
+        // Act
+        var result = _calculator.GetToHitModifier(_attacker, _target, _weapon, map);
+
+        // Assert
+        // Base gunnery (4) + Attacker movement (0) + Target movement (0) + Terrain (0) = 4
+        result.ShouldBe(4);
+    }
+
+    [Fact]
+    public void GetModifierBreakdown_NoLineOfSight_ReturnsBreakdownWithNoLos()
+    {
+        // Arrange
+        SetupAttackerAndTarget(
+            new HexPosition(new HexCoordinates(2,2), HexDirection.Bottom),
+            new HexPosition(new HexCoordinates(5, 2), HexDirection.Bottom));
+        var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new HeavyWoodsTerrain()));
+
+        // Act
+        var result = _calculator.GetModifierBreakdown(_attacker, _target, _weapon, map);
+
+        // Assert
+        result.HasLineOfSight.ShouldBeFalse();
+        result.Total.ShouldBe(int.MaxValue);
+    }
+
+    [Fact]
+    public void GetModifierBreakdown_ValidShot_ReturnsDetailedBreakdown()
+    {
+        // Arrange
+        SetupAttackerAndTarget(
+            new HexPosition(new HexCoordinates(2,2), HexDirection.Bottom),
+            new HexPosition(new HexCoordinates(5, 2), HexDirection.Bottom));
+        var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new ClearTerrain()));
+        _rules.GetTerrainToHitModifier("LightWoods").Returns(1);
+
+        // Act
+        var result = _calculator.GetModifierBreakdown(_attacker, _target, _weapon, map);
+
+        // Assert
+        result.HasLineOfSight.ShouldBeTrue();
+        result.GunneryBase.ShouldBe(4);
+        result.AttackerMovement.ShouldBe(0);
+        result.TargetMovement.ShouldBe(0);
+        result.RangeModifier.ShouldBe(0);
+        result.TerrainModifiers.Count.ShouldBe(0); // Number of hexes between units
+        result.Total.ShouldBe(4); // Base (4) 
+    }
+
+    [Fact]
+    public void GetModifierBreakdown_WithHeat_IncludesHeatModifier()
+    {
+        // Arrange
+        SetupAttackerAndTarget(
+            new HexPosition(new HexCoordinates(2,2), HexDirection.Bottom),
+            new HexPosition(new HexCoordinates(5, 2), HexDirection.Bottom));
+        var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new ClearTerrain()));
+        _rules.GetHeatModifier(0).Returns(2);
+
+        // Act
+        var result = _calculator.GetModifierBreakdown(_attacker, _target, _weapon, map);
+
+        // Assert
+        result.OtherModifiers.Count.ShouldBe(1);
+        result.OtherModifiers[0].Reason.ShouldBe("Heat");
+        result.OtherModifiers[0].Modifier.ShouldBe(2);
+    }
+
+    [Fact]
+    public void GetToHitModifier_UndefinedMovementType_ThrowsException()
+    {
+        // Arrange
+        var attackerData = MechFactoryTests.CreateDummyMechData();
+        var attacker = _mechFactory.Create(attackerData);
+        var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new ClearTerrain()));
+
+        // Act & Assert
+        Should.Throw<Exception>(() => _calculator.GetToHitModifier(attacker, _target, _weapon, map));
+    }
+}

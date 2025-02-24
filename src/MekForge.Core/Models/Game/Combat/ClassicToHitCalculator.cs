@@ -71,10 +71,7 @@ public class ClassicToHitCalculator : IToHitCalculator
         var modifiers = new List<(string Reason, int Modifier)>();
 
         // Heat modifier
-        if (attacker.CurrentHeat > 0)
-        {
-            modifiers.Add(("Heat", _rules.GetHeatModifier(attacker.CurrentHeat)));
-        }
+        modifiers.Add(("Heat", _rules.GetHeatModifier(attacker.CurrentHeat)));
 
         // TODO: Add other modifiers like:
         // - Attacker damage (actuators)
