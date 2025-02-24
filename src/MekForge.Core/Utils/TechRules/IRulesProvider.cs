@@ -27,4 +27,9 @@ public interface IRulesProvider
     /// Gets the modifier based on attacker's current heat level
     /// </summary>
     int GetHeatModifier(int currentHeat);
+
+    /// <summary>
+    /// Gets the to-hit modifier for a specific terrain type
+    /// </summary>
+    int GetTerrainToHitModifier(string terrainType);
 }
