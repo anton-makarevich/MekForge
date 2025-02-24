@@ -209,5 +209,70 @@ namespace Sanet.MekForge.Core.Utils.TechRules
                 _ => throw new ArgumentOutOfRangeException(nameof(ammoType), "Invalid AmmoType"),
             };
         }
+
+        public int GetAttackerMovementModifier(MovementType movementType)
+        {
+            return movementType switch
+            {
+                MovementType.StandingStill => 0,
+                MovementType.Walk => 1,
+                MovementType.Run => 2,
+                MovementType.Jump => 3,
+                MovementType.Prone => 2,
+                _ => throw new ArgumentException($"Unknown movement type: {movementType}")
+            };
+        }
+
+        public int GetTargetMovementModifier(int hexesMoved)
+        {
+            return hexesMoved switch
+            {
+                <= 2 => 0,    // 0-2 hexes: no modifier
+                <= 4 => 1,    // 3-4 hexes: +1
+                <= 6 => 2,    // 5-6 hexes: +2
+                <= 9 => 3,    // 7-9 hexes: +3
+                <= 17 => 4,   // 10-17 hexes: +4
+                <= 24 => 5,   // 18-24 hexes: +5
+                _ => 6        // 25+ hexes: +6
+            };
+        }
+
+        public int GetRangeModifier(WeaponRange range)
+        {
+            return range switch
+            {
+                WeaponRange.Minimum => 1,
+                WeaponRange.Short => 0,
+                WeaponRange.Medium => 2,
+                WeaponRange.Long => 4,
+                WeaponRange.OutOfRange => int.MaxValue,
+                _ => throw new ArgumentException($"Unknown weapon range: {range}")
+            };
+        }
+
+        public int GetHeatModifier(int currentHeat)
+        {
+            return currentHeat switch
+            {
+                <= 0 => 0,
+                <= 4 => 1,
+                <= 7 => 2,
+                <= 10 => 3,
+                <= 13 => 4,
+                _ => 5 // 14+ heat
+            };
+        }
+
+        public int GetTerrainToHitModifier(string terrainId)
+        {
+            return terrainId switch
+            {
+                "light_woods" => 1,
+                "heavy_woods" => 2,
+                "water_depth_1" => 0,
+                "water_depth_2" => 1,
+                _ => 0 // Default no modifier
+            };
+        }
     }
 }
