@@ -2,7 +2,7 @@ using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
-namespace Sanet.MekForge.Core.Services.Combat;
+namespace Sanet.MekForge.Core.Models.Game.Combat;
 
 /// <summary>
 /// Interface for calculating to-hit modifiers using GATOR system

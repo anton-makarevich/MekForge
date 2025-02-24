@@ -1,6 +1,6 @@
 using Sanet.MekForge.Core.Models.Map;
 
-namespace Sanet.MekForge.Core.Services.Combat;
+namespace Sanet.MekForge.Core.Models.Game.Combat;
 
 /// <summary>
 /// Detailed breakdown of GATOR modifiers affecting an attack

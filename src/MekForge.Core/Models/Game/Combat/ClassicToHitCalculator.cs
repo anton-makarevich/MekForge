@@ -3,7 +3,7 @@ using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Utils.TechRules;
 
-namespace Sanet.MekForge.Core.Services.Combat;
+namespace Sanet.MekForge.Core.Models.Game.Combat;
 
 /// <summary>
 /// Classic BattleTech implementation of to-hit calculator using GATOR system
