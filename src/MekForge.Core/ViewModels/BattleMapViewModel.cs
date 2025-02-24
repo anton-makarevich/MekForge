@@ -25,27 +25,29 @@ public class BattleMapViewModel : BaseViewModel
     private bool _isRecordSheetExpanded;
     private readonly ILocalizationService _localizationService;
     private HexCoordinates _directionSelectorPosition;
+    private bool _isDirectionSelectorVisible;
+    private IEnumerable<HexDirection>? _availableDirections;
+    private List<PathSegmentViewModel>? _movementPath;
+    private bool _isWeaponSelectionVisible;
+
     public HexCoordinates DirectionSelectorPosition
     {
         get => _directionSelectorPosition;
         private set => SetProperty(ref _directionSelectorPosition, value);
     }
 
-    private bool _isDirectionSelectorVisible;
     public bool IsDirectionSelectorVisible
     {
         get => _isDirectionSelectorVisible;
         private set => SetProperty(ref _isDirectionSelectorVisible, value);
     }
 
-    private IEnumerable<HexDirection>? _availableDirections;
     public IEnumerable<HexDirection>? AvailableDirections
     {
         get => _availableDirections;
         private set => SetProperty(ref _availableDirections, value);
     }
 
-    private List<PathSegmentViewModel>? _movementPath;
     public List<PathSegmentViewModel>? MovementPath
     {
         get => _movementPath;
@@ -79,11 +81,17 @@ public class BattleMapViewModel : BaseViewModel
     public IEnumerable<WeaponSelectionViewModel> WeaponSelectionItems => 
         CurrentState is WeaponsAttackState state ? state.GetWeaponSelectionItems() : [];
 
-    public bool IsWeaponSelectionVisible => 
-        CurrentState is WeaponsAttackState
-        {
-            CurrentStep: WeaponsAttackStep.TargetSelection, SelectedTarget: not null
-        };
+    public bool IsWeaponSelectionVisible
+    {
+        get => CurrentState is WeaponsAttackState { CurrentStep: WeaponsAttackStep.TargetSelection, SelectedTarget: not null } 
+            && _isWeaponSelectionVisible;
+        set => SetProperty(ref _isWeaponSelectionVisible, value);
+    }
+
+    public void CloseWeaponSelectionCommand()
+    {
+        IsWeaponSelectionVisible = false;
+    }
 
     private void SubscribeToGameChanges()
     {
@@ -168,7 +176,6 @@ public class BattleMapViewModel : BaseViewModel
         NotifyPropertyChanged(nameof(UserActionLabel));
         NotifyPropertyChanged(nameof(IsUserActionLabelVisible));
         NotifyPropertyChanged(nameof(AreUnitsToDeployVisible));
-        NotifyPropertyChanged(nameof(IsWeaponSelectionVisible));
         NotifyPropertyChanged(nameof(WeaponSelectionItems));
     }
 
