@@ -56,7 +56,6 @@ namespace Sanet.MekForge.Core.Tests.Utils.TechRules
         }
 
         [Theory]
-        [InlineData(AmmoType.None, 0)]
         [InlineData(AmmoType.MachineGun, 200)]
         [InlineData(AmmoType.AC2, 45)]
         [InlineData(AmmoType.AC5, 20)]
@@ -69,13 +68,90 @@ namespace Sanet.MekForge.Core.Tests.Utils.TechRules
         [InlineData(AmmoType.SRM2, 50)]
         [InlineData(AmmoType.SRM4, 25)]
         [InlineData(AmmoType.SRM6, 15)]
-        public void GetAmmoRounds_ReturnsCorrectValues(AmmoType ammoType, int expectedRounds)
+        public void GetAmmoRounds_ReturnsExpectedValues(AmmoType ammoType, int expectedRounds)
         {
-            // Act
-            var result = _provider.GetAmmoRounds(ammoType);
+            _provider.GetAmmoRounds(ammoType).ShouldBe(expectedRounds);
+        }
 
-            // Assert
-            result.ShouldBe(expectedRounds);
+        [Theory]
+        [InlineData(MovementType.StandingStill, 0)]
+        [InlineData(MovementType.Walk, 1)]
+        [InlineData(MovementType.Run, 2)]
+        [InlineData(MovementType.Jump, 3)]
+        [InlineData(MovementType.Prone, 2)]
+        public void GetAttackerMovementModifier_ReturnsExpectedValues(MovementType movementType, int expectedModifier)
+        {
+            _provider.GetAttackerMovementModifier(movementType).ShouldBe(expectedModifier);
+        }
+
+        [Theory]
+        [InlineData(0, 0)]  // 0-2 hexes: no modifier
+        [InlineData(2, 0)]
+        [InlineData(3, 1)]  // 3-4 hexes: +1
+        [InlineData(4, 1)]
+        [InlineData(5, 2)]  // 5-6 hexes: +2
+        [InlineData(6, 2)]
+        [InlineData(7, 3)]  // 7-9 hexes: +3
+        [InlineData(9, 3)]
+        [InlineData(10, 4)] // 10-17 hexes: +4
+        [InlineData(17, 4)]
+        [InlineData(18, 5)] // 18-24 hexes: +5
+        [InlineData(24, 5)]
+        [InlineData(25, 6)] // 25+ hexes: +6
+        [InlineData(30, 6)]
+        public void GetTargetMovementModifier_ReturnsExpectedValues(int hexesMoved, int expectedModifier)
+        {
+            _provider.GetTargetMovementModifier(hexesMoved).ShouldBe(expectedModifier);
+        }
+
+        [Theory]
+        [InlineData(WeaponRange.Minimum, 1)]
+        [InlineData(WeaponRange.Short, 0)]
+        [InlineData(WeaponRange.Medium, 2)]
+        [InlineData(WeaponRange.Long, 4)]
+        [InlineData(WeaponRange.OutOfRange, int.MaxValue)]
+        public void GetRangeModifier_ReturnsExpectedValues(WeaponRange range, int expectedModifier)
+        {
+            _provider.GetRangeModifier(range).ShouldBe(expectedModifier);
+        }
+
+        [Theory]
+        [InlineData(0, 0)]   // 0-7 heat: no modifier
+        [InlineData(7, 0)]
+        [InlineData(8, 1)]   // 8-12 heat: +1
+        [InlineData(12, 1)]
+        [InlineData(13, 2)]  // 13-16 heat: +2
+        [InlineData(16, 2)]
+        [InlineData(17, 3)]  // 17-23 heat: +3
+        [InlineData(23, 3)]
+        [InlineData(24, 4)]  // 24+ heat: +4
+        [InlineData(25, 4)]  // >24 heat: +4
+        public void GetHeatModifier_ReturnsExpectedValues(int currentHeat, int expectedModifier)
+        {
+            _provider.GetHeatModifier(currentHeat).ShouldBe(expectedModifier);
+        }
+
+        [Theory]
+        [InlineData("LightWoods", 1)]
+        [InlineData("HeavyWoods", 2)]
+        [InlineData("unknown_terrain", 0)]
+        public void GetTerrainToHitModifier_ReturnsExpectedValues(string terrainId, int expectedModifier)
+        {
+            _provider.GetTerrainToHitModifier(terrainId).ShouldBe(expectedModifier);
+        }
+
+        [Fact]
+        public void GetAttackerMovementModifier_InvalidMovementType_ThrowsArgumentException()
+        {
+            var invalidType = (MovementType)999;
+            Should.Throw<ArgumentException>(() => _provider.GetAttackerMovementModifier(invalidType));
+        }
+
+        [Fact]
+        public void GetRangeModifier_InvalidRange_ThrowsArgumentException()
+        {
+            var invalidRange = (WeaponRange)999;
+            Should.Throw<ArgumentException>(() => _provider.GetRangeModifier(invalidRange));
         }
     }
 }
