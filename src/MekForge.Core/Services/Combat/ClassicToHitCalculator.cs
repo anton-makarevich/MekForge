@@ -46,7 +46,7 @@ public class ClassicToHitCalculator : IToHitCalculator
         return new ToHitBreakdown
         {
             GunneryBase = attacker.Crew!.Gunnery,
-            AttackerMovement = _rules.GetAttackerMovementModifier(attacker.MovementTypeUsed?? throw new ArgumentNullException("MovementTypeUsed","Attacker's Movement Type is undefined")
+            AttackerMovement = _rules.GetAttackerMovementModifier(attacker.MovementTypeUsed?? throw new Exception("Attacker's Movement Type is undefined")
             {
                 HelpLink = null,
                 HResult = 0,
