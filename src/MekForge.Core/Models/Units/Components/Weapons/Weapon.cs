@@ -44,7 +44,10 @@ public abstract class Weapon : Component
     /// </summary>
     public WeaponRange GetRangeBracket(int distance)
     {
-        if (distance < MinimumRange)
+        if (distance <= 0)
+            return WeaponRange.OutOfRange;
+        
+        if (distance <= MinimumRange)
             return WeaponRange.Minimum;
             
         if (distance <= ShortRange)

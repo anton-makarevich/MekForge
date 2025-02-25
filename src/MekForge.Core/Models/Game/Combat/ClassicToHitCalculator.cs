@@ -68,10 +68,9 @@ public class ClassicToHitCalculator : IToHitCalculator
 
     private IReadOnlyList<(string Reason, int Modifier)> GetDetailedOtherModifiers(Unit attacker, Unit target, Weapon weapon, BattleMap map)
     {
-        var modifiers = new List<(string Reason, int Modifier)>();
-
-        // Heat modifier
-        modifiers.Add(("Heat", _rules.GetHeatModifier(attacker.CurrentHeat)));
+        var modifiers = new List<(string Reason, int Modifier)> {
+            // Heat modifier, TODO: make modifies enum
+            ("Heat", _rules.GetHeatModifier(attacker.CurrentHeat)) };
 
         // TODO: Add other modifiers like:
         // - Attacker damage (actuators)
