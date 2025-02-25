@@ -158,6 +158,29 @@ public class ClassicToHitCalculatorTests
         result.TerrainModifiers.Count.ShouldBe(0); // Number of hexes between units
         result.Total.ShouldBe(4); // Base (4) 
     }
+    
+    [Fact]
+    public void GetModifierBreakdown_ValidShot_ReturnsDetailedBreakdown2()
+    {
+        // Arrange
+        SetupAttackerAndTarget(
+            new HexPosition(new HexCoordinates(2,2), HexDirection.Bottom),
+            new HexPosition(new HexCoordinates(4, 2), HexDirection.Bottom));
+        var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new LightWoodsTerrain()));
+        _rules.GetTerrainToHitModifier("LightWoods").Returns(1);
+
+        // Act
+        var result = _calculator.GetModifierBreakdown(_attacker, _target, _weapon, map);
+
+        // Assert
+        result.HasLineOfSight.ShouldBeTrue();
+        result.GunneryBase.ShouldBe(4);
+        result.AttackerMovement.ShouldBe(0);
+        result.TargetMovement.ShouldBe(0);
+        result.RangeModifier.ShouldBe(0);
+        result.TerrainModifiers.Count.ShouldBe(2); // Hexes between units (3,2) + target hex (4,2)
+        result.Total.ShouldBe(6); // Base (4) + terrain (2)
+    }
 
     [Fact]
     public void GetModifierBreakdown_WithHeat_IncludesHeatModifier()
