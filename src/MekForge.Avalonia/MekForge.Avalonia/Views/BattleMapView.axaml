@@ -17,6 +17,7 @@
     <UserControl.Resources>
         <converters:HexColorToBrushConverter x:Key="HexColorToBrushConverter"/>
         <converters:ContrastingForegroundConverter x:Key="ContrastingForegroundConverter"/>
+        <converters:HitProbabilityColorConverter x:Key="HitProbabilityColorConverter"/>
     </UserControl.Resources>
     <Grid>
         <Canvas x:Name="MapCanvas" 
@@ -96,7 +97,7 @@
                                         <TextBlock Text="{Binding Damage}"/>
                                         <TextBlock Text="{Binding Heat}"/>
                                         <TextBlock Text="{Binding HitProbability}" 
-                                                 Foreground="Green"
+                                                 Foreground="{Binding HitProbability, Converter={StaticResource HitProbabilityColorConverter}}"
                                                  FontWeight="Bold"/>
                                     </StackPanel>
                                     <TextBlock Text="{Binding Target.Name}"
