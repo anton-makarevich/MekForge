@@ -7,5 +7,6 @@ public enum MovementType
     Run,    // 1.5x walking
     Sprint, // 2x walking
     Jump,   // Requires jump jets
-    Masc    // Requires MASC system
+    Masc,    // Requires MASC system
+    Prone
 }

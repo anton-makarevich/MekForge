@@ -38,4 +38,27 @@ public abstract class Weapon : Component
     public int LongRange { get; }
     public WeaponType Type { get; }
     public AmmoType AmmoType { get; }
+
+    /// <summary>
+    /// Gets the range bracket for a given distance
+    /// </summary>
+    public WeaponRange GetRangeBracket(int distance)
+    {
+        if (distance <= 0)
+            return WeaponRange.OutOfRange;
+        
+        if (distance <= MinimumRange)
+            return WeaponRange.Minimum;
+            
+        if (distance <= ShortRange)
+            return WeaponRange.Short;
+            
+        if (distance <= MediumRange)
+            return WeaponRange.Medium;
+            
+        if (distance <= LongRange)
+            return WeaponRange.Long;
+            
+        return WeaponRange.OutOfRange;
+    }
 }

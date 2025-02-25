@@ -452,6 +452,15 @@ public class BattleMap
     }
 
     /// <summary>
+    /// Gets hexes along the line of sight between two coordinates, including terrain information
+    /// </summary>
+    public IReadOnlyList<Hex> GetHexesAlongLineOfSight(HexCoordinates from, HexCoordinates to)
+    {
+        var coordinates = ResolveHexesAlongTheLine(from, to);
+        return coordinates.Select(c => GetHex(c)!).ToList();
+    }
+
+    /// <summary>
     /// Clears the line of sight cache. Should be called at the end of each turn.
     /// </summary>
     public void ClearLosCache()
