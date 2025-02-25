@@ -7,9 +7,9 @@ public record RangeAttackModifier : AttackModifier
 {
     public required WeaponRange Range { get; init; }
     public required int Distance { get; init; }
-    public required WeaponType WeaponType { get; init; }
+    public required string WeaponName { get; init; }
 
     public override string Format(ILocalizationService localizationService) =>
         string.Format(localizationService.GetString("Modifier_Range"), 
-            WeaponType, Distance, Range, Value);
+            WeaponName, Distance, Range, Value);
 }

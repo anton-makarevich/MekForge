@@ -55,7 +55,7 @@ public class ClassicToHitCalculator : IToHitCalculator
                 Value = _rules.GetRangeModifier(range),
                 Range = range,
                 Distance = distance,
-                WeaponType = weapon.Type
+                WeaponName = weapon.Name
             },
             TerrainModifiers = terrainModifiers,
             HasLineOfSight = hasLos

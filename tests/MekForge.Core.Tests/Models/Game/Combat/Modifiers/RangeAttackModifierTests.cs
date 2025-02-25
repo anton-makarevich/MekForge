@@ -19,7 +19,7 @@ public class RangeAttackModifierTests
             Value = 2,
             Range = WeaponRange.Medium,
             Distance = 7,
-            WeaponType = WeaponType.Energy
+            WeaponName = "Medium Laser"
         };
         _localizationService.GetString("Modifier_Range").Returns("{0} at {1} hexes ({2} range): {3}");
 
@@ -27,7 +27,7 @@ public class RangeAttackModifierTests
         var result = modifier.Format(_localizationService);
 
         // Assert
-        result.ShouldBe("Energy at 7 hexes (Medium range): 2");
+        result.ShouldBe("Medium Laser at 7 hexes (Medium range): 2");
         _localizationService.Received(1).GetString("Modifier_Range");
     }
 }
