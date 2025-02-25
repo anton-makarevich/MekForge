@@ -1,4 +1,4 @@
-using Sanet.MekForge.Core.Models.Map;
+using Sanet.MekForge.Core.Models.Game.Combat.Modifiers;
 
 namespace Sanet.MekForge.Core.Models.Game.Combat;
 
@@ -10,17 +10,17 @@ public record ToHitBreakdown
     /// <summary>
     /// Base gunnery skill of the attacker
     /// </summary>
-    public required AttackModifier GunneryBase { get; init; }
+    public required GunneryAttackModifier GunneryBase { get; init; }
 
     /// <summary>
     /// Modifier based on attacker's movement type
     /// </summary>
-    public required AttackModifier AttackerMovement { get; init; }
+    public required AttackerMovementModifier AttackerMovement { get; init; }
 
     /// <summary>
     /// Modifier based on target's movement distance
     /// </summary>
-    public required AttackModifier TargetMovement { get; init; }
+    public required TargetMovementModifier TargetMovement { get; init; }
 
     /// <summary>
     /// List of other modifiers with descriptions
@@ -30,12 +30,12 @@ public record ToHitBreakdown
     /// <summary>
     /// Modifier based on weapon range to target
     /// </summary>
-    public required AttackModifier RangeModifier { get; init; }
+    public required RangeAttackModifier RangeModifier { get; init; }
 
     /// <summary>
     /// List of terrain modifiers along the line of sight
     /// </summary>
-    public required IReadOnlyList<AttackModifier> TerrainModifiers { get; init; }
+    public required IReadOnlyList<TerrainAttackModifier> TerrainModifiers { get; init; }
 
     /// <summary>
     /// Whether there is a clear line of sight to the target
@@ -45,7 +45,7 @@ public record ToHitBreakdown
     /// <summary>
     /// All modifiers combined into a single list
     /// </summary>
-    public IReadOnlyList<AttackModifier> AllModifiers => new[]
+    public IReadOnlyList<AttackModifier> AllModifiers => new AttackModifier[]
     {
         GunneryBase,
         AttackerMovement,
