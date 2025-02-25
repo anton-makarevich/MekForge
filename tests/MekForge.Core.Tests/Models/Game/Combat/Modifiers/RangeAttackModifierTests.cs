@@ -21,13 +21,13 @@ public class RangeAttackModifierTests
             Distance = 7,
             WeaponName = "Medium Laser"
         };
-        _localizationService.GetString("Modifier_Range").Returns("{0} at {1} hexes ({2} range): {3}");
+        _localizationService.GetString("Modifier_Range").Returns("{0} at {1} hexes ({2} range): +{3}");
 
         // Act
         var result = modifier.Format(_localizationService);
 
         // Assert
-        result.ShouldBe("Medium Laser at 7 hexes (Medium range): 2");
+        result.ShouldBe("Medium Laser at 7 hexes (Medium range): +2");
         _localizationService.Received(1).GetString("Modifier_Range");
     }
 }

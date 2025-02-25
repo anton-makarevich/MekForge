@@ -19,6 +19,13 @@ public class FakeLocalizationServiceTests
     [InlineData("Command_WeaponConfiguration_ArmsFlip", "{0}'s {1} flips arms {2}")]
     [InlineData("Direction_Forward", "forward")]
     [InlineData("Direction_Backward", "backward")]
+    // Attack modifiers
+    [InlineData("Modifier_GunnerySkill", "Gunnery Skill: +{0}")]
+    [InlineData("Modifier_AttackerMovement", "Attacker Movement ({0}): +{1}")]
+    [InlineData("Modifier_TargetMovement", "Target Movement ({0} hexes): +{1}")]
+    [InlineData("Modifier_Range", "{0} at {1} hexes ({2} range): +{3}")]
+    [InlineData("Modifier_Heat", "Heat Level ({0}): +{1}")]
+    [InlineData("Modifier_Terrain", "{0} at {1}: +{2}")]
     public void GetString_ShouldReturnCorrectString(string key, string expectedValue)
     {
         // Arrange

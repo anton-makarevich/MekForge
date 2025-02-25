@@ -17,13 +17,13 @@ public class GunneryAttackModifierTests
         {
             Value = 4
         };
-        _localizationService.GetString("Modifier_GunnerySkill").Returns("Gunnery Skill: {0}");
+        _localizationService.GetString("Modifier_GunnerySkill").Returns("Gunnery Skill: +{0}");
 
         // Act
         var result = modifier.Format(_localizationService);
 
         // Assert
-        result.ShouldBe("Gunnery Skill: 4");
+        result.ShouldBe("Gunnery Skill: +4");
         _localizationService.Received(1).GetString("Modifier_GunnerySkill");
     }
 }

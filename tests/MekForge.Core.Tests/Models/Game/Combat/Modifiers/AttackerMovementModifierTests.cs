@@ -19,13 +19,13 @@ public class AttackerMovementModifierTests
             Value = 2,
             MovementType = MovementType.Run
         };
-        _localizationService.GetString("Modifier_AttackerMovement").Returns("Attacker Movement ({0}): {1}");
+        _localizationService.GetString("Modifier_AttackerMovement").Returns("Attacker Movement ({0}): +{1}");
 
         // Act
         var result = modifier.Format(_localizationService);
 
         // Assert
-        result.ShouldBe("Attacker Movement (Run): 2");
+        result.ShouldBe("Attacker Movement (Run): +2");
         _localizationService.Received(1).GetString("Modifier_AttackerMovement");
     }
 }
