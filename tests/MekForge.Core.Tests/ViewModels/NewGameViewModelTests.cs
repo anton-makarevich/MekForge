@@ -3,6 +3,7 @@ using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
@@ -38,7 +39,8 @@ public class NewGameViewModelTests
         
         _commandPublisher = Substitute.For<ICommandPublisher>();
 
-        _sut = new NewGameViewModel(_gameManager,rulesProvider,_commandPublisher);
+        _sut = new NewGameViewModel(_gameManager,rulesProvider,_commandPublisher,
+            Substitute.For<IToHitCalculator>());
         _sut.SetNavigationService(_navigationService);
     }
 

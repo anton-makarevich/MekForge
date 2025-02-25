@@ -7,6 +7,7 @@ using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Utils.TechRules;
 using System.Reactive.Subjects;
 using System.Reactive.Linq;
+using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Players;
 
 namespace Sanet.MekForge.Core.Models.Game;
@@ -20,8 +21,8 @@ public class ClientGame : BaseGame
     public IReadOnlyList<GameCommand> CommandLog => _commandLog;
     
     public ClientGame(BattleMap battleMap, IReadOnlyList<IPlayer> localPlayers,
-        IRulesProvider rulesProvider, ICommandPublisher commandPublisher)
-        : base(battleMap, rulesProvider, commandPublisher)
+        IRulesProvider rulesProvider, ICommandPublisher commandPublisher, IToHitCalculator toHitCalculator)
+        : base(battleMap, rulesProvider, commandPublisher, toHitCalculator)
     {
         LocalPlayers = localPlayers;
     }

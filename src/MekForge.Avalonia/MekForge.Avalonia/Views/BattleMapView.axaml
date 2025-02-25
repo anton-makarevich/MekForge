@@ -95,6 +95,9 @@
                                               Spacing="10">
                                         <TextBlock Text="{Binding Damage}"/>
                                         <TextBlock Text="{Binding Heat}"/>
+                                        <TextBlock Text="{Binding HitProbability}" 
+                                                 Foreground="Green"
+                                                 FontWeight="Bold"/>
                                     </StackPanel>
                                     <TextBlock Text="{Binding Target.Name}"
                                              Foreground="Gray"

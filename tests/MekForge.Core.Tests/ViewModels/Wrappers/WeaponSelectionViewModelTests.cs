@@ -143,6 +143,68 @@ public class WeaponSelectionViewModelTests
         wasActionCalled.ShouldBeTrue();
     }
 
+    [Fact]
+    public void HitProbability_CanBeSetAndRetrieved()
+    {
+        // Arrange
+        const bool isInRange = true;
+        const bool isSelected = false;
+        const bool isEnabled = true;
+        const string expectedProbability = "75%";
+        
+        _selectionChangedAction = Substitute.For<Action<Weapon, bool>>();
+        _sut = new WeaponSelectionViewModel(
+            _weapon,
+            isInRange,
+            isSelected,
+            isEnabled,
+            _target,
+            _selectionChangedAction);
+            
+        // Act
+        _sut.HitProbability = expectedProbability;
+        
+        // Assert
+        _sut.HitProbability.ShouldBe(expectedProbability);
+    }
+    
+    [Fact]
+    public void HitProbability_NotifiesPropertyChanged()
+    {
+        // Arrange
+        const bool isInRange = true;
+        const bool isSelected = false;
+        const bool isEnabled = true;
+        const string initialProbability = "50%";
+        const string updatedProbability = "75%";
+        
+        _selectionChangedAction = Substitute.For<Action<Weapon, bool>>();
+        _sut = new WeaponSelectionViewModel(
+            _weapon,
+            isInRange,
+            isSelected,
+            isEnabled,
+            _target,
+            _selectionChangedAction)
+        {
+            HitProbability = initialProbability
+        };
+
+        var propertyChangedRaised = false;
+        _sut.PropertyChanged += (sender, args) =>
+        {
+            if (args.PropertyName == nameof(WeaponSelectionViewModel.HitProbability))
+                propertyChangedRaised = true;
+        };
+        
+        // Act
+        _sut.HitProbability = updatedProbability;
+        
+        // Assert
+        propertyChangedRaised.ShouldBeTrue();
+        _sut.HitProbability.ShouldBe(updatedProbability);
+    }
+
     private void CreateSut(
         bool isInRange = true,
         bool isSelected = false,

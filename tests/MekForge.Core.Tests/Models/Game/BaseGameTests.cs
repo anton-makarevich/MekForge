@@ -1,6 +1,7 @@
 using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Phases;
@@ -16,7 +17,8 @@ namespace Sanet.MekForge.Core.Tests.Models.Game;
 
 public class BaseGameTests() : BaseGame(BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5,5, new ClearTerrain())),
         new ClassicBattletechRulesProvider(),
-        Substitute.For<ICommandPublisher>())
+        Substitute.For<ICommandPublisher>(),
+        Substitute.For<IToHitCalculator>())
 {
     [Fact]
     public void AddPlayer_ShouldAddPlayer_WhenJoinGameCommandIsReceived()

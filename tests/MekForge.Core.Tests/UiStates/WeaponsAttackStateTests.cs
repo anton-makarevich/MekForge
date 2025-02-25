@@ -2,6 +2,7 @@ using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Phases;
@@ -16,6 +17,7 @@ using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.Services.Localization;
 using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.UiStates;
+using Sanet.MekForge.Core.Utils;
 using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MekForge.Core.Utils.TechRules;
 using Sanet.MekForge.Core.ViewModels;
@@ -31,6 +33,7 @@ public class WeaponsAttackStateTests
     private readonly Unit _unit2;
     private readonly Player _player;
     private readonly BattleMapViewModel _viewModel;
+    private readonly IToHitCalculator _toHitCalculator = Substitute.For<IToHitCalculator>();
 
     public WeaponsAttackStateTests()
     {
@@ -45,12 +48,12 @@ public class WeaponsAttackStateTests
         _unit2 = new MechFactory(rules).Create(_unitData);
 
         var battleMap = BattleMap.GenerateMap(
-            2, 11,
-            new SingleTerrainGenerator(2, 11, new ClearTerrain()));
+            11, 11,
+            new SingleTerrainGenerator(11, 11, new ClearTerrain()));
         _player = new Player(playerId, "Player1");
         _game = new ClientGame(
             battleMap, [_player], rules,
-            Substitute.For<ICommandPublisher>());
+            Substitute.For<ICommandPublisher>(), _toHitCalculator);
 
         _viewModel.Game = _game;
         AddPlayerUnits();
@@ -850,5 +853,84 @@ public class WeaponsAttackStateTests
         // Assert
         weaponSelection.IsEnabled.ShouldBeFalse(); // Should be disabled because it's targeting target1
         weaponSelection.Target.ShouldBe(target1);
+    }
+
+    [Fact]
+    public void UpdateWeaponViewModels_CalculatesHitProbability_ForWeaponsInRange()
+    {
+        // Arrange
+        // Set up the mock ToHitCalculator to return a specific value
+        const int expectedToHitNumber = 8; // This should give us 41.67% chance
+        _toHitCalculator.GetToHitNumber(
+            Arg.Any<Unit>(), 
+            Arg.Any<Unit>(), 
+            Arg.Any<Weapon>(), 
+            Arg.Any<BattleMap>())
+            .Returns(expectedToHitNumber);
+        
+        // Set up attacker and target units
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        var target = _viewModel.Units.First(u => u.Owner!.Id != _player.Id);
+        
+        // Position units on the map
+        var attackerPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var targetPosition = new HexPosition(new HexCoordinates(1, 2), HexDirection.Top);
+        attacker.Deploy(attackerPosition);
+        target.Deploy(targetPosition);
+        
+        // Select attacker and target
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == attackerPosition.Coordinates));
+        _state.HandleUnitSelection(attacker);
+        var selectTargetAction = _state.GetAvailableActions().First(a => a.Label == "Select Target");
+        selectTargetAction.OnExecute();
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == targetPosition.Coordinates));
+        _state.HandleUnitSelection(target);
+        
+        // Act
+        var weaponItems = _state.GetWeaponSelectionItems().ToList();
+        
+        // Assert
+        weaponItems.ShouldNotBeEmpty();
+        foreach (var item in weaponItems.Where(i => i.IsInRange))
+        {
+            // Expected probability for target number 8 is 41.67%
+            var expectedProbability = DiceUtils.Calculate2d6Probability(expectedToHitNumber);
+            item.HitProbability.ShouldBe($"{expectedProbability:F0}%");
+        }
+    }
+    
+    [Fact]
+    public void UpdateWeaponViewModels_SetsNAForHitProbability_WhenWeaponNotInRange()
+    {
+        // Arrange
+        // Set up attacker and target units
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        var target = _viewModel.Units.First(u => u.Owner!.Id != _player.Id);
+        
+        // Position units on the map - far apart to ensure weapons are out of range
+        var attackerPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var targetPosition = new HexPosition(new HexCoordinates(10, 10), HexDirection.Top);
+        attacker.Deploy(attackerPosition);
+        target.Deploy(targetPosition);
+        
+        // Select attacker and target
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == attackerPosition.Coordinates));
+        _state.HandleUnitSelection(attacker);
+        var selectTargetAction = _state.GetAvailableActions().First(a => a.Label == "Select Target");
+        selectTargetAction.OnExecute();
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == targetPosition.Coordinates));
+        _state.HandleUnitSelection(target);
+        
+        // Act
+        var weaponItems = _state.GetWeaponSelectionItems().ToList();
+        
+        // Assert
+        weaponItems.ShouldNotBeEmpty();
+        foreach (var item in weaponItems)
+        {
+            // All weapons should be out of range
+            item.IsInRange.ShouldBeFalse();
+            item.HitProbability.ShouldBe("N/A");
+        }
     }
 }

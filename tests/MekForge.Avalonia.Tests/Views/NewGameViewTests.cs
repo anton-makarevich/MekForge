@@ -1,6 +1,7 @@
 using NSubstitute;
 using Sanet.MekForge.Avalonia.Views.NewGame;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Utils.TechRules;
 using Sanet.MekForge.Core.ViewModels;
@@ -27,7 +28,7 @@ namespace MekForge.Avalonia.Tests.Views
             var view = new NewGameViewNarrow();
             var viewModel = new NewGameViewModel(Substitute.For<IGameManager>(), 
                 Substitute.For<IRulesProvider>(),
-                Substitute.For<ICommandPublisher>());
+                Substitute.For<ICommandPublisher>(), Substitute.For<IToHitCalculator>());
 
             // Act
             view.DataContext = viewModel;

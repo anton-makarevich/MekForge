@@ -11,6 +11,7 @@ public class WeaponSelectionViewModel : BindableBase
     private Unit? _target;
     private bool _isEnabled;
     private bool _isInRange;
+    private string _hitProbability = string.Empty;
 
     public WeaponSelectionViewModel(
         Weapon weapon,
@@ -58,6 +59,12 @@ public class WeaponSelectionViewModel : BindableBase
     {
         get => _target;
         set => SetProperty(ref _target, value);
+    }
+    
+    public string HitProbability
+    {
+        get => _hitProbability;
+        set => SetProperty(ref _hitProbability, value);
     }
 
     // Additional properties for UI display
