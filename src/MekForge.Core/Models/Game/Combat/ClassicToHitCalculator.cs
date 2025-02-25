@@ -87,6 +87,7 @@ public class ClassicToHitCalculator : IToHitCalculator
             target.Position!.Value.Coordinates);
 
         return hexes
+            .Skip(1) // Skip attacker's hex
             .SelectMany(hex => hex.GetTerrains()
                 .Select(terrain => (hex, _rules.GetTerrainToHitModifier(terrain.Id))))
             .Where(item => item.Item2 != 0)
