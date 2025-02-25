@@ -55,8 +55,10 @@ public class WeaponSelectionViewModelTests
         _sut.Weapon.ShouldBe(_weapon);
         _sut.IsInRange.ShouldBe(isInRange);
         _sut.IsSelected.ShouldBe(isSelected);
-        _sut.IsEnabled.ShouldBe(isEnabled);
+        _sut.IsEnabled.ShouldBeFalse(); //default HitProbability is zero
         _sut.Target.ShouldBe(_target);
+        _sut.HitProbability = 10;
+        _sut.IsEnabled.ShouldBe(isEnabled);
     }
 
     [Fact]
@@ -114,34 +116,35 @@ public class WeaponSelectionViewModelTests
     }
 
     [Fact]
-    public void IsSelected_WhenEnabled_CanBeChanged()
-    {
-        // Arrange
-        CreateSut(isEnabled: true);
-        var wasActionCalled = false;
-        var expectedValue = true;
-        _selectionChangedAction = (weapon, selected) =>
-        {
-            weapon.ShouldBe(_weapon);
-            selected.ShouldBe(expectedValue);
-            wasActionCalled = true;
-        };
-
-        // Act
-        _sut.IsSelected = true;
-
-        // Assert
-        _sut.IsSelected.ShouldBeTrue();
-        wasActionCalled.ShouldBeTrue();
-
-        // Test deselection
-        expectedValue = false;
-        wasActionCalled = false;
-        _sut.IsSelected = false;
-
-        _sut.IsSelected.ShouldBeFalse();
-        wasActionCalled.ShouldBeTrue();
-    }
+     public void IsSelected_WhenEnabled_CanBeChanged()
+     {
+         // Arrange
+         CreateSut(isEnabled: true);
+         var wasActionCalled = false;
+         var expectedValue = true;
+         _selectionChangedAction = (weapon, selected) =>
+         {
+             weapon.ShouldBe(_weapon);
+             selected.ShouldBe(expectedValue);
+             wasActionCalled = true;
+         };
+         _sut.HitProbability = 70;
+    
+         // Act
+         _sut.IsSelected = true;
+    
+         // Assert
+         _sut.IsSelected.ShouldBeTrue();
+         wasActionCalled.ShouldBeTrue();
+    
+         // Test deselection
+         expectedValue = false;
+         wasActionCalled = false;
+         _sut.IsSelected = false;
+    
+         _sut.IsSelected.ShouldBeFalse();
+         wasActionCalled.ShouldBeTrue();
+     }
 
     [Fact]
     public void HitProbability_CanBeSetAndRetrieved()
@@ -150,7 +153,7 @@ public class WeaponSelectionViewModelTests
         const bool isInRange = true;
         const bool isSelected = false;
         const bool isEnabled = true;
-        const string expectedProbability = "75%";
+        const double expectedProbability = 75.0;
         
         _selectionChangedAction = Substitute.For<Action<Weapon, bool>>();
         _sut = new WeaponSelectionViewModel(
@@ -159,11 +162,12 @@ public class WeaponSelectionViewModelTests
             isSelected,
             isEnabled,
             _target,
-            _selectionChangedAction);
-            
-        // Act
-        _sut.HitProbability = expectedProbability;
-        
+            _selectionChangedAction)
+        {
+            // Act
+            HitProbability = expectedProbability
+        };
+
         // Assert
         _sut.HitProbability.ShouldBe(expectedProbability);
     }
@@ -175,8 +179,8 @@ public class WeaponSelectionViewModelTests
         const bool isInRange = true;
         const bool isSelected = false;
         const bool isEnabled = true;
-        const string initialProbability = "50%";
-        const string updatedProbability = "75%";
+        const double initialProbability = 50.0;
+        const double updatedProbability = 75.0;
         
         _selectionChangedAction = Substitute.For<Action<Weapon, bool>>();
         _sut = new WeaponSelectionViewModel(
@@ -191,7 +195,7 @@ public class WeaponSelectionViewModelTests
         };
 
         var propertyChangedRaised = false;
-        _sut.PropertyChanged += (sender, args) =>
+        _sut.PropertyChanged += (_, args) =>
         {
             if (args.PropertyName == nameof(WeaponSelectionViewModel.HitProbability))
                 propertyChangedRaised = true;
@@ -203,6 +207,57 @@ public class WeaponSelectionViewModelTests
         // Assert
         propertyChangedRaised.ShouldBeTrue();
         _sut.HitProbability.ShouldBe(updatedProbability);
+    }
+    
+    [Fact]
+    public void HitProbabilityText_FormatsCorrectly()
+    {
+        // Arrange
+        CreateSut();
+        
+        // Act & Assert - Positive probability
+        _sut.HitProbability = 75.5;
+        _sut.HitProbabilityText.ShouldBe("76%");
+        
+        // Act & Assert - Zero probability
+        _sut.HitProbability = 0;
+        _sut.HitProbabilityText.ShouldBe("N/A");
+        
+        // Act & Assert - Negative probability (should not happen in practice)
+        _sut.HitProbability = -1;
+        _sut.HitProbabilityText.ShouldBe("N/A");
+    }
+    
+    [Fact]
+    public void IsEnabled_ReturnsFalseWhenHitProbabilityIsZero()
+    {
+        // Arrange
+        CreateSut(isEnabled: true);
+        
+        // Act - Set hit probability to zero
+        _sut.HitProbability = 0;
+        
+        // Assert - Should be disabled despite isEnabled being true
+        _sut.IsEnabled.ShouldBeFalse();
+        
+        // Act - Set hit probability to positive value
+        _sut.HitProbability = 50;
+        
+        // Assert - Should be enabled
+        _sut.IsEnabled.ShouldBeTrue();
+    }
+    
+    [Fact]
+    public void IsEnabled_ReturnsFalseWhenExplicitlyDisabled()
+    {
+        // Arrange
+        CreateSut(isEnabled: false);
+        
+        // Act - Set hit probability to positive value
+        _sut.HitProbability = 50;
+        
+        // Assert - Should still be disabled because isEnabled is false
+        _sut.IsEnabled.ShouldBeFalse();
     }
 
     private void CreateSut(

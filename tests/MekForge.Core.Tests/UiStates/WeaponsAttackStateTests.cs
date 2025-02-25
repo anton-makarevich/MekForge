@@ -895,7 +895,8 @@ public class WeaponsAttackStateTests
         {
             // Expected probability for target number 8 is 41.67%
             var expectedProbability = DiceUtils.Calculate2d6Probability(expectedToHitNumber);
-            item.HitProbability.ShouldBe($"{expectedProbability:F0}%");
+            item.HitProbability.ShouldBeEquivalentTo(expectedProbability);
+            item.HitProbabilityText.ShouldBe($"{expectedProbability:F0}%");
         }
     }
     
@@ -930,7 +931,8 @@ public class WeaponsAttackStateTests
         {
             // All weapons should be out of range
             item.IsInRange.ShouldBeFalse();
-            item.HitProbability.ShouldBe("N/A");
+            item.HitProbability.ShouldBeEquivalentTo(0.0);
+            item.HitProbabilityText.ShouldBe("N/A");
         }
     }
 }
