@@ -10,32 +10,32 @@ public record ToHitBreakdown
     /// <summary>
     /// Base gunnery skill of the attacker
     /// </summary>
-    public required int GunneryBase { get; init; }
+    public required AttackModifier GunneryBase { get; init; }
 
     /// <summary>
     /// Modifier based on attacker's movement type
     /// </summary>
-    public required int AttackerMovement { get; init; }
+    public required AttackModifier AttackerMovement { get; init; }
 
     /// <summary>
     /// Modifier based on target's movement distance
     /// </summary>
-    public required int TargetMovement { get; init; }
+    public required AttackModifier TargetMovement { get; init; }
 
     /// <summary>
     /// List of other modifiers with descriptions
     /// </summary>
-    public required IReadOnlyList<(string Reason, int Modifier)> OtherModifiers { get; init; }
+    public required IReadOnlyList<AttackModifier> OtherModifiers { get; init; }
 
     /// <summary>
     /// Modifier based on weapon range to target
     /// </summary>
-    public required int RangeModifier { get; init; }
+    public required AttackModifier RangeModifier { get; init; }
 
     /// <summary>
     /// List of terrain modifiers along the line of sight
     /// </summary>
-    public required IReadOnlyList<(Hex Hex, int Modifier)> TerrainModifiers { get; init; }
+    public required IReadOnlyList<AttackModifier> TerrainModifiers { get; init; }
 
     /// <summary>
     /// Whether there is a clear line of sight to the target
@@ -43,14 +43,22 @@ public record ToHitBreakdown
     public required bool HasLineOfSight { get; init; }
 
     /// <summary>
+    /// All modifiers combined into a single list
+    /// </summary>
+    public IReadOnlyList<AttackModifier> AllModifiers => new[]
+    {
+        GunneryBase,
+        AttackerMovement,
+        TargetMovement,
+        RangeModifier
+    }.Concat(OtherModifiers)
+     .Concat(TerrainModifiers)
+     .ToList();
+
+    /// <summary>
     /// Total modifier for the attack
     /// </summary>
     public int Total => HasLineOfSight ? 
-        GunneryBase + 
-        AttackerMovement + 
-        TargetMovement + 
-        OtherModifiers.Sum(m => m.Modifier) + 
-        RangeModifier +
-        TerrainModifiers.Sum(t => t.Modifier)
+        AllModifiers.Sum(m => m.Value)
         : int.MaxValue; // Cannot hit if no line of sight
 }

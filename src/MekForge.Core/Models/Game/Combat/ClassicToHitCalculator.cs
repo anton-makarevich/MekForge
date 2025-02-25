@@ -45,16 +45,17 @@ public class ClassicToHitCalculator : IToHitCalculator
 
         return new ToHitBreakdown
         {
-            GunneryBase = attacker.Crew!.Gunnery,
-            AttackerMovement = _rules.GetAttackerMovementModifier(attacker.MovementTypeUsed?? throw new Exception("Attacker's Movement Type is undefined")
-            {
-                HelpLink = null,
-                HResult = 0,
-                Source = null
-            }),
-            TargetMovement = _rules.GetTargetMovementModifier(target.DistanceCovered),
+            GunneryBase = new AttackModifier(AttackModifierType.Gunnery, attacker.Crew!.Gunnery),
+            AttackerMovement = new AttackModifier(
+                AttackModifierType.AttackerMovement, 
+                _rules.GetAttackerMovementModifier(attacker.MovementTypeUsed ?? throw new Exception("Attacker's Movement Type is undefined"))),
+            TargetMovement = new AttackModifier(
+                AttackModifierType.TargetMovement,
+                _rules.GetTargetMovementModifier(target.DistanceCovered)),
             OtherModifiers = otherModifiers,
-            RangeModifier = _rules.GetRangeModifier(range),
+            RangeModifier = new AttackModifier(
+                AttackModifierType.Range,
+                _rules.GetRangeModifier(range)),
             TerrainModifiers = terrainModifiers,
             HasLineOfSight = hasLos
         };
@@ -62,15 +63,15 @@ public class ClassicToHitCalculator : IToHitCalculator
 
     private int GetOtherModifiers(Unit attacker, Unit target, Weapon weapon, BattleMap map)
     {
-        return GetDetailedOtherModifiers(attacker, target, weapon, map).Sum(m => m.Modifier) +
-               GetTerrainModifiers(attacker, target, map).Sum(t => t.Modifier);
+        return GetDetailedOtherModifiers(attacker, target, weapon, map).Sum(m => m.Value) +
+               GetTerrainModifiers(attacker, target, map).Sum(t => t.Value);
     }
 
-    private IReadOnlyList<(string Reason, int Modifier)> GetDetailedOtherModifiers(Unit attacker, Unit target, Weapon weapon, BattleMap map)
+    private IReadOnlyList<AttackModifier> GetDetailedOtherModifiers(Unit attacker, Unit target, Weapon weapon, BattleMap map)
     {
-        var modifiers = new List<(string Reason, int Modifier)> {
-            // Heat modifier, TODO: make modifies enum
-            ("Heat", _rules.GetHeatModifier(attacker.CurrentHeat)) };
+        var modifiers = new List<AttackModifier> {
+            new(AttackModifierType.Heat, _rules.GetHeatModifier(attacker.CurrentHeat))
+        };
 
         // TODO: Add other modifiers like:
         // - Attacker damage (actuators)
@@ -80,7 +81,7 @@ public class ClassicToHitCalculator : IToHitCalculator
         return modifiers;
     }
 
-    private IReadOnlyList<(Hex Hex, int Modifier)> GetTerrainModifiers(Unit attacker, Unit target, BattleMap map)
+    private IReadOnlyList<AttackModifier> GetTerrainModifiers(Unit attacker, Unit target, BattleMap map)
     {
         var hexes = map.GetHexesAlongLineOfSight(
             attacker.Position!.Value.Coordinates,
@@ -89,9 +90,10 @@ public class ClassicToHitCalculator : IToHitCalculator
         return hexes
             .Skip(1) // Skip attacker's hex
             .SelectMany(hex => hex.GetTerrains()
-                .Select(terrain => (hex, _rules.GetTerrainToHitModifier(terrain.Id))))
-            .Where(item => item.Item2 != 0)
-            .Select(item => (item.hex, item.Item2))
+                .Select(terrain => new AttackModifier(
+                    AttackModifierType.TerrainEffect,
+                    _rules.GetTerrainToHitModifier(terrain.Id))))
+            .Where(modifier => modifier.Value != 0)
             .ToList();
     }
 }
