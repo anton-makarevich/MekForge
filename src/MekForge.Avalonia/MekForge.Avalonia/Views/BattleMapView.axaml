@@ -98,6 +98,7 @@
                                         <TextBlock Text="{Binding Heat}"/>
                                         <TextBlock Text="{Binding HitProbabilityText}" 
                                                  Foreground="{Binding HitProbability, Converter={StaticResource HitProbabilityColorConverter}}"
+                                                 ToolTip="{Binding ModifiersDescription}"
                                                  FontWeight="Bold"/>
                                     </StackPanel>
                                     <TextBlock Text="{Binding Target.Name}"

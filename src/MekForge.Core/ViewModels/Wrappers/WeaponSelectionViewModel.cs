@@ -1,5 +1,8 @@
+using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
+using Sanet.MekForge.Core.Services.Localization;
+using Sanet.MekForge.Core.Utils;
 using Sanet.MVVM.Core.ViewModels;
 
 namespace Sanet.MekForge.Core.ViewModels.Wrappers;
@@ -11,7 +14,8 @@ public class WeaponSelectionViewModel : BindableBase
     private Unit? _target;
     private bool _isEnabled;
     private bool _isInRange;
-    private double _hitProbability;
+    private ToHitBreakdown? _modifiersBreakdown;
+    private readonly ILocalizationService _localizationService;
 
     public WeaponSelectionViewModel(
         Weapon weapon,
@@ -19,7 +23,8 @@ public class WeaponSelectionViewModel : BindableBase
         bool isSelected,
         bool isEnabled,
         Unit? target,
-        Action<Weapon, bool> onSelectionChanged)
+        Action<Weapon, bool> onSelectionChanged,
+        ILocalizationService localizationService)
     {
         Weapon = weapon;
         IsInRange = isInRange;
@@ -27,6 +32,7 @@ public class WeaponSelectionViewModel : BindableBase
         IsEnabled = isEnabled;
         Target = target;
         _onSelectionChanged = onSelectionChanged;
+        _localizationService = localizationService;
     }
 
     public Weapon Weapon { get; }
@@ -62,22 +68,56 @@ public class WeaponSelectionViewModel : BindableBase
     }
     
     /// <summary>
-    /// Gets or sets the hit probability as a value between 0 and 100
+    /// Gets or sets the detailed breakdown of hit modifiers
     /// </summary>
-    public double HitProbability
+    public ToHitBreakdown? ModifiersBreakdown
     {
-        get => _hitProbability;
+        get => _modifiersBreakdown;
         set
         {
-            SetProperty(ref _hitProbability, value);
+            SetProperty(ref _modifiersBreakdown, value);
+            NotifyPropertyChanged(nameof(HitProbability));
             NotifyPropertyChanged(nameof(HitProbabilityText));
+            NotifyPropertyChanged(nameof(ModifiersDescription));
         }
     }
+    
+    /// <summary>
+    /// Gets the hit probability as a value between 0 and 100
+    /// </summary>
+    public double HitProbability => 
+        ModifiersBreakdown is { HasLineOfSight: true, Total: <= 12 }
+            ? DiceUtils.Calculate2d6Probability(ModifiersBreakdown.Total)
+            : 0;
     
     /// <summary>
     /// Gets the formatted hit probability string for display
     /// </summary>
     public string HitProbabilityText => HitProbability <= 0 ? "N/A" : $"{HitProbability:F0}%";
+    
+    /// <summary>
+    /// Gets a formatted string with the modifier breakdown details
+    /// </summary>
+    public string ModifiersDescription
+    {
+        get
+        {
+            if (ModifiersBreakdown == null)
+                return string.Empty;
+
+            if (!ModifiersBreakdown.HasLineOfSight)
+                return _localizationService.GetString("NoLineOfSight") ?? "No line of sight";
+            
+            var lines = new List<string>
+            {
+                $"{_localizationService.GetString("TargetNumber") ?? "Target Number"}: {ModifiersBreakdown.Total}"
+            };
+            lines.AddRange(ModifiersBreakdown.AllModifiers.Select(modifier => modifier.Format(_localizationService)));
+
+            // Add all modifiers using their Format method
+            return string.Join(Environment.NewLine, lines);
+        }
+    }
 
     // Additional properties for UI display
     public string Name => Weapon.Name;

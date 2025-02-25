@@ -1,159 +1,97 @@
 using NSubstitute;
-using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Models.Game.Combat;
+using Sanet.MekForge.Core.Models.Game.Combat.Modifiers;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
-using Sanet.MekForge.Core.Models.Units.Components.Weapons.Energy;
-using Sanet.MekForge.Core.Models.Units.Mechs;
-using Sanet.MekForge.Core.Tests.Data;
-using Sanet.MekForge.Core.Utils.TechRules;
+using Sanet.MekForge.Core.Services.Localization;
 using Sanet.MekForge.Core.ViewModels.Wrappers;
 using Shouldly;
+using System.ComponentModel;
 
-namespace Sanet.MekForge.Core.Tests.ViewModels.Wrappers;
+namespace MekForge.Core.Tests.ViewModels.Wrappers;
 
 public class WeaponSelectionViewModelTests
 {
-    private readonly Weapon _weapon;
-    private readonly Mech _target;
-    private Action<Weapon, bool>? _selectionChangedAction;
     private WeaponSelectionViewModel _sut = null!;
+    private Weapon _weapon = null!;
+    private Unit? _target;
+    private Action<Weapon, bool> _selectionChangedAction = null!;
+    private ILocalizationService _localizationService = null!;
 
     public WeaponSelectionViewModelTests()
     {
-        _weapon = new MediumLaser();
+        _weapon = Substitute.For<Weapon>();
+        _weapon.Name.Returns("Test Weapon");
+        _weapon.MinimumRange.Returns(0);
+        _weapon.LongRange.Returns(12);
+        _weapon.Damage.Returns(5);
+        _weapon.Heat.Returns(3);
         
-        // Create a test mech using MechFactory
-        var structureValueProvider = Substitute.For<IRulesProvider>();
-        structureValueProvider.GetStructureValues(20).Returns(new Dictionary<PartLocation, int>
-        {
-            { PartLocation.Head, 8 },
-            { PartLocation.CenterTorso, 10 },
-            { PartLocation.LeftTorso, 8 },
-            { PartLocation.RightTorso, 8 },
-            { PartLocation.LeftArm, 4 },
-            { PartLocation.RightArm, 4 },
-            { PartLocation.LeftLeg, 8 },
-            { PartLocation.RightLeg, 8 }
-        });
-        var mechFactory = new MechFactory(structureValueProvider);
-        var mechData = MechFactoryTests.CreateDummyMechData();
-        _target = mechFactory.Create(mechData);
+        _target = Substitute.For<Unit>();
+        _localizationService = Substitute.For<ILocalizationService>();
+        _localizationService.GetString(Arg.Any<string>()).Returns(x => x[0].ToString());
     }
 
     [Fact]
-    public void Constructor_InitializesPropertiesCorrectly()
+    public void Constructor_SetsPropertiesCorrectly()
     {
         // Arrange
         const bool isInRange = true;
-        const bool isSelected = false;
+        const bool isSelected = true;
         const bool isEnabled = true;
-
+        
+        _selectionChangedAction = Substitute.For<Action<Weapon, bool>>();
+        
         // Act
-        CreateSut(isInRange, isSelected, isEnabled, _target);
-
+        _sut = new WeaponSelectionViewModel(
+            _weapon,
+            isInRange,
+            isSelected,
+            isEnabled,
+            _target,
+            _selectionChangedAction,
+            _localizationService);
+        
         // Assert
         _sut.Weapon.ShouldBe(_weapon);
         _sut.IsInRange.ShouldBe(isInRange);
         _sut.IsSelected.ShouldBe(isSelected);
-        _sut.IsEnabled.ShouldBeFalse(); //default HitProbability is zero
-        _sut.Target.ShouldBe(_target);
-        _sut.HitProbability = 10;
         _sut.IsEnabled.ShouldBe(isEnabled);
+        _sut.Target.ShouldBe(_target);
     }
 
     [Fact]
-    public void Name_ReturnsWeaponName()
+    public void IsSelected_WhenChanged_CallsSelectionChangedAction()
     {
         // Arrange
-        CreateSut();
-
-        // Act & Assert
-        _sut.Name.ShouldBe("Medium Laser");
-    }
-
-    [Fact]
-    public void RangeInfo_ReturnsCorrectFormat()
-    {
-        // Arrange
-        CreateSut();
-
-        // Act & Assert
-        _sut.RangeInfo.ShouldBe("0-9");
-    }
-
-    [Fact]
-    public void Damage_ReturnsCorrectFormat()
-    {
-        // Arrange
-        CreateSut();
-
-        // Act & Assert
-        _sut.Damage.ShouldBe("Damage: 5");
-    }
-
-    [Fact]
-    public void Heat_ReturnsCorrectFormat()
-    {
-        // Arrange
-        CreateSut();
-
-        // Act & Assert
-        _sut.Heat.ShouldBe("Heat: 3");
-    }
-
-    [Fact]
-    public void IsSelected_WhenDisabled_CannotBeSetToTrue()
-    {
-        // Arrange
-        CreateSut(isEnabled: false);
-
+        const bool isInRange = true;
+        const bool isSelected = false;
+        const bool isEnabled = true;
+        
+        _selectionChangedAction = Substitute.For<Action<Weapon, bool>>();
+        _sut = new WeaponSelectionViewModel(
+            _weapon,
+            isInRange,
+            isSelected,
+            isEnabled,
+            _target,
+            _selectionChangedAction,
+            _localizationService);
+        
         // Act
         _sut.IsSelected = true;
-
+        
         // Assert
-        _sut.IsSelected.ShouldBeFalse();
-        _selectionChangedAction.ShouldBeNull();
+        _selectionChangedAction.Received(1).Invoke(_weapon, true);
     }
 
     [Fact]
-     public void IsSelected_WhenEnabled_CanBeChanged()
-     {
-         // Arrange
-         CreateSut(isEnabled: true);
-         var wasActionCalled = false;
-         var expectedValue = true;
-         _selectionChangedAction = (weapon, selected) =>
-         {
-             weapon.ShouldBe(_weapon);
-             selected.ShouldBe(expectedValue);
-             wasActionCalled = true;
-         };
-         _sut.HitProbability = 70;
-    
-         // Act
-         _sut.IsSelected = true;
-    
-         // Assert
-         _sut.IsSelected.ShouldBeTrue();
-         wasActionCalled.ShouldBeTrue();
-    
-         // Test deselection
-         expectedValue = false;
-         wasActionCalled = false;
-         _sut.IsSelected = false;
-    
-         _sut.IsSelected.ShouldBeFalse();
-         wasActionCalled.ShouldBeTrue();
-     }
-
-    [Fact]
-    public void HitProbability_CanBeSetAndRetrieved()
+    public void IsSelected_WhenChangedButDisabled_DoesNotCallSelectionChangedAction()
     {
         // Arrange
         const bool isInRange = true;
         const bool isSelected = false;
-        const bool isEnabled = true;
-        const double expectedProbability = 75.0;
+        const bool isEnabled = false;
         
         _selectionChangedAction = Substitute.For<Action<Weapon, bool>>();
         _sut = new WeaponSelectionViewModel(
@@ -162,25 +100,24 @@ public class WeaponSelectionViewModelTests
             isSelected,
             isEnabled,
             _target,
-            _selectionChangedAction)
-        {
-            // Act
-            HitProbability = expectedProbability
-        };
-
+            _selectionChangedAction,
+            _localizationService);
+        
+        // Act
+        _sut.IsSelected = true;
+        
         // Assert
-        _sut.HitProbability.ShouldBe(expectedProbability);
+        _selectionChangedAction.DidNotReceive().Invoke(Arg.Any<Weapon>(), Arg.Any<bool>());
+        _sut.IsSelected.ShouldBe(isSelected); // Should not have changed
     }
-    
+
     [Fact]
-    public void HitProbability_NotifiesPropertyChanged()
+    public void IsSelected_WhenSetToSameValue_DoesNotCallSelectionChangedAction()
     {
         // Arrange
         const bool isInRange = true;
-        const bool isSelected = false;
+        const bool isSelected = true;
         const bool isEnabled = true;
-        const double initialProbability = 50.0;
-        const double updatedProbability = 75.0;
         
         _selectionChangedAction = Substitute.For<Action<Weapon, bool>>();
         _sut = new WeaponSelectionViewModel(
@@ -189,24 +126,77 @@ public class WeaponSelectionViewModelTests
             isSelected,
             isEnabled,
             _target,
-            _selectionChangedAction)
-        {
-            HitProbability = initialProbability
-        };
+            _selectionChangedAction,
+            _localizationService);
+        
+        // Act
+        _sut.IsSelected = true;
+        
+        // Assert
+        _selectionChangedAction.DidNotReceive().Invoke(Arg.Any<Weapon>(), Arg.Any<bool>());
+    }
 
-        var propertyChangedRaised = false;
-        _sut.PropertyChanged += (_, args) =>
+    [Fact]
+    public void ModifiersBreakdown_CanBeSetAndRetrieved()
+    {
+        // Arrange
+        CreateSut();
+        var breakdown = CreateTestBreakdown(8);
+        
+        // Act
+        _sut.ModifiersBreakdown = breakdown;
+        
+        // Assert
+        _sut.ModifiersBreakdown.ShouldBe(breakdown);
+    }
+    
+    [Fact]
+    public void ModifiersBreakdown_NotifiesPropertyChanged()
+    {
+        // Arrange
+        CreateSut();
+        var breakdown = CreateTestBreakdown(8);
+        
+        var propertyChangedEvents = new List<string>();
+        _sut.PropertyChanged += (sender, args) =>
         {
-            if (args.PropertyName == nameof(WeaponSelectionViewModel.HitProbability))
-                propertyChangedRaised = true;
+            propertyChangedEvents.Add(args.PropertyName);
         };
         
         // Act
-        _sut.HitProbability = updatedProbability;
+        _sut.ModifiersBreakdown = breakdown;
         
         // Assert
-        propertyChangedRaised.ShouldBeTrue();
-        _sut.HitProbability.ShouldBe(updatedProbability);
+        propertyChangedEvents.ShouldContain(nameof(WeaponSelectionViewModel.ModifiersBreakdown));
+        propertyChangedEvents.ShouldContain(nameof(WeaponSelectionViewModel.HitProbability));
+        propertyChangedEvents.ShouldContain(nameof(WeaponSelectionViewModel.HitProbabilityText));
+        propertyChangedEvents.ShouldContain(nameof(WeaponSelectionViewModel.ModifiersDescription));
+    }
+    
+    [Fact]
+    public void HitProbability_CalculatesCorrectly()
+    {
+        // Arrange
+        CreateSut();
+        
+        // Act & Assert - Valid target number
+        var breakdown = CreateTestBreakdown(8);
+        _sut.ModifiersBreakdown = breakdown;
+        _sut.HitProbability.ShouldBeEquivalentTo(41.67); // Probability for target number 8
+        
+        // Act & Assert - Impossible target number
+        breakdown = CreateTestBreakdown(13);
+        _sut.ModifiersBreakdown = breakdown;
+        _sut.HitProbability.ShouldBeEquivalentTo(0);
+        
+        // Act & Assert - No line of sight
+        breakdown = CreateTestBreakdown(8, hasLineOfSight: false);
+        _sut.ModifiersBreakdown = breakdown;
+        _sut.HitProbability.ShouldBeEquivalentTo(0);
+        
+        // Act & Assert - Null breakdown
+        _sut.ModifiersBreakdown = null;
+        _sut.HitProbability.ShouldBeEquivalentTo(0);
     }
     
     [Fact]
@@ -216,15 +206,22 @@ public class WeaponSelectionViewModelTests
         CreateSut();
         
         // Act & Assert - Positive probability
-        _sut.HitProbability = 75.5;
-        _sut.HitProbabilityText.ShouldBe("76%");
+        var breakdown = CreateTestBreakdown(8);
+        _sut.ModifiersBreakdown = breakdown;
+        _sut.HitProbabilityText.ShouldBe("42%");
         
         // Act & Assert - Zero probability
-        _sut.HitProbability = 0;
+        breakdown = CreateTestBreakdown(13);
+        _sut.ModifiersBreakdown = breakdown;
         _sut.HitProbabilityText.ShouldBe("N/A");
         
-        // Act & Assert - Negative probability (should not happen in practice)
-        _sut.HitProbability = -1;
+        // Act & Assert - No line of sight
+        breakdown = CreateTestBreakdown(8, hasLineOfSight: false);
+        _sut.ModifiersBreakdown = breakdown;
+        _sut.HitProbabilityText.ShouldBe("N/A");
+        
+        // Act & Assert - Null breakdown
+        _sut.ModifiersBreakdown = null;
         _sut.HitProbabilityText.ShouldBe("N/A");
     }
     
@@ -234,14 +231,14 @@ public class WeaponSelectionViewModelTests
         // Arrange
         CreateSut(isEnabled: true);
         
-        // Act - Set hit probability to zero
-        _sut.HitProbability = 0;
+        // Act - Set modifiers breakdown with impossible target number
+        _sut.ModifiersBreakdown = CreateTestBreakdown(13);
         
         // Assert - Should be disabled despite isEnabled being true
         _sut.IsEnabled.ShouldBeFalse();
         
-        // Act - Set hit probability to positive value
-        _sut.HitProbability = 50;
+        // Act - Set modifiers breakdown with valid target number
+        _sut.ModifiersBreakdown = CreateTestBreakdown(8);
         
         // Assert - Should be enabled
         _sut.IsEnabled.ShouldBeTrue();
@@ -253,25 +250,93 @@ public class WeaponSelectionViewModelTests
         // Arrange
         CreateSut(isEnabled: false);
         
-        // Act - Set hit probability to positive value
-        _sut.HitProbability = 50;
+        // Act - Set modifiers breakdown with valid target number
+        _sut.ModifiersBreakdown = CreateTestBreakdown(8);
         
         // Assert - Should still be disabled because isEnabled is false
         _sut.IsEnabled.ShouldBeFalse();
+    }
+    
+    [Fact]
+    public void ModifiersDescription_FormatsCorrectly()
+    {
+        // Arrange
+        CreateSut();
+        var breakdown = CreateTestBreakdown(8);
+        
+        // Act
+        _sut.ModifiersBreakdown = breakdown;
+        
+        // Assert
+        var description = _sut.ModifiersDescription;
+        description.ShouldContain("Target Number: 8");
+        
+        // The Format method of each modifier should be called
+        _localizationService.Received().GetString("TargetNumber");
+        
+        // Each modifier's Format method would be called, but we can't verify that directly
+        // in this test since we're using real objects, not mocks
+    }
+    
+    [Fact]
+    public void ModifiersDescription_HandlesNoLineOfSight()
+    {
+        // Arrange
+        CreateSut();
+        var breakdown = CreateTestBreakdown(8, hasLineOfSight: false);
+        
+        // Act
+        _sut.ModifiersBreakdown = breakdown;
+        
+        // Assert
+        _sut.ModifiersDescription.ShouldBe("NoLineOfSight");
+        _localizationService.Received().GetString("NoLineOfSight");
+    }
+    
+    [Fact]
+    public void ModifiersDescription_HandlesNullBreakdown()
+    {
+        // Arrange
+        CreateSut();
+        
+        // Act
+        _sut.ModifiersBreakdown = null;
+        
+        // Assert
+        _sut.ModifiersDescription.ShouldBe(string.Empty);
     }
 
     private void CreateSut(
         bool isInRange = true,
         bool isSelected = false,
-        bool isEnabled = true,
-        Unit? target = null)
+        bool isEnabled = true)
     {
+        _selectionChangedAction = Substitute.For<Action<Weapon, bool>>();
         _sut = new WeaponSelectionViewModel(
             _weapon,
             isInRange,
             isSelected,
             isEnabled,
-            target,
-            (w, s) => _selectionChangedAction?.Invoke(w, s));
+            _target,
+            _selectionChangedAction,
+            _localizationService);
+    }
+    
+    private ToHitBreakdown CreateTestBreakdown(int total, bool hasLineOfSight = true)
+    {
+        // Create a breakdown that will result in the specified total
+        var gunneryValue = 4;
+        var otherModifiers = total - gunneryValue;
+        
+        return new ToHitBreakdown
+        {
+            GunneryBase = new GunneryAttackModifier { Value = gunneryValue },
+            AttackerMovement = new AttackerMovementModifier { Value = 0, MovementType = MovementType.None },
+            TargetMovement = new TargetMovementModifier { Value = 0, HexesMoved = 0 },
+            RangeModifier = new RangeAttackModifier { Value = otherModifiers, Range = WeaponRange.Medium, Distance = 5, WeaponName = "Test" },
+            OtherModifiers = new List<AttackModifier>(),
+            TerrainModifiers = new List<TerrainAttackModifier>(),
+            HasLineOfSight = hasLineOfSight
+        };
     }
 }

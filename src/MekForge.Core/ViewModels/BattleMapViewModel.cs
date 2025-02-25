@@ -75,6 +75,8 @@ public class BattleMapViewModel : BaseViewModel
             SubscribeToGameChanges();
         }
     }
+    
+    public ILocalizationService LocalizationService => _localizationService;
 
     public IReadOnlyCollection<string> CommandLog => _commandLog;
 
