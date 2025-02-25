@@ -345,11 +345,11 @@ public class WeaponsAttackState : IUiState
             if (isInRange)
             {
                 // Get to-hit modifier
-                var toHitNumber = _viewModel.Game!.ToHitCalculator.GetModifierBreakdown(
+                var toHitNumber = _viewModel.Game!.ToHitCalculator.GetToHitNumber(
                     _attacker, _target, vm.Weapon, _viewModel.Game.BattleMap);
                 
                 // Calculate hit probability percentage
-                var hitPercentage = DiceUtils.Calculate2d6Probability(toHitNumber.Total);
+                var hitPercentage = DiceUtils.Calculate2d6Probability(toHitNumber);
                 
                 // Format and set the hit probability
                 vm.HitProbability = $"{hitPercentage:F0}%";

@@ -2,6 +2,7 @@ using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Phases;
@@ -45,7 +46,8 @@ public class DeploymentStateTests
         var player = new Player(Guid.NewGuid(), "Player1");
         _game = new ClientGame(
             battleMap, [player], rules,
-            Substitute.For<ICommandPublisher>());
+            Substitute.For<ICommandPublisher>(),
+            Substitute.For<IToHitCalculator>());
         
         _viewModel.Game = _game;
         SetActivePlayer(player, unitData);

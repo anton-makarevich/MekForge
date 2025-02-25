@@ -2,6 +2,7 @@ using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Phases;
@@ -66,7 +67,8 @@ public class BattleMapViewModelTests
         _game = new ClientGame(BattleMap.GenerateMap(2, 2,
                 new SingleTerrainGenerator(2, 2, new ClearTerrain())),
             [player], new ClassicBattletechRulesProvider(),
-            Substitute.For<ICommandPublisher>());
+            Substitute.For<ICommandPublisher>(),
+            Substitute.For<IToHitCalculator>());
         _viewModel.Game = _game;
 
         ((ClientGame)_game).HandleCommand(new ChangePhaseCommand()
@@ -149,7 +151,8 @@ public class BattleMapViewModelTests
             BattleMap.GenerateMap(2, 2, new SingleTerrainGenerator(2, 2, new ClearTerrain())) ,
             [player],
             new ClassicBattletechRulesProvider(),
-            Substitute.For<ICommandPublisher>());
+            Substitute.For<ICommandPublisher>(),
+            Substitute.For<IToHitCalculator>());
         _viewModel.Game = clientGame;
 
         var joinCommand = new JoinGameCommand
@@ -179,7 +182,8 @@ public class BattleMapViewModelTests
             BattleMap.GenerateMap(2, 2, new SingleTerrainGenerator(2, 2, new ClearTerrain())) ,
             [player],
             new ClassicBattletechRulesProvider(),
-            Substitute.For<ICommandPublisher>());
+            Substitute.For<ICommandPublisher>(),
+            Substitute.For<IToHitCalculator>());
         _viewModel.Game = clientGame;
 
         var joinCommand = new JoinGameCommand
@@ -243,7 +247,8 @@ public class BattleMapViewModelTests
         _game = new ClientGame(BattleMap.GenerateMap(2, 2,
                 new SingleTerrainGenerator(2, 2, new ClearTerrain())),
             [player], new ClassicBattletechRulesProvider(),
-            Substitute.For<ICommandPublisher>());
+            Substitute.For<ICommandPublisher>(),
+            Substitute.For<IToHitCalculator>());
         _viewModel.Game = _game;
 
         ((ClientGame)_game).HandleCommand(new ChangePhaseCommand()
@@ -281,7 +286,8 @@ public class BattleMapViewModelTests
         _game = new ClientGame(BattleMap.GenerateMap(2, 2,
                 new SingleTerrainGenerator(2, 2, new ClearTerrain())),
             [player], new ClassicBattletechRulesProvider(),
-            Substitute.For<ICommandPublisher>());
+            Substitute.For<ICommandPublisher>(),
+            Substitute.For<IToHitCalculator>());
         _viewModel.Game = _game;
         ((ClientGame)_game).HandleCommand(new JoinGameCommand()
         {
@@ -319,7 +325,8 @@ public class BattleMapViewModelTests
         _game = new ClientGame(BattleMap.GenerateMap(2, 2,
                 new SingleTerrainGenerator(2, 2, new ClearTerrain())),
             [player], new ClassicBattletechRulesProvider(),
-            Substitute.For<ICommandPublisher>());
+            Substitute.For<ICommandPublisher>(),
+            Substitute.For<IToHitCalculator>());
         _viewModel.Game = _game;
 
         ((ClientGame)_game).HandleCommand(new ChangePhaseCommand()
@@ -588,7 +595,7 @@ public class BattleMapViewModelTests
         var player = new Player(Guid.NewGuid(), "Player1");
         var game = new ClientGame(
             battleMap, [player], rules,
-            Substitute.For<ICommandPublisher>());
+            Substitute.For<ICommandPublisher>(), Substitute.For<IToHitCalculator>());
         
         _viewModel.Game = game;
         game.HandleCommand(new JoinGameCommand
@@ -656,7 +663,7 @@ public class BattleMapViewModelTests
         var player = new Player(Guid.NewGuid(), "Player1");
         var game = new ClientGame(
             battleMap, [player], rules,
-            Substitute.For<ICommandPublisher>());
+            Substitute.For<ICommandPublisher>(), Substitute.For<IToHitCalculator>());
         
         _viewModel.Game = game;
         game.HandleCommand(new JoinGameCommand
@@ -710,7 +717,7 @@ public class BattleMapViewModelTests
         var player2 = new Player(Guid.NewGuid(), "Player2");
         var game = new ClientGame(
             battleMap, [player1, player2], rules,
-            Substitute.For<ICommandPublisher>());
+            Substitute.For<ICommandPublisher>(), Substitute.For<IToHitCalculator>());
         
         _viewModel.Game = game;
         game.HandleCommand(new JoinGameCommand
@@ -788,7 +795,7 @@ public class BattleMapViewModelTests
         var player2 = new Player(Guid.NewGuid(), "Player2");
         var game = new ClientGame(
             battleMap, [player1, player2], rules,
-            Substitute.For<ICommandPublisher>());
+            Substitute.For<ICommandPublisher>(), Substitute.For<IToHitCalculator>());
         
         _viewModel.Game = game;
         game.HandleCommand(new JoinGameCommand

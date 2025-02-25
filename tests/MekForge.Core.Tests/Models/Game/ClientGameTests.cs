@@ -2,6 +2,7 @@ using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
@@ -28,7 +29,8 @@ public class ClientGameTests
         var battleState = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5,5, new ClearTerrain()));
         _commandPublisher = Substitute.For<ICommandPublisher>();
         var rulesProvider = new ClassicBattletechRulesProvider();
-        _clientGame = new ClientGame(battleState,[], rulesProvider, _commandPublisher);
+        _clientGame = new ClientGame(battleState,[], rulesProvider, _commandPublisher,
+            Substitute.For<IToHitCalculator>());
     }
 
     [Fact]

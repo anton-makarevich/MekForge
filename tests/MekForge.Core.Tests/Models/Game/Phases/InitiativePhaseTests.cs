@@ -1,6 +1,7 @@
 using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Dice;
@@ -291,7 +292,8 @@ public class InitiativePhaseTests : GameStateTestsBase
         // Arrange
         var battleMap = BattleMap.GenerateMap(10, 10,
             new SingleTerrainGenerator(10,10, new ClearTerrain()));
-        var game = new ServerGame(battleMap, new ClassicBattletechRulesProvider(), CommandPublisher, DiceRoller);
+        var game = new ServerGame(battleMap, new ClassicBattletechRulesProvider(), CommandPublisher, DiceRoller,
+            Substitute.For<IToHitCalculator>());
         game.IsAutoRoll = false;
         var player3Id = Guid.NewGuid();
         var player4Id = Guid.NewGuid();

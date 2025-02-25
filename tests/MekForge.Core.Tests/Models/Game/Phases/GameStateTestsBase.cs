@@ -1,6 +1,7 @@
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Dice;
@@ -25,8 +26,10 @@ public abstract class GameStateTestsBase
         CommandPublisher = Substitute.For<ICommandPublisher>();
         DiceRoller = Substitute.For<IDiceRoller>();
         IRulesProvider rulesProvider = new ClassicBattletechRulesProvider();
-        var battleMap = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10,10, new ClearTerrain()));
-        Game = new ServerGame(battleMap, rulesProvider, CommandPublisher, DiceRoller);
+        var battleMap = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10,10,
+            new ClearTerrain()));
+        Game = new ServerGame(battleMap, rulesProvider, CommandPublisher, DiceRoller,
+            Substitute.For<IToHitCalculator>());
     }
 
     protected void VerifyPhaseChange(PhaseNames expectedPhaseNames)
