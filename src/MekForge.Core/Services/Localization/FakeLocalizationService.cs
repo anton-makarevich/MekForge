@@ -19,6 +19,15 @@ public class FakeLocalizationService: ILocalizationService
             "Command_WeaponConfiguration_ArmsFlip" => "{0}'s {1} flips arms {2}",
             "Direction_Forward" => "forward",
             "Direction_Backward" => "backward",
+            
+            // Attack modifiers
+            "Modifier_GunnerySkill" => "Gunnery Skill: +{0}",
+            "Modifier_AttackerMovement" => "Attacker Movement ({0}): +{1}",
+            "Modifier_TargetMovement" => "Target Movement ({0} hexes): +{1}",
+            "Modifier_Range" => "{0} at {1} hexes ({2} range): +{3}",
+            "Modifier_Heat" => "Heat Level ({0}): +{1}",
+            "Modifier_Terrain" => "{0} at {1}: +{2}",
+            
             _ => throw new ArgumentOutOfRangeException(nameof(key), key, null)
         };
     }

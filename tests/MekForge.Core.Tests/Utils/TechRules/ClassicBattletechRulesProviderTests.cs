@@ -1,3 +1,4 @@
+using Sanet.MekForge.Core.Models.Game.Combat;
 using Shouldly;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
@@ -109,7 +110,7 @@ namespace Sanet.MekForge.Core.Tests.Utils.TechRules
         [InlineData(WeaponRange.Short, 0)]
         [InlineData(WeaponRange.Medium, 2)]
         [InlineData(WeaponRange.Long, 4)]
-        [InlineData(WeaponRange.OutOfRange, int.MaxValue)]
+        [InlineData(WeaponRange.OutOfRange, ToHitBreakdown.ImpossibleRoll)]
         public void GetRangeModifier_ReturnsExpectedValues(WeaponRange range, int expectedModifier)
         {
             _provider.GetRangeModifier(range).ShouldBe(expectedModifier);

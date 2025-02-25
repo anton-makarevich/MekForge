@@ -1,4 +1,4 @@
-using Sanet.MekForge.Core.Models.Map;
+using Sanet.MekForge.Core.Models.Game.Combat.Modifiers;
 
 namespace Sanet.MekForge.Core.Models.Game.Combat;
 
@@ -8,34 +8,39 @@ namespace Sanet.MekForge.Core.Models.Game.Combat;
 public record ToHitBreakdown
 {
     /// <summary>
+    /// Value representing an impossible roll
+    /// </summary>
+    public const int ImpossibleRoll = 13;
+
+    /// <summary>
     /// Base gunnery skill of the attacker
     /// </summary>
-    public required int GunneryBase { get; init; }
+    public required GunneryAttackModifier GunneryBase { get; init; }
 
     /// <summary>
     /// Modifier based on attacker's movement type
     /// </summary>
-    public required int AttackerMovement { get; init; }
+    public required AttackerMovementModifier AttackerMovement { get; init; }
 
     /// <summary>
     /// Modifier based on target's movement distance
     /// </summary>
-    public required int TargetMovement { get; init; }
+    public required TargetMovementModifier TargetMovement { get; init; }
 
     /// <summary>
     /// List of other modifiers with descriptions
     /// </summary>
-    public required IReadOnlyList<(string Reason, int Modifier)> OtherModifiers { get; init; }
+    public required IReadOnlyList<AttackModifier> OtherModifiers { get; init; }
 
     /// <summary>
     /// Modifier based on weapon range to target
     /// </summary>
-    public required int RangeModifier { get; init; }
+    public required RangeAttackModifier RangeModifier { get; init; }
 
     /// <summary>
     /// List of terrain modifiers along the line of sight
     /// </summary>
-    public required IReadOnlyList<(Hex Hex, int Modifier)> TerrainModifiers { get; init; }
+    public required IReadOnlyList<TerrainAttackModifier> TerrainModifiers { get; init; }
 
     /// <summary>
     /// Whether there is a clear line of sight to the target
@@ -43,14 +48,22 @@ public record ToHitBreakdown
     public required bool HasLineOfSight { get; init; }
 
     /// <summary>
+    /// All modifiers combined into a single list
+    /// </summary>
+    public IReadOnlyList<AttackModifier> AllModifiers => new AttackModifier[]
+    {
+        GunneryBase,
+        AttackerMovement,
+        TargetMovement,
+        RangeModifier
+    }.Concat(OtherModifiers)
+     .Concat(TerrainModifiers)
+     .ToList();
+
+    /// <summary>
     /// Total modifier for the attack
     /// </summary>
     public int Total => HasLineOfSight ? 
-        GunneryBase + 
-        AttackerMovement + 
-        TargetMovement + 
-        OtherModifiers.Sum(m => m.Modifier) + 
-        RangeModifier +
-        TerrainModifiers.Sum(t => t.Modifier)
-        : int.MaxValue; // Cannot hit if no line of sight
+        AllModifiers.Sum(m => m.Value)
+        : ImpossibleRoll; // Cannot hit if no line of sight
 }
