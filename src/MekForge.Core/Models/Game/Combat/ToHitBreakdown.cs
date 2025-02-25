@@ -8,6 +8,11 @@ namespace Sanet.MekForge.Core.Models.Game.Combat;
 public record ToHitBreakdown
 {
     /// <summary>
+    /// Value representing an impossible roll
+    /// </summary>
+    public const int ImpossibleRoll = 13;
+
+    /// <summary>
     /// Base gunnery skill of the attacker
     /// </summary>
     public required GunneryAttackModifier GunneryBase { get; init; }
@@ -60,5 +65,5 @@ public record ToHitBreakdown
     /// </summary>
     public int Total => HasLineOfSight ? 
         AllModifiers.Sum(m => m.Value)
-        : int.MaxValue; // Cannot hit if no line of sight
+        : ImpossibleRoll; // Cannot hit if no line of sight
 }

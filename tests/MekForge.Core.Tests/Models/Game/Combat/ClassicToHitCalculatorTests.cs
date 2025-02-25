@@ -1,6 +1,7 @@
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game.Combat;
+using Sanet.MekForge.Core.Models.Game.Combat.Modifiers;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
 using Sanet.MekForge.Core.Models.Units;
@@ -81,7 +82,7 @@ public class ClassicToHitCalculatorTests
         var result = _calculator.GetToHitModifier(_attacker, _target, _weapon, map);
 
         // Assert
-        result.ShouldBe(int.MaxValue);
+        result.ShouldBe(ToHitBreakdown.ImpossibleRoll);
     }
 
     [Fact]
@@ -92,13 +93,13 @@ public class ClassicToHitCalculatorTests
             new HexPosition(new HexCoordinates(1,1), HexDirection.Bottom),
             new HexPosition(new HexCoordinates(10, 10), HexDirection.Bottom));
         var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new ClearTerrain()));
-        _rules.GetRangeModifier(WeaponRange.OutOfRange).Returns(int.MaxValue);
+        _rules.GetRangeModifier(WeaponRange.OutOfRange).Returns(ToHitBreakdown.ImpossibleRoll);
 
         // Act
         var result = _calculator.GetToHitModifier(_attacker, _target, _weapon, map);
 
         // Assert
-        result.ShouldBe(int.MaxValue);
+        result.ShouldBe(ToHitBreakdown.ImpossibleRoll+4);
     }
 
     [Fact]
@@ -133,7 +134,7 @@ public class ClassicToHitCalculatorTests
 
         // Assert
         result.HasLineOfSight.ShouldBeFalse();
-        result.Total.ShouldBe(int.MaxValue);
+        result.Total.ShouldBe(ToHitBreakdown.ImpossibleRoll);
     }
 
     [Fact]
@@ -151,10 +152,13 @@ public class ClassicToHitCalculatorTests
 
         // Assert
         result.HasLineOfSight.ShouldBeTrue();
-        result.GunneryBase.ShouldBe(4);
-        result.AttackerMovement.ShouldBe(0);
-        result.TargetMovement.ShouldBe(0);
-        result.RangeModifier.ShouldBe(0);
+        result.GunneryBase.Value.ShouldBe(4);
+        result.AttackerMovement.Value.ShouldBe(0);
+        result.AttackerMovement.MovementType.ShouldBe(MovementType.StandingStill);
+        result.TargetMovement.Value.ShouldBe(0);
+        result.TargetMovement.HexesMoved.ShouldBe(1);
+        result.RangeModifier.Value.ShouldBe(0);
+        result.RangeModifier.Range.ShouldBe(WeaponRange.Short);
         result.TerrainModifiers.Count.ShouldBe(0); // Number of hexes between units
         result.Total.ShouldBe(4); // Base (4) 
     }
@@ -174,11 +178,14 @@ public class ClassicToHitCalculatorTests
 
         // Assert
         result.HasLineOfSight.ShouldBeTrue();
-        result.GunneryBase.ShouldBe(4);
-        result.AttackerMovement.ShouldBe(0);
-        result.TargetMovement.ShouldBe(0);
-        result.RangeModifier.ShouldBe(0);
+        result.GunneryBase.Value.ShouldBe(4);
+        result.AttackerMovement.Value.ShouldBe(0);
+        result.TargetMovement.Value.ShouldBe(0);
+        result.RangeModifier.Value.ShouldBe(0);
+        result.RangeModifier.Range.ShouldBe(WeaponRange.Short);
         result.TerrainModifiers.Count.ShouldBe(2); // Hexes between units (3,2) + target hex (4,2)
+        result.TerrainModifiers.All(t => t.Value == 1).ShouldBeTrue();
+        result.TerrainModifiers.All(t => t.TerrainId == "LightWoods").ShouldBeTrue();
         result.Total.ShouldBe(6); // Base (4) + terrain (2)
     }
 
@@ -197,8 +204,11 @@ public class ClassicToHitCalculatorTests
 
         // Assert
         result.OtherModifiers.Count.ShouldBe(1);
-        result.OtherModifiers[0].Reason.ShouldBe("Heat");
-        result.OtherModifiers[0].Modifier.ShouldBe(2);
+        result.OtherModifiers[0].ShouldBeOfType<HeatAttackModifier>();
+        var heatModifier = (HeatAttackModifier)result.OtherModifiers[0];
+        heatModifier.Value.ShouldBe(2);
+        heatModifier.HeatLevel.ShouldBe(0);
+        result.Total.ShouldBe(6); // Base (4) + heat (2)
     }
 
     [Fact]

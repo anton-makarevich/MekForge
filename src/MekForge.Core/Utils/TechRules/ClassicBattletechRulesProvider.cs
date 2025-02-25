@@ -1,3 +1,4 @@
+using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
@@ -245,7 +246,7 @@ public class ClassicBattletechRulesProvider : IRulesProvider
             WeaponRange.Short => 0,
             WeaponRange.Medium => 2,
             WeaponRange.Long => 4,
-            WeaponRange.OutOfRange => int.MaxValue,
+            WeaponRange.OutOfRange => ToHitBreakdown.ImpossibleRoll,
             _ => throw new ArgumentException($"Unknown weapon range: {range}")
         };
     }
