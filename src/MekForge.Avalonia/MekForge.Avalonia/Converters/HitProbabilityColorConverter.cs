@@ -13,7 +13,7 @@ public class HitProbabilityColorConverter : IValueConverter
     /// <summary>
     /// Converts a hit probability value to a color
     /// </summary>
-    /// <param name="value">Hit probability as a double (0-100, or -1 for N/A)</param>
+    /// <param name="value">Hit probability as a double (0-100)</param>
     /// <param name="targetType">Target type (should be IBrush)</param>
     /// <param name="parameter">Optional threshold values as comma-separated string "lowThreshold,mediumThreshold" (default: "30,60")</param>
     /// <param name="culture">Culture info</param>
@@ -23,8 +23,8 @@ public class HitProbabilityColorConverter : IValueConverter
         if (value is not double probability || !targetType.IsAssignableTo(typeof(IBrush)))
             return new SolidColorBrush(Colors.White);
 
-        // Handle N/A case (probability < 0)
-        if (probability < 0)
+        // Handle N/A case (probability <= 0)
+        if (probability <= 0)
             return new SolidColorBrush(Colors.Gray);
 
         // Get threshold values (default: low < 30%, medium < 60%, high >= 60%)

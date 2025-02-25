@@ -11,7 +11,7 @@ public class WeaponSelectionViewModel : BindableBase
     private Unit? _target;
     private bool _isEnabled;
     private bool _isInRange;
-    private double _hitProbability = -1; // -1 indicates N/A
+    private double _hitProbability;
 
     public WeaponSelectionViewModel(
         Weapon weapon,
@@ -51,7 +51,7 @@ public class WeaponSelectionViewModel : BindableBase
 
     public bool IsEnabled
     {
-        get => _isEnabled;
+        get => _isEnabled && HitProbability > 0;
         set => SetProperty(ref _isEnabled, value);
     }
 
@@ -63,7 +63,6 @@ public class WeaponSelectionViewModel : BindableBase
     
     /// <summary>
     /// Gets or sets the hit probability as a value between 0 and 100
-    /// A value of -1 indicates "N/A" (weapon not in range)
     /// </summary>
     public double HitProbability
     {
@@ -74,11 +73,11 @@ public class WeaponSelectionViewModel : BindableBase
             NotifyPropertyChanged(nameof(HitProbabilityText));
         }
     }
-
+    
     /// <summary>
     /// Gets the formatted hit probability string for display
     /// </summary>
-    public string HitProbabilityText => HitProbability < 0 ? "N/A" : $"{HitProbability:F0}%";
+    public string HitProbabilityText => HitProbability <= 0 ? "N/A" : $"{HitProbability:F0}%";
 
     // Additional properties for UI display
     public string Name => Weapon.Name;

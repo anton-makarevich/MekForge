@@ -323,7 +323,10 @@ public class WeaponsAttackState : IUiState
                 isEnabled: false,
                 target: null,
                 onSelectionChanged: HandleWeaponSelection
-            )));
+            )
+            {
+                HitProbability = 0
+            }));
     }
 
     private void UpdateWeaponViewModels()
@@ -356,7 +359,7 @@ public class WeaponsAttackState : IUiState
             }
             else
             {
-                vm.HitProbability = -1; // -1 indicates N/A
+                vm.HitProbability = 0; // 0% chance for weapons not in range
             }
         }
     }
