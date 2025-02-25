@@ -96,7 +96,7 @@
                                               Spacing="10">
                                         <TextBlock Text="{Binding Damage}"/>
                                         <TextBlock Text="{Binding Heat}"/>
-                                        <TextBlock Text="{Binding HitProbability}" 
+                                        <TextBlock Text="{Binding HitProbabilityText}" 
                                                  Foreground="{Binding HitProbability, Converter={StaticResource HitProbabilityColorConverter}}"
                                                  FontWeight="Bold"/>
                                     </StackPanel>

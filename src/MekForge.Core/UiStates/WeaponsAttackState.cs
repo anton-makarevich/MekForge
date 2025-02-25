@@ -351,12 +351,12 @@ public class WeaponsAttackState : IUiState
                 // Calculate hit probability percentage
                 var hitPercentage = DiceUtils.Calculate2d6Probability(toHitNumber);
                 
-                // Format and set the hit probability
-                vm.HitProbability = $"{hitPercentage:F0}%";
+                // Set the hit probability as a numeric value
+                vm.HitProbability = hitPercentage;
             }
             else
             {
-                vm.HitProbability = "N/A";
+                vm.HitProbability = -1; // -1 indicates N/A
             }
         }
     }
