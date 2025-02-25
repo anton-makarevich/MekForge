@@ -1,7 +1,7 @@
 using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Map;
-using System.Reactive;
+using Sanet.MekForge.Core.Models.Game.Combat;
 
 namespace Sanet.MekForge.Core.Models.Game;
 
@@ -21,4 +21,6 @@ public interface IGame
     BattleMap BattleMap { get; }
     
     Guid Id { get; }
+    
+    IToHitCalculator ToHitCalculator { get; }
 }

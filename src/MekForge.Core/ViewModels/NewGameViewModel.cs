@@ -3,6 +3,7 @@ using System.Windows.Input;
 using AsyncAwaitBestPractices.MVVM;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
@@ -23,11 +24,13 @@ public class NewGameViewModel : BaseViewModel
 
     private readonly ObservableCollection<PlayerViewModel> _players= [];
 
-    public NewGameViewModel(IGameManager gameManager, IRulesProvider rulesProvider, ICommandPublisher commandPublisher)
+    public NewGameViewModel(IGameManager gameManager, IRulesProvider rulesProvider, ICommandPublisher commandPublisher,
+        IToHitCalculator toHitCalculator)
     {
         _gameManager = gameManager;
         _rulesProvider = rulesProvider;
         _commandPublisher = commandPublisher;
+        _toHitCalculator = toHitCalculator;
     }
 
     public string MapWidthLabel => "Map Width";
@@ -41,6 +44,7 @@ public class NewGameViewModel : BaseViewModel
     private readonly IGameManager _gameManager;
     private readonly IRulesProvider _rulesProvider;
     private readonly ICommandPublisher _commandPublisher;
+    private readonly IToHitCalculator _toHitCalculator;
 
 
     public int MapWidth
@@ -95,7 +99,7 @@ public class NewGameViewModel : BaseViewModel
             localBattleMap,
             Players.Select(vm=>vm.Player).ToList(),
             _rulesProvider,
-            _commandPublisher);
+            _commandPublisher, _toHitCalculator);
 
         var battleMapViewModel = NavigationService.GetViewModel<BattleMapViewModel>();
         battleMapViewModel.Game = localGame;

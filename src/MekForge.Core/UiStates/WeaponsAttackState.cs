@@ -4,6 +4,7 @@ using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Mechs;
+using Sanet.MekForge.Core.Utils;
 using Sanet.MekForge.Core.ViewModels;
 using Sanet.MekForge.Core.ViewModels.Wrappers;
 
@@ -339,6 +340,24 @@ public class WeaponsAttackState : IUiState
             vm.IsSelected = isSelected;
             vm.IsEnabled = (!_weaponTargets.ContainsKey(vm.Weapon) || _weaponTargets[vm.Weapon] == _target) && isInRange;
             vm.Target = target;
+            
+            // Calculate and set hit probability when in range
+            if (isInRange)
+            {
+                // Get to-hit modifier
+                var toHitNumber = _viewModel.Game!.ToHitCalculator.GetModifierBreakdown(
+                    _attacker, _target, vm.Weapon, _viewModel.Game.BattleMap);
+                
+                // Calculate hit probability percentage
+                var hitPercentage = DiceUtils.Calculate2d6Probability(toHitNumber.Total);
+                
+                // Format and set the hit probability
+                vm.HitProbability = $"{hitPercentage:F0}%";
+            }
+            else
+            {
+                vm.HitProbability = "N/A";
+            }
         }
     }
 

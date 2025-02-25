@@ -79,7 +79,7 @@ public class ClassicToHitCalculatorTests
         var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new HeavyWoodsTerrain()));
 
         // Act
-        var result = _calculator.GetToHitModifier(_attacker, _target, _weapon, map);
+        var result = _calculator.GetToHitNumber(_attacker, _target, _weapon, map);
 
         // Assert
         result.ShouldBe(ToHitBreakdown.ImpossibleRoll);
@@ -96,7 +96,7 @@ public class ClassicToHitCalculatorTests
         _rules.GetRangeModifier(WeaponRange.OutOfRange).Returns(ToHitBreakdown.ImpossibleRoll);
 
         // Act
-        var result = _calculator.GetToHitModifier(_attacker, _target, _weapon, map);
+        var result = _calculator.GetToHitNumber(_attacker, _target, _weapon, map);
 
         // Assert
         result.ShouldBe(ToHitBreakdown.ImpossibleRoll+4);
@@ -113,7 +113,7 @@ public class ClassicToHitCalculatorTests
         _rules.GetTerrainToHitModifier("LightWoods").Returns(1);
 
         // Act
-        var result = _calculator.GetToHitModifier(_attacker, _target, _weapon, map);
+        var result = _calculator.GetToHitNumber(_attacker, _target, _weapon, map);
 
         // Assert
         // Base gunnery (4) + Attacker movement (0) + Target movement (0) + Terrain (0) = 4
@@ -220,6 +220,6 @@ public class ClassicToHitCalculatorTests
         var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new ClearTerrain()));
 
         // Act & Assert
-        Should.Throw<Exception>(() => _calculator.GetToHitModifier(attacker, _target, _weapon, map));
+        Should.Throw<Exception>(() => _calculator.GetToHitNumber(attacker, _target, _weapon, map));
     }
 }

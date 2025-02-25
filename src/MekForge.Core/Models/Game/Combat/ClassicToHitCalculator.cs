@@ -18,7 +18,7 @@ public class ClassicToHitCalculator : IToHitCalculator
         _rules = rules;
     }
 
-    public int GetToHitModifier(Unit attacker, Unit target, Weapon weapon, BattleMap map)
+    public int GetToHitNumber(Unit attacker, Unit target, Weapon weapon, BattleMap map)
     {
         var breakdown = GetModifierBreakdown(attacker, target, weapon, map);
         return breakdown.Total;

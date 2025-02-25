@@ -1,3 +1,4 @@
+using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
@@ -20,8 +21,9 @@ public class ServerGame : BaseGame
         BattleMap battleMap, 
         IRulesProvider rulesProvider, 
         ICommandPublisher commandPublisher,
-        IDiceRoller diceRoller)
-        : base(battleMap, rulesProvider, commandPublisher)
+        IDiceRoller diceRoller,
+        IToHitCalculator toHitCalculator)
+        : base(battleMap, rulesProvider, commandPublisher, toHitCalculator)
     {
         DiceRoller = diceRoller;
         _currentPhase = new StartPhase(this);

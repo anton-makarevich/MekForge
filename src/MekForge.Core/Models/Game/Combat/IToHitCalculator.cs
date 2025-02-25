@@ -12,7 +12,7 @@ public interface IToHitCalculator
     /// <summary>
     /// Gets the total to-hit modifier for a weapon attack
     /// </summary>
-    int GetToHitModifier(Unit attacker, Unit target, Weapon weapon, BattleMap map);
+    int GetToHitNumber(Unit attacker, Unit target, Weapon weapon, BattleMap map);
     
     /// <summary>
     /// Gets detailed breakdown of all modifiers affecting the attack

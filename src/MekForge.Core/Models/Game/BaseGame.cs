@@ -9,6 +9,7 @@ using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Utils.TechRules;
 using System.Reactive.Subjects;
 using Sanet.MekForge.Core.Models.Units.Mechs;
+using Sanet.MekForge.Core.Models.Game.Combat;
 
 namespace Sanet.MekForge.Core.Models.Game;
 
@@ -35,6 +36,8 @@ public abstract class BaseGame : IGame
     public IObservable<IPlayer?> ActivePlayerChanges => _activePlayerSubject.AsObservable();
     public IObservable<int> UnitsToPlayChanges => _unitsToPlaySubject.AsObservable();
     public BattleMap BattleMap { get; }
+    public IToHitCalculator ToHitCalculator { get; }
+    
     public int Turn
     {
         get => _turn;
@@ -84,12 +87,14 @@ public abstract class BaseGame : IGame
     protected BaseGame(
         BattleMap battleMap,
         IRulesProvider rulesProvider,
-        ICommandPublisher commandPublisher)
+        ICommandPublisher commandPublisher,
+        IToHitCalculator toHitCalculator)
     {
         Id = Guid.NewGuid(); 
         BattleMap = battleMap;
         CommandPublisher = commandPublisher;
         _mechFactory = new MechFactory(rulesProvider);
+        ToHitCalculator = toHitCalculator;
         CommandPublisher.Subscribe(HandleCommand);
     }
 
