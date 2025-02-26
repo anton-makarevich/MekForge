@@ -28,7 +28,7 @@ public class FakeLocalizationService: ILocalizationService
             "Modifier_Heat" => "Heat Level ({0}): +{1}",
             "Modifier_Terrain" => "{0} at {1}: +{2}",
             
-            _ => throw new ArgumentOutOfRangeException(nameof(key), key, null)
+            _ => key
         };
     }
 }

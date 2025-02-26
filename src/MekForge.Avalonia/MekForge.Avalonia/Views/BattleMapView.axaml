@@ -17,6 +17,8 @@
     <UserControl.Resources>
         <converters:HexColorToBrushConverter x:Key="HexColorToBrushConverter"/>
         <converters:ContrastingForegroundConverter x:Key="ContrastingForegroundConverter"/>
+        <converters:HitProbabilityColorConverter x:Key="HitProbabilityColorConverter"/>
+        <converters:StringNotEmptyToBoolConverter x:Key="StringNotEmptyToBoolConverter"/>
     </UserControl.Resources>
     <Grid>
         <Canvas x:Name="MapCanvas" 
@@ -65,7 +67,7 @@
             CloseCommand="{Binding CloseWeaponSelectionCommand}"
             HorizontalAlignment="Center"
             VerticalAlignment="Center">
-            <Grid Grid.RowDefinitions="Auto,Auto,*"
+            <Grid RowDefinitions="Auto,*"
                   Width="300">
                 <StackPanel Grid.Row="0" 
                           Margin="10"
@@ -76,37 +78,73 @@
                         <TextBlock Text="{Binding SelectedUnit.Position.Value.Coordinates}"/>
                     </StackPanel>
                 </StackPanel>
-                <ItemsControl Grid.Row="1"
+                <ScrollViewer Grid.Row="1">
+                    <ItemsControl 
                         Margin="10"
                         ItemsSource="{Binding WeaponSelectionItems}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="wrappers:WeaponSelectionViewModel">
-                            <Grid ColumnDefinitions="Auto,*"
+                            <Grid ColumnDefinitions="Auto,*,Auto,Auto"
+                                  RowDefinitions="*,*,*"
                                   IsEnabled="{Binding IsEnabled}">
-                                <CheckBox Grid.Column="0"
+                                <CheckBox 
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Grid.RowSpan="3"
                                          IsChecked="{Binding IsSelected, Mode=TwoWay}"
                                          IsEnabled="{Binding IsEnabled}"
                                          Margin="0,0,10,0"/>
-                                <StackPanel Grid.Column="1" 
-                                          Spacing="2">
-                                    <TextBlock Text="{Binding Name}"
+                                
+                                    <TextBlock Grid.Column="1" Text="{Binding Name}"
                                              FontWeight="Bold"/>
-                                    <StackPanel Orientation="Horizontal"
-                                              Spacing="10">
+                                    <StackPanel
+                                        Grid.Column="1"
+                                        Grid.Row="1"
+                                        Orientation="Horizontal"
+                                        Spacing="5">
                                         <TextBlock Text="{Binding Damage}"/>
                                         <TextBlock Text="{Binding Heat}"/>
-                                        <TextBlock Text="{Binding HitProbability}" 
-                                                 Foreground="Green"
-                                                 FontWeight="Bold"/>
+                                        
+                                        
                                     </StackPanel>
-                                    <TextBlock Text="{Binding Target.Name}"
+                                <TextBlock
+                                    Grid.Column="2"
+                                    Grid.Row="0"
+                                    Grid.RowSpan="3"
+                                    VerticalAlignment="Center"
+                                    Text="{Binding HitProbabilityText}" 
+                                    FontSize="20"
+                                           Foreground="{Binding HitProbability, Converter={StaticResource HitProbabilityColorConverter}}"
+                                           FontWeight="Bold"/>
+                                <Button
+                                    Grid.Column="3"
+                                    Grid.Row="0"
+                                    Grid.RowSpan="3"
+                                    VerticalAlignment="Center"
+                                    Margin="2,0,0,0" 
+                                        IsVisible="{Binding ModifiersDescription, Converter={StaticResource StringNotEmptyToBoolConverter}}"
+                                        Background="Transparent" 
+                                        BorderThickness="0">
+                                    <Button.Content>(I)</Button.Content>
+                                    <Button.Flyout>
+                                        <Flyout Placement="TopEdgeAlignedRight">
+                                            <TextBlock Text="{Binding ModifiersDescription}" 
+                                                       TextWrapping="Wrap" 
+                                                       MaxWidth="300"/>
+                                        </Flyout>
+                                    </Button.Flyout>
+                                </Button>
+                                    <TextBlock Grid.Row="2"
+                                               Grid.Column="1"
+                                               Text="{Binding Target.Name}"
                                              Foreground="Gray"
                                              FontStyle="Italic"/>
-                                </StackPanel>
+                                
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+                </ScrollViewer>
             </Grid>
         </templatedControls:GamePanel>
         

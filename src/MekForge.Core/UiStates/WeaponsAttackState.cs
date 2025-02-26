@@ -4,7 +4,6 @@ using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Mechs;
-using Sanet.MekForge.Core.Utils;
 using Sanet.MekForge.Core.ViewModels;
 using Sanet.MekForge.Core.ViewModels.Wrappers;
 
@@ -19,6 +18,7 @@ public class WeaponsAttackState : IUiState
     private readonly Dictionary<Weapon, HashSet<HexCoordinates>> _weaponRanges = new();
     private readonly Dictionary<Weapon, Unit> _weaponTargets = new();
     private readonly List<WeaponSelectionViewModel> _weaponViewModels = new();
+    private readonly ClientGame _game;
 
     public WeaponsAttackStep CurrentStep { get; private set; } = WeaponsAttackStep.SelectingUnit;
 
@@ -35,12 +35,9 @@ public class WeaponsAttackState : IUiState
 
     public WeaponsAttackState(BattleMapViewModel viewModel)
     {
+        _game = viewModel.Game! as ClientGame ?? throw new InvalidOperationException("Game is not client game");
         _viewModel = viewModel;
-        if (_viewModel.Game == null)
-        {
-            throw new InvalidOperationException("Game is null"); 
-        }
-        if (_viewModel.Game.ActivePlayer == null)
+        if (_game.ActivePlayer == null)
         {
             throw new InvalidOperationException("Active player is null"); 
         }
@@ -90,7 +87,7 @@ public class WeaponsAttackState : IUiState
         
         if (CurrentStep is WeaponsAttackStep.SelectingUnit or WeaponsAttackStep.ActionSelection)
         {
-            if (unit.Owner != _viewModel.Game!.ActivePlayer || unit.HasFiredWeapons)
+            if (unit.Owner != _game.ActivePlayer || unit.HasFiredWeapons)
                 return;
 
             if (_attacker is not null)
@@ -103,7 +100,7 @@ public class WeaponsAttackState : IUiState
 
         if (CurrentStep == WeaponsAttackStep.TargetSelection)
         {
-            if (unit.Owner == _viewModel.Game!.ActivePlayer) return;
+            if (unit.Owner == _game.ActivePlayer) return;
             if (!IsHexInWeaponRange(hex.Coordinates)) return;
             
             _viewModel.SelectedUnit = null;
@@ -128,8 +125,8 @@ public class WeaponsAttackState : IUiState
         // Send command to server
         var command = new WeaponConfigurationCommand
         {
-            GameOriginId = _viewModel.Game!.Id,
-            PlayerId = _viewModel.Game.ActivePlayer!.Id,
+            GameOriginId = _game.Id,
+            PlayerId = _game.ActivePlayer!.Id,
             UnitId = mech.Id,
             Configuration = new WeaponConfiguration
             {
@@ -138,11 +135,8 @@ public class WeaponsAttackState : IUiState
             }
         };
         
-        if (_viewModel.Game is ClientGame clientGame)
-        {
-            clientGame.ConfigureUnitWeapons(command);
-        }
-
+        _game.ConfigureUnitWeapons(command);
+        
         // Return to action selection after rotation
         CurrentStep = WeaponsAttackStep.ActionSelection;
         _viewModel.NotifyStateChanged();
@@ -266,7 +260,7 @@ public class WeaponsAttackState : IUiState
                 }
 
                 // Filter out hexes without line of sight
-                weaponHexes.RemoveWhere(h => !_viewModel.Game!.BattleMap.HasLineOfSight(unitPosition.Coordinates, h));
+                weaponHexes.RemoveWhere(h => !_game.BattleMap.HasLineOfSight(unitPosition.Coordinates, h));
 
                 _weaponRanges[weapon] = weaponHexes;
                 reachableHexes.UnionWith(weaponHexes);
@@ -322,7 +316,8 @@ public class WeaponsAttackState : IUiState
                 isSelected: false,
                 isEnabled: false,
                 target: null,
-                onSelectionChanged: HandleWeaponSelection
+                onSelectionChanged: HandleWeaponSelection,
+                localizationService: _viewModel.LocalizationService
             )));
     }
 
@@ -341,22 +336,17 @@ public class WeaponsAttackState : IUiState
             vm.IsEnabled = (!_weaponTargets.ContainsKey(vm.Weapon) || _weaponTargets[vm.Weapon] == _target) && isInRange;
             vm.Target = target;
             
-            // Calculate and set hit probability when in range
+            // Set modifiers breakdown when in range
             if (isInRange)
             {
-                // Get to-hit modifier
-                var toHitNumber = _viewModel.Game!.ToHitCalculator.GetToHitNumber(
-                    _attacker, _target, vm.Weapon, _viewModel.Game.BattleMap);
-                
-                // Calculate hit probability percentage
-                var hitPercentage = DiceUtils.Calculate2d6Probability(toHitNumber);
-                
-                // Format and set the hit probability
-                vm.HitProbability = $"{hitPercentage:F0}%";
+                // Get modifiers breakdown
+                vm.ModifiersBreakdown = _game.ToHitCalculator.GetModifierBreakdown(
+                    _attacker, _target, vm.Weapon, _game.BattleMap);
             }
             else
             {
-                vm.HitProbability = "N/A";
+                // Weapon is not in range
+                vm.ModifiersBreakdown = null;
             }
         }
     }

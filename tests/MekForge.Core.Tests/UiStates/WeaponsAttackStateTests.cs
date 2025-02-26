@@ -3,6 +3,7 @@ using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Combat;
+using Sanet.MekForge.Core.Models.Game.Combat.Modifiers;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Phases;
@@ -55,6 +56,25 @@ public class WeaponsAttackStateTests
             battleMap, [_player], rules,
             Substitute.For<ICommandPublisher>(), _toHitCalculator);
 
+        var expectedModifiers = new ToHitBreakdown
+        {
+            GunneryBase = new GunneryAttackModifier { Value = 4 },
+            AttackerMovement = new AttackerMovementModifier { Value = 0, MovementType = MovementType.StandingStill },
+            TargetMovement = new TargetMovementModifier { Value = 0, HexesMoved = 1 },
+            OtherModifiers = [],
+            RangeModifier = new RangeAttackModifier
+                { Value = 0, Range = WeaponRange.Medium, Distance = 5, WeaponName = "Test" },
+            TerrainModifiers = [],
+            HasLineOfSight = true
+        };
+        
+        _toHitCalculator.GetModifierBreakdown(
+                Arg.Any<Unit>(), 
+                Arg.Any<Unit>(), 
+                Arg.Any<Weapon>(), 
+                Arg.Any<BattleMap>())
+            .Returns(expectedModifiers);
+        
         _viewModel.Game = _game;
         AddPlayerUnits();
         SetActivePlayer();
@@ -859,15 +879,6 @@ public class WeaponsAttackStateTests
     public void UpdateWeaponViewModels_CalculatesHitProbability_ForWeaponsInRange()
     {
         // Arrange
-        // Set up the mock ToHitCalculator to return a specific value
-        const int expectedToHitNumber = 8; // This should give us 41.67% chance
-        _toHitCalculator.GetToHitNumber(
-            Arg.Any<Unit>(), 
-            Arg.Any<Unit>(), 
-            Arg.Any<Weapon>(), 
-            Arg.Any<BattleMap>())
-            .Returns(expectedToHitNumber);
-        
         // Set up attacker and target units
         var attacker = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
         var target = _viewModel.Units.First(u => u.Owner!.Id != _player.Id);
@@ -893,9 +904,10 @@ public class WeaponsAttackStateTests
         weaponItems.ShouldNotBeEmpty();
         foreach (var item in weaponItems.Where(i => i.IsInRange))
         {
-            // Expected probability for target number 8 is 41.67%
-            var expectedProbability = DiceUtils.Calculate2d6Probability(expectedToHitNumber);
-            item.HitProbability.ShouldBe($"{expectedProbability:F0}%");
+            // Expected probability for target number 4 is 92%
+            var expectedProbability = DiceUtils.Calculate2d6Probability(item.ModifiersBreakdown!.Total);
+            item.HitProbability.ShouldBeEquivalentTo(expectedProbability);
+            item.HitProbabilityText.ShouldBe($"{expectedProbability:F0}%");
         }
     }
     
@@ -930,7 +942,8 @@ public class WeaponsAttackStateTests
         {
             // All weapons should be out of range
             item.IsInRange.ShouldBeFalse();
-            item.HitProbability.ShouldBe("N/A");
+            item.HitProbability.ShouldBeEquivalentTo(0.0);
+            item.HitProbabilityText.ShouldBe("N/A");
         }
     }
 }
