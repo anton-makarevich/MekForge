@@ -74,6 +74,8 @@ public abstract class UnitPart
             }
 
             _components.Add(component);
+            // Update the component with its mount location
+            component.Mount(component.MountedAtSlots, this);
             return true;
         }
 
@@ -83,7 +85,8 @@ public abstract class UnitPart
             return false;
         }
 
-        component.Mount(Enumerable.Range(slotToMount, component.Size).ToArray());
+        // Use the new Mount method that includes UnitPart reference
+        component.Mount(Enumerable.Range(slotToMount, component.Size).ToArray(), this);
         _components.Add(component);
         return true;
     }
@@ -136,5 +139,25 @@ public abstract class UnitPart
     public IEnumerable<T> GetComponents<T>() where T : Component
     {
         return _components.OfType<T>();
+    }
+
+    /// <summary>
+    /// Removes a component from this part, unmounting it if necessary
+    /// </summary>
+    /// <param name="component">The component to remove</param>
+    /// <returns>True if the component was successfully removed, false otherwise</returns>
+    public bool RemoveComponent(Component component)
+    {
+        if (!_components.Contains(component))
+        {
+            return false;
+        }
+
+        if (component is { IsMounted: true, IsFixed: false })
+        {
+            component.UnMount();
+        }
+
+        return _components.Remove(component);
     }
 }

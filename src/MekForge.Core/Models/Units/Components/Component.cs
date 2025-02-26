@@ -25,10 +25,13 @@ public abstract class Component : IManufacturedItem
     public bool IsFixed { get; }
     public int BattleValue { get; protected set; }
 
+    // Reference to the part this component is mounted on
+    public UnitPart? MountedOn { get; private set; }
+
     // Slot positioning
     public bool IsMounted => MountedAtSlots.Length > 0;
 
-    public void Mount(int[] slots)
+    public void Mount(int[] slots, UnitPart mountLocation)
     {
         if (IsMounted) return;
         if (slots.Length != Size)
@@ -37,6 +40,7 @@ public abstract class Component : IManufacturedItem
         }
         
         MountedAtSlots = slots;
+        MountedOn = mountLocation;
     }
 
     public void UnMount()
@@ -48,6 +52,7 @@ public abstract class Component : IManufacturedItem
         if (!IsMounted) return;
         
         MountedAtSlots = [];
+        MountedOn = null;
     }
 
     public virtual void Hit()
@@ -60,4 +65,7 @@ public abstract class Component : IManufacturedItem
 
     public virtual void Activate() => IsActive = true;
     public virtual void Deactivate() => IsActive = false;
+    
+    // Helper method to get the location of this component
+    public PartLocation? GetLocation() => MountedOn?.Location;
 }

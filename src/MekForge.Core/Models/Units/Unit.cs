@@ -168,7 +168,47 @@ public abstract class Unit
 
     protected bool HasActiveComponent<T>() where T : Component
     {
-        return GetAllComponents<T>().Any(c => c.IsActive && !c.IsDestroyed);
+        return GetAllComponents<T>().Any(c => c is { IsActive: true, IsDestroyed: false });
+    }
+
+    /// <summary>
+    /// Gets all components at a specific location
+    /// </summary>
+    /// <param name="location">The location to check</param>
+    /// <returns>All components at the specified location</returns>
+    public IEnumerable<Component> GetComponentsAtLocation(PartLocation location)
+    {
+        var part = _parts.FirstOrDefault(p => p.Location == location);
+        return part?.Components ?? [];
+    }
+
+    /// <summary>
+    /// Gets components of a specific type at a specific location
+    /// </summary>
+    /// <typeparam name="T">The type of component to find</typeparam>
+    /// <param name="location">The location to check</param>
+    /// <returns>All components of the specified type at the specified location</returns>
+    public IEnumerable<T> GetComponentsAtLocation<T>(PartLocation location) where T : Component
+    {
+        var part = _parts.FirstOrDefault(p => p.Location == location);
+        return part?.GetComponents<T>() ?? [];
+    }
+
+    /// <summary>
+    /// Finds the part that contains a specific component
+    /// </summary>
+    /// <param name="component">The component to find</param>
+    /// <returns>The part containing the component, or null if not found</returns>
+    public UnitPart? FindComponentPart(Component component)
+    {
+        // First check the component's MountedOn property
+        if (component.MountedOn != null && _parts.Contains(component.MountedOn))
+        {
+            return component.MountedOn;
+        }
+        
+        // Fallback to searching all parts
+        return _parts.FirstOrDefault(p => p.Components.Contains(component));
     }
 
     public void Move(MovementType movementType, List<PathSegmentData> movementPath)
