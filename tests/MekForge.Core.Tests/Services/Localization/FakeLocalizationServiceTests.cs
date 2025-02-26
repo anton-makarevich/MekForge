@@ -26,7 +26,8 @@ public class FakeLocalizationServiceTests
     [InlineData("Modifier_Range", "{0} at {1} hexes ({2} range): +{3}")]
     [InlineData("Modifier_Heat", "Heat Level ({0}): +{1}")]
     [InlineData("Modifier_Terrain", "{0} at {1}: +{2}")]
-    public void GetString_ShouldReturnCorrectString(string key, string expectedValue)
+    [InlineData("Something key that doesn't exist", null)]
+    public void GetString_ShouldReturnCorrectString(string key, string? expectedValue)
     {
         // Arrange
         var localizationService = new FakeLocalizationService();
@@ -36,15 +37,5 @@ public class FakeLocalizationServiceTests
 
         // Assert
         result.ShouldBe(expectedValue);
-    }
-
-    [Fact]
-    public void GetString_ShouldThrowArgumentOutOfRangeException_WhenKeyNotFound()
-    {
-        // Arrange
-        var localizationService = new FakeLocalizationService();
-
-        // Act & Assert
-        Should.Throw<ArgumentOutOfRangeException>(() => localizationService.GetString("NonExistentKey"));
     }
 }

@@ -6,9 +6,8 @@ using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Services.Localization;
 using Sanet.MekForge.Core.ViewModels.Wrappers;
 using Shouldly;
-using System.ComponentModel;
 
-namespace MekForge.Core.Tests.ViewModels.Wrappers;
+namespace Sanet.MekForge.Core.Tests.ViewModels.Wrappers;
 
 public class WeaponSelectionViewModelTests
 {
@@ -331,7 +330,7 @@ public class WeaponSelectionViewModelTests
         return new ToHitBreakdown
         {
             GunneryBase = new GunneryAttackModifier { Value = gunneryValue },
-            AttackerMovement = new AttackerMovementModifier { Value = 0, MovementType = MovementType.None },
+            AttackerMovement = new AttackerMovementModifier { Value = 0, MovementType = MovementType.StandingStill },
             TargetMovement = new TargetMovementModifier { Value = 0, HexesMoved = 0 },
             RangeModifier = new RangeAttackModifier { Value = otherModifiers, Range = WeaponRange.Medium, Distance = 5, WeaponName = "Test" },
             OtherModifiers = new List<AttackModifier>(),
