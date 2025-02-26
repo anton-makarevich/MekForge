@@ -29,7 +29,7 @@ public abstract class Component : IManufacturedItem
     public UnitPart? MountedOn { get; private set; }
 
     // Slot positioning
-    public bool IsMounted => MountedAtSlots.Length > 0;
+    public bool IsMounted => MountedAtSlots.Length > 0 && MountedOn != null;
 
     public void Mount(int[] slots, UnitPart mountLocation)
     {
