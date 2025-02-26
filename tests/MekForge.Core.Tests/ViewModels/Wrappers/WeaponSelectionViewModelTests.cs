@@ -269,7 +269,7 @@ public class WeaponSelectionViewModelTests
         // Arrange
         CreateSut();
         var breakdown = CreateTestBreakdown(8);
-        _localizationService.GetString("TargetNumber").Returns("Target Number");
+        _localizationService.GetString("Attack_TargetNumber").Returns("Target Number");
         
         // Act
         _sut.ModifiersBreakdown = breakdown;
@@ -279,7 +279,7 @@ public class WeaponSelectionViewModelTests
         description.ShouldContain("Target Number: 8");
         
         // The Format method of each modifier should be called
-        _localizationService.Received().GetString("TargetNumber");
+        _localizationService.Received().GetString("Attack_TargetNumber");
         
         // Each modifier's Format method would be called, but we can't verify that directly
         // in this test since we're using real objects, not mocks
@@ -291,14 +291,14 @@ public class WeaponSelectionViewModelTests
         // Arrange
         CreateSut();
         var breakdown = CreateTestBreakdown(8, hasLineOfSight: false);
-        _localizationService.GetString("NoLineOfSight").Returns("No Line Of Sight");
+        _localizationService.GetString("Attack_NoLineOfSight").Returns("No Line Of Sight");
         
         // Act
         _sut.ModifiersBreakdown = breakdown;
         
         // Assert
         _sut.ModifiersDescription.ShouldBe("No Line Of Sight");
-        _localizationService.Received().GetString("NoLineOfSight");
+        _localizationService.Received().GetString("Attack_NoLineOfSight");
     }
     
     [Fact]
