@@ -8,6 +8,7 @@
 
     <Application.Resources>
         <di:ServiceCollection x:Key="ServiceCollection"/>
+        <FontFamily x:Key="AwesomeFontSolid">avares://Sanet.MekForge.Avalonia/Assets/Fonts/#Font Awesome 6 Free Solid</FontFamily>
     </Application.Resources>
              
     <Application.Styles>

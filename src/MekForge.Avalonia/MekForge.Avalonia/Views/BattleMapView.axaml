@@ -102,10 +102,8 @@
                                         Grid.Row="1"
                                         Orientation="Horizontal"
                                         Spacing="5">
-                                        <TextBlock Text="{Binding Damage}"/>
-                                        <TextBlock Text="{Binding Heat}"/>
-                                        
-                                        
+                                        <TextBlock FontFamily="{StaticResource AwesomeFontSolid}" Text="{Binding Damage}"/>
+                                        <TextBlock FontFamily="{StaticResource AwesomeFontSolid}" Text="{Binding Heat}"/>
                                     </StackPanel>
                                 <TextBlock
                                     Grid.Column="2"
@@ -125,7 +123,9 @@
                                         IsVisible="{Binding ModifiersDescription, Converter={StaticResource StringNotEmptyToBoolConverter}}"
                                         Background="Transparent" 
                                         BorderThickness="0">
-                                    <Button.Content>(I)</Button.Content>
+                                    <Button.Content>
+                                        <TextBlock FontFamily="{StaticResource AwesomeFontSolid}" Text="&#xF05A;" />
+                                    </Button.Content>
                                     <Button.Flyout>
                                         <Flyout Placement="TopEdgeAlignedRight">
                                             <TextBlock Text="{Binding ModifiersDescription}" 

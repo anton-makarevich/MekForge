@@ -122,6 +122,6 @@ public class WeaponSelectionViewModel : BindableBase
     // Additional properties for UI display
     public string Name => Weapon.Name;
     public string RangeInfo => $"{Weapon.MinimumRange}-{Weapon.LongRange}";
-    public string Damage => $"Damage: {Weapon.Damage}";
-    public string Heat => $"Heat: {Weapon.Heat}";
+    public string Damage => $"\u26a1: {Weapon.Damage}";
+    public string Heat => $"\uf06d: {Weapon.Heat}";
 }
