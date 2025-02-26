@@ -2,7 +2,7 @@ namespace Sanet.MekForge.Core.Services.Localization;
 
 public class FakeLocalizationService: ILocalizationService
 {
-    public string? GetString(string key)
+    public string GetString(string key)
     {
         return key switch
         {
@@ -28,7 +28,7 @@ public class FakeLocalizationService: ILocalizationService
             "Modifier_Heat" => "Heat Level ({0}): +{1}",
             "Modifier_Terrain" => "{0} at {1}: +{2}",
             
-            _ => null
+            _ => key
         };
     }
 }

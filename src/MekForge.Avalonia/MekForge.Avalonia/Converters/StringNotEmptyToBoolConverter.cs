@@ -8,7 +8,7 @@ namespace Sanet.MekForge.Avalonia.Converters
     {
         public static readonly StringNotEmptyToBoolConverter Instance = new();
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value is string stringValue)
             {
@@ -17,7 +17,7 @@ namespace Sanet.MekForge.Avalonia.Converters
             return false;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
