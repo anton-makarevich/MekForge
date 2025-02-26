@@ -49,7 +49,7 @@ public class ClassicToHitCalculatorTests
         // Default rules setup
         _rules.GetAttackerMovementModifier(MovementType.StandingStill).Returns(0);
         _rules.GetTargetMovementModifier(1).Returns(0);
-        _rules.GetRangeModifier(WeaponRange.Short).Returns(0);
+        _rules.GetRangeModifier(WeaponRange.Short,Arg.Any<int>(), Arg.Any<int>()).Returns(0);
         _rules.GetHeatModifier(0).Returns(0);
     }
 
@@ -93,7 +93,7 @@ public class ClassicToHitCalculatorTests
             new HexPosition(new HexCoordinates(1,1), HexDirection.Bottom),
             new HexPosition(new HexCoordinates(10, 10), HexDirection.Bottom));
         var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new ClearTerrain()));
-        _rules.GetRangeModifier(WeaponRange.OutOfRange).Returns(ToHitBreakdown.ImpossibleRoll);
+        _rules.GetRangeModifier(WeaponRange.OutOfRange,Arg.Any<int>(), Arg.Any<int>()).Returns(ToHitBreakdown.ImpossibleRoll);
 
         // Act
         var result = _calculator.GetToHitNumber(_attacker, _target, _weapon, map);

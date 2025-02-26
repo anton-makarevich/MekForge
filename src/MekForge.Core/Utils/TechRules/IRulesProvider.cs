@@ -21,7 +21,7 @@ public interface IRulesProvider
     /// <summary>
     /// Gets the modifier for firing at a specific range bracket
     /// </summary>
-    int GetRangeModifier(WeaponRange range);
+    int GetRangeModifier(WeaponRange  rangeType, int rangeValue, int distance);
 
     /// <summary>
     /// Gets the modifier based on attacker's current heat level

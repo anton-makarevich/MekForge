@@ -238,16 +238,16 @@ public class ClassicBattletechRulesProvider : IRulesProvider
         };
     }
 
-    public int GetRangeModifier(WeaponRange range)
+    public int GetRangeModifier(WeaponRange rangeType, int rangeValue, int distance)
     {
-        return range switch
+        return rangeType switch
         {
-            WeaponRange.Minimum => 1,
+            WeaponRange.Minimum => rangeValue-distance+1,
             WeaponRange.Short => 0,
             WeaponRange.Medium => 2,
             WeaponRange.Long => 4,
             WeaponRange.OutOfRange => ToHitBreakdown.ImpossibleRoll,
-            _ => throw new ArgumentException($"Unknown weapon range: {range}")
+            _ => throw new ArgumentException($"Unknown weapon range: {rangeType}")
         };
     }
 

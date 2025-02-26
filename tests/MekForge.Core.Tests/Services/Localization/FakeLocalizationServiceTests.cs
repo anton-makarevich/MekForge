@@ -26,6 +26,9 @@ public class FakeLocalizationServiceTests
     [InlineData("Modifier_Range", "{0} at {1} hexes ({2} range): +{3}")]
     [InlineData("Modifier_Heat", "Heat Level ({0}): +{1}")]
     [InlineData("Modifier_Terrain", "{0} at {1}: +{2}")]
+    // Attack information
+    [InlineData("Attack_NoLineOfSight", "No LOS")]
+    [InlineData("Attack_TargetNumber", "Target ToHit Number")]
     [InlineData("Key_Not_Found", "Key_Not_Found")]
     public void GetString_ShouldReturnCorrectString(string key, string? expectedValue)
     {
