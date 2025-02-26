@@ -102,10 +102,8 @@
                                         Grid.Row="1"
                                         Orientation="Horizontal"
                                         Spacing="5">
-                                        <TextBlock Text="{Binding Damage}"/>
-                                        <TextBlock Text="{Binding Heat}"/>
-                                        
-                                        
+                                        <TextBlock FontFamily="{StaticResource AwesomeFontSolid}" Text="{Binding Damage}"/>
+                                        <TextBlock FontFamily="{StaticResource AwesomeFontSolid}" Text="{Binding Heat}"/>
                                     </StackPanel>
                                 <TextBlock
                                     Grid.Column="2"
@@ -126,7 +124,7 @@
                                         Background="Transparent" 
                                         BorderThickness="0">
                                     <Button.Content>
-                                        <TextBlock FontFamily="avares://Sanet.MekForge.Avalonia/Assets/Fonts/#Font Awesome 6 Free Solid" Text="&#xF05A;" />
+                                        <TextBlock FontFamily="{StaticResource AwesomeFontSolid}" Text="&#xF05A;" />
                                     </Button.Content>
                                     <Button.Flyout>
                                         <Flyout Placement="TopEdgeAlignedRight">
