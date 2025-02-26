@@ -92,7 +92,7 @@ public class WeaponSelectionViewModelTests
         CreateSut();
 
         // Act & Assert
-        _sut.Damage.ShouldBe("Damage: 5");
+        _sut.Damage.ShouldBe("\u26a1: 5");
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public class WeaponSelectionViewModelTests
         CreateSut();
 
         // Act & Assert
-        _sut.Heat.ShouldBe("Heat: 3");
+        _sut.Heat.ShouldBe("\uf06d: 3");
     }
 
     [Fact]
