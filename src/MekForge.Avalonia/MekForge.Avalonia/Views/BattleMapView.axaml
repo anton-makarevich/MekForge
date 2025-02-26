@@ -125,7 +125,9 @@
                                         IsVisible="{Binding ModifiersDescription, Converter={StaticResource StringNotEmptyToBoolConverter}}"
                                         Background="Transparent" 
                                         BorderThickness="0">
-                                    <Button.Content>(I)</Button.Content>
+                                    <Button.Content>
+                                        <TextBlock FontFamily="avares://Sanet.MekForge.Avalonia/Assets/Fonts/#Font Awesome 6 Free Solid" Text="&#xF05A;" />
+                                    </Button.Content>
                                     <Button.Flyout>
                                         <Flyout Placement="TopEdgeAlignedRight">
                                             <TextBlock Text="{Binding ModifiersDescription}" 
