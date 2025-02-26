@@ -106,14 +106,15 @@ namespace Sanet.MekForge.Core.Tests.Utils.TechRules
         }
 
         [Theory]
-        [InlineData(WeaponRange.Minimum, 1)]
-        [InlineData(WeaponRange.Short, 0)]
-        [InlineData(WeaponRange.Medium, 2)]
-        [InlineData(WeaponRange.Long, 4)]
-        [InlineData(WeaponRange.OutOfRange, ToHitBreakdown.ImpossibleRoll)]
-        public void GetRangeModifier_ReturnsExpectedValues(WeaponRange range, int expectedModifier)
+        [InlineData(WeaponRange.Minimum,6,6, 1)]
+        [InlineData(WeaponRange.Minimum,6,5, 2)]
+        [InlineData(WeaponRange.Short,1,1,0)]
+        [InlineData(WeaponRange.Medium,1,1, 2)]
+        [InlineData(WeaponRange.Long,1,1, 4)]
+        [InlineData(WeaponRange.OutOfRange,1,1, ToHitBreakdown.ImpossibleRoll)]
+        public void GetRangeModifier_ReturnsExpectedValues(WeaponRange range, int rangeValue, int distance, int expectedModifier)
         {
-            _provider.GetRangeModifier(range).ShouldBe(expectedModifier);
+            _provider.GetRangeModifier(range,rangeValue,distance).ShouldBe(expectedModifier);
         }
 
         [Theory]
@@ -152,7 +153,7 @@ namespace Sanet.MekForge.Core.Tests.Utils.TechRules
         public void GetRangeModifier_InvalidRange_ThrowsArgumentException()
         {
             var invalidRange = (WeaponRange)999;
-            Should.Throw<ArgumentException>(() => _provider.GetRangeModifier(invalidRange));
+            Should.Throw<ArgumentException>(() => _provider.GetRangeModifier(invalidRange,999,999));
         }
     }
 }

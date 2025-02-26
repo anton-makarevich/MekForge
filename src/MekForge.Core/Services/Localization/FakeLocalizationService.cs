@@ -28,6 +28,10 @@ public class FakeLocalizationService: ILocalizationService
             "Modifier_Heat" => "Heat Level ({0}): +{1}",
             "Modifier_Terrain" => "{0} at {1}: +{2}",
             
+            // Attack information
+            "Attack_NoLineOfSight" => "No LOS",
+            "Attack_TargetNumber" => "Target ToHit Number",
+            
             _ => key
         };
     }

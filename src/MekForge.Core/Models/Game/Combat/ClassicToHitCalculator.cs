@@ -29,6 +29,15 @@ public class ClassicToHitCalculator : IToHitCalculator
         var hasLos = map.HasLineOfSight(attacker.Position!.Value.Coordinates, target.Position!.Value.Coordinates);
         var distance = attacker.Position!.Value.Coordinates.DistanceTo(target.Position!.Value.Coordinates);
         var range = weapon.GetRangeBracket(distance);
+        var rangeValue = range switch
+        {
+            WeaponRange.Minimum => weapon.MinimumRange,
+            WeaponRange.Short => weapon.ShortRange,
+            WeaponRange.Medium => weapon.MediumRange,
+            WeaponRange.Long => weapon.LongRange,
+            WeaponRange.OutOfRange => weapon.LongRange+1,
+            _ => throw new ArgumentException($"Unknown weapon range: {range}")
+        };
         var otherModifiers = GetDetailedOtherModifiers(attacker, target, weapon, map);
         var terrainModifiers = GetTerrainModifiers(attacker, target, map);
 
@@ -52,7 +61,7 @@ public class ClassicToHitCalculator : IToHitCalculator
             OtherModifiers = otherModifiers,
             RangeModifier = new RangeAttackModifier
             {
-                Value = _rules.GetRangeModifier(range),
+                Value = _rules.GetRangeModifier(range, rangeValue, distance),
                 Range = range,
                 Distance = distance,
                 WeaponName = weapon.Name

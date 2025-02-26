@@ -106,11 +106,11 @@ public class WeaponSelectionViewModel : BindableBase
                 return string.Empty;
 
             if (!ModifiersBreakdown.HasLineOfSight)
-                return _localizationService.GetString("NoLineOfSight");
+                return _localizationService.GetString("Attack_NoLineOfSight");
             
             var lines = new List<string>
             {
-                $"{_localizationService.GetString("TargetNumber")}: {ModifiersBreakdown.Total}"
+                $"{_localizationService.GetString("Attack_TargetNumber")}: {ModifiersBreakdown.Total}"
             };
             lines.AddRange(ModifiersBreakdown.AllModifiers.Select(modifier => modifier.Format(_localizationService)));
 
