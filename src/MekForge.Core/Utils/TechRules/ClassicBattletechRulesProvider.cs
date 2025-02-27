@@ -272,4 +272,9 @@ public class ClassicBattletechRulesProvider : IRulesProvider
             _ => 0 // Default no modifier
         };
     }
+
+    public int GetSecondaryTargetModifier(bool isFrontArc)
+    {
+        return isFrontArc ? 1 : 2; // +1 for front arc, +2 for other arcs
+    }
 }

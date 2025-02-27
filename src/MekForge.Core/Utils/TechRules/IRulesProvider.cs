@@ -32,4 +32,11 @@ public interface IRulesProvider
     /// Gets the to-hit modifier for a specific terrain type
     /// </summary>
     int GetTerrainToHitModifier(string terrainType);
+
+    /// <summary>
+    /// Gets the modifier for firing at a secondary target
+    /// </summary>
+    /// <param name="isFrontArc">Whether the target is in the front arc</param>
+    /// <returns>The modifier value to apply</returns>
+    int GetSecondaryTargetModifier(bool isFrontArc);
 }

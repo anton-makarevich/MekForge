@@ -14,6 +14,7 @@ public class WeaponsAttackState : IUiState
     private readonly BattleMapViewModel _viewModel;
     private Unit? _attacker;
     private Unit? _target;
+    private Unit? _primaryTarget;
     private readonly List<HexDirection> _availableDirections = new();
     private readonly Dictionary<Weapon, HashSet<HexCoordinates>> _weaponRanges = new();
     private readonly Dictionary<Weapon, Unit> _weaponTargets = new();
@@ -153,6 +154,7 @@ public class WeaponsAttackState : IUiState
     {
         _attacker = null;
         _target = null;
+        _primaryTarget = null;
         _weaponTargets.Clear();
         _weaponRanges.Clear();
         _weaponViewModels.Clear();
@@ -302,6 +304,7 @@ public class WeaponsAttackState : IUiState
     
     public Unit? Attacker => _attacker;
     public Unit? SelectedTarget => _target;
+    public Unit? PrimaryTarget => _primaryTarget;
 
     private void CreateWeaponViewModels()
     {
@@ -339,9 +342,12 @@ public class WeaponsAttackState : IUiState
             // Set modifiers breakdown when in range
             if (isInRange)
             {
-                // Get modifiers breakdown
+                // Check if this target is the primary target
+                bool isPrimaryTarget = _target == _primaryTarget;
+                
+                // Get modifiers breakdown, passing the primary target information
                 vm.ModifiersBreakdown = _game.ToHitCalculator.GetModifierBreakdown(
-                    _attacker, _target, vm.Weapon, _game.BattleMap);
+                    _attacker, _target, vm.Weapon, _game.BattleMap, isPrimaryTarget);
             }
             else
             {
@@ -374,8 +380,55 @@ public class WeaponsAttackState : IUiState
         {
             _weaponTargets[weapon] = _target;
         }
+        
+        // Determine the primary target whenever weapon selections change
+        _primaryTarget = DeterminePrimaryTarget();
+        
         UpdateWeaponViewModels();
         _viewModel.NotifyStateChanged();
+    }
+
+    private Unit? DeterminePrimaryTarget()
+    {
+        if (_weaponTargets.Count == 0)
+        {
+            return null;
+        }
+        
+        // Get all unique targets
+        var targets = _weaponTargets.Values.Distinct().ToList();
+        
+        // If only one target, it's the primary
+        if (targets.Count == 1)
+        {
+            return targets[0];
+        }
+        
+        // Check for targets in the forward arc
+        if (_attacker?.Position == null) return targets[0];
+        
+        var attackerPosition = _attacker.Position.Value;
+        var facing = _attacker is Mech mech ? mech.TorsoDirection : attackerPosition.Facing;
+        
+        if (facing == null) return targets[0];
+        
+        // Find targets in the forward arc
+        var targetsInForwardArc = targets
+            .Where(t => t.Position != null && 
+                       attackerPosition.Coordinates.IsInFiringArc(
+                           t.Position.Value.Coordinates, 
+                           facing.Value, 
+                           FiringArc.Forward))
+            .ToList();
+        
+        // If there are targets in forward arc, pick the first one
+        if (targetsInForwardArc.Any())
+        {
+            return targetsInForwardArc[0];
+        }
+        
+        // Otherwise, pick the first target
+        return targets[0];
     }
 }
 

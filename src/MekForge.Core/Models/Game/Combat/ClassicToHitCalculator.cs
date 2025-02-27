@@ -2,6 +2,7 @@ using Sanet.MekForge.Core.Models.Game.Combat.Modifiers;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
+using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Models.Game.Combat;
@@ -18,13 +19,13 @@ public class ClassicToHitCalculator : IToHitCalculator
         _rules = rules;
     }
 
-    public int GetToHitNumber(Unit attacker, Unit target, Weapon weapon, BattleMap map)
+    public int GetToHitNumber(Unit attacker, Unit target, Weapon weapon, BattleMap map, bool isPrimaryTarget = true)
     {
-        var breakdown = GetModifierBreakdown(attacker, target, weapon, map);
+        var breakdown = GetModifierBreakdown(attacker, target, weapon, map, isPrimaryTarget);
         return breakdown.Total;
     }
 
-    public ToHitBreakdown GetModifierBreakdown(Unit attacker, Unit target, Weapon weapon, BattleMap map)
+    public ToHitBreakdown GetModifierBreakdown(Unit attacker, Unit target, Weapon weapon, BattleMap map, bool isPrimaryTarget = true)
     {
         var hasLos = map.HasLineOfSight(attacker.Position!.Value.Coordinates, target.Position!.Value.Coordinates);
         var distance = attacker.Position!.Value.Coordinates.DistanceTo(target.Position!.Value.Coordinates);
@@ -38,7 +39,7 @@ public class ClassicToHitCalculator : IToHitCalculator
             WeaponRange.OutOfRange => weapon.LongRange+1,
             _ => throw new ArgumentException($"Unknown weapon range: {range}")
         };
-        var otherModifiers = GetDetailedOtherModifiers(attacker, target, weapon, map);
+        var otherModifiers = GetDetailedOtherModifiers(attacker, target, weapon, map, isPrimaryTarget);
         var terrainModifiers = GetTerrainModifiers(attacker, target, map);
 
         return new ToHitBreakdown
@@ -71,7 +72,7 @@ public class ClassicToHitCalculator : IToHitCalculator
         };
     }
 
-    private IReadOnlyList<AttackModifier> GetDetailedOtherModifiers(Unit attacker, Unit target, Weapon weapon, BattleMap map)
+    private IReadOnlyList<AttackModifier> GetDetailedOtherModifiers(Unit attacker, Unit target, Weapon weapon, BattleMap map, bool isPrimaryTarget = true)
     {
         var modifiers = new List<AttackModifier> {
             new HeatAttackModifier
@@ -81,9 +82,30 @@ public class ClassicToHitCalculator : IToHitCalculator
             }
         };
 
+        // Add secondary target modifier if not primary
+        if (!isPrimaryTarget && attacker is { Position: not null } && target is { Position: not null })
+        {
+            var attackerPosition = attacker.Position.Value;
+            var facing = attacker is Mech mech ? mech.TorsoDirection : attackerPosition.Facing;
+            
+            if (facing != null)
+            {
+                var isInFrontArc = attackerPosition.Coordinates.IsInFiringArc(
+                    target.Position.Value.Coordinates,
+                    facing.Value,
+                    FiringArc.Forward);
+                
+                modifiers.Add(new SecondaryTargetModifier
+                {
+                    IsInFrontArc = isInFrontArc,
+                    IsSecondaryTarget = true,
+                    Value = _rules.GetSecondaryTargetModifier(isInFrontArc)
+                });
+            }
+        }
+
         // TODO: Add other modifiers like:
         // - Attacker damage (actuators)
-        // - Multiple targets
         // - Special terrain effects
 
         return modifiers;
