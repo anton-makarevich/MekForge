@@ -947,4 +947,148 @@ public class WeaponsAttackStateTests
             item.HitProbabilityText.ShouldBe("N/A");
         }
     }
+
+    [Fact]
+    public void DeterminePrimaryTarget_WithMultipleTargets_SelectsTargetInForwardArc()
+    {
+        // Arrange
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        
+        // Set up two enemy targets at different positions
+        var targetInForwardArc = _viewModel.Units.First(u => u.Owner!.Id != _player.Id);
+        var targetInOtherArc = _viewModel.Units.Last(u => u.Owner!.Id != _player.Id);
+        
+        // Position units: attacker facing Top, targetInForwardArc directly in front, targetInOtherArc to the side
+        var attackerPosition = new HexPosition(new HexCoordinates(5, 5), HexDirection.Top);
+        var targetInForwardPosition = new HexPosition(new HexCoordinates(5, 4), HexDirection.Bottom);
+        var targetInOtherPosition = new HexPosition(new HexCoordinates(7, 5), HexDirection.Bottom);
+        
+        attacker.Deploy(attackerPosition);
+        targetInForwardArc.Deploy(targetInForwardPosition);
+        targetInOtherArc.Deploy(targetInOtherPosition);
+        
+        // Set up the state
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == attackerPosition.Coordinates));
+        _state.HandleUnitSelection(attacker);
+        var selectTargetAction = _state.GetAvailableActions().First(a => a.Label == "Select Target");
+        selectTargetAction.OnExecute();
+        
+        // Get two different weapons to target different enemies
+        var weapons = attacker.Parts.SelectMany(p => p.GetComponents<Weapon>()).Take(2).ToList();
+        
+        // Select first target and weapon
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == targetInForwardPosition.Coordinates));
+        _state.HandleUnitSelection(targetInForwardArc);
+        var weaponSelection1 = _state.GetWeaponSelectionItems().First(ws => ws.Weapon == weapons[0]);
+        weaponSelection1.IsSelected = true;
+        
+        // Select second target and weapon
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == targetInOtherPosition.Coordinates));
+        _state.HandleUnitSelection(targetInOtherArc);
+        var weaponSelection2 = _state.GetWeaponSelectionItems().First(ws => ws.Weapon == weapons[1]);
+        weaponSelection2.IsSelected = true;
+        
+        // Act
+        var primaryTarget = _state.PrimaryTarget;
+        
+        // Assert
+        primaryTarget.ShouldNotBeNull();
+        primaryTarget.ShouldBe(targetInForwardArc);
+    }
+    
+    [Fact]
+    public void UpdateWeaponViewModels_AppliesCorrectModifiersForPrimaryAndSecondaryTargets()
+    {
+        // Arrange
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        var primaryTarget = _viewModel.Units.First(u => u.Owner!.Id != _player.Id);
+        var secondaryTarget = _viewModel.Units.Last(u => u.Owner!.Id != _player.Id);
+        
+        // Position units on the map
+        var attackerPosition = new HexPosition(new HexCoordinates(5, 5), HexDirection.Top);
+        var primaryTargetPosition = new HexPosition(new HexCoordinates(5, 4), HexDirection.Bottom);
+        var secondaryTargetPosition = new HexPosition(new HexCoordinates(7, 5), HexDirection.Bottom);
+        
+        attacker.Deploy(attackerPosition);
+        primaryTarget.Deploy(primaryTargetPosition);
+        secondaryTarget.Deploy(secondaryTargetPosition);
+        
+        // Set up the calculator mock to return different breakdowns based on parameters
+        var primaryBreakdown = new ToHitBreakdown
+        {
+            GunneryBase = new GunneryAttackModifier
+            {
+                Value = 4
+            },
+            OtherModifiers = [],
+            HasLineOfSight = true,
+            AttackerMovement = new AttackerMovementModifier{MovementType = MovementType.Walk, Value = 1},
+            TargetMovement = new TargetMovementModifier{HexesMoved = 3, Value = 1},
+            RangeModifier = new RangeAttackModifier
+                { Value = 0, Range = WeaponRange.Medium, Distance = 5, WeaponName = "Test" },
+            TerrainModifiers = []
+        };
+        
+        var secondaryBreakdown = new ToHitBreakdown
+        {
+            GunneryBase = new GunneryAttackModifier { Value = 4 },
+            OtherModifiers = [new SecondaryTargetModifier { Value = 2, IsSecondaryTarget = true, IsInFrontArc = false }],
+            HasLineOfSight = true,
+            AttackerMovement = new AttackerMovementModifier{MovementType = MovementType.Walk, Value = 1},
+            TargetMovement = new TargetMovementModifier{HexesMoved = 3, Value = 1},
+            RangeModifier = new RangeAttackModifier
+                { Value = 0, Range = WeaponRange.Medium, Distance = 5, WeaponName = "Test" },
+            TerrainModifiers = []
+        };
+        
+        _toHitCalculator.GetModifierBreakdown(
+                Arg.Any<Unit>(), 
+                Arg.Is<Unit>(t => t == primaryTarget), 
+                Arg.Any<Weapon>(), 
+                Arg.Any<BattleMap>(),
+                Arg.Is<bool>(isPrimary => isPrimary))
+            .Returns(primaryBreakdown);
+            
+        _toHitCalculator.GetModifierBreakdown(
+                Arg.Any<Unit>(), 
+                Arg.Is<Unit>(t => t == secondaryTarget), 
+                Arg.Any<Weapon>(), 
+                Arg.Any<BattleMap>(),
+                Arg.Is<bool>(isPrimary => !isPrimary))
+            .Returns(secondaryBreakdown);
+        
+        // Set up the state
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == attackerPosition.Coordinates));
+        _state.HandleUnitSelection(attacker);
+        var selectTargetAction = _state.GetAvailableActions().First(a => a.Label == "Select Target");
+        selectTargetAction.OnExecute();
+        
+        // Get two different weapons to target different enemies
+        var weapons = attacker.Parts.SelectMany(p => p.GetComponents<Weapon>()).Take(2).ToList();
+        
+        // Select primary target and first weapon
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == primaryTargetPosition.Coordinates));
+        _state.HandleUnitSelection(primaryTarget);
+        var weaponSelection1 = _state.GetWeaponSelectionItems().First(ws => ws.Weapon == weapons[0]);
+        weaponSelection1.IsSelected = true;
+        // Assert
+        var primaryWeaponBreakdown = weaponSelection1.ModifiersBreakdown;
+        primaryWeaponBreakdown.ShouldNotBeNull();
+        // Primary target should NOT have a secondary target modifier
+        primaryWeaponBreakdown.AllModifiers.Any(m => m is SecondaryTargetModifier).ShouldBeFalse();
+        
+        // Select secondary target and second weapon
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == secondaryTargetPosition.Coordinates));
+        _state.HandleUnitSelection(secondaryTarget);
+        var weaponSelection2 = _state.GetWeaponSelectionItems().First(ws => ws.Weapon == weapons[1]);
+        weaponSelection2.IsSelected = true;
+        
+        var secondaryWeaponBreakdown = weaponSelection2.ModifiersBreakdown;
+        secondaryWeaponBreakdown.ShouldNotBeNull();
+        
+        // Secondary target SHOULD have a secondary target modifier
+        var secondaryModifier = secondaryWeaponBreakdown.AllModifiers.FirstOrDefault(m => m is SecondaryTargetModifier);
+        secondaryModifier.ShouldNotBeNull();
+        secondaryModifier.Value.ShouldBe(2);
+    }
 }
