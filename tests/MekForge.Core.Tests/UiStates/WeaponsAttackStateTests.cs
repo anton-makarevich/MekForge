@@ -1032,7 +1032,7 @@ public class WeaponsAttackStateTests
         var secondaryBreakdown = new ToHitBreakdown
         {
             GunneryBase = new GunneryAttackModifier { Value = 4 },
-            OtherModifiers = [new SecondaryTargetModifier { Value = 2, IsSecondaryTarget = true, IsInFrontArc = false }],
+            OtherModifiers = [new SecondaryTargetModifier { Value = 2, IsInFrontArc = false }],
             HasLineOfSight = true,
             AttackerMovement = new AttackerMovementModifier{MovementType = MovementType.Walk, Value = 1},
             TargetMovement = new TargetMovementModifier{HexesMoved = 3, Value = 1},

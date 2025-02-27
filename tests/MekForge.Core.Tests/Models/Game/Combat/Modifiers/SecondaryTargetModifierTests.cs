@@ -16,8 +16,7 @@ public class SecondaryTargetModifierTests
         var modifier = new SecondaryTargetModifier
         {
             Value = 1,
-            IsInFrontArc = true,
-            IsSecondaryTarget = true
+            IsInFrontArc = true
         };
         _localizationService.GetString("Attack_SecondaryTargetFrontArc").Returns("Secondary target (front arc): +{0}");
 
@@ -36,8 +35,7 @@ public class SecondaryTargetModifierTests
         var modifier = new SecondaryTargetModifier
         {
             Value = 2,
-            IsInFrontArc = false,
-            IsSecondaryTarget = true
+            IsInFrontArc = false
         };
         _localizationService.GetString("Attack_SecondaryTargetOtherArc").Returns("Secondary target (other arc): +{0}");
 

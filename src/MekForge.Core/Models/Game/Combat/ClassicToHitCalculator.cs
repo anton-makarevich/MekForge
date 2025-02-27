@@ -98,7 +98,6 @@ public class ClassicToHitCalculator : IToHitCalculator
                 modifiers.Add(new SecondaryTargetModifier
                 {
                     IsInFrontArc = isInFrontArc,
-                    IsSecondaryTarget = true,
                     Value = _rules.GetSecondaryTargetModifier(isInFrontArc)
                 });
             }
