@@ -51,13 +51,7 @@ public class WeaponsAttackState : IUiState
         if (CurrentStep is WeaponsAttackStep.SelectingUnit or WeaponsAttackStep.ActionSelection)
         {
             if (unit.HasFiredWeapons) return;
-
-            // Clear previous highlights if any
-            if (_attacker != null)
-            {
-                ClearWeaponRangeHighlights();
-            }
-
+            
             _attacker = unit;
             CreateWeaponViewModels();
             CurrentStep = WeaponsAttackStep.ActionSelection;
@@ -92,8 +86,10 @@ public class WeaponsAttackState : IUiState
                 return;
 
             if (_attacker is not null)
+            {
+                ClearWeaponRangeHighlights();
                 ResetUnitSelection();
-
+            }
             
             _viewModel.SelectedUnit = unit;
             return;
