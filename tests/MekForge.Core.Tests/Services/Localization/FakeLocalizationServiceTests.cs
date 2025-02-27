@@ -29,6 +29,9 @@ public class FakeLocalizationServiceTests
     // Attack information
     [InlineData("Attack_NoLineOfSight", "No LOS")]
     [InlineData("Attack_TargetNumber", "Target ToHit Number")]
+    // Secondary target modifiers
+    [InlineData("Attack_SecondaryTargetFrontArc", "Secondary target (front arc): +{0}")]
+    [InlineData("Attack_SecondaryTargetOtherArc", "Secondary target (other arc): +{0}")]
     [InlineData("Key_Not_Found", "Key_Not_Found")]
     public void GetString_ShouldReturnCorrectString(string key, string? expectedValue)
     {

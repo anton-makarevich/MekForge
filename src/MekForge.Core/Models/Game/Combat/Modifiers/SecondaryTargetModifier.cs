@@ -22,8 +22,10 @@ public record SecondaryTargetModifier : AttackModifier
         if (!IsSecondaryTarget)
             return string.Empty;
             
-        return IsInFrontArc
-            ? $"{localizationService.GetString("Attack_SecondaryTargetFrontArc")}: {Value}"
-            : $"{localizationService.GetString("Attack_SecondaryTargetOtherArc")}: {Value}";
+        var template = IsInFrontArc
+            ? localizationService.GetString("Attack_SecondaryTargetFrontArc")
+            : localizationService.GetString("Attack_SecondaryTargetOtherArc");
+        
+        return string.Format(template, Value);
     }
 }

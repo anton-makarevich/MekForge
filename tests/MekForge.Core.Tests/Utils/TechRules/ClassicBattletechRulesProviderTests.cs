@@ -155,5 +155,13 @@ namespace Sanet.MekForge.Core.Tests.Utils.TechRules
             var invalidRange = (WeaponRange)999;
             Should.Throw<ArgumentException>(() => _provider.GetRangeModifier(invalidRange,999,999));
         }
+
+        [Theory]
+        [InlineData(true, 1)]   // Front arc: +1 modifier
+        [InlineData(false, 2)]  // Other arc: +2 modifier
+        public void GetSecondaryTargetModifier_ReturnsExpectedValues(bool isFrontArc, int expectedModifier)
+        {
+            _provider.GetSecondaryTargetModifier(isFrontArc).ShouldBe(expectedModifier);
+        }
     }
 }

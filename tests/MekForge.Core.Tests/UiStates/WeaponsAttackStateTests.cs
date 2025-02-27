@@ -72,7 +72,8 @@ public class WeaponsAttackStateTests
                 Arg.Any<Unit>(), 
                 Arg.Any<Unit>(), 
                 Arg.Any<Weapon>(), 
-                Arg.Any<BattleMap>())
+                Arg.Any<BattleMap>(),
+                Arg.Any<bool>())
             .Returns(expectedModifiers);
         
         _viewModel.Game = _game;

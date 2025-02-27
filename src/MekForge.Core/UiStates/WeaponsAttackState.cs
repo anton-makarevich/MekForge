@@ -343,7 +343,7 @@ public class WeaponsAttackState : IUiState
             if (isInRange)
             {
                 // Check if this target is the primary target
-                bool isPrimaryTarget = _target == _primaryTarget;
+                var isPrimaryTarget = _target == _primaryTarget;
                 
                 // Get modifiers breakdown, passing the primary target information
                 vm.ModifiersBreakdown = _game.ToHitCalculator.GetModifierBreakdown(
@@ -420,15 +420,11 @@ public class WeaponsAttackState : IUiState
                            facing.Value, 
                            FiringArc.Forward))
             .ToList();
-        
+
         // If there are targets in forward arc, pick the first one
-        if (targetsInForwardArc.Any())
-        {
-            return targetsInForwardArc[0];
-        }
-        
-        // Otherwise, pick the first target
-        return targets[0];
+        return targetsInForwardArc.Any() ? targetsInForwardArc[0] :
+            // Otherwise, pick the first target
+            targets[0];
     }
 }
 
