@@ -222,4 +222,74 @@ public class ClassicToHitCalculatorTests
         // Act & Assert
         Should.Throw<Exception>(() => _calculator.GetToHitNumber(attacker, _target, _weapon, map));
     }
+
+    [Fact]
+    public void GetModifierBreakdown_SecondaryTarget_IncludesSecondaryTargetModifier_WhenInFrontArc()
+    {
+        // Arrange
+        const int expectedModifier = 1;
+        SetupAttackerAndTarget(
+            new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom),
+            new HexPosition(new HexCoordinates(2, 2), HexDirection.Bottom));
+        var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new ClearTerrain()));
+        
+        // Setup rules for secondary target modifier
+        _rules.GetSecondaryTargetModifier(true).Returns(expectedModifier);
+
+        // Act
+        var breakdown = _calculator.GetModifierBreakdown(_attacker, _target, _weapon, map, false);
+
+        // Assert
+        var secondaryTargetModifier = breakdown.AllModifiers.FirstOrDefault(m => m is SecondaryTargetModifier);
+        secondaryTargetModifier.ShouldNotBeNull();
+        secondaryTargetModifier.Value.ShouldBe(expectedModifier);
+        
+        // Verify the modifier is included in the total
+        breakdown.Total.ShouldBe(4 + expectedModifier); // Base 4 (gunnery) + secondary target modifier
+    }
+    
+    [Fact]
+    public void GetModifierBreakdown_SecondaryTarget_IncludesSecondaryTargetModifier_WhenOtherArc()
+    {
+        // Arrange
+        const int expectedModifier = 2;
+        SetupAttackerAndTarget(
+            new HexPosition(new HexCoordinates(5, 5), HexDirection.Top),
+            new HexPosition(new HexCoordinates(7, 5), HexDirection.Bottom));
+        var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new ClearTerrain()));
+        
+        // Setup rules for secondary target modifier
+        _rules.GetSecondaryTargetModifier(false).Returns(expectedModifier);
+
+        // Act
+        var breakdown = _calculator.GetModifierBreakdown(_attacker, _target, _weapon, map, false);
+
+        // Assert
+        var secondaryTargetModifier = breakdown.AllModifiers.FirstOrDefault(m => m is SecondaryTargetModifier);
+        secondaryTargetModifier.ShouldNotBeNull();
+        secondaryTargetModifier.Value.ShouldBe(expectedModifier);
+        
+        // Verify the modifier is included in the total
+        breakdown.Total.ShouldBe(4 + expectedModifier); // Base 4 (gunnery) + secondary target modifier
+    }
+
+    [Fact]
+    public void GetModifierBreakdown_PrimaryTarget_DoesNotIncludeSecondaryTargetModifier()
+    {
+        // Arrange
+        SetupAttackerAndTarget(
+            new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom),
+            new HexPosition(new HexCoordinates(2, 2), HexDirection.Bottom));
+        var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new ClearTerrain()));
+
+        // Act
+        var breakdown = _calculator.GetModifierBreakdown(_attacker, _target, _weapon, map);
+
+        // Assert
+        var secondaryTargetModifier = breakdown.AllModifiers.FirstOrDefault(m => m is SecondaryTargetModifier);
+        secondaryTargetModifier.ShouldBeNull();
+        
+        // Verify the total doesn't include a secondary target modifier
+        breakdown.Total.ShouldBe(4); // Just the base gunnery skil-
+    }
 }

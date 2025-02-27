@@ -326,6 +326,27 @@ public readonly record struct HexCoordinates
         return result;
     }
 
+    /// <summary>
+    /// Determines if a target hex is within a specific firing arc from this hex
+    /// </summary>
+    /// <param name="targetCoordinates">The coordinates of the target hex</param>
+    /// <param name="facing">The direction the unit is facing</param>
+    /// <param name="arc">The firing arc to check</param>
+    /// <returns>True if the target is within the specified arc, false otherwise</returns>
+    public bool IsInFiringArc(HexCoordinates targetCoordinates, HexDirection facing, FiringArc arc)
+    {
+        // Get the cube direction vector for the facing direction
+        var facingVector = GetCubeDirectionVector(facing);
+        
+        // Get the vector to the target hex in cube coordinates
+        var dx = targetCoordinates.X - this.X;
+        var dy = targetCoordinates.Y - this.Y;
+        var dz = targetCoordinates.Z - this.Z;
+
+        // Use the private IsInArc method to check if the target is in the arc
+        return IsInArc(dx, dy, dz, facingVector.dx, facingVector.dy, facingVector.dz, arc);
+    }
+
     private (int dx, int dy, int dz) GetCubeDirectionVector(HexDirection dir)
     {
         return dir switch

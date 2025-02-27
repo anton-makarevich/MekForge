@@ -48,11 +48,11 @@ public class HexCoordinatesTests
     }
     
     [Theory]
-    [InlineData(5, 4, 5, 3, HexDirection.Top)]
-    [InlineData(5, 4, 6, 4, HexDirection.BottomRight)]
-    [InlineData(5, 4, 4, 4, HexDirection.BottomLeft)]
-    [InlineData(4, 4, 3, 4, HexDirection.TopLeft)]
-    public void GetDirectionToNeighbour_ReturnsExpectedDirection(int centerQ, int centerR, int neighbourQ, int neighbourR, HexDirection expectedDirection)
+    [InlineData(5, 4, 5, 3, 5, 4, HexDirection.Top)]
+    [InlineData(5, 4, 6, 4, 6, 4, HexDirection.BottomRight)]
+    [InlineData(5, 4, 4, 4, 4, 4, HexDirection.BottomLeft)]
+    [InlineData(4, 4, 3, 4, 3, 4, HexDirection.TopLeft)]
+    public void GetDirectionToNeighbour_ReturnsExpectedDirection(int centerQ, int centerR, int neighbourQ, int neighbourR, int expectedQ, int expectedR, HexDirection expectedDirection)
     {
         // Arrange
         var center = new HexCoordinates(centerQ, centerR);
@@ -1362,5 +1362,33 @@ public class HexCoordinatesTests
 
         // Assert
         actualSequence.ShouldContain(new HexCoordinates(2,7));
+    }
+    
+    [Theory]
+    [InlineData(5, 5, 5, 4, HexDirection.Top, FiringArc.Forward, true)]       // Target directly in front
+    [InlineData(5, 5, 6, 4, HexDirection.Top, FiringArc.Forward, true)]       // Target in front-right
+    [InlineData(5, 5, 4, 4, HexDirection.Top, FiringArc.Forward, true)]       // Target in front-left
+    [InlineData(5, 5, 5, 6, HexDirection.Top, FiringArc.Forward, false)]      // Target directly behind
+    [InlineData(5, 5, 5, 6, HexDirection.Top, FiringArc.Rear, true)]          // Target directly behind
+    [InlineData(5, 5, 6, 5, HexDirection.Top, FiringArc.Right, true)]         // Target to the right
+    [InlineData(5, 5, 4, 5, HexDirection.Top, FiringArc.Left, true)]          // Target to the left
+    [InlineData(5, 5, 7, 5, HexDirection.Top, FiringArc.Rear, false)]      // Target to the right (outside forward arc)
+    [InlineData(5, 5, 6, 6, HexDirection.Top, FiringArc.Rear, true)]          // Target in back-right
+    [InlineData(5, 5, 4, 6, HexDirection.Top, FiringArc.Rear, true)]          // Target in back-left
+    [InlineData(5, 5, 6, 4, HexDirection.Bottom, FiringArc.Left, true)]       // Target in rear arc when facing bottom
+    [InlineData(5, 5, 5, 4, HexDirection.Bottom, FiringArc.Rear, true)]       // Target directly behind when facing bottom
+    [InlineData(5, 5, 5, 6, HexDirection.Bottom, FiringArc.Forward, true)]     // Target directly in front when facing bottom
+    public void IsInFiringArc_ReturnsExpectedResult(int centerQ, int centerR, int targetQ, int targetR, 
+        HexDirection facing, FiringArc arc, bool expected)
+    {
+        // Arrange
+        var center = new HexCoordinates(centerQ, centerR);
+        var target = new HexCoordinates(targetQ, targetR);
+
+        // Act
+        var result = center.IsInFiringArc(target, facing, arc);
+
+        // Assert
+        result.ShouldBe(expected, $"Expected IsInFiringArc for target ({targetQ},{targetR}) with facing {facing} and arc {arc} to be {expected}");
     }
 }

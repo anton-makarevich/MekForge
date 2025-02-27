@@ -32,6 +32,10 @@ public class FakeLocalizationService: ILocalizationService
             "Attack_NoLineOfSight" => "No LOS",
             "Attack_TargetNumber" => "Target ToHit Number",
             
+            // Secondary target modifiers
+            "Attack_SecondaryTargetFrontArc" => "Secondary target (front arc): +{0}",
+            "Attack_SecondaryTargetOtherArc" => "Secondary target (other arc): +{0}",
+            
             _ => key
         };
     }
