@@ -22,5 +22,6 @@ public class Player : IPlayer
     public void AddUnit(Unit unit)
     {
         _units.Add(unit);
+        unit.Owner = this;
     }
 }
