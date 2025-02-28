@@ -1097,8 +1097,8 @@ public class WeaponsAttackStateTests
     public void ConfirmWeaponSelections_PublishesWeaponAttackDeclarationCommand_WhenWeaponsAreSelected()
     {
         // Arrange
-        var attackingPlayer = _game.Players.First();
-        var targetPlayer = _game.Players.Last();
+        var attackingPlayer = _game.Players[0];
+        var targetPlayer = _game.Players[1];
         var attacker = _viewModel.Units.First(u => u.Owner!.Id == attackingPlayer.Id);
         var target = _viewModel.Units.First(u => u.Owner!.Id == targetPlayer.Id);
         
@@ -1149,8 +1149,8 @@ public class WeaponsAttackStateTests
     public void ConfirmWeaponSelections_DoesNotPublishCommand_WhenNoWeaponsSelected()
     {
         // Arrange
-        var attackingPlayer = _game.Players.First();
-        var targetPlayer = _game.Players.Last();
+        var attackingPlayer = _game.Players[0];
+        var targetPlayer = _game.Players[1];
         var attacker = _viewModel.Units.First(u => u.Owner!.Id == attackingPlayer.Id);
         var target = _viewModel.Units.First(u => u.Owner!.Id == targetPlayer.Id);
         
@@ -1189,8 +1189,8 @@ public class WeaponsAttackStateTests
     public void GetAvailableActions_IncludesConfirmWeaponSelectionsAction_WhenWeaponsAreSelected()
     {
         // Arrange
-        var attackingPlayer = _game.Players.First();
-        var targetPlayer = _game.Players.Last();
+        var attackingPlayer = _game.Players[0];
+        var targetPlayer = _game.Players[1];
         var attacker = _viewModel.Units.First(u => u.Owner!.Id == attackingPlayer.Id);
         var target = _viewModel.Units.First(u => u.Owner!.Id == targetPlayer.Id);
         
@@ -1227,8 +1227,8 @@ public class WeaponsAttackStateTests
     public void GetAvailableActions_DoesNotIncludeConfirmWeaponSelectionsAction_WhenNoWeaponsSelected()
     {
         // Arrange
-        var attackingPlayer = _game.Players.First();
-        var targetPlayer = _game.Players.Last();
+        var attackingPlayer = _game.Players[0];
+        var targetPlayer = _game.Players[1];
         var attacker = _viewModel.Units.First(u => u.Owner!.Id == attackingPlayer.Id);
         var target = _viewModel.Units.First(u => u.Owner!.Id == targetPlayer.Id);
         
