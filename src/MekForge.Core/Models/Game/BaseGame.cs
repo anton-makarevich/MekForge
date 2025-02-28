@@ -105,7 +105,6 @@ public abstract class BaseGame : IGame
         var player = new Player(joinGameCommand.PlayerId, joinGameCommand.PlayerName,joinGameCommand.Tint);
         foreach (var unit in joinGameCommand.Units.Select(unitData => _mechFactory.Create(unitData)))
         {
-            unit.Owner = player;
             player.AddUnit(unit);
         }
         _players.Add(player);
@@ -155,7 +154,7 @@ public abstract class BaseGame : IGame
         }
     }
     
-    public void OnWeaponsAttack(WeaponsAttackCommand attackCommand)
+    public void OnWeaponsAttack(WeaponAttackDeclarationCommand attackCommand)
     {
         Console.WriteLine("weapons fired");
     }

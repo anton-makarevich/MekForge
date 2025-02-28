@@ -20,7 +20,7 @@ public class WeaponsAttackPhase : MainGamePhase
             case WeaponConfigurationCommand configCommand:
                 ProcessWeaponConfiguration(configCommand);
                 break;
-            case WeaponsAttackCommand attackCommand:
+            case WeaponAttackDeclarationCommand attackCommand:
                 HandleUnitAction(command, attackCommand.PlayerId);
                 break;
         }
@@ -34,7 +34,7 @@ public class WeaponsAttackPhase : MainGamePhase
 
     protected override void ProcessCommand(GameCommand command)
     {
-        var attackCommand = (WeaponsAttackCommand)command;
+        var attackCommand = (WeaponAttackDeclarationCommand)command;
         var broadcastAttack = attackCommand.CloneWithGameId(Game.Id);
         Game.OnWeaponsAttack(attackCommand);
         Game.CommandPublisher.PublishCommand(broadcastAttack);

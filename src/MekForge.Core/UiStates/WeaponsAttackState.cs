@@ -6,6 +6,7 @@ using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.ViewModels;
 using Sanet.MekForge.Core.ViewModels.Wrappers;
+using Sanet.MekForge.Core.Data;
 
 namespace Sanet.MekForge.Core.UiStates;
 
@@ -161,35 +162,46 @@ public class WeaponsAttackState : IUiState
 
     public IEnumerable<StateAction> GetAvailableActions()
     {
-        if (_attacker == null || CurrentStep != WeaponsAttackStep.ActionSelection)
+        if (_attacker == null)
             return new List<StateAction>();
 
         var actions = new List<StateAction>();
 
-        // Add torso rotation action if available
-        if (_attacker is Mech { CanRotateTorso: true } mech)
+        if (CurrentStep == WeaponsAttackStep.ActionSelection)
         {
+            // Add torso rotation action if available
+            if (_attacker is Mech { CanRotateTorso: true } mech)
+            {
+                actions.Add(new StateAction(
+                    "Turn Torso",
+                    true,
+                    () => 
+                    {
+                        UpdateAvailableDirections();
+                        _viewModel.ShowDirectionSelector(mech.Position!.Value.Coordinates, _availableDirections);
+                        CurrentStep = WeaponsAttackStep.WeaponsConfiguration;
+                        _viewModel.NotifyStateChanged();
+                    }));
+            }
+
+            // Add target selection action
             actions.Add(new StateAction(
-                "Turn Torso",
+                "Select Target",
                 true,
                 () => 
                 {
-                    UpdateAvailableDirections();
-                    _viewModel.ShowDirectionSelector(mech.Position!.Value.Coordinates, _availableDirections);
-                    CurrentStep = WeaponsAttackStep.WeaponsConfiguration;
+                    CurrentStep = WeaponsAttackStep.TargetSelection;
                     _viewModel.NotifyStateChanged();
                 }));
         }
-
-        // Add target selection action
-        actions.Add(new StateAction(
-            "Select Target",
-            true,
-            () => 
-            {
-                CurrentStep = WeaponsAttackStep.TargetSelection;
-                _viewModel.NotifyStateChanged();
-            }));
+        else if (CurrentStep == WeaponsAttackStep.TargetSelection && _weaponTargets.Count > 0)
+        {
+            // Add confirm weapon selections action
+            actions.Add(new StateAction(
+                $"Declare attack",
+                true,
+                ConfirmWeaponSelections));
+        }
 
         return actions;
     }
@@ -421,6 +433,55 @@ public class WeaponsAttackState : IUiState
         return targetsInForwardArc.Any() ? targetsInForwardArc[0] :
             // Otherwise, pick the first target
             targets[0];
+    }
+
+    public void ConfirmWeaponSelections()
+    {
+        if (_attacker == null || _weaponTargets.Count == 0 || _primaryTarget == null)
+            return;
+        
+        // Create weapon target data list
+        var weaponTargetsData = new List<WeaponTargetData>();
+        
+        foreach (var weaponTarget in _weaponTargets)
+        {
+            var weapon = weaponTarget.Key;
+            var target = weaponTarget.Value;
+            var isPrimaryTarget = target == _primaryTarget;
+            
+            weaponTargetsData.Add(new WeaponTargetData
+            {
+                Weapon = new WeaponData
+                {
+                    Name = weapon.Name,
+                    Location = weapon.MountedOn?.Location ?? throw new Exception("Weapon is not mounted"),
+                    Slots = weapon.MountedAtSlots
+                },
+                TargetId = target.Id,
+                IsPrimaryTarget = isPrimaryTarget
+            });
+        }
+        
+        // Create and send the command
+        var command = new WeaponAttackDeclarationCommand
+        {
+            GameOriginId = _game.Id,
+            PlayerId = _game.ActivePlayer!.Id,
+            AttackerId = _attacker.Id,
+            WeaponTargets = weaponTargetsData
+        };
+        
+        _game.DeclareWeaponAttack(command);
+        
+        // Reset state after sending command
+        ClearWeaponRangeHighlights();
+        _weaponTargets.Clear();
+        _primaryTarget = null;
+        _target = null;
+        _attacker = null;
+        _viewModel.IsWeaponSelectionVisible = false;
+        CurrentStep = WeaponsAttackStep.SelectingUnit;
+        _viewModel.NotifyStateChanged();
     }
 }
 

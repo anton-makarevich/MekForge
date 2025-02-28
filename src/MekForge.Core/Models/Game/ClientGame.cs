@@ -107,4 +107,10 @@ public class ClientGame : BaseGame
         if (ActivePlayer == null) return;
         CommandPublisher.PublishCommand(command);
     }
+
+    public void DeclareWeaponAttack(WeaponAttackDeclarationCommand command)
+    {
+        if (ActivePlayer == null) return;
+        CommandPublisher.PublishCommand(command);
+    }
 }

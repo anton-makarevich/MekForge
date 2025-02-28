@@ -146,17 +146,16 @@ public class PhysicalAttackPhaseTests : GameStateTestsBase
         _sut.Enter();
         
         // Act
-        _sut.HandleCommand(new WeaponsAttackCommand // Wrong command type
+        _sut.HandleCommand(new WeaponAttackDeclarationCommand // Wrong command type
         {
             GameOriginId = Game.Id,
             PlayerId = Game.ActivePlayer!.Id,
-            AttackerUnitId = _unit1Id,
-            TargetUnitId = _unit2Id,
-            WeaponGroupIndex = 0
+            AttackerId = _unit1Id,
+            WeaponTargets = []
         });
     
         // Assert
-        CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<WeaponsAttackCommand>());
+        CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<WeaponAttackDeclarationCommand>());
         Game.TurnPhase.ShouldBe(PhaseNames.PhysicalAttack);
     }
 }

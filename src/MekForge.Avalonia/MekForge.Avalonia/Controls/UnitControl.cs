@@ -187,7 +187,11 @@ namespace Sanet.MekForge.Avalonia.Controls
             _actionButtons.Children.Clear();
             _actionButtons.IsVisible = false;
             
-            if (_viewModel.SelectedUnit != _unit) return;
+            var activeUnit = _viewModel.CurrentState is WeaponsAttackState state
+                ? state.Attacker 
+                : _viewModel.SelectedUnit;
+            
+            if (activeUnit != _unit) return;
 
             foreach (var action in actions)
             {

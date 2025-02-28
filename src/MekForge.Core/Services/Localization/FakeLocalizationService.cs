@@ -17,6 +17,9 @@ public class FakeLocalizationService: ILocalizationService
             "Command_ChangeActivePlayerUnits" => "{0}'s turn to play {1} units.",
             "Command_WeaponConfiguration_TorsoRotation" => "{0}'s {1} rotates torso to face {2}",
             "Command_WeaponConfiguration_ArmsFlip" => "{0}'s {1} flips arms {2}",
+            "Command_WeaponAttackDeclaration_NoAttacks" => "{0}'s {1} declares no attacks",
+            "Command_WeaponAttackDeclaration_Header" => "{0}'s {1} declares attacks:",
+            "Command_WeaponAttackDeclaration_WeaponLine" => "- {0} targeting {1}'s {2}",
             "Direction_Forward" => "forward",
             "Direction_Backward" => "backward",
             

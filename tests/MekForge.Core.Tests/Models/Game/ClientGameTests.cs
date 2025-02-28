@@ -658,4 +658,99 @@ public class ClientGameTests
         var unit = _clientGame.Players[0].Units[0];
         (unit as Mech)!.TorsoDirection.ShouldBe(HexDirection.TopRight);
     }
+
+    [Fact]
+    public void DeclareWeaponAttack_ShouldPublishCommand_WhenActivePlayerExists()
+    {
+        // Arrange
+        var player = new Player(Guid.NewGuid(), "Player1");
+        var unitData = MechFactoryTests.CreateDummyMechData();
+        unitData.Id = Guid.NewGuid();
+        _clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = player.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = player.Name,
+            Units = [unitData],
+            Tint = "#FF0000"
+        });
+
+        _clientGame.HandleCommand(new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player.Id,
+            UnitsToPlay = 1
+        });
+
+        var targetPlayer = new Player(Guid.NewGuid(), "Player2");
+        var targetUnitData = MechFactoryTests.CreateDummyMechData();
+        targetUnitData.Id = Guid.NewGuid();
+        _clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = targetPlayer.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = targetPlayer.Name,
+            Units = [targetUnitData],
+            Tint = "#00FF00"
+        });
+
+        var command = new WeaponAttackDeclarationCommand
+        {
+            GameOriginId = _clientGame.Id,
+            PlayerId = player.Id,
+            AttackerId = unitData.Id.Value,
+            WeaponTargets =
+            [
+                new WeaponTargetData()
+                {
+                    Weapon = new WeaponData
+                    {
+                        Name = "Medium Laser",
+                        Location = PartLocation.RightArm,
+                        Slots = [1, 2]
+                    },
+                    TargetId = targetUnitData.Id.Value,
+                    IsPrimaryTarget = true
+                }
+            ]
+        };
+
+        // Act
+        _clientGame.DeclareWeaponAttack(command);
+
+        // Assert
+        _commandPublisher.Received(1).PublishCommand(command);
+    }
+
+    [Fact]
+    public void DeclareWeaponAttack_ShouldNotPublishCommand_WhenNoActivePlayer()
+    {
+        // Arrange
+        var command = new WeaponAttackDeclarationCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = Guid.NewGuid(),
+            AttackerId = Guid.NewGuid(),
+            WeaponTargets =
+            [
+                new WeaponTargetData
+                {
+                    Weapon = new WeaponData
+                    {
+                        Name = "Medium Laser",
+                        Location = PartLocation.RightArm,
+                        Slots = [1, 2]
+                    },
+                    TargetId = Guid.NewGuid(),
+                    IsPrimaryTarget = true
+                }
+            ]
+        };
+
+        // Act
+        _clientGame.DeclareWeaponAttack(command);
+
+        // Assert
+        _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<WeaponAttackDeclarationCommand>());
+    }
 }
