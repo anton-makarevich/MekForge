@@ -22,6 +22,7 @@ namespace Sanet.MekForge.Core.Models.Game.Commands;
 [JsonSerializable(typeof(WeaponsAttackCommand), TypeInfoPropertyName = "WeaponsAttackCommand")]
 [JsonSerializable(typeof(WeaponConfigurationCommand), TypeInfoPropertyName = "WeaponConfigurationCommand")]
 [JsonSerializable(typeof(PhysicalAttackCommand), TypeInfoPropertyName = "PhysicalAttackCommand")]
+[JsonSerializable(typeof(WeaponAttackDeclarationCommand), TypeInfoPropertyName = "WeaponAttackDeclarationCommand")]
 public partial class GameCommandJsonContext : JsonSerializerContext { }
 
 public static class GameCommandTypeRegistry
@@ -43,7 +44,8 @@ public static class GameCommandTypeRegistry
             ["dice_rolled"] = (typeof(DiceRolledCommand), GameCommandJsonContext.Default.DiceRolledCommand),
             ["weapons_attack"] = (typeof(WeaponsAttackCommand), GameCommandJsonContext.Default.WeaponsAttackCommand),
             ["weapon_config"] = (typeof(WeaponConfigurationCommand), GameCommandJsonContext.Default.WeaponConfigurationCommand),
-            ["physical_attack"] = (typeof(PhysicalAttackCommand), GameCommandJsonContext.Default.PhysicalAttackCommand)
+            ["physical_attack"] = (typeof(PhysicalAttackCommand), GameCommandJsonContext.Default.PhysicalAttackCommand),
+            ["weapon_attack_declaration"] = (typeof(WeaponAttackDeclarationCommand), GameCommandJsonContext.Default.WeaponAttackDeclarationCommand)
         };
     }
 
