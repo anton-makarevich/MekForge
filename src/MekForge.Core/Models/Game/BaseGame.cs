@@ -155,7 +155,7 @@ public abstract class BaseGame : IGame
         }
     }
     
-    public void OnWeaponsAttack(WeaponsAttackCommand attackCommand)
+    public void OnWeaponsAttack(WeaponAttackDeclarationCommand attackCommand)
     {
         Console.WriteLine("weapons fired");
     }

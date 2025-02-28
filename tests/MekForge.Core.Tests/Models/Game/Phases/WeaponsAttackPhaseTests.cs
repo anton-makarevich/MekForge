@@ -86,20 +86,17 @@ public class WeaponsAttackPhaseTests : GameStateTestsBase
         _sut.Enter();
         
         // Act
-        _sut.HandleCommand(new WeaponsAttackCommand
+        _sut.HandleCommand(new WeaponAttackDeclarationCommand
         {
             GameOriginId = Game.Id,
             PlayerId = Game.ActivePlayer!.Id,
-            AttackerUnitId = _unit1Id,
-            TargetUnitId = _unit2Id,
-            WeaponGroupIndex = 0
+            AttackerId = _unit1Id,
+            WeaponTargets = [],
         });
     
         // Assert
-        CommandPublisher.Received(1).PublishCommand(Arg.Is<WeaponsAttackCommand>(cmd => 
-            cmd.AttackerUnitId == _unit1Id && 
-            cmd.TargetUnitId == _unit2Id &&
-            cmd.WeaponGroupIndex == 0));
+        CommandPublisher.Received(1).PublishCommand(Arg.Is<WeaponAttackDeclarationCommand>(cmd => 
+            cmd.AttackerId == _unit1Id));
     }
 
     [Fact]
@@ -110,17 +107,16 @@ public class WeaponsAttackPhaseTests : GameStateTestsBase
         var wrongPlayerId = Guid.NewGuid();
     
         // Act
-        _sut.HandleCommand(new WeaponsAttackCommand
+        _sut.HandleCommand(new WeaponAttackDeclarationCommand
         {
             GameOriginId = Game.Id,
             PlayerId = wrongPlayerId,
-            AttackerUnitId = _unit1Id,
-            TargetUnitId = _unit2Id,
-            WeaponGroupIndex = 0
+            AttackerId = _unit1Id,
+            WeaponTargets = []
         });
     
         // Assert
-        CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<WeaponsAttackCommand>());
+        CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<WeaponAttackDeclarationCommand>());
     }
 
     [Fact]
@@ -133,13 +129,12 @@ public class WeaponsAttackPhaseTests : GameStateTestsBase
         // Act - First player attacks with all units
         foreach (var unit in firstPlayer.Units)
         {
-            _sut.HandleCommand(new WeaponsAttackCommand
+            _sut.HandleCommand(new WeaponAttackDeclarationCommand
             {
                 GameOriginId = Game.Id,
                 PlayerId = firstPlayer.Id,
-                AttackerUnitId = unit.Id,
-                TargetUnitId = _unit2Id,
-                WeaponGroupIndex = 0
+                AttackerId = unit.Id,
+                WeaponTargets = []
             });
         }
 
@@ -150,13 +145,12 @@ public class WeaponsAttackPhaseTests : GameStateTestsBase
         // Second player attacks
         foreach (var unit in secondPlayer!.Units)
         {
-            _sut.HandleCommand(new WeaponsAttackCommand
+            _sut.HandleCommand(new WeaponAttackDeclarationCommand
             {
                 GameOriginId = Game.Id,
                 PlayerId = secondPlayer.Id,
-                AttackerUnitId = unit.Id,
-                TargetUnitId = _unit1Id,
-                WeaponGroupIndex = 0
+                AttackerId = unit.Id,
+                WeaponTargets = []
             });
         }
     
