@@ -35,6 +35,7 @@ public class WeaponsAttackStateTests
     private readonly Player _player;
     private readonly BattleMapViewModel _viewModel;
     private readonly IToHitCalculator _toHitCalculator = Substitute.For<IToHitCalculator>();
+    private readonly ICommandPublisher _commandPublisher = Substitute.For<ICommandPublisher>(); 
 
     public WeaponsAttackStateTests()
     {
@@ -54,7 +55,7 @@ public class WeaponsAttackStateTests
         _player = new Player(playerId, "Player1");
         _game = new ClientGame(
             battleMap, [_player], rules,
-            Substitute.For<ICommandPublisher>(), _toHitCalculator);
+            _commandPublisher, _toHitCalculator);
 
         var expectedModifiers = new ToHitBreakdown
         {
@@ -1090,5 +1091,184 @@ public class WeaponsAttackStateTests
         var secondaryModifier = secondaryWeaponBreakdown.AllModifiers.FirstOrDefault(m => m is SecondaryTargetModifier);
         secondaryModifier.ShouldNotBeNull();
         secondaryModifier.Value.ShouldBe(2);
+    }
+    
+    [Fact]
+    public void ConfirmWeaponSelections_PublishesWeaponAttackDeclarationCommand_WhenWeaponsAreSelected()
+    {
+        // Arrange
+        var attackingPlayer = _game.Players.First();
+        var targetPlayer = _game.Players.Last();
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == attackingPlayer.Id);
+        var target = _viewModel.Units.First(u => u.Owner!.Id == targetPlayer.Id);
+        
+        // Deploy units
+        var attackerPosition = new HexPosition(new HexCoordinates(5, 5), HexDirection.Top);
+        var targetPosition = new HexPosition(new HexCoordinates(5, 4), HexDirection.Bottom);
+        attacker.Deploy(attackerPosition);
+        target.Deploy(targetPosition);
+        
+        // Set active player
+        _game.HandleCommand(new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = attackingPlayer.Id,
+            UnitsToPlay = 1
+        });
+        
+        // Select attacker
+        _state.HandleHexSelection(_game.BattleMap.GetHex(attackerPosition.Coordinates)!);
+        _state.HandleUnitSelection(attacker);
+        
+        // Select target
+        var selectTargetAction = _state.GetAvailableActions().First(a => a.Label == "Select Target");
+        selectTargetAction.OnExecute();
+        _state.HandleHexSelection(_game.BattleMap.GetHex(targetPosition.Coordinates)!);
+        _state.HandleUnitSelection(target);
+        
+        // Select a weapon
+        var weapon = attacker.Parts.SelectMany(p => p.GetComponents<Weapon>()).First();
+        var weaponSelection = _state.GetWeaponSelectionItems().First(ws => ws.Weapon == weapon);
+        weaponSelection.IsSelected = true;
+        
+        // Act
+        _state.ConfirmWeaponSelections();
+        
+        // Assert
+        _commandPublisher.Received(1).PublishCommand(Arg.Is<WeaponAttackDeclarationCommand>(cmd => 
+            cmd.PlayerId == attackingPlayer.Id &&
+            cmd.AttackerId == attacker.Id &&
+            cmd.WeaponTargets.Count == 1 &&
+            cmd.WeaponTargets[0].TargetId == target.Id &&
+            cmd.WeaponTargets[0].IsPrimaryTarget == true &&
+            cmd.WeaponTargets[0].Weapon.Name == weapon.Name
+        ));
+    }
+    
+    // [Fact]
+    // public void ConfirmWeaponSelections_DoesNotPublishCommand_WhenNoWeaponsSelected()
+    // {
+    //     // Arrange
+    //     var commandPublisher = Substitute.For<ICommandPublisher>();
+    //     var rules = new ClassicBattletechRulesProvider();
+    //     var battleMap = BattleMap.GenerateMap(
+    //         11, 11,
+    //         new SingleTerrainGenerator(11, 11, new ClearTerrain()));
+    //     var player = new Player(Guid.NewGuid(), "Player1");
+    //     var game = new ClientGame(
+    //         battleMap, [player], rules,
+    //         commandPublisher, _toHitCalculator);
+    //         
+    //     var viewModel = new BattleMapViewModel(Substitute.For<IImageService>(), Substitute.For<ILocalizationService>());
+    //     viewModel.Game = game;
+    //     
+    //     // Create attacker and target units
+    //     var attackerData = MechFactoryTests.CreateDummyMechData();
+    //     var attacker = new MechFactory(rules).Create(attackerData);
+    //     player.AddUnit(attacker);
+    //     
+    //     var targetPlayer = new Player(Guid.NewGuid(), "Player2");
+    //     game.Players.Add(targetPlayer);
+    //     var targetData = MechFactoryTests.CreateDummyMechData();
+    //     var target = new MechFactory(rules).Create(targetData);
+    //     targetPlayer.AddUnit(target);
+    //     
+    //     // Deploy units
+    //     var attackerPosition = new HexPosition(new HexCoordinates(5, 5), HexDirection.Top);
+    //     var targetPosition = new HexPosition(new HexCoordinates(5, 4), HexDirection.Bottom);
+    //     attacker.Deploy(attackerPosition);
+    //     target.Deploy(targetPosition);
+    //     
+    //     // Set active player
+    //     game.HandleCommand(new ChangeActivePlayerCommand
+    //     {
+    //         GameOriginId = Guid.NewGuid(),
+    //         PlayerId = player.Id,
+    //         UnitsToPlay = 1
+    //     });
+    //     
+    //     // Create state and select attacker
+    //     var state = new WeaponsAttackState(viewModel);
+    //     state.HandleHexSelection(game.BattleMap.GetHex(attackerPosition.Coordinates)!);
+    //     state.HandleUnitSelection(attacker);
+    //     
+    //     // Select target but don't select any weapons
+    //     var selectTargetAction = state.GetAvailableActions().First(a => a.Label == "Select Target");
+    //     selectTargetAction.OnExecute();
+    //     state.HandleHexSelection(game.BattleMap.GetHex(targetPosition.Coordinates)!);
+    //     state.HandleUnitSelection(target);
+    //     
+    //     // Act
+    //     state.ConfirmWeaponSelections();
+    //     
+    //     // Assert
+    //     commandPublisher.DidNotReceive().PublishCommand(Arg.Any<WeaponAttackDeclarationCommand>());
+    // }
+    
+    [Fact]
+    public void GetAvailableActions_IncludesConfirmWeaponSelectionsAction_WhenWeaponsAreSelected()
+    {
+        // Arrange
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        var target = _viewModel.Units.First(u => u.Owner!.Id != _player.Id);
+        
+        // Position units on the map
+        var attackerPosition = new HexPosition(new HexCoordinates(5, 5), HexDirection.Top);
+        var targetPosition = new HexPosition(new HexCoordinates(5, 4), HexDirection.Bottom);
+        
+        attacker.Deploy(attackerPosition);
+        target.Deploy(targetPosition);
+        
+        // Set up the state
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == attackerPosition.Coordinates));
+        _state.HandleUnitSelection(attacker);
+        var selectTargetAction = _state.GetAvailableActions().First(a => a.Label == "Select Target");
+        selectTargetAction.OnExecute();
+        
+        // Select target
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == targetPosition.Coordinates));
+        _state.HandleUnitSelection(target);
+        
+        // Select a weapon
+        var weapon = attacker.Parts.SelectMany(p => p.GetComponents<Weapon>()).First();
+        var weaponSelection = _state.GetWeaponSelectionItems().First(ws => ws.Weapon == weapon);
+        weaponSelection.IsSelected = true;
+        
+        // Act
+        var actions = _state.GetAvailableActions().ToList();
+        
+        // Assert
+        actions.ShouldContain(a => a.Label == "Declare attack");
+    }
+    
+    [Fact]
+    public void GetAvailableActions_DoesNotIncludeConfirmWeaponSelectionsAction_WhenNoWeaponsSelected()
+    {
+        // Arrange
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        var target = _viewModel.Units.First(u => u.Owner!.Id != _player.Id);
+        
+        // Position units on the map
+        var attackerPosition = new HexPosition(new HexCoordinates(5, 5), HexDirection.Top);
+        var targetPosition = new HexPosition(new HexCoordinates(5, 4), HexDirection.Bottom);
+        
+        attacker.Deploy(attackerPosition);
+        target.Deploy(targetPosition);
+        
+        // Set up the state
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == attackerPosition.Coordinates));
+        _state.HandleUnitSelection(attacker);
+        var selectTargetAction = _state.GetAvailableActions().First(a => a.Label == "Select Target");
+        selectTargetAction.OnExecute();
+        
+        // Select target but don't select any weapons
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == targetPosition.Coordinates));
+        _state.HandleUnitSelection(target);
+        
+        // Act
+        var actions = _state.GetAvailableActions().ToList();
+        
+        // Assert
+        actions.ShouldNotContain(a => a.Label == "Declare attack");
     }
 }
