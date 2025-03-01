@@ -430,7 +430,7 @@ public class WeaponsAttackState : IUiState
             .ToList();
 
         // If there are targets in forward arc, pick the first one
-        return targetsInForwardArc.Any() ? targetsInForwardArc[0] :
+        return targetsInForwardArc.Count != 0 ? targetsInForwardArc[0] :
             // Otherwise, pick the first target
             targets[0];
     }

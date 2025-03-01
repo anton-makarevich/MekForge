@@ -173,6 +173,7 @@ public abstract class BaseGame : IGame
             DeployUnitCommand deployUnitCommand => ValidateDeployCommand(deployUnitCommand),
             MoveUnitCommand => true,
             WeaponConfigurationCommand => true,
+            WeaponAttackDeclarationCommand=> true,
             _ => false
         };
     }
