@@ -329,6 +329,9 @@ public class WeaponsAttackState : IUiState
                 onSelectionChanged: HandleWeaponSelection,
                 localizationService: _viewModel.LocalizationService
             )));
+            
+        // Update the view model's collection
+        UpdateViewModelWeaponItems();
     }
 
     private void UpdateWeaponViewModels()
@@ -362,12 +365,23 @@ public class WeaponsAttackState : IUiState
                 vm.ModifiersBreakdown = null;
             }
         }
+        
+        // Update the view model's collection
+        UpdateViewModelWeaponItems();
     }
 
-    public IEnumerable<WeaponSelectionViewModel> GetWeaponSelectionItems()
+    // Helper method to update the view model's weapon items collection
+    private void UpdateViewModelWeaponItems()
     {
-        return _weaponViewModels;
+        // Clear the view model's collection and add all items from our local collection
+        _viewModel.WeaponSelectionItems.Clear();
+        foreach (var item in _weaponViewModels)
+        {
+            _viewModel.WeaponSelectionItems.Add(item);
+        }
     }
+
+    public IEnumerable<WeaponSelectionViewModel> WeaponSelectionItems => _weaponViewModels;
 
     private bool IsWeaponInRange(Weapon weapon, HexCoordinates targetCoords)
     {
@@ -479,6 +493,11 @@ public class WeaponsAttackState : IUiState
         SelectedTarget = null;
         Attacker = null;
         _viewModel.IsWeaponSelectionVisible = false;
+        
+        // Clear the weapon view models
+        _weaponViewModels.Clear();
+        _viewModel.WeaponSelectionItems.Clear();
+        
         CurrentStep = WeaponsAttackStep.SelectingUnit;
         _viewModel.NotifyStateChanged();
     }

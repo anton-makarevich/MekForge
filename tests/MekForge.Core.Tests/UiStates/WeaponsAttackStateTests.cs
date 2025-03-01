@@ -688,7 +688,7 @@ public class WeaponsAttackStateTests
     public void GetWeaponSelectionItems_WhenNoAttackerOrTarget_ReturnsEmptyList()
     {
         // Act
-        var items = _state.GetWeaponSelectionItems();
+        var items = _state.WeaponSelectionItems;
 
         // Assert
         items.ShouldBeEmpty();
@@ -706,7 +706,7 @@ public class WeaponsAttackStateTests
         _state.HandleUnitSelection(unit);
 
         // Act
-        var items = _state.GetWeaponSelectionItems().ToList();
+        var items = _state.WeaponSelectionItems.ToList();
 
         // Assert
         items.ShouldNotBeEmpty();
@@ -730,7 +730,7 @@ public class WeaponsAttackStateTests
         _state.HandleUnitSelection(attacker);
 
         // Act
-        var item = _state.GetWeaponSelectionItems().First();
+        var item = _state.WeaponSelectionItems.First();
         item.IsSelected = true;
 
         // Assert
@@ -759,7 +759,7 @@ public class WeaponsAttackStateTests
         _state.HandleUnitSelection(target);
 
         // Act
-        var items = _state.GetWeaponSelectionItems().ToList();
+        var items = _state.WeaponSelectionItems.ToList();
 
         // Assert
         items.ShouldNotBeEmpty();
@@ -791,7 +791,7 @@ public class WeaponsAttackStateTests
         var weapon = attacker.Parts
             .SelectMany(p => p.GetComponents<Weapon>())
             .First();
-        var weaponSelection = _state.GetWeaponSelectionItems().First(ws => ws.Weapon == weapon);
+        var weaponSelection = _state.WeaponSelectionItems.First(ws => ws.Weapon == weapon);
 
         // Act
         weaponSelection.IsSelected = true;
@@ -824,7 +824,7 @@ public class WeaponsAttackStateTests
         var weapon = attacker.Parts
             .SelectMany(p => p.GetComponents<Weapon>())
             .First();
-        var weaponSelection = _state.GetWeaponSelectionItems().First(i => i.Weapon == weapon);
+        var weaponSelection = _state.WeaponSelectionItems.First(i => i.Weapon == weapon);
 
         // Select weapon first
         weaponSelection.IsSelected=true;
@@ -865,7 +865,7 @@ public class WeaponsAttackStateTests
             .First();
 
         // Select weapon for first target
-        var weaponSelection = _state.GetWeaponSelectionItems().First(ws => ws.Weapon == weapon);
+        var weaponSelection = _state.WeaponSelectionItems.First(ws => ws.Weapon == weapon);
         weaponSelection.IsSelected = true;
 
         // Act - select second target
@@ -900,7 +900,7 @@ public class WeaponsAttackStateTests
         _state.HandleUnitSelection(target);
         
         // Act
-        var weaponItems = _state.GetWeaponSelectionItems().ToList();
+        var weaponItems = _state.WeaponSelectionItems.ToList();
         
         // Assert
         weaponItems.ShouldNotBeEmpty();
@@ -936,7 +936,7 @@ public class WeaponsAttackStateTests
         _state.HandleUnitSelection(target);
         
         // Act
-        var weaponItems = _state.GetWeaponSelectionItems().ToList();
+        var weaponItems = _state.WeaponSelectionItems.ToList();
         
         // Assert
         weaponItems.ShouldNotBeEmpty();
@@ -980,13 +980,13 @@ public class WeaponsAttackStateTests
         // Select first target and weapon
         _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == targetInForwardPosition.Coordinates));
         _state.HandleUnitSelection(targetInForwardArc);
-        var weaponSelection1 = _state.GetWeaponSelectionItems().First(ws => ws.Weapon == weapons[0]);
+        var weaponSelection1 = _state.WeaponSelectionItems.First(ws => ws.Weapon == weapons[0]);
         weaponSelection1.IsSelected = true;
         
         // Select second target and weapon
         _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == targetInOtherPosition.Coordinates));
         _state.HandleUnitSelection(targetInOtherArc);
-        var weaponSelection2 = _state.GetWeaponSelectionItems().First(ws => ws.Weapon == weapons[1]);
+        var weaponSelection2 = _state.WeaponSelectionItems.First(ws => ws.Weapon == weapons[1]);
         weaponSelection2.IsSelected = true;
         
         // Act
@@ -1070,7 +1070,7 @@ public class WeaponsAttackStateTests
         // Select primary target and first weapon
         _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == primaryTargetPosition.Coordinates));
         _state.HandleUnitSelection(primaryTarget);
-        var weaponSelection1 = _state.GetWeaponSelectionItems().First(ws => ws.Weapon == weapons[0]);
+        var weaponSelection1 = _state.WeaponSelectionItems.First(ws => ws.Weapon == weapons[0]);
         weaponSelection1.IsSelected = true;
         // Assert
         var primaryWeaponBreakdown = weaponSelection1.ModifiersBreakdown;
@@ -1081,7 +1081,7 @@ public class WeaponsAttackStateTests
         // Select secondary target and second weapon
         _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == secondaryTargetPosition.Coordinates));
         _state.HandleUnitSelection(secondaryTarget);
-        var weaponSelection2 = _state.GetWeaponSelectionItems().First(ws => ws.Weapon == weapons[1]);
+        var weaponSelection2 = _state.WeaponSelectionItems.First(ws => ws.Weapon == weapons[1]);
         weaponSelection2.IsSelected = true;
         
         var secondaryWeaponBreakdown = weaponSelection2.ModifiersBreakdown;
@@ -1128,7 +1128,7 @@ public class WeaponsAttackStateTests
         
         // Select a weapon
         var weapon = attacker.Parts.SelectMany(p => p.GetComponents<Weapon>()).First();
-        var weaponSelection = _state.GetWeaponSelectionItems().First(ws => ws.Weapon == weapon);
+        var weaponSelection = _state.WeaponSelectionItems.First(ws => ws.Weapon == weapon);
         weaponSelection.IsSelected = true;
         
         // Act
@@ -1213,7 +1213,7 @@ public class WeaponsAttackStateTests
         
         // Select a weapon
         var weapon = attacker.Parts.SelectMany(p => p.GetComponents<Weapon>()).First();
-        var weaponSelection = _state.GetWeaponSelectionItems().First(ws => ws.Weapon == weapon);
+        var weaponSelection = _state.WeaponSelectionItems.First(ws => ws.Weapon == weapon);
         weaponSelection.IsSelected = true;
         
         // Act
