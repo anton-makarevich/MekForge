@@ -1,5 +1,4 @@
 using Shouldly;
-using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;
@@ -84,10 +83,7 @@ public class MechTests
         mech.Deploy(deployPosition);
 
         // Act
-        mech.Move(MovementType.Walk, new List<PathSegmentData>
-        {
-            new PathSegment(deployPosition, newCoordinates, 0).ToData()
-        });
+        mech.Move(MovementType.Walk, [new PathSegment(deployPosition, newCoordinates, 0).ToData()]);
 
         // Assert
         mech.Position.ShouldBe(newCoordinates);
@@ -105,10 +101,8 @@ public class MechTests
         var newCoordinates = new HexPosition(new HexCoordinates(1, 2), HexDirection.BottomLeft);
 
         // Act
-        var act = () => mech.Move(MovementType.Walk, new List<PathSegmentData>
-        {
-            new PathSegment(new HexPosition(1, 1, HexDirection.Bottom), newCoordinates, 1).ToData()
-        });
+        var act = () => mech.Move(MovementType.Walk,
+            [new PathSegment(new HexPosition(1, 1, HexDirection.Bottom), newCoordinates, 1).ToData()]);
 
         // Assert
         var ex = Should.Throw<InvalidOperationException>(act);
@@ -364,13 +358,13 @@ public class MechTests
     }
 
     [Fact]
-    public void FireWeapons_ShouldThrowException_WhenNotDeployed()
+    public void DeclareWeaponAttack_ShouldThrowException_WhenNotDeployed()
     {
         // Arrange
         var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
 
         // Act
-        var act = () => mech.FireWeapons();
+        var act = () => mech.DeclareWeaponAttack([],[]);
 
         // Assert
         var ex = Should.Throw<InvalidOperationException>(act);
@@ -378,7 +372,7 @@ public class MechTests
     }
 
     [Fact]
-    public void FireWeapons_ShouldSetHasFiredWeapons_WhenDeployed()
+    public void DeclareWeaponAttack_ShouldSetHasDeclaredWeaponAttack_WhenDeployed()
     {
         // Arrange
         var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
@@ -386,20 +380,20 @@ public class MechTests
         mech.Deploy(position);
 
         // Act
-        mech.FireWeapons();
+        mech.DeclareWeaponAttack([],[]);
 
         // Assert
-        mech.HasFiredWeapons.ShouldBeTrue();
+        mech.HasDeclaredWeaponAttack.ShouldBeTrue();
     }
 
     [Fact]
-    public void HasFiredWeapons_ShouldBeFalse_ByDefault()
+    public void HasDeclaredWeaponAttack_ShouldBeFalse_ByDefault()
     {
         // Arrange & Act
         var mech = new Mech("Test", "TST-1A", 50, 4, CreateBasicPartsData());
 
         // Assert
-        mech.HasFiredWeapons.ShouldBeFalse();
+        mech.HasDeclaredWeaponAttack.ShouldBeFalse();
     }
 
     [Fact]
@@ -501,7 +495,7 @@ public class MechTests
     {
         // Arrange
         var parts = CreateBasicPartsData();
-        var mech = new Mech("Test", "TST-1A", 50, 4, parts, 1);
+        var mech = new Mech("Test", "TST-1A", 50, 4, parts);
         mech.Deploy(new HexPosition(new HexCoordinates(0, 0), HexDirection.Top));
         
         // Act
