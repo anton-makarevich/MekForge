@@ -2,6 +2,7 @@ using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units.Components;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Pilots;
 
 namespace Sanet.MekForge.Core.Models.Units;
@@ -100,8 +101,11 @@ public abstract class Unit
     public int DistanceCovered { get; private set; }
 
     public bool HasMoved => MovementTypeUsed.HasValue;
-
-    public bool HasFiredWeapons { get; private set; }
+    
+    /// <summary>
+    /// Indicates whether this unit has declared weapon attacks for the current phase
+    /// </summary>
+    public bool HasDeclaredWeaponAttack { get; protected set; }
 
     public void ResetMovement()
     { 
@@ -109,14 +113,38 @@ public abstract class Unit
         MovementTypeUsed = null;
         DistanceCovered = 0;
     }
-
-    public void FireWeapons()
+    
+    /// <summary>
+    /// Declares weapon attacks against target units
+    /// </summary>
+    /// <param name="weaponTargets">The weapon target data containing weapon locations, slots and target IDs</param>
+    /// <param name="targetUnits">The list of target units</param>
+    public void DeclareWeaponAttack(List<WeaponTargetData> weaponTargets, List<Unit> targetUnits)
     {
         if (!IsDeployed)
         {
             throw new InvalidOperationException("Unit is not deployed.");
         }
-        HasFiredWeapons = true;
+        
+        foreach (var weaponTarget in weaponTargets)
+        {
+            // Find the weapon at the specified location and slots
+            var weapon = GetMountedComponentAtLocation<Weapon>(
+                weaponTarget.Weapon.Location, 
+                weaponTarget.Weapon.Slots);
+                
+            if (weapon == null) continue;
+            
+            // Find the target unit
+            var targetUnit = targetUnits.FirstOrDefault(u => u.Id == weaponTarget.TargetId);
+            if (targetUnit == null) continue;
+            
+            // Assign the target to the weapon
+            weapon.Target = targetUnit;
+        }
+        
+        // Mark that this unit has declared weapon attacks
+        HasDeclaredWeaponAttack = true;
     }
     
     // Methods
@@ -192,6 +220,23 @@ public abstract class Unit
     {
         var part = _parts.FirstOrDefault(p => p.Location == location);
         return part?.GetComponents<T>() ?? [];
+    }
+    
+    /// <summary>
+    /// Gets components of a specific type at a specific location and slots
+    /// </summary>
+    /// <typeparam name="T">The type of component to find</typeparam>
+    /// <param name="location">The location to check</param>
+    /// <param name="slots">The slots where the component is mounted</param>
+    /// <returns>Components of the specified type at the specified location and slots</returns>
+    public T? GetMountedComponentAtLocation<T>(PartLocation location, int[] slots) where T : Component
+    {
+        if ( slots.Length == 0)
+                    return null;
+        var components = GetComponentsAtLocation<T>(location);
+  
+        return components.FirstOrDefault(c => 
+            c.MountedAtSlots == slots);
     }
 
     /// <summary>

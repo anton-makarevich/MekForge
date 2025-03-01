@@ -38,6 +38,11 @@ public abstract class Weapon : Component
     public int LongRange { get; }
     public WeaponType Type { get; }
     public AmmoType AmmoType { get; }
+    
+    /// <summary>
+    /// The target unit for this weapon in the current attack declaration
+    /// </summary>
+    public Unit? Target { get; set; }
 
     /// <summary>
     /// Gets the range bracket for a given distance
