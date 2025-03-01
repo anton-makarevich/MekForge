@@ -231,12 +231,12 @@ public abstract class Unit
     /// <returns>Components of the specified type at the specified location and slots</returns>
     public T? GetMountedComponentAtLocation<T>(PartLocation location, int[] slots) where T : Component
     {
-        if ( slots.Length == 0)
-                    return null;
+        if (slots.Length == 0)
+            return null;
         var components = GetComponentsAtLocation<T>(location);
   
         return components.FirstOrDefault(c => 
-            c.MountedAtSlots == slots);
+           c.MountedAtSlots.SequenceEqual(slots));
     }
 
     /// <summary>

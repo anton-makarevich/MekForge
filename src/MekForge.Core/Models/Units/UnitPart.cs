@@ -64,7 +64,7 @@ public abstract class UnitPart
         return !component.MountedAtSlots.Intersect(occupiedSlots).Any();
     }
 
-    public bool TryAddComponent(Component component)
+    public bool TryAddComponent(Component component, int[]? slots=null)
     {
         if (component.IsFixed)
         {
@@ -79,7 +79,9 @@ public abstract class UnitPart
             return true;
         }
 
-        var slotToMount = FindMountLocation(component.Size);
+        var slotToMount = slots!=null
+            ? slots[0]
+            : FindMountLocation(component.Size);
         if (slotToMount == -1)
         {
             return false;
