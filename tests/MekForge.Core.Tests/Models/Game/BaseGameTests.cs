@@ -1,5 +1,6 @@
 using Shouldly;
 using NSubstitute;
+using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Commands;
@@ -8,6 +9,8 @@ using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
+using Sanet.MekForge.Core.Models.Units;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Utils.Generators;
@@ -137,6 +140,220 @@ public class BaseGameTests() : BaseGame(BattleMap.GenerateMap(5, 5, new SingleTe
 
         // Assert
         mech.TorsoDirection.ShouldBe(HexDirection.Bottom);
+    }
+    
+    [Fact]
+    public void OnWeaponsAttack_DoesNothing_WhenPlayerNotFound()
+    {
+        // Arrange
+        var command = new WeaponAttackDeclarationCommand
+        {
+            GameOriginId = Id,
+            PlayerId = Guid.NewGuid(),
+            AttackerId = Guid.NewGuid(),
+            WeaponTargets = []
+        };
+
+        // Act
+        OnWeaponsAttack(command);
+
+        // Assert
+        // No exception should be thrown
+    }
+    
+    [Fact]
+    public void OnWeaponsAttack_DoesNothing_WhenAttackerNotFound()
+    {
+        // Arrange
+        var joinCommand = new JoinGameCommand
+        {
+            PlayerId = Guid.NewGuid(),
+            PlayerName = "Player1",
+            GameOriginId = Guid.NewGuid(),
+            Units = [],
+            Tint = "#FF0000"
+        };
+        OnPlayerJoined(joinCommand);
+        var player = Players.First();
+        
+        var command = new WeaponAttackDeclarationCommand
+        {
+            GameOriginId = Id,
+            PlayerId = player.Id,
+            AttackerId = Guid.NewGuid(),
+            WeaponTargets = []
+        };
+
+        // Act
+        OnWeaponsAttack(command);
+
+        // Assert
+        // No exception should be thrown
+    }
+    
+    [Fact]
+    public void OnWeaponsAttack_ShouldDeclareWeaponAttack_WhenAttackerAndTargetsFound()
+    {
+        // Arrange
+        // Add attacker player and unit
+        var attackerPlayerId = Guid.NewGuid();
+        var attackerUnitData = MechFactoryTests.CreateDummyMechData();
+        attackerUnitData.Id = Guid.NewGuid();
+        var attackerJoinCommand = new JoinGameCommand
+        {
+            PlayerId = attackerPlayerId,
+            PlayerName = "Attacker",
+            GameOriginId = Guid.NewGuid(),
+            Units = [attackerUnitData],
+            Tint = "#FF0000"
+        };
+        OnPlayerJoined(attackerJoinCommand);
+        var attackerPlayer = Players.First(p => p.Id == attackerPlayerId);
+        var attackerMech = attackerPlayer.Units.First() as Mech;
+        attackerMech!.Deploy(new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom));
+        
+        // Add target player and unit
+        var targetPlayerId = Guid.NewGuid();
+        var targetUnitData = MechFactoryTests.CreateDummyMechData();
+        targetUnitData.Id = Guid.NewGuid();
+        var targetJoinCommand = new JoinGameCommand
+        {
+            PlayerId = targetPlayerId,
+            PlayerName = "Target",
+            GameOriginId = Guid.NewGuid(),
+            Units = [targetUnitData],
+            Tint = "#00FF00"
+        };
+        OnPlayerJoined(targetJoinCommand);
+        var targetPlayer = Players.First(p => p.Id == targetPlayerId);
+        var targetMech = targetPlayer.Units.First() as Mech;
+        targetMech!.Deploy(new HexPosition(new HexCoordinates(1, 2), HexDirection.Top));
+        
+        // Get a weapon from the attacker mech
+        var weapon = attackerMech.GetComponentsAtLocation<Weapon>(PartLocation.RightArm).FirstOrDefault();
+        weapon.ShouldNotBeNull();
+        
+        // Create the attack command
+        var command = new WeaponAttackDeclarationCommand
+        {
+            GameOriginId = Id,
+            PlayerId = attackerPlayerId,
+            AttackerId = attackerMech.Id,
+            WeaponTargets = [
+                new WeaponTargetData
+                {
+                    Weapon = new WeaponData
+                    {
+                        Name = weapon.Name,
+                        Location = PartLocation.RightArm,
+                        Slots = weapon.MountedAtSlots
+                    },
+                    TargetId = targetMech.Id,
+                    IsPrimaryTarget = true
+                }
+            ]
+        };
+
+        // Act
+        OnWeaponsAttack(command);
+
+        // Assert
+        attackerMech.HasDeclaredWeaponAttack.ShouldBeTrue();
+        weapon.Target.ShouldNotBeNull();
+        weapon.Target.ShouldBe(targetMech);
+    }
+    
+    [Fact]
+    public void OnWeaponsAttack_ShouldHandleMultipleTargets()
+    {
+        // Arrange
+        // Add attacker player and unit
+        var attackerPlayerId = Guid.NewGuid();
+        var attackerUnitData = MechFactoryTests.CreateDummyMechData();
+        attackerUnitData.Id = Guid.NewGuid();
+        var attackerJoinCommand = new JoinGameCommand
+        {
+            PlayerId = attackerPlayerId,
+            PlayerName = "Attacker",
+            GameOriginId = Guid.NewGuid(),
+            Units = [attackerUnitData],
+            Tint = "#FF0000"
+        };
+        OnPlayerJoined(attackerJoinCommand);
+        var attackerPlayer = Players.First(p => p.Id == attackerPlayerId);
+        var attackerMech = attackerPlayer.Units.First() as Mech;
+        attackerMech!.Deploy(new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom));
+        
+        // Add first target player and unit
+        var targetPlayerId1 = Guid.NewGuid();
+        var targetUnitData1 = MechFactoryTests.CreateDummyMechData();
+        targetUnitData1.Id = Guid.NewGuid();
+        var targetUnitData2 = MechFactoryTests.CreateDummyMechData();
+        targetUnitData2.Id = Guid.NewGuid();
+        var targetJoinCommand1 = new JoinGameCommand
+        {
+            PlayerId = targetPlayerId1,
+            PlayerName = "Target1",
+            GameOriginId = Guid.NewGuid(),
+            Units = [targetUnitData1,targetUnitData2],
+            Tint = "#00FF00"
+        };
+        OnPlayerJoined(targetJoinCommand1);
+        var targetPlayer = Players.First(p => p.Id == targetPlayerId1);
+        var targetMech1 = targetPlayer.Units[0] as Mech;
+        targetMech1!.Deploy(new HexPosition(new HexCoordinates(1, 2), HexDirection.Top));
+        var targetMech2 = targetPlayer.Units[1] as Mech;
+        targetMech2!.Deploy(new HexPosition(new HexCoordinates(1, 3), HexDirection.Top));
+        
+        // Get weapons from the attacker mech
+        var rightArmWeapon = attackerMech.GetComponentsAtLocation<Weapon>(PartLocation.RightArm).FirstOrDefault();
+        var leftArmWeapon = attackerMech.GetComponentsAtLocation<Weapon>(PartLocation.LeftArm).FirstOrDefault();
+        rightArmWeapon.ShouldNotBeNull();
+        leftArmWeapon.ShouldNotBeNull();
+        
+        // Create the attack command
+        var command = new WeaponAttackDeclarationCommand
+        {
+            GameOriginId = Id,
+            PlayerId = attackerPlayerId,
+            AttackerId = attackerMech.Id,
+            WeaponTargets = [
+                new WeaponTargetData
+                {
+                    Weapon = new WeaponData
+                    {
+                        Name = rightArmWeapon.Name,
+                        Location = PartLocation.RightArm,
+                        Slots = rightArmWeapon.MountedAtSlots
+                    },
+                    TargetId = targetMech1.Id,
+                    IsPrimaryTarget = true
+                },
+                new WeaponTargetData
+                {
+                    Weapon = new WeaponData
+                    {
+                        Name = leftArmWeapon.Name,
+                        Location = PartLocation.LeftArm,
+                        Slots = leftArmWeapon.MountedAtSlots
+                    },
+                    TargetId = targetMech2.Id,
+                    IsPrimaryTarget = true
+                }
+            ]
+        };
+
+        // Act
+        OnWeaponsAttack(command);
+
+        // Assert
+        attackerMech.HasDeclaredWeaponAttack.ShouldBeTrue();
+        
+        rightArmWeapon.Target.ShouldNotBeNull();
+        rightArmWeapon.Target.ShouldBe(targetMech1);
+        
+        leftArmWeapon.Target.ShouldNotBeNull();
+        leftArmWeapon.Target.ShouldBe(targetMech2);
     }
 
     public override void HandleCommand(GameCommand command)

@@ -1,3 +1,4 @@
+using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Missile;
 using Shouldly;
@@ -29,5 +30,76 @@ public class WeaponTests
 
         // Assert
         result.ShouldBe(expectedRange);
+    }
+    
+    [Fact]
+    public void Target_ShouldBeNull_ByDefault()
+    {
+        // Arrange
+        var weapon = new LRM5();
+        
+        // Assert
+        weapon.Target.ShouldBeNull();
+    }
+    
+    [Fact]
+    public void Target_ShouldBeSettable()
+    {
+        // Arrange
+        var weapon = new LRM5();
+        var mockUnit = new MockUnit();
+        
+        // Act
+        weapon.Target = mockUnit;
+        
+        // Assert
+        weapon.Target.ShouldNotBeNull();
+        weapon.Target.ShouldBe(mockUnit);
+    }
+    
+    [Fact]
+    public void Target_ShouldBeResettable()
+    {
+        // Arrange
+        var weapon = new LRM5();
+        var mockUnit = new MockUnit();
+        weapon.Target = mockUnit;
+        
+        // Act
+        weapon.Target = null;
+        
+        // Assert
+        weapon.Target.ShouldBeNull();
+    }
+    
+    [Fact]
+    public void Target_ShouldBeReassignable()
+    {
+        // Arrange
+        var weapon = new LRM5();
+        var mockUnit1 = new MockUnit();
+        var mockUnit2 = new MockUnit();
+        weapon.Target = mockUnit1;
+        
+        // Act
+        weapon.Target = mockUnit2;
+        
+        // Assert
+        weapon.Target.ShouldNotBeNull();
+        weapon.Target.ShouldBe(mockUnit2);
+        weapon.Target.ShouldNotBe(mockUnit1);
+    }
+    
+    private class MockUnit : Unit
+    {
+        public MockUnit() : base("Mock", "Unit", 20, 4, Array.Empty<UnitPart>())
+        {
+        }
+        
+        public override int CalculateBattleValue() => 0;
+        
+        public override bool CanMoveBackward(MovementType type) => true;
+        
+        protected override PartLocation? GetTransferLocation(PartLocation location) => null;
     }
 }

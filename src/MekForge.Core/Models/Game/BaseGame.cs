@@ -156,7 +156,23 @@ public abstract class BaseGame : IGame
     
     public void OnWeaponsAttack(WeaponAttackDeclarationCommand attackCommand)
     {
-        Console.WriteLine("weapons fired");
+        // Find the attacking player
+        var player = _players.FirstOrDefault(p => p.Id == attackCommand.PlayerId);
+        if (player == null) return;
+        
+        // Find the attacking unit
+        var attackerUnit = player.Units.FirstOrDefault(u => u.Id == attackCommand.AttackerId);
+        if (attackerUnit == null) return;
+        
+        // Find all target units
+        var targetIds = attackCommand.WeaponTargets.Select(wt => wt.TargetId).Distinct().ToList();
+        var targetUnits = _players
+            .SelectMany(p => p.Units)
+            .Where(u => targetIds.Contains(u.Id))
+            .ToList();
+        
+        // Declare the weapon attack
+        attackerUnit.DeclareWeaponAttack(attackCommand.WeaponTargets, targetUnits);
     }
     
     public void OnPhysicalAttack(PhysicalAttackCommand attackCommand)
@@ -173,6 +189,7 @@ public abstract class BaseGame : IGame
             DeployUnitCommand deployUnitCommand => ValidateDeployCommand(deployUnitCommand),
             MoveUnitCommand => true,
             WeaponConfigurationCommand => true,
+            WeaponAttackDeclarationCommand=> true,
             _ => false
         };
     }
