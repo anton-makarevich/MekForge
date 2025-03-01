@@ -13,9 +13,6 @@ namespace Sanet.MekForge.Core.UiStates;
 public class WeaponsAttackState : IUiState
 {
     private readonly BattleMapViewModel _viewModel;
-    private Unit? _attacker;
-    private Unit? _target;
-    private Unit? _primaryTarget;
     private readonly List<HexDirection> _availableDirections = new();
     private readonly Dictionary<Weapon, HashSet<HexCoordinates>> _weaponRanges = new();
     private readonly Dictionary<Weapon, Unit> _weaponTargets = new();
@@ -53,7 +50,7 @@ public class WeaponsAttackState : IUiState
         {
             if (unit.HasDeclaredWeaponAttack) return;
             
-            _attacker = unit;
+            Attacker = unit;
             CreateWeaponViewModels();
             CurrentStep = WeaponsAttackStep.ActionSelection;
 
@@ -63,7 +60,7 @@ public class WeaponsAttackState : IUiState
 
         if (CurrentStep == WeaponsAttackStep.TargetSelection)
         {
-            _target = unit;
+            SelectedTarget = unit;
             UpdateWeaponViewModels();
             _viewModel.IsWeaponSelectionVisible = true;
         }
@@ -86,7 +83,7 @@ public class WeaponsAttackState : IUiState
             if (unit.Owner != _game.ActivePlayer || unit.HasDeclaredWeaponAttack)
                 return;
 
-            if (_attacker is not null)
+            if (Attacker is not null)
             {
                 ClearWeaponRangeHighlights();
                 ResetUnitSelection();
@@ -115,7 +112,7 @@ public class WeaponsAttackState : IUiState
     public void HandleFacingSelection(HexDirection direction)
     {
         if (CurrentStep != WeaponsAttackStep.WeaponsConfiguration 
-            || _attacker is not Mech mech 
+            || Attacker is not Mech mech 
             || !_availableDirections.Contains(direction)) return;
         
         _viewModel.HideDirectionSelector();
@@ -142,16 +139,16 @@ public class WeaponsAttackState : IUiState
 
     public void HandleTorsoRotation(Guid unitId)
     {
-        if (_attacker?.Id != unitId) return;
+        if (Attacker?.Id != unitId) return;
         ClearWeaponRangeHighlights();
         HighlightWeaponRanges();
     }
 
     private void ResetUnitSelection()
     {
-        _attacker = null;
-        _target = null;
-        _primaryTarget = null;
+        Attacker = null;
+        SelectedTarget = null;
+        PrimaryTarget = null;
         _weaponTargets.Clear();
         _weaponRanges.Clear();
         _weaponViewModels.Clear();
@@ -162,7 +159,7 @@ public class WeaponsAttackState : IUiState
 
     public IEnumerable<StateAction> GetAvailableActions()
     {
-        if (_attacker == null)
+        if (Attacker == null)
             return new List<StateAction>();
 
         var actions = new List<StateAction>();
@@ -170,7 +167,7 @@ public class WeaponsAttackState : IUiState
         if (CurrentStep == WeaponsAttackStep.ActionSelection)
         {
             // Add torso rotation action if available
-            if (_attacker is Mech { CanRotateTorso: true } mech)
+            if (Attacker is Mech { CanRotateTorso: true } mech)
             {
                 actions.Add(new StateAction(
                     "Turn Torso",
@@ -208,7 +205,7 @@ public class WeaponsAttackState : IUiState
 
     private void UpdateAvailableDirections()
     {
-        if (_attacker is not Mech mech || mech.Position == null) return;
+        if (Attacker is not Mech mech || mech.Position == null) return;
         
         var currentFacing = (int)mech.Position.Value.Facing;
         _availableDirections.Clear();
@@ -229,13 +226,13 @@ public class WeaponsAttackState : IUiState
 
     private void HighlightWeaponRanges()
     {
-        if (_attacker?.Position == null) return;
+        if (Attacker?.Position == null) return;
 
         var reachableHexes = new HashSet<HexCoordinates>();
-        var unitPosition = _attacker.Position.Value;
+        var unitPosition = Attacker.Position.Value;
         _weaponRanges.Clear();
 
-        foreach (var part in _attacker.Parts)
+        foreach (var part in Attacker.Parts)
         {
             var weapons = part.GetComponents<Weapon>();
             foreach (var weapon in weapons)
@@ -244,7 +241,7 @@ public class WeaponsAttackState : IUiState
                 var facing = part.Location switch
                 {
                     PartLocation.LeftLeg or PartLocation.RightLeg => unitPosition.Facing,
-                    _ => _attacker is Mech mech ? mech.TorsoDirection : unitPosition.Facing
+                    _ => Attacker is Mech mech ? mech.TorsoDirection : unitPosition.Facing
                 };
                 if (facing == null)
                 {
@@ -283,14 +280,14 @@ public class WeaponsAttackState : IUiState
 
     private void ClearWeaponRangeHighlights()
     {
-        if (_attacker?.Position == null) return;
+        if (Attacker?.Position == null) return;
 
         // Get all hexes in maximum weapon range and unhighlight them
-        var maxRange = _attacker.Parts
+        var maxRange = Attacker.Parts
             .SelectMany(p => p.GetComponents<Weapon>())
             .Max(w => w.LongRange);
 
-        var allPossibleHexes = _attacker.Position.Value.Coordinates
+        var allPossibleHexes = Attacker.Position.Value.Coordinates
             .GetCoordinatesInRange(maxRange);
 
         _weaponRanges.Clear();
@@ -310,16 +307,18 @@ public class WeaponsAttackState : IUiState
             .ToList();
     }
     
-    public Unit? Attacker => _attacker;
-    public Unit? SelectedTarget => _target;
-    public Unit? PrimaryTarget => _primaryTarget;
+    public Unit? Attacker { get; private set; }
+
+    public Unit? SelectedTarget { get; private set; }
+
+    public Unit? PrimaryTarget { get; private set; }
 
     private void CreateWeaponViewModels()
     {
         _weaponViewModels.Clear();
-        if (_attacker == null) return;
+        if (Attacker == null) return;
 
-        _weaponViewModels.AddRange(_attacker.Parts
+        _weaponViewModels.AddRange(Attacker.Parts
             .SelectMany(p => p.GetComponents<Weapon>())
             .Select(w => new WeaponSelectionViewModel(
                 weapon: w,
@@ -334,9 +333,9 @@ public class WeaponsAttackState : IUiState
 
     private void UpdateWeaponViewModels()
     {
-        if (_attacker == null || _target?.Position == null) return;
+        if (Attacker == null || SelectedTarget?.Position == null) return;
 
-        var targetCoords = _target.Position.Value.Coordinates;
+        var targetCoords = SelectedTarget.Position.Value.Coordinates;
         foreach (var vm in _weaponViewModels)
         {
             var isInRange = IsWeaponInRange(vm.Weapon, targetCoords);
@@ -344,18 +343,18 @@ public class WeaponsAttackState : IUiState
             var isSelected = _weaponTargets.ContainsKey(vm.Weapon) && _weaponTargets[vm.Weapon] == target;
             vm.IsInRange = isInRange;
             vm.IsSelected = isSelected;
-            vm.IsEnabled = (!_weaponTargets.ContainsKey(vm.Weapon) || _weaponTargets[vm.Weapon] == _target) && isInRange;
+            vm.IsEnabled = (!_weaponTargets.ContainsKey(vm.Weapon) || _weaponTargets[vm.Weapon] == SelectedTarget) && isInRange;
             vm.Target = target;
             
             // Set modifiers breakdown when in range
             if (isInRange)
             {
                 // Check if this target is the primary target
-                var isPrimaryTarget = _target == _primaryTarget;
+                var isPrimaryTarget = SelectedTarget == PrimaryTarget || PrimaryTarget==null;
                 
                 // Get modifiers breakdown, passing the primary target information
                 vm.ModifiersBreakdown = _game.ToHitCalculator.GetModifierBreakdown(
-                    _attacker, _target, vm.Weapon, _game.BattleMap, isPrimaryTarget);
+                    Attacker, SelectedTarget, vm.Weapon, _game.BattleMap, isPrimaryTarget);
             }
             else
             {
@@ -378,7 +377,7 @@ public class WeaponsAttackState : IUiState
 
     private void HandleWeaponSelection(Weapon weapon, bool selected)
     {
-        if (_target == null)
+        if (SelectedTarget == null)
             return;
         if (!selected) 
         {
@@ -386,11 +385,11 @@ public class WeaponsAttackState : IUiState
         }
         else
         {
-            _weaponTargets[weapon] = _target;
+            _weaponTargets[weapon] = SelectedTarget;
         }
         
         // Determine the primary target whenever weapon selections change
-        _primaryTarget = DeterminePrimaryTarget();
+        PrimaryTarget = DeterminePrimaryTarget();
         
         UpdateWeaponViewModels();
         _viewModel.NotifyStateChanged();
@@ -413,10 +412,10 @@ public class WeaponsAttackState : IUiState
         }
         
         // Check for targets in the forward arc
-        if (_attacker?.Position == null) return targets[0];
+        if (Attacker?.Position == null) return targets[0];
         
-        var attackerPosition = _attacker.Position.Value;
-        var facing = _attacker is Mech mech ? mech.TorsoDirection : attackerPosition.Facing;
+        var attackerPosition = Attacker.Position.Value;
+        var facing = Attacker is Mech mech ? mech.TorsoDirection : attackerPosition.Facing;
         
         if (facing == null) return targets[0];
         
@@ -437,7 +436,7 @@ public class WeaponsAttackState : IUiState
 
     public void ConfirmWeaponSelections()
     {
-        if (_attacker == null || _weaponTargets.Count == 0 || _primaryTarget == null)
+        if (Attacker == null || _weaponTargets.Count == 0 || PrimaryTarget == null)
             return;
         
         // Create weapon target data list
@@ -447,7 +446,7 @@ public class WeaponsAttackState : IUiState
         {
             var weapon = weaponTarget.Key;
             var target = weaponTarget.Value;
-            var isPrimaryTarget = target == _primaryTarget;
+            var isPrimaryTarget = target == PrimaryTarget;
             
             weaponTargetsData.Add(new WeaponTargetData
             {
@@ -467,7 +466,7 @@ public class WeaponsAttackState : IUiState
         {
             GameOriginId = _game.Id,
             PlayerId = _game.ActivePlayer!.Id,
-            AttackerId = _attacker.Id,
+            AttackerId = Attacker.Id,
             WeaponTargets = weaponTargetsData
         };
         
@@ -476,19 +475,11 @@ public class WeaponsAttackState : IUiState
         // Reset state after sending command
         ClearWeaponRangeHighlights();
         _weaponTargets.Clear();
-        _primaryTarget = null;
-        _target = null;
-        _attacker = null;
+        PrimaryTarget = null;
+        SelectedTarget = null;
+        Attacker = null;
         _viewModel.IsWeaponSelectionVisible = false;
         CurrentStep = WeaponsAttackStep.SelectingUnit;
         _viewModel.NotifyStateChanged();
     }
-}
-
-public enum WeaponsAttackStep
-{
-    SelectingUnit,
-    ActionSelection,
-    WeaponsConfiguration,
-    TargetSelection
 }
