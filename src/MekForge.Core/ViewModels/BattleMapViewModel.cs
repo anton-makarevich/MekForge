@@ -29,6 +29,7 @@ public class BattleMapViewModel : BaseViewModel
     private IEnumerable<HexDirection>? _availableDirections;
     private List<PathSegmentViewModel>? _movementPath;
     private bool _isWeaponSelectionVisible;
+    private readonly ObservableCollection<WeaponSelectionViewModel> _weaponSelectionItems = new();
 
     public HexCoordinates DirectionSelectorPosition
     {
@@ -80,8 +81,7 @@ public class BattleMapViewModel : BaseViewModel
 
     public IReadOnlyCollection<string> CommandLog => _commandLog;
 
-    public IEnumerable<WeaponSelectionViewModel> WeaponSelectionItems => 
-        CurrentState is WeaponsAttackState state ? state.GetWeaponSelectionItems() : [];
+    public ObservableCollection<WeaponSelectionViewModel> WeaponSelectionItems => _weaponSelectionItems;
 
     public bool IsWeaponSelectionVisible
     {
