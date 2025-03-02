@@ -875,4 +875,92 @@ public class BattleMapViewModelTests
         });
         _viewModel.IsWeaponSelectionVisible.ShouldBeFalse();
     }
+
+    [Fact]
+    public void Attacker_ShouldBeStateAttacker_DuringWeaponsAttack()
+    {
+        // Arrange
+        var rules = new ClassicBattletechRulesProvider();
+        var mechData = MechFactoryTests.CreateDummyMechData();
+        var battleMap = BattleMap.GenerateMap(
+            2, 11,
+            new SingleTerrainGenerator(2, 11, new ClearTerrain()));
+        var player1 = new Player(Guid.NewGuid(), "Player1");
+        var game = new ClientGame(
+            battleMap, [player1], rules,
+            Substitute.For<ICommandPublisher>(), Substitute.For<IToHitCalculator>());
+
+        _viewModel.Game = game;
+        game.HandleCommand(new JoinGameCommand
+        {
+            PlayerName = "Player1",
+            Units = [mechData],
+            Tint = "#FF0000",
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player1.Id
+        });
+        game.HandleCommand(new UpdatePlayerStatusCommand
+        {
+            PlayerStatus = PlayerStatus.Playing,
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player1.Id
+        });
+        game.HandleCommand(new ChangePhaseCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            Phase = PhaseNames.WeaponsAttack
+        });
+        game.HandleCommand(new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player1.Id,
+            UnitsToPlay = 1
+        });
+
+        // Place units
+        var attackerPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == player1.Id);
+        attacker.Deploy(attackerPosition);
+
+        // Act Select attacker
+        _viewModel.HandleHexSelection(game.BattleMap.GetHexes()
+            .First(h => h.Coordinates == attackerPosition.Coordinates));
+        
+        // Assert
+        _viewModel.Attacker.ShouldBe(attacker);
+    }
+    
+    [Fact]
+    public void Attacker_ShouldBeNull_WhenNotInWeaponsAttack()
+    {
+        // Arrange
+        var rules = new ClassicBattletechRulesProvider();
+        var mechData = MechFactoryTests.CreateDummyMechData();
+        var battleMap = BattleMap.GenerateMap(
+            2, 11,
+            new SingleTerrainGenerator(2, 11, new ClearTerrain()));
+        var player1 = new Player(Guid.NewGuid(), "Player1");
+        var game = new ClientGame(
+            battleMap, [player1], rules,
+            Substitute.For<ICommandPublisher>(), Substitute.For<IToHitCalculator>());
+
+        _viewModel.Game = game;
+        game.HandleCommand(new JoinGameCommand
+        {
+            PlayerName = "Player1",
+            Units = [mechData],
+            Tint = "#FF0000",
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player1.Id
+        });
+        game.HandleCommand(new UpdatePlayerStatusCommand
+        {
+            PlayerStatus = PlayerStatus.Playing,
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = player1.Id
+        });
+        
+        // Assert
+        _viewModel.Attacker.ShouldBeNull();
+    }
 }

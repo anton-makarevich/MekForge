@@ -179,6 +179,7 @@ public class BattleMapViewModel : BaseViewModel
         NotifyPropertyChanged(nameof(IsUserActionLabelVisible));
         NotifyPropertyChanged(nameof(AreUnitsToDeployVisible));
         NotifyPropertyChanged(nameof(WeaponSelectionItems));
+        NotifyPropertyChanged(nameof(Attacker));
     }
 
     internal void HighlightHexes(List<HexCoordinates> coordinates, bool isHighlighted)
@@ -228,6 +229,8 @@ public class BattleMapViewModel : BaseViewModel
             NotifyPropertyChanged(nameof(IsRecordSheetPanelVisible));
         }
     }
+    
+    public Unit? Attacker => CurrentState is WeaponsAttackState weaponsAttackState ? weaponsAttackState.Attacker : null;
 
     public void HandleHexSelection(Hex selectedHex)
     {
