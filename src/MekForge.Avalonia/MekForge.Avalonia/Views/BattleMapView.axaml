@@ -102,8 +102,14 @@
                                             Grid.Row="1"
                                             Orientation="Horizontal"
                                             Spacing="5">
-                                            <TextBlock FontFamily="{StaticResource AwesomeFontSolid}" Text="{Binding Damage}"/>
-                                            <TextBlock FontFamily="{StaticResource AwesomeFontSolid}" Text="{Binding Heat}"/>
+                                            <StackPanel Orientation="Horizontal" Spacing="2">
+                                                <TextBlock FontFamily="{StaticResource AwesomeFontSolid}" Text="&#x26a1;"/>
+                                                <TextBlock Text="{Binding Damage}"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Spacing="2">
+                                                <TextBlock FontFamily="{StaticResource AwesomeFontSolid}" Text="&#xf06d;"/>
+                                                <TextBlock Text="{Binding Heat}"/>
+                                            </StackPanel>
                                         </StackPanel>
                                     <TextBlock
                                         Grid.Column="2"
