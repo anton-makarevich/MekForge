@@ -109,6 +109,11 @@
                                                 <TextBlock FontFamily="{StaticResource AwesomeFontSolid}" Text="&#xf06d;"/>
                                                 <TextBlock Text="{Binding Heat}"/>
                                             </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Spacing="2"
+                                                      IsVisible="{Binding RequiresAmmo}">
+                                                <TextBlock FontFamily="{StaticResource AwesomeFontSolid}" Text="&#xf1e2;"/>
+                                                <TextBlock Text="{Binding Ammo}"/>
+                                            </StackPanel>
                                         </StackPanel>
                                     <TextBlock
                                         Grid.Column="2"

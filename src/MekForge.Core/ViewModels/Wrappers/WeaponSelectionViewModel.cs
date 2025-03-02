@@ -24,7 +24,8 @@ public class WeaponSelectionViewModel : BindableBase
         bool isEnabled,
         Unit? target,
         Action<Weapon, bool> onSelectionChanged,
-        ILocalizationService localizationService)
+        ILocalizationService localizationService,
+        int remainingAmmoShots = -1)
     {
         Weapon = weapon;
         IsInRange = isInRange;
@@ -33,6 +34,7 @@ public class WeaponSelectionViewModel : BindableBase
         Target = target;
         _onSelectionChanged = onSelectionChanged;
         _localizationService = localizationService;
+        RemainingAmmoShots = remainingAmmoShots;
     }
 
     public Weapon Weapon { get; }
@@ -57,7 +59,7 @@ public class WeaponSelectionViewModel : BindableBase
 
     public bool IsEnabled
     {
-        get => _isEnabled && HitProbability > 0;
+        get => _isEnabled && HitProbability > 0 && HasSufficientAmmo;
         set => SetProperty(ref _isEnabled, value);
     }
 
@@ -66,6 +68,21 @@ public class WeaponSelectionViewModel : BindableBase
         get => _target;
         set => SetProperty(ref _target, value);
     }
+    
+    /// <summary>
+    /// Gets or sets the remaining ammo shots for this weapon
+    /// </summary>
+    public int RemainingAmmoShots { get; }
+
+    /// <summary>
+    /// Gets whether the weapon requires ammo
+    /// </summary>
+    public bool RequiresAmmo => Weapon.RequiresAmmo;
+    
+    /// <summary>
+    /// Gets whether the weapon has sufficient ammo to fire
+    /// </summary>
+    public bool HasSufficientAmmo => !RequiresAmmo || RemainingAmmoShots > 0;
     
     /// <summary>
     /// Gets or sets the detailed breakdown of hit modifiers
@@ -85,7 +102,7 @@ public class WeaponSelectionViewModel : BindableBase
     /// <summary>
     /// Gets the hit probability as a value between 0 and 100
     /// </summary>
-    public double HitProbability => !_isEnabled ? 0 :
+    public double HitProbability => !_isEnabled || !HasSufficientAmmo ? 0 :
         ModifiersBreakdown is { HasLineOfSight: true, Total: <= 12 }
             ? DiceUtils.Calculate2d6Probability(ModifiersBreakdown.Total)
             : 0;
@@ -103,6 +120,10 @@ public class WeaponSelectionViewModel : BindableBase
     {
         get
         {
+            // Check if weapon is out of ammo
+            if (RequiresAmmo && RemainingAmmoShots <= 0)
+                return _localizationService.GetString("Attack_NoAmmo");
+                
             // Check if weapon is in range
             if (!IsInRange)
                 return _localizationService.GetString("Attack_OutOfRange");
@@ -137,4 +158,9 @@ public class WeaponSelectionViewModel : BindableBase
     
     public string Damage => $"{Weapon.Damage}";
     public string Heat => $"{Weapon.Heat}";
+    
+    /// <summary>
+    /// Gets the formatted remaining ammo shots for display
+    /// </summary>
+    public string Ammo => RequiresAmmo ? $"{RemainingAmmoShots}" : string.Empty;
 }

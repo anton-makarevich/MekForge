@@ -37,6 +37,7 @@ public class FakeLocalizationService: ILocalizationService
             "Attack_OutOfRange" => "Target out of range",
             "Attack_NoModifiersCalculated" => "Attack modifiers not calculated",
             "Attack_Targeting" => "Already targeting {0}",
+            "Attack_NoAmmo" => "No ammunition",
             
             // Secondary target modifiers
             "Attack_SecondaryTargetFrontArc" => "Secondary target (front arc): +{0}",

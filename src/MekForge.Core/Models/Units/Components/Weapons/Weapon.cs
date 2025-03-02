@@ -40,6 +40,11 @@ public abstract class Weapon : Component
     public AmmoType AmmoType { get; }
     
     /// <summary>
+    /// Indicates whether this weapon requires ammunition to fire
+    /// </summary>
+    public bool RequiresAmmo => AmmoType != AmmoType.None;
+    
+    /// <summary>
     /// The target unit for this weapon in the current attack declaration
     /// </summary>
     public Unit? Target { get; set; }

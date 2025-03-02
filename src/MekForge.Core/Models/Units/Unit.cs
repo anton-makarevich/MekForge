@@ -198,7 +198,34 @@ public abstract class Unit
     {
         return GetAllComponents<T>().Any(c => c is { IsActive: true, IsDestroyed: false });
     }
-
+    
+    /// <summary>
+    /// Gets all ammo components compatible with the specified weapon
+    /// </summary>
+    /// <param name="weapon">The weapon to find ammo for</param>
+    /// <returns>A collection of ammo components that can be used by the weapon</returns>
+    public IEnumerable<Ammo> GetAmmoForWeapon(Weapon weapon)
+    {
+        if (!weapon.RequiresAmmo)
+            return [];
+            
+        return GetAllComponents<Ammo>()
+            .Where(a => a.Type == weapon.AmmoType && !a.IsDestroyed);
+    }
+    
+    /// <summary>
+    /// Gets the total number of remaining shots for a specific weapon
+    /// </summary>
+    /// <param name="weapon">The weapon to check ammo for</param>
+    /// <returns>The total number of remaining shots, or -1 if the weapon doesn't require ammo</returns>
+    public int GetRemainingAmmoShots(Weapon weapon)
+    {
+        if (!weapon.RequiresAmmo)
+            return -1;
+            
+        return GetAmmoForWeapon(weapon).Sum(a => a.RemainingShots);
+    }
+    
     /// <summary>
     /// Gets all components at a specific location
     /// </summary>
