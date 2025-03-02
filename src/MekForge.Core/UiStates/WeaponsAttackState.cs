@@ -327,7 +327,8 @@ public class WeaponsAttackState : IUiState
                 isEnabled: false,
                 target: null,
                 onSelectionChanged: HandleWeaponSelection,
-                localizationService: _viewModel.LocalizationService
+                localizationService: _viewModel.LocalizationService,
+                remainingAmmoShots: Attacker.GetRemainingAmmoShots(w)
             )));
             
         // Update the view model's collection

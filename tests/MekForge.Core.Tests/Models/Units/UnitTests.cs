@@ -13,8 +13,8 @@ public class UnitTests
     
     private class TestWeapon : Weapon
     {
-        public TestWeapon(string name, int[] slots) : base(
-            name, 5, 3, 0, 3, 6, 9, WeaponType.Energy, 10, slots.Length)
+        public TestWeapon(string name, int[] slots, WeaponType type = WeaponType.Energy, AmmoType ammoType = AmmoType.None) : base(
+            name, 5, 3, 0, 3, 6, 9, type, 10, slots.Length, 1,ammoType)
         {
             Mount(slots, null!); // Will be properly mounted later
         }
@@ -416,6 +416,115 @@ public class UnitTests
         weapon2.Target.ShouldBeNull();
         
         attacker.HasDeclaredWeaponAttack.ShouldBeTrue();
+    }
+    
+    [Fact]
+    public void GetComponentsAtLocation_ReturnsEmptyCollection_WhenLocationNotFound()
+    {
+        // Arrange
+        var testUnit = CreateTestUnit();
+
+        // Act
+        var components = testUnit.GetComponentsAtLocation(PartLocation.Head);
+
+        // Assert
+        components.ShouldBeEmpty();
+    }
+    
+    [Fact]
+    public void GetAmmoForWeapon_ReturnsEmptyCollection_WhenWeaponDoesNotRequireAmmo()
+    {
+        // Arrange
+        var testUnit = CreateTestUnit();
+        var energyWeapon = new TestWeapon("Energy Weapon", [0, 1], WeaponType.Energy, AmmoType.None);
+        
+        // Act
+        var ammo = testUnit.GetAmmoForWeapon(energyWeapon);
+        
+        // Assert
+        ammo.ShouldBeEmpty();
+    }
+    
+    [Fact]
+    public void GetAmmoForWeapon_ReturnsMatchingAmmo_WhenWeaponRequiresAmmo()
+    {
+        // Arrange
+        var centerTorso = new TestUnitPart("Center Torso", PartLocation.CenterTorso, 10, 5, 10);
+        var leftTorso = new TestUnitPart("Left Torso", PartLocation.LeftTorso, 10, 5, 10);
+        var testUnit = new TestUnit("Test", "Unit", 20, 4, [centerTorso, leftTorso]);
+        
+        var ac5Weapon = new TestWeapon("AC/5", [0, 1], WeaponType.Ballistic, AmmoType.AC5);
+        var ac5Ammo1 = new Ammo(AmmoType.AC5, 20);
+        var ac5Ammo2 = new Ammo(AmmoType.AC5, 20);
+        var lrm5Ammo = new Ammo(AmmoType.LRM5, 24);
+        
+        centerTorso.TryAddComponent(ac5Weapon);
+        centerTorso.TryAddComponent(ac5Ammo1);
+        leftTorso.TryAddComponent(ac5Ammo2);
+        leftTorso.TryAddComponent(lrm5Ammo);
+        
+        // Act
+        var ammo = testUnit.GetAmmoForWeapon(ac5Weapon).ToList();
+        
+        // Assert
+        ammo.Count.ShouldBe(2);
+        ammo.ShouldContain(ac5Ammo1);
+        ammo.ShouldContain(ac5Ammo2);
+        ammo.ShouldNotContain(lrm5Ammo);
+    }
+    
+    [Fact]
+    public void GetRemainingAmmoShots_ReturnsNegativeOne_WhenWeaponDoesNotRequireAmmo()
+    {
+        // Arrange
+        var testUnit = CreateTestUnit();
+        var energyWeapon = new TestWeapon("Energy Weapon", [0, 1], WeaponType.Energy, AmmoType.None);
+        
+        // Act
+        var remainingShots = testUnit.GetRemainingAmmoShots(energyWeapon);
+        
+        // Assert
+        remainingShots.ShouldBe(-1);
+    }
+    
+    [Fact]
+    public void GetRemainingAmmoShots_ReturnsSumOfAmmo_WhenWeaponRequiresAmmo()
+    {
+        // Arrange
+        var centerTorso = new TestUnitPart("Center Torso", PartLocation.CenterTorso, 10, 5, 10);
+        var leftTorso = new TestUnitPart("Left Torso", PartLocation.LeftTorso, 10, 5, 10);
+        var testUnit = new TestUnit("Test", "Unit", 20, 4, [centerTorso, leftTorso]);
+        
+        var ac5Weapon = new TestWeapon("AC/5", [0, 1], WeaponType.Ballistic, AmmoType.AC5);
+        var ac5Ammo1 = new Ammo(AmmoType.AC5, 20);
+        var ac5Ammo2 = new Ammo(AmmoType.AC5, 15);
+        
+        centerTorso.TryAddComponent(ac5Weapon);
+        centerTorso.TryAddComponent(ac5Ammo1);
+        leftTorso.TryAddComponent(ac5Ammo2);
+        
+        // Act
+        var remainingShots = testUnit.GetRemainingAmmoShots(ac5Weapon);
+        
+        // Assert
+        remainingShots.ShouldBe(35); // 20 + 15
+    }
+    
+    [Fact]
+    public void GetRemainingAmmoShots_ReturnsZero_WhenNoAmmoAvailable()
+    {
+        // Arrange
+        var centerTorso = new TestUnitPart("Center Torso", PartLocation.CenterTorso, 10, 5, 10);
+        var testUnit = new TestUnit("Test", "Unit", 20, 4, [centerTorso]);
+        
+        var ac5Weapon = new TestWeapon("AC/5", [0, 1], WeaponType.Ballistic, AmmoType.AC5);
+        centerTorso.TryAddComponent(ac5Weapon);
+        
+        // Act
+        var remainingShots = testUnit.GetRemainingAmmoShots(ac5Weapon);
+        
+        // Assert
+        remainingShots.ShouldBe(0);
     }
     
     // Helper class for testing generic methods
