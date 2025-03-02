@@ -78,14 +78,14 @@ public class WeaponSelectionViewModel : BindableBase
             SetProperty(ref _modifiersBreakdown, value);
             NotifyPropertyChanged(nameof(HitProbability));
             NotifyPropertyChanged(nameof(HitProbabilityText));
-            NotifyPropertyChanged(nameof(ModifiersDescription));
+            NotifyPropertyChanged(nameof(AttackPossibilityDescription));
         }
     }
     
     /// <summary>
     /// Gets the hit probability as a value between 0 and 100
     /// </summary>
-    public double HitProbability => 
+    public double HitProbability => !_isEnabled ? 0 :
         ModifiersBreakdown is { HasLineOfSight: true, Total: <= 12 }
             ? DiceUtils.Calculate2d6Probability(ModifiersBreakdown.Total)
             : 0;
@@ -93,21 +93,33 @@ public class WeaponSelectionViewModel : BindableBase
     /// <summary>
     /// Gets the formatted hit probability string for display
     /// </summary>
-    public string HitProbabilityText => HitProbability <= 0 ? "N/A" : $"{HitProbability:F0}%";
+    public string HitProbabilityText => HitProbability <= 0 ? "-" : $"{HitProbability:F0}%";
     
     /// <summary>
-    /// Gets a formatted string with the modifier breakdown details
+    /// Gets a formatted string describing why an attack is possible or not possible,
+    /// including modifiers breakdown, range issues, or targeting issues
     /// </summary>
-    public string ModifiersDescription
+    public string AttackPossibilityDescription
     {
         get
         {
+            // Check if weapon is in range
+            if (!IsInRange)
+                return _localizationService.GetString("Attack_OutOfRange");
+                
+            // Check if weapon is targetting different target
+            if (!IsEnabled && Target != null)
+                return string.Format(_localizationService.GetString("Attack_TArgetting"),Target.Name);
+            
+            // Check if we have modifiers breakdown
             if (ModifiersBreakdown == null)
-                return string.Empty;
+                return _localizationService.GetString("Attack_NoModifiersCalculated");
 
+            // Check line of sight
             if (!ModifiersBreakdown.HasLineOfSight)
                 return _localizationService.GetString("Attack_NoLineOfSight");
             
+            // If we get here, show the modifiers breakdown
             var lines = new List<string>
             {
                 $"{_localizationService.GetString("Attack_TargetNumber")}: {ModifiersBreakdown.Total}"

@@ -85,8 +85,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="wrappers:WeaponSelectionViewModel">
                                 <Grid ColumnDefinitions="Auto,*,Auto,Auto"
-                                      RowDefinitions="*,*,*"
-                                      IsEnabled="{Binding IsEnabled}">
+                                      RowDefinitions="*,*,*">
                                     <CheckBox 
                                         Grid.Row="0"
                                         Grid.Column="0"
@@ -126,7 +125,7 @@
                                         Grid.RowSpan="3"
                                         VerticalAlignment="Center"
                                         Margin="2,0,0,0" 
-                                            IsVisible="{Binding ModifiersDescription, Converter={StaticResource StringNotEmptyToBoolConverter}}"
+                                            IsVisible="{Binding AttackPossibilityDescription, Converter={StaticResource StringNotEmptyToBoolConverter}}"
                                             Background="Transparent" 
                                             BorderThickness="0">
                                         <Button.Content>
@@ -134,17 +133,17 @@
                                         </Button.Content>
                                         <Button.Flyout>
                                             <Flyout Placement="TopEdgeAlignedRight">
-                                                <TextBlock Text="{Binding ModifiersDescription}" 
+                                                <TextBlock Text="{Binding AttackPossibilityDescription}" 
                                                            TextWrapping="Wrap" 
                                                            MaxWidth="300"/>
                                             </Flyout>
                                         </Button.Flyout>
                                     </Button>
-                                        <TextBlock Grid.Row="2"
-                                                   Grid.Column="1"
-                                                   Text="{Binding Target.Name}"
-                                                 Foreground="Gray"
-                                                 FontStyle="Italic"/>
+                                    <TextBlock Grid.Row="2"
+                                               Grid.Column="1"
+                                               Text="{Binding Target.Name}"
+                                             Foreground="Gray"
+                                             FontStyle="Italic"/>
                                     
                                 </Grid>
                             </DataTemplate>

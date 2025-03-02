@@ -228,7 +228,7 @@ public class WeaponSelectionViewModelTests
         
         // Act & Assert - Zero probability
         _sut.ModifiersBreakdown = CreateTestBreakdown(13,false);
-        _sut.HitProbabilityText.ShouldBe("N/A");
+        _sut.HitProbabilityText.ShouldBe("-");
     }
     
     [Fact]
@@ -264,7 +264,7 @@ public class WeaponSelectionViewModelTests
     }
     
     [Fact]
-    public void ModifiersDescription_FormatsCorrectly()
+    public void AttackPossibilityDescription_FormatsCorrectly()
     {
         // Arrange
         CreateSut();
@@ -275,7 +275,7 @@ public class WeaponSelectionViewModelTests
         _sut.ModifiersBreakdown = breakdown;
         
         // Assert
-        var description = _sut.ModifiersDescription;
+        var description = _sut.AttackPossibilityDescription;
         description.ShouldContain("Target Number: 8");
         
         // The Format method of each modifier should be called
@@ -286,7 +286,7 @@ public class WeaponSelectionViewModelTests
     }
     
     [Fact]
-    public void ModifiersDescription_HandlesNoLineOfSight()
+    public void AttackPossibilityDescription_HandlesNoLineOfSight()
     {
         // Arrange
         CreateSut();
@@ -297,12 +297,12 @@ public class WeaponSelectionViewModelTests
         _sut.ModifiersBreakdown = breakdown;
         
         // Assert
-        _sut.ModifiersDescription.ShouldBe("No Line Of Sight");
+        _sut.AttackPossibilityDescription.ShouldBe("No Line Of Sight");
         _localizationService.Received().GetString("Attack_NoLineOfSight");
     }
     
     [Fact]
-    public void ModifiersDescription_HandlesNullBreakdown()
+    public void AttackPossibilityDescription_HandlesNullBreakdown()
     {
         // Arrange
         CreateSut();
@@ -311,7 +311,7 @@ public class WeaponSelectionViewModelTests
         _sut.ModifiersBreakdown = null;
         
         // Assert
-        _sut.ModifiersDescription.ShouldBe(string.Empty);
+        _sut.AttackPossibilityDescription.ShouldBe(string.Empty);
     }
 
     private void CreateSut(
