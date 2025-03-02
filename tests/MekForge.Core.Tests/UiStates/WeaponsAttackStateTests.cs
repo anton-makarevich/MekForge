@@ -945,7 +945,7 @@ public class WeaponsAttackStateTests
             // All weapons should be out of range
             item.IsInRange.ShouldBeFalse();
             item.HitProbability.ShouldBeEquivalentTo(0.0);
-            item.HitProbabilityText.ShouldBe("N/A");
+            item.HitProbabilityText.ShouldBe("-");
         }
     }
 
