@@ -65,20 +65,32 @@
             IsVisible="{Binding IsWeaponSelectionVisible}"
             Title="Select weapons to attack"
             CloseCommand="{Binding CloseWeaponSelectionCommand}"
-            HorizontalAlignment="Center"
+            HorizontalAlignment="Right"
             VerticalAlignment="Center">
-            <Grid RowDefinitions="Auto,*"
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,*"
+                  ColumnDefinitions="Auto,*"
                   Width="300">
-                <StackPanel Grid.Row="0" 
-                          Margin="10"
-                          Spacing="5">
-                    <TextBlock Text="Target:" FontWeight="Bold"/>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding SelectedUnit.Name}"/>
-                        <TextBlock Text="{Binding SelectedUnit.Position.Value.Coordinates}"/>
-                    </StackPanel>
-                </StackPanel>
-                <ScrollViewer Grid.Row="1">
+                <TextBlock 
+                    Margin="10,0,0,0"
+                    Grid.Column="0"
+                    Grid.Row="0"
+                    FontFamily="{StaticResource AwesomeFontSolid}" Text="&#xe19b;"/>
+                <TextBlock
+                    Margin="10,0,0,0"
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Text="{Binding Attacker.Name}"/>
+                <TextBlock 
+                        Margin="10,0,0,0"
+                        Grid.Column="0"
+                        Grid.Row="1"
+                        FontFamily="{StaticResource AwesomeFontSolid}" Text="&#xf05b;"/>
+                <TextBlock
+                        Margin="10,0,0,0"
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Text="{Binding SelectedUnit.Name}"/>
+                <ScrollViewer Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2">
                     <ItemsControl 
                         Margin="10"
                         ItemsSource="{Binding WeaponSelectionItems}">
