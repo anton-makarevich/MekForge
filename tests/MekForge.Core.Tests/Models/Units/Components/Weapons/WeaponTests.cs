@@ -53,7 +53,6 @@ public class WeaponTests
         weapon.Target = mockUnit;
         
         // Assert
-        weapon.Target.ShouldNotBeNull();
         weapon.Target.ShouldBe(mockUnit);
     }
     
@@ -73,21 +72,42 @@ public class WeaponTests
     }
     
     [Fact]
-    public void Target_ShouldBeReassignable()
+    public void Target_CanBeChanged()
     {
         // Arrange
         var weapon = new LRM5();
         var mockUnit1 = new MockUnit();
         var mockUnit2 = new MockUnit();
-        weapon.Target = mockUnit1;
         
         // Act
+        weapon.Target = mockUnit1;
         weapon.Target = mockUnit2;
         
         // Assert
-        weapon.Target.ShouldNotBeNull();
         weapon.Target.ShouldBe(mockUnit2);
         weapon.Target.ShouldNotBe(mockUnit1);
+    }
+    
+    [Theory]
+    [InlineData(WeaponType.Energy, AmmoType.None, false)]
+    [InlineData(WeaponType.Ballistic, AmmoType.AC5, true)]
+    [InlineData(WeaponType.Missile, AmmoType.LRM5, true)]
+    [InlineData(WeaponType.Energy, AmmoType.AC5, true)] // Edge case: Energy weapon with ammo type
+    public void RequiresAmmo_ReturnsCorrectValue(WeaponType weaponType, AmmoType ammoType, bool expected)
+    {
+        // Arrange
+        var weapon = new TestWeapon(weaponType, ammoType);
+        
+        // Act & Assert
+        weapon.RequiresAmmo.ShouldBe(expected);
+    }
+    
+    private class TestWeapon : Weapon
+    {
+        public TestWeapon(WeaponType type, AmmoType ammoType) : base(
+            "Test Weapon", 5, 3, 0, 3, 6, 9, type, 10, 1, 1, ammoType)
+        {
+        }
     }
     
     private class MockUnit : Unit

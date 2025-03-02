@@ -106,6 +106,145 @@ public class WeaponSelectionViewModelTests
     }
 
     [Fact]
+    public void Ammo_ReturnsEmptyString_WhenWeaponDoesNotRequireAmmo()
+    {
+        // Arrange
+        CreateSut();
+
+        // Act & Assert
+        _sut.Ammo.ShouldBeEmpty();
+    }
+
+    [Theory]
+    [InlineData(10)]
+    [InlineData(0)]
+    public void Ammo_ReturnsFormattedString_WhenWeaponRequiresAmmo(int remainingShots)
+    {
+        // Arrange
+        var ballisticWeapon = new TestBallisticWeapon();
+        _sut = new WeaponSelectionViewModel(
+            ballisticWeapon,
+            true,
+            false,
+            true,
+            null,
+            (w, s) => _selectionChangedAction?.Invoke(w, s),
+            _localizationService,
+            remainingShots);
+
+        // Act & Assert
+        _sut.Ammo.ShouldBe(remainingShots.ToString());
+    }
+
+    [Fact]
+    public void RequiresAmmo_ReturnsFalse_ForEnergyWeapons()
+    {
+        // Arrange
+        CreateSut();
+
+        // Act & Assert
+        _sut.RequiresAmmo.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void RequiresAmmo_ReturnsTrue_ForBallisticWeapons()
+    {
+        // Arrange
+        var ballisticWeapon = new TestBallisticWeapon();
+        _sut = new WeaponSelectionViewModel(
+            ballisticWeapon,
+            true,
+            false,
+            true,
+            null,
+            (w, s) => _selectionChangedAction?.Invoke(w, s),
+            _localizationService);
+
+        // Act & Assert
+        _sut.RequiresAmmo.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void HasSufficientAmmo_ReturnsTrue_WhenWeaponDoesNotRequireAmmo()
+    {
+        // Arrange
+        CreateSut();
+
+        // Act & Assert
+        _sut.HasSufficientAmmo.ShouldBeTrue();
+    }
+
+    [Theory]
+    [InlineData(10, true)]
+    [InlineData(1, true)]
+    [InlineData(0, false)]
+    [InlineData(-1, false)]
+    public void HasSufficientAmmo_ReturnsExpectedValue_BasedOnRemainingShots(int remainingShots, bool expected)
+    {
+        // Arrange
+        var ballisticWeapon = new TestBallisticWeapon();
+        _sut = new WeaponSelectionViewModel(
+            ballisticWeapon,
+            true,
+            false,
+            true,
+            null,
+            (w, s) => _selectionChangedAction?.Invoke(w, s),
+            _localizationService,
+            remainingShots);
+
+        // Act & Assert
+        _sut.HasSufficientAmmo.ShouldBe(expected);
+    }
+
+    [Fact]
+    public void IsEnabled_ReturnsFalse_WhenNoAmmoAvailable()
+    {
+        // Arrange
+        var ballisticWeapon = new TestBallisticWeapon();
+        _sut = new WeaponSelectionViewModel(
+            ballisticWeapon,
+            true,
+            false,
+            true,
+            null,
+            (w, s) => _selectionChangedAction?.Invoke(w, s),
+            _localizationService,
+            0);
+        
+        // Set a valid hit probability
+        _sut.ModifiersBreakdown = CreateTestBreakdown(5);
+
+        // Act & Assert
+        _sut.IsEnabled.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void AttackPossibilityDescription_ReturnsNoAmmoMessage_WhenWeaponRequiresAmmoButHasNone()
+    {
+        // Arrange
+        var ballisticWeapon = new TestBallisticWeapon();
+        _localizationService.GetString("Attack_NoAmmo").Returns("No ammunition");
+        
+        _sut = new WeaponSelectionViewModel(
+            ballisticWeapon,
+            true,
+            false,
+            true,
+            null,
+            (w, s) => _selectionChangedAction?.Invoke(w, s),
+            _localizationService,
+            0);
+
+        // Act
+        var result = _sut.AttackPossibilityDescription;
+
+        // Assert
+        result.ShouldBe("No ammunition");
+        _localizationService.Received().GetString("Attack_NoAmmo");
+    }
+
+    [Fact]
     public void IsSelected_WhenDisabled_CannotBeSetToTrue()
     {
         // Arrange
@@ -387,5 +526,13 @@ public class WeaponSelectionViewModelTests
             TerrainModifiers = [],
             HasLineOfSight = hasLineOfSight
         };
+    }
+
+    private class TestBallisticWeapon : Weapon
+    {
+        public TestBallisticWeapon() : base(
+            "AC/5", 5, 1, 0, 3, 6, 9, WeaponType.Ballistic, 10, 1, 1, AmmoType.AC5)
+        {
+        }
     }
 }
