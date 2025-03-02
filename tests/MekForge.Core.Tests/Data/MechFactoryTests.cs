@@ -57,6 +57,7 @@ public class MechFactoryTests
             LocationEquipment = new Dictionary<PartLocation, List<MekForgeComponent>>
             {
                 { PartLocation.LeftArm, [MekForgeComponent.MachineGun] },
+                { PartLocation.RightLeg, [MekForgeComponent.ISAmmoMG] },
                 { PartLocation.CenterTorso, [MekForgeComponent.Engine] },
                 { PartLocation.RightArm, [MekForgeComponent.UpperArmActuator, MekForgeComponent.MediumLaser] }
             },
