@@ -306,12 +306,51 @@ public class WeaponSelectionViewModelTests
     {
         // Arrange
         CreateSut();
+        _localizationService.GetString("Attack_NoModifiersCalculated").Returns("No modifiers calculated");
         
         // Act
         _sut.ModifiersBreakdown = null;
         
         // Assert
-        _sut.AttackPossibilityDescription.ShouldBe(string.Empty);
+        _sut.AttackPossibilityDescription.ShouldBe("No modifiers calculated");
+        _localizationService.Received().GetString("Attack_NoModifiersCalculated");
+    }
+    
+    [Fact]
+    public void AttackPossibilityDescription_HandlesOutOfRange()
+    {
+        // Arrange
+        CreateSut(isInRange: false);
+        _localizationService.GetString("Attack_OutOfRange").Returns("Target out of range");
+        
+        // Act & Assert
+        _sut.AttackPossibilityDescription.ShouldBe("Target out of range");
+        _localizationService.Received().GetString("Attack_OutOfRange");
+    }
+    
+    [Fact]
+    public void AttackPossibilityDescription_HandlesTargetingDifferentTarget()
+    {
+        // Arrange
+        CreateSut(isEnabled: false, target: _target);
+        _localizationService.GetString("Attack_Targeting").Returns("Already targeting {0}");
+        
+        // Act & Assert
+        _sut.AttackPossibilityDescription.ShouldBe("Already targeting Locust LCT-1V");
+        _localizationService.Received().GetString("Attack_Targeting");
+    }
+    
+    [Fact]
+    public void HitProbability_ReturnsZeroWhenDisabled()
+    {
+        // Arrange
+        CreateSut(isEnabled: false);
+        
+        // Set a valid breakdown that would normally give a positive hit probability
+        _sut.ModifiersBreakdown = CreateTestBreakdown(6);
+        
+        // Act & Assert
+        _sut.HitProbability.ShouldBe(0);
     }
 
     private void CreateSut(

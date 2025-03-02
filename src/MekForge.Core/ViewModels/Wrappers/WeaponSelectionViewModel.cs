@@ -109,7 +109,7 @@ public class WeaponSelectionViewModel : BindableBase
                 
             // Check if weapon is targetting different target
             if (!IsEnabled && Target != null)
-                return string.Format(_localizationService.GetString("Attack_TArgetting"),Target.Name);
+                return string.Format(_localizationService.GetString("Attack_Targeting"),Target.Name);
             
             // Check if we have modifiers breakdown
             if (ModifiersBreakdown == null)
