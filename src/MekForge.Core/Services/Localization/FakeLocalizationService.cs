@@ -57,6 +57,13 @@ public class FakeLocalizationService: ILocalizationService
             "Action_SelectMovementType" => "Select movement type",
             "Action_SelectTargetHex" => "Select target hex",
             "Action_SelectFacingDirection" => "Select facing direction",
+            "Action_StandStill" => "Stand Still",
+            "Action_MovementPoints" => "{0} | MP: {1}",
+            
+            // Movement types
+            "MovementType_Walk" => "Walk",
+            "MovementType_Run" => "Run",
+            "MovementType_Jump" => "Jump",
             
             _ => key
         };
