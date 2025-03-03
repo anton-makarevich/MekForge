@@ -190,12 +190,18 @@ public class WeaponsAttackState : IUiState
                     CurrentStep = WeaponsAttackStep.TargetSelection;
                     _viewModel.NotifyStateChanged();
                 }));
+                
+            // Add skip attack action
+            actions.Add(new StateAction(
+                "Skip Attack",
+                true,
+                ConfirmWeaponSelections));
         }
-        else if (CurrentStep == WeaponsAttackStep.TargetSelection && _weaponTargets.Count > 0)
+        else if (CurrentStep == WeaponsAttackStep.TargetSelection)
         {
             // Add confirm weapon selections action
             actions.Add(new StateAction(
-                $"Declare attack",
+                _weaponTargets.Count > 0 ?"Declare Attack": "Skip Attack",
                 true,
                 ConfirmWeaponSelections));
         }
@@ -451,29 +457,33 @@ public class WeaponsAttackState : IUiState
 
     public void ConfirmWeaponSelections()
     {
-        if (Attacker == null || _weaponTargets.Count == 0 || PrimaryTarget == null)
+        if (Attacker == null)
             return;
         
         // Create weapon target data list
         var weaponTargetsData = new List<WeaponTargetData>();
         
-        foreach (var weaponTarget in _weaponTargets)
+        // Only process weapon targets if there are any (otherwise this is a Skip Attack)
+        if (_weaponTargets.Count > 0)
         {
-            var weapon = weaponTarget.Key;
-            var target = weaponTarget.Value;
-            var isPrimaryTarget = target == PrimaryTarget;
-            
-            weaponTargetsData.Add(new WeaponTargetData
+            foreach (var weaponTarget in _weaponTargets)
             {
-                Weapon = new WeaponData
+                var weapon = weaponTarget.Key;
+                var target = weaponTarget.Value;
+                var isPrimaryTarget = target == PrimaryTarget;
+                
+                weaponTargetsData.Add(new WeaponTargetData
                 {
-                    Name = weapon.Name,
-                    Location = weapon.MountedOn?.Location ?? throw new Exception("Weapon is not mounted"),
-                    Slots = weapon.MountedAtSlots
-                },
-                TargetId = target.Id,
-                IsPrimaryTarget = isPrimaryTarget
-            });
+                    Weapon = new WeaponData
+                    {
+                        Name = weapon.Name,
+                        Location = weapon.MountedOn?.Location ?? throw new Exception("Weapon is not mounted"),
+                        Slots = weapon.MountedAtSlots
+                    },
+                    TargetId = target.Id,
+                    IsPrimaryTarget = isPrimaryTarget
+                });
+            }
         }
         
         // Create and send the command
