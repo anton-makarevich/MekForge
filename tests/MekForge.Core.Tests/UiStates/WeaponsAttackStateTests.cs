@@ -381,9 +381,10 @@ public class WeaponsAttackStateTests
         var actions = _state.GetAvailableActions().ToList();
 
         // Assert
-        actions.Count.ShouldBe(2);
+        actions.Count.ShouldBe(3); // Turn Torso, Select Target, Skip Attack
         actions[0].Label.ShouldBe("Turn Torso");
         actions[1].Label.ShouldBe("Select Target");
+        actions[2].Label.ShouldBe("Skip Attack");
     }
 
     [Fact]
@@ -1117,13 +1118,13 @@ public class WeaponsAttackStateTests
         });
         
         // Select attacker
-        _state.HandleHexSelection(_game.BattleMap.GetHex(attackerPosition.Coordinates)!);
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == attackerPosition.Coordinates));
         _state.HandleUnitSelection(attacker);
         
         // Select target
         var selectTargetAction = _state.GetAvailableActions().First(a => a.Label == "Select Target");
         selectTargetAction.OnExecute();
-        _state.HandleHexSelection(_game.BattleMap.GetHex(targetPosition.Coordinates)!);
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == targetPosition.Coordinates));
         _state.HandleUnitSelection(target);
         
         // Select a weapon
@@ -1145,45 +1146,6 @@ public class WeaponsAttackStateTests
         ));
     }
     
-    [Fact]
-    public void ConfirmWeaponSelections_DoesNotPublishCommand_WhenNoWeaponsSelected()
-    {
-        // Arrange
-        var attackingPlayer = _game.Players[0];
-        var targetPlayer = _game.Players[1];
-        var attacker = _viewModel.Units.First(u => u.Owner!.Id == attackingPlayer.Id);
-        var target = _viewModel.Units.First(u => u.Owner!.Id == targetPlayer.Id);
-        
-        // Deploy units
-        var attackerPosition = new HexPosition(new HexCoordinates(5, 5), HexDirection.Top);
-        var targetPosition = new HexPosition(new HexCoordinates(5, 4), HexDirection.Bottom);
-        attacker.Deploy(attackerPosition);
-        target.Deploy(targetPosition);
-        
-        // Set active player
-        _game.HandleCommand(new ChangeActivePlayerCommand
-        {
-            GameOriginId = Guid.NewGuid(),
-            PlayerId = attackingPlayer.Id,
-            UnitsToPlay = 1
-        });
-        
-        // Select attacker
-        _state.HandleHexSelection(_game.BattleMap.GetHex(attackerPosition.Coordinates)!);
-        _state.HandleUnitSelection(attacker);
-        
-        // Select target but don't select any weapons
-        var selectTargetAction = _state.GetAvailableActions().First(a => a.Label == "Select Target");
-        selectTargetAction.OnExecute();
-        _state.HandleHexSelection(_game.BattleMap.GetHex(targetPosition.Coordinates)!);
-        _state.HandleUnitSelection(target);
-        
-        // Act
-        _state.ConfirmWeaponSelections();
-        
-        // Assert
-        _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<WeaponAttackDeclarationCommand>());
-    }
     
     [Fact]
     public void GetAvailableActions_IncludesConfirmWeaponSelectionsAction_WhenWeaponsAreSelected()
@@ -1220,7 +1182,7 @@ public class WeaponsAttackStateTests
         var actions = _state.GetAvailableActions().ToList();
         
         // Assert
-        actions.ShouldContain(a => a.Label == "Declare attack");
+        actions.ShouldContain(a => a.Label == "Declare Attack");
     }
     
     [Fact]
@@ -1254,5 +1216,58 @@ public class WeaponsAttackStateTests
         
         // Assert
         actions.ShouldNotContain(a => a.Label == "Declare attack");
+    }
+
+    [Fact]
+    public void GetAvailableActions_InActionSelection_IncludesSkipAttackOption()
+    {
+        // Arrange
+        _state.HandleUnitSelection(_unit1);
+
+        // Act
+        var actions = _state.GetAvailableActions().ToList();
+
+        // Assert
+        actions.Count.ShouldBe(3); // Turn Torso, Select Target, Skip Attack
+        actions[0].Label.ShouldBe("Turn Torso");
+        actions[1].Label.ShouldBe("Select Target");
+        actions[2].Label.ShouldBe("Skip Attack");
+    }
+
+    [Fact]
+    public void ConfirmWeaponSelections_PublishesEmptyWeaponAttackDeclarationCommand_WhenSkippingAttack()
+    {
+        // Arrange
+        var attackingPlayer = _game.Players[0];
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == attackingPlayer.Id);
+        
+        // Deploy unit
+        var attackerPosition = new HexPosition(new HexCoordinates(5, 5), HexDirection.Top);
+        attacker.Deploy(attackerPosition);
+        
+        // Set active player
+        _game.HandleCommand(new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = attackingPlayer.Id,
+            UnitsToPlay = 1
+        });
+        
+        // Select attacker
+        _state.HandleHexSelection(_game.BattleMap.GetHexes().First(h => h.Coordinates == attackerPosition.Coordinates));
+        _state.HandleUnitSelection(attacker);
+        
+        // Get the Skip Attack action
+        var skipAttackAction = _state.GetAvailableActions().First(a => a.Label == "Skip Attack");
+        
+        // Act
+        skipAttackAction.OnExecute();
+        
+        // Assert
+        _commandPublisher.Received(1).PublishCommand(Arg.Is<WeaponAttackDeclarationCommand>(cmd => 
+            cmd.PlayerId == attackingPlayer.Id &&
+            cmd.AttackerId == attacker.Id &&
+            cmd.WeaponTargets.Count == 0
+        ));
     }
 }

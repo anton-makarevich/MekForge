@@ -197,11 +197,11 @@ public class WeaponsAttackState : IUiState
                 true,
                 ConfirmWeaponSelections));
         }
-        else if (CurrentStep == WeaponsAttackStep.TargetSelection && _weaponTargets.Count > 0)
+        else if (CurrentStep == WeaponsAttackStep.TargetSelection)
         {
             // Add confirm weapon selections action
             actions.Add(new StateAction(
-                "Declare Attack",
+                _weaponTargets.Count > 0 ?"Declare Attack": "Skip Attack",
                 true,
                 ConfirmWeaponSelections));
         }
