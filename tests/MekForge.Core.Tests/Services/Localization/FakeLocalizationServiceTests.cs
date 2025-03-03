@@ -47,6 +47,11 @@ public class FakeLocalizationServiceTests
     [InlineData("Action_SelectTarget", "Select Target")]
     [InlineData("Action_SkipAttack", "Skip Attack")]
     [InlineData("Action_DeclareAttack", "Declare Attack")]
+    // Movement actions
+    [InlineData("Action_SelectUnitToMove", "Select unit to move")]
+    [InlineData("Action_SelectMovementType", "Select movement type")]
+    [InlineData("Action_SelectTargetHex", "Select target hex")]
+    [InlineData("Action_SelectFacingDirection", "Select facing direction")]
     [InlineData("Key_Not_Found", "Key_Not_Found")]
     public void GetString_ShouldReturnCorrectString(string key, string? expectedValue)
     {

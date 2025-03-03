@@ -36,6 +36,13 @@ public class MovementStateTests
     {
         var imageService = Substitute.For<IImageService>();
         var localizationService = Substitute.For<ILocalizationService>();
+        
+        // Mock localization service responses
+        localizationService.GetString("Action_SelectUnitToMove").Returns("Select unit to move");
+        localizationService.GetString("Action_SelectMovementType").Returns("Select movement type");
+        localizationService.GetString("Action_SelectTargetHex").Returns("Select target hex");
+        localizationService.GetString("Action_SelectFacingDirection").Returns("Select facing direction");
+        
         _viewModel = new BattleMapViewModel(imageService, localizationService);
         var playerId = Guid.NewGuid();
         

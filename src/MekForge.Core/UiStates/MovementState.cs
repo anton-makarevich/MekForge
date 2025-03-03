@@ -283,23 +283,14 @@ public class MovementState : IUiState
         _viewModel.NotifyStateChanged();
     }
 
-    public string ActionLabel
+    public string ActionLabel => !IsActionRequired? string.Empty : CurrentMovementStep switch
     {
-        get
-        {
-            if (!IsActionRequired)
-                return string.Empty;
-
-            return CurrentMovementStep switch
-            {
-                MovementStep.SelectingUnit => "Select unit to move",
-                MovementStep.SelectingMovementType => "Select movement type",
-                MovementStep.SelectingTargetHex => "Select target hex",
-                MovementStep.SelectingDirection => "Select facing direction",
-                _ => string.Empty
-            };
-        }
-    }
+        MovementStep.SelectingUnit => _viewModel.LocalizationService.GetString("Action_SelectUnitToMove"),
+        MovementStep.SelectingMovementType => _viewModel.LocalizationService.GetString("Action_SelectMovementType"),
+        MovementStep.SelectingTargetHex => _viewModel.LocalizationService.GetString("Action_SelectTargetHex"),
+        MovementStep.SelectingDirection => _viewModel.LocalizationService.GetString("Action_SelectFacingDirection"),
+        _ => string.Empty
+    };
 
     public bool IsActionRequired => CurrentMovementStep != MovementStep.Completed;
     

@@ -52,6 +52,12 @@ public class FakeLocalizationService: ILocalizationService
             "Action_SkipAttack" => "Skip Attack",
             "Action_DeclareAttack" => "Declare Attack",
             
+            // Movement actions
+            "Action_SelectUnitToMove" => "Select unit to move",
+            "Action_SelectMovementType" => "Select movement type",
+            "Action_SelectTargetHex" => "Select target hex",
+            "Action_SelectFacingDirection" => "Select facing direction",
+            
             _ => key
         };
     }
