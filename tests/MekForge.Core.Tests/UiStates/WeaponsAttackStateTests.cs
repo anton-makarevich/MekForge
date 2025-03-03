@@ -41,6 +41,16 @@ public class WeaponsAttackStateTests
     {
         var imageService = Substitute.For<IImageService>();
         var localizationService = Substitute.For<ILocalizationService>();
+        
+        // Mock localization service responses
+        localizationService.GetString("Action_SelectUnitToFire").Returns("Select unit to fire weapons");
+        localizationService.GetString("Action_SelectAction").Returns("Select action");
+        localizationService.GetString("Action_ConfigureWeapons").Returns("Configure weapons");
+        localizationService.GetString("Action_SelectTarget").Returns("Select Target");
+        localizationService.GetString("Action_TurnTorso").Returns("Turn Torso");
+        localizationService.GetString("Action_SkipAttack").Returns("Skip Attack");
+        localizationService.GetString("Action_DeclareAttack").Returns("Declare Attack");
+        
         _viewModel = new BattleMapViewModel(imageService, localizationService);
         var playerId = Guid.NewGuid();
 
@@ -417,7 +427,7 @@ public class WeaponsAttackStateTests
 
         // Assert
         _state.CurrentStep.ShouldBe(WeaponsAttackStep.TargetSelection);
-        _state.ActionLabel.ShouldBe("Select target");
+        _state.ActionLabel.ShouldBe("Select Target");
     }
 
     [Fact]

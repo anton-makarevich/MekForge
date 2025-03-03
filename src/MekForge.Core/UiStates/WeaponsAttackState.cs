@@ -183,7 +183,7 @@ public class WeaponsAttackState : IUiState
 
             // Add target selection action
             actions.Add(new StateAction(
-                _viewModel.LocalizationService.GetString("Action_SelectTarget_Button"),
+                _viewModel.LocalizationService.GetString("Action_SelectTarget"),
                 true,
                 () => 
                 {

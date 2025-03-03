@@ -39,6 +39,14 @@ public class FakeLocalizationServiceTests
     // Secondary target modifiers
     [InlineData("Attack_SecondaryTargetFrontArc", "Secondary target (front arc): +{0}")]
     [InlineData("Attack_SecondaryTargetOtherArc", "Secondary target (other arc): +{0}")]
+    // Weapon attack actions
+    [InlineData("Action_SelectUnitToFire", "Select unit to fire weapons")]
+    [InlineData("Action_SelectAction", "Select action")]
+    [InlineData("Action_ConfigureWeapons", "Configure weapons")]
+    [InlineData("Action_TurnTorso", "Turn Torso")]
+    [InlineData("Action_SelectTarget", "Select Target")]
+    [InlineData("Action_SkipAttack", "Skip Attack")]
+    [InlineData("Action_DeclareAttack", "Declare Attack")]
     [InlineData("Key_Not_Found", "Key_Not_Found")]
     public void GetString_ShouldReturnCorrectString(string key, string? expectedValue)
     {
