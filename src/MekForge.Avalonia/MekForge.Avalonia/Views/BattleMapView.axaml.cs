@@ -28,7 +28,8 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
     private bool _isPressed;
     private CancellationTokenSource _manipulationTokenSource;
     private List<UnitControl>? _unitControls;
-    private List<PathSegmentControl> _movementPathSegments = [];
+    private readonly List<PathSegmentControl> _movementPathSegments = [];
+    private readonly List<WeaponAttackControl> _weaponAttackControls = [];
     private Point? _clickPosition;
     private HexControl? _selectedHex;
 
@@ -187,7 +188,18 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName != nameof(ViewModel.MovementPath)) return;
+        if (e.PropertyName == nameof(ViewModel.MovementPath))
+        {
+            UpdateMovementPath();
+        }
+        else if (e.PropertyName == nameof(ViewModel.WeaponAttacks))
+        {
+            UpdateWeaponAttacks();
+        }
+    }
+
+    private void UpdateMovementPath()
+    {
         if (ViewModel == null) return;
         if (ViewModel.MovementPath == null)
         {
@@ -204,6 +216,25 @@ public partial class BattleMapView : BaseView<BattleMapViewModel>
             var segmentControl = new PathSegmentControl(pathSegmentViewModel, ViewModel);
             MapCanvas.Children.Add(segmentControl);
             _movementPathSegments.Add(segmentControl);
+        }
+    }
+
+    private void UpdateWeaponAttacks()
+    {
+        // Clear existing attacks
+        foreach (var control in _weaponAttackControls)
+        {
+            MapCanvas.Children.Remove(control);
+        }
+        _weaponAttackControls.Clear();
+    
+        if (ViewModel?.WeaponAttacks == null) return;
+    
+        foreach (var attack in ViewModel.WeaponAttacks)
+        {
+            var control = new WeaponAttackControl(attack);
+            _weaponAttackControls.Add(control);
+            MapCanvas.Children.Add(control);
         }
     }
 }
