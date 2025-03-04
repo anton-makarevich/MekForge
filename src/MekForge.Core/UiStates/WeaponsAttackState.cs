@@ -23,10 +23,10 @@ public class WeaponsAttackState : IUiState
 
     public string ActionLabel => CurrentStep switch
     {
-        WeaponsAttackStep.SelectingUnit => "Select unit to fire weapons",
-        WeaponsAttackStep.ActionSelection => "Select action",
-        WeaponsAttackStep.WeaponsConfiguration => "Configure weapons",
-        WeaponsAttackStep.TargetSelection => "Select target",
+        WeaponsAttackStep.SelectingUnit => _viewModel.LocalizationService.GetString("Action_SelectUnitToFire"),
+        WeaponsAttackStep.ActionSelection => _viewModel.LocalizationService.GetString("Action_SelectAction"),
+        WeaponsAttackStep.WeaponsConfiguration => _viewModel.LocalizationService.GetString("Action_ConfigureWeapons"),
+        WeaponsAttackStep.TargetSelection => _viewModel.LocalizationService.GetString("Action_SelectTarget"),
         _ => string.Empty
     };
 
@@ -170,7 +170,7 @@ public class WeaponsAttackState : IUiState
             if (Attacker is Mech { CanRotateTorso: true } mech)
             {
                 actions.Add(new StateAction(
-                    "Turn Torso",
+                    _viewModel.LocalizationService.GetString("Action_TurnTorso"),
                     true,
                     () => 
                     {
@@ -183,7 +183,7 @@ public class WeaponsAttackState : IUiState
 
             // Add target selection action
             actions.Add(new StateAction(
-                "Select Target",
+                _viewModel.LocalizationService.GetString("Action_SelectTarget"),
                 true,
                 () => 
                 {
@@ -193,7 +193,7 @@ public class WeaponsAttackState : IUiState
                 
             // Add skip attack action
             actions.Add(new StateAction(
-                "Skip Attack",
+                _viewModel.LocalizationService.GetString("Action_SkipAttack"),
                 true,
                 ConfirmWeaponSelections));
         }
@@ -201,7 +201,7 @@ public class WeaponsAttackState : IUiState
         {
             // Add confirm weapon selections action
             actions.Add(new StateAction(
-                _weaponTargets.Count > 0 ?"Declare Attack": "Skip Attack",
+                _weaponTargets.Count > 0 ? _viewModel.LocalizationService.GetString("Action_DeclareAttack") : _viewModel.LocalizationService.GetString("Action_SkipAttack"),
                 true,
                 ConfirmWeaponSelections));
         }

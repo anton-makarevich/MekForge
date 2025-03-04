@@ -39,6 +39,25 @@ public class FakeLocalizationServiceTests
     // Secondary target modifiers
     [InlineData("Attack_SecondaryTargetFrontArc", "Secondary target (front arc): +{0}")]
     [InlineData("Attack_SecondaryTargetOtherArc", "Secondary target (other arc): +{0}")]
+    // Weapon attack actions
+    [InlineData("Action_SelectUnitToFire", "Select unit to fire weapons")]
+    [InlineData("Action_SelectAction", "Select action")]
+    [InlineData("Action_ConfigureWeapons", "Configure weapons")]
+    [InlineData("Action_TurnTorso", "Turn Torso")]
+    [InlineData("Action_SelectTarget", "Select Target")]
+    [InlineData("Action_SkipAttack", "Skip Attack")]
+    [InlineData("Action_DeclareAttack", "Declare Attack")]
+    // Movement actions
+    [InlineData("Action_SelectUnitToMove", "Select unit to move")]
+    [InlineData("Action_SelectMovementType", "Select movement type")]
+    [InlineData("Action_SelectTargetHex", "Select target hex")]
+    [InlineData("Action_SelectFacingDirection", "Select facing direction")]
+    [InlineData("Action_StandStill", "Stand Still")]
+    [InlineData("Action_MovementPoints", "{0} | MP: {1}")]
+    // Movement types
+    [InlineData("MovementType_Walk", "Walk")]
+    [InlineData("MovementType_Run", "Run")]
+    [InlineData("MovementType_Jump", "Jump")]
     [InlineData("Key_Not_Found", "Key_Not_Found")]
     public void GetString_ShouldReturnCorrectString(string key, string? expectedValue)
     {

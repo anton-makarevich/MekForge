@@ -283,23 +283,14 @@ public class MovementState : IUiState
         _viewModel.NotifyStateChanged();
     }
 
-    public string ActionLabel
+    public string ActionLabel => !IsActionRequired? string.Empty : CurrentMovementStep switch
     {
-        get
-        {
-            if (!IsActionRequired)
-                return string.Empty;
-
-            return CurrentMovementStep switch
-            {
-                MovementStep.SelectingUnit => "Select unit to move",
-                MovementStep.SelectingMovementType => "Select movement type",
-                MovementStep.SelectingTargetHex => "Select target hex",
-                MovementStep.SelectingDirection => "Select facing direction",
-                _ => string.Empty
-            };
-        }
-    }
+        MovementStep.SelectingUnit => _viewModel.LocalizationService.GetString("Action_SelectUnitToMove"),
+        MovementStep.SelectingMovementType => _viewModel.LocalizationService.GetString("Action_SelectMovementType"),
+        MovementStep.SelectingTargetHex => _viewModel.LocalizationService.GetString("Action_SelectTargetHex"),
+        MovementStep.SelectingDirection => _viewModel.LocalizationService.GetString("Action_SelectFacingDirection"),
+        _ => string.Empty
+    };
 
     public bool IsActionRequired => CurrentMovementStep != MovementStep.Completed;
     
@@ -314,19 +305,23 @@ public class MovementState : IUiState
 
         // Stand Still
         actions.Add(new StateAction(
-            "Stand Still",
+            _viewModel.LocalizationService.GetString("Action_StandStill"),
             true,
             () => HandleMovementTypeSelection(MovementType.StandingStill)));
 
         // Walk
         actions.Add(new StateAction(
-            $"Walk | MP: {_selectedUnit.GetMovementPoints(MovementType.Walk)}",
+            string.Format(_viewModel.LocalizationService.GetString("Action_MovementPoints"), 
+                _viewModel.LocalizationService.GetString("MovementType_Walk"), 
+                _selectedUnit.GetMovementPoints(MovementType.Walk)),
             true,
             () => HandleMovementTypeSelection(MovementType.Walk)));
 
         // Run
         actions.Add(new StateAction(
-            $"Run | MP: {_selectedUnit.GetMovementPoints(MovementType.Run)}",
+            string.Format(_viewModel.LocalizationService.GetString("Action_MovementPoints"), 
+                _viewModel.LocalizationService.GetString("MovementType_Run"), 
+                _selectedUnit.GetMovementPoints(MovementType.Run)),
             true,
             () => HandleMovementTypeSelection(MovementType.Run)));
 
@@ -335,7 +330,9 @@ public class MovementState : IUiState
         if (jumpPoints > 0)
         {
             actions.Add(new StateAction(
-                $"Jump | MP: {jumpPoints}",
+                string.Format(_viewModel.LocalizationService.GetString("Action_MovementPoints"), 
+                    _viewModel.LocalizationService.GetString("MovementType_Jump"), 
+                    jumpPoints),
                 true,
                 () => HandleMovementTypeSelection(MovementType.Jump)));
         }

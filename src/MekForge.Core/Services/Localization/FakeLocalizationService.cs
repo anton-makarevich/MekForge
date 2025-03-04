@@ -43,6 +43,28 @@ public class FakeLocalizationService: ILocalizationService
             "Attack_SecondaryTargetFrontArc" => "Secondary target (front arc): +{0}",
             "Attack_SecondaryTargetOtherArc" => "Secondary target (other arc): +{0}",
             
+            // Weapon attack actions
+            "Action_SelectUnitToFire" => "Select unit to fire weapons",
+            "Action_SelectAction" => "Select action",
+            "Action_ConfigureWeapons" => "Configure weapons",
+            "Action_SelectTarget" => "Select Target",
+            "Action_TurnTorso" => "Turn Torso",
+            "Action_SkipAttack" => "Skip Attack",
+            "Action_DeclareAttack" => "Declare Attack",
+            
+            // Movement actions
+            "Action_SelectUnitToMove" => "Select unit to move",
+            "Action_SelectMovementType" => "Select movement type",
+            "Action_SelectTargetHex" => "Select target hex",
+            "Action_SelectFacingDirection" => "Select facing direction",
+            "Action_StandStill" => "Stand Still",
+            "Action_MovementPoints" => "{0} | MP: {1}",
+            
+            // Movement types
+            "MovementType_Walk" => "Walk",
+            "MovementType_Run" => "Run",
+            "MovementType_Jump" => "Jump",
+            
             _ => key
         };
     }

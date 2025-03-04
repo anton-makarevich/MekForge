@@ -25,14 +25,17 @@ public class BattleMapViewModelTests
 {
     private readonly BattleMapViewModel _viewModel;
     private IGame _game;
-    private readonly ILocalizationService _localizationService;
+    private readonly ILocalizationService _localizationService = Substitute.For<ILocalizationService>();
 
     public BattleMapViewModelTests()
     {
         var imageService = Substitute.For<IImageService>();
-        
-        _localizationService = Substitute.For<ILocalizationService>();
         _viewModel = new BattleMapViewModel(imageService, _localizationService);
+        
+        _localizationService.GetString("Action_SelectTarget").Returns("Select Target");
+        _localizationService.GetString("Action_SelectUnitToFire").Returns("Select unit to fire weapons");
+        _localizationService.GetString("Action_SelectUnitToMove").Returns("Select unit to move");
+        
         _game = Substitute.For<IGame>();
         _viewModel.Game = _game;
     }
