@@ -10,6 +10,9 @@ using System.Collections.ObjectModel;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Services.Localization;
 using Sanet.MekForge.Core.ViewModels.Wrappers;
+using Sanet.MekForge.Core.Models.Game.Commands;
+using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
 namespace Sanet.MekForge.Core.ViewModels;
 
@@ -28,6 +31,7 @@ public class BattleMapViewModel : BaseViewModel
     private bool _isDirectionSelectorVisible;
     private IEnumerable<HexDirection>? _availableDirections;
     private List<PathSegmentViewModel>? _movementPath;
+    private List<WeaponAttackViewModel>? _weaponAttacks;
     private bool _isWeaponSelectionVisible;
     private readonly ObservableCollection<WeaponSelectionViewModel> _weaponSelectionItems = new();
 
@@ -53,6 +57,12 @@ public class BattleMapViewModel : BaseViewModel
     {
         get => _movementPath;
         private set => SetProperty(ref _movementPath, value);
+    }
+
+    public List<WeaponAttackViewModel>? WeaponAttacks
+    {
+        get => _weaponAttacks;
+        private set => SetProperty(ref _weaponAttacks, value);
     }
 
     public void DirectionSelectedCommand(HexDirection direction) 
@@ -103,12 +113,7 @@ public class BattleMapViewModel : BaseViewModel
         if (Game is not ClientGame localGame) return;
 
         _commandSubscription = localGame.Commands
-            .Subscribe(command =>
-            {
-                var formattedCommand = command.Format(_localizationService, Game);
-                _commandLog.Add(formattedCommand);
-                NotifyPropertyChanged(nameof(CommandLog));
-            });
+            .Subscribe(ProcessCommand);
         
         _gameSubscription = localGame.TurnChanges
             .StartWith(localGame.Turn)
@@ -122,6 +127,77 @@ public class BattleMapViewModel : BaseViewModel
                 UpdateGamePhase();
                 NotifyStateChanged();
             });
+    }
+
+    private void ProcessCommand(GameCommand command)
+    {
+        if (Game == null) return;
+        var formattedCommand = command.Format(_localizationService, Game);
+        _commandLog.Add(formattedCommand);
+        NotifyPropertyChanged(nameof(CommandLog));
+
+        switch (command)
+        {
+            case WeaponAttackDeclarationCommand weaponCommand:
+                ProcessWeaponAttackDeclaration(weaponCommand);
+                break;
+        }
+    }
+
+    private void ProcessWeaponAttackDeclaration(WeaponAttackDeclarationCommand command)
+    {
+        if (Game == null) return;
+    
+        var attacker = Game.Players
+            .SelectMany(p => p.Units)
+            .FirstOrDefault(u => u.Id == command.AttackerId);
+    
+        if (attacker?.Position == null || attacker.Owner == null) return;
+
+        // Initialize the collection if it's null
+        WeaponAttacks ??= [];
+        
+        // Dictionary to track offsets per target
+        var targetOffsets = new Dictionary<Guid, int>();
+        
+        var newAttacks = command.WeaponTargets
+            .Select(wt => 
+            {
+                var target = Game.Players
+                    .SelectMany(p => p.Units)
+                    .FirstOrDefault(u => u.Id == wt.TargetId);
+
+                if (target?.Position == null) throw new Exception("The target should e deployed");
+                
+                // Get or initialize offset for this target
+                var offset = targetOffsets.GetValueOrDefault(target.Id, 5);
+
+                // Initial offset for new target
+                // Get the actual weapon from the attacker
+                var weapon = attacker.GetMountedComponentAtLocation<Weapon>(
+                    wt.Weapon.Location,
+                    wt.Weapon.Slots);
+                
+                if (weapon == null) throw new Exception("The weapon is not found");
+
+                var attack = new WeaponAttackViewModel
+                {
+                    From = attacker.Position!.Value.Coordinates,
+                    To = target.Position!.Value.Coordinates,
+                    Weapon = weapon,
+                    AttackerTint = attacker.Owner.Tint,
+                    LineOffset = offset
+                };
+
+                // Increment and save offset for this target
+                targetOffsets[target.Id] = offset + 5;
+                
+                return attack;
+            })
+            .ToList();
+            
+        WeaponAttacks.AddRange(newAttacks!);
+        NotifyPropertyChanged(nameof(WeaponAttacks));
     }
 
     private void UpdateGamePhase()
