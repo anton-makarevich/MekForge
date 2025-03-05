@@ -760,7 +760,7 @@ public class BattleMapViewModelTests
         {
             GameOriginId = Guid.NewGuid(),
             PlayerId = player1.Id,
-            UnitsToPlay = 2
+            UnitsToPlay = 1
         });
 
 
@@ -840,7 +840,8 @@ public class BattleMapViewModelTests
             PlayerId = player1.Id,
             UnitsToPlay = 1
         });
-        
+
+
         // Place units
         var attackerPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
         var attacker = _viewModel.Units.First(u => u.Owner!.Id == player1.Id);
@@ -1065,112 +1066,158 @@ public class BattleMapViewModelTests
         attack.LineOffset.ShouldBe(5);
     }
     
-    //[Fact]
-    // public void WeaponAttacks_ShouldAccumulate_WhenMultipleWeaponAttackDeclarationCommandsReceived()
-    // {
-    //     // Arrange
-    //     var playerId = Guid.NewGuid();
-    //     var player = new Player(playerId, "Player1", "#FF0000");
-    //     var targetPlayerId = Guid.NewGuid();
-    //     var targetPlayer = new Player(targetPlayerId, "Player2", "#00FF00");
-    //     
-    //     var mechData = MechFactoryTests.CreateDummyMechData();
-    //     var mechFactory = new MechFactory(new ClassicBattletechRulesProvider());
-    //     var attacker1 = mechFactory.Create(mechData);
-    //     var attacker2 = mechFactory.Create(mechData);
-    //     var target = mechFactory.Create(mechData);
-    //     
-    //     // Deploy units to positions
-    //     var attacker1Position = new HexPosition(new HexCoordinates(0, 0), HexDirection.North);
-    //     var attacker2Position = new HexPosition(new HexCoordinates(0, 1), HexDirection.North);
-    //     var targetPosition = new HexPosition(new HexCoordinates(1, 0), HexDirection.South);
-    //     attacker1.Deploy(attacker1Position);
-    //     attacker2.Deploy(attacker2Position);
-    //     target.Deploy(targetPosition);
-    //     
-    //     player.AddUnit(attacker1);
-    //     player.AddUnit(attacker2);
-    //     targetPlayer.AddUnit(target);
-    //     
-    //     // Create a game with the players
-    //     var clientGame = new ClientGame(
-    //         BattleMap.GenerateMap(3, 3, new SingleTerrainGenerator(3, 3, new ClearTerrain())),
-    //         [player, targetPlayer],
-    //         new ClassicBattletechRulesProvider(),
-    //         Substitute.For<ICommandPublisher>(),
-    //         Substitute.For<IToHitCalculator>());
-    //     
-    //     _viewModel.Game = clientGame;
-    //     
-    //     // Get weapons from the attackers
-    //     var weapon1 = attacker1.Parts.First().GetComponents<Weapon>().First();
-    //     var weaponLocation1 = attacker1.Parts.First().Location;
-    //     var weaponSlots1 = attacker1.Parts.First().GetComponentSlots(weapon1);
-    //     
-    //     var weapon2 = attacker2.Parts.First().GetComponents<Weapon>().First();
-    //     var weaponLocation2 = attacker2.Parts.First().Location;
-    //     var weaponSlots2 = attacker2.Parts.First().GetComponentSlots(weapon2);
-    //     
-    //     // Create weapon target data
-    //     var weaponTargetData1 = new WeaponTargetData
-    //     {
-    //         TargetId = target.Id,
-    //         Weapon = new WeaponLocationData
-    //         {
-    //             Location = weaponLocation1,
-    //             Slots = weaponSlots1,
-    //             Name = weapon1.Name
-    //         }
-    //     };
-    //     
-    //     var weaponTargetData2 = new WeaponTargetData
-    //     {
-    //         TargetId = target.Id,
-    //         Weapon = new WeaponLocationData
-    //         {
-    //             Location = weaponLocation2,
-    //             Slots = weaponSlots2,
-    //             Name = weapon2.Name
-    //         }
-    //     };
-    //     
-    //     // Create the weapon attack declaration commands
-    //     var weaponAttackCommand1 = new WeaponAttackDeclarationCommand
-    //     {
-    //         PlayerId = playerId,
-    //         AttackerId = attacker1.Id,
-    //         WeaponTargets = [weaponTargetData1],
-    //         GameOriginId = Guid.NewGuid()
-    //     };
-    //     
-    //     var weaponAttackCommand2 = new WeaponAttackDeclarationCommand
-    //     {
-    //         PlayerId = playerId,
-    //         AttackerId = attacker2.Id,
-    //         WeaponTargets = [weaponTargetData2],
-    //         GameOriginId = Guid.NewGuid()
-    //     };
-    //     
-    //     // Act
-    //     clientGame.HandleCommand(weaponAttackCommand1);
-    //     clientGame.HandleCommand(weaponAttackCommand2);
-    //     
-    //     // Assert
-    //     _viewModel.WeaponAttacks.ShouldNotBeNull();
-    //     _viewModel.WeaponAttacks.Count.ShouldBe(2);
-    //     
-    //     var attack1 = _viewModel.WeaponAttacks[0];
-    //     attack1.From.ShouldBe(attacker1Position.Coordinates);
-    //     attack1.To.ShouldBe(targetPosition.Coordinates);
-    //     attack1.Weapon.ShouldBe(weapon1);
-    //     attack1.AttackerTint.ShouldBe(player.Tint);
-    //     attack1.LineOffset.ShouldBe(5);
-    //     
-    //     var attack2 = _viewModel.WeaponAttacks[1];
-    //     attack2.From.ShouldBe(attacker2Position.Coordinates);
-    //     attack2.To.ShouldBe(targetPosition.Coordinates);
-    //     attack2.Weapon.ShouldBe(weapon2);
-    //     attack2.AttackerTint.ShouldBe(player.Tint);
-    //     attack2.LineOffset.ShouldBe(5);
-    // }
+    [Fact]
+    public void WeaponAttacks_ShouldAccumulate_WhenMultipleWeaponAttackDeclarationCommandsReceived()
+    {
+        // Arrange
+        var playerId = Guid.NewGuid();
+        var player = new Player(playerId, "Player1");
+        var targetPlayerId = Guid.NewGuid();
+        var targetPlayer = new Player(targetPlayerId, "Player2");
+        
+        var mechData = MechFactoryTests.CreateDummyMechData();
+        mechData.Id = Guid.NewGuid();
+        
+        // Create a game with the players
+        var game = new ClientGame(
+            BattleMap.GenerateMap(3, 3, new SingleTerrainGenerator(3, 3, new ClearTerrain())),
+            [player, targetPlayer],
+            new ClassicBattletechRulesProvider(),
+            Substitute.For<ICommandPublisher>(),
+            Substitute.For<IToHitCalculator>());
+        
+        _viewModel.Game = game;
+        
+        // Add units to the game via commands
+        game.HandleCommand(new JoinGameCommand
+        {
+            PlayerName = "Player1",
+            Units = [mechData],
+            Tint = "#ffffff",
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = playerId
+        });
+        
+        // Create a second attacker for the same player
+        var mechData2 = MechFactoryTests.CreateDummyMechData();
+        mechData2.Id = Guid.NewGuid();
+        game.HandleCommand(new JoinGameCommand
+        {
+            PlayerName = "Player1",
+            Units = [mechData2],
+            Tint = "#ffffff",
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = playerId
+        });
+        
+        // Create target unit
+        var targetMechData = MechFactoryTests.CreateDummyMechData();
+        targetMechData.Id = Guid.NewGuid();
+        game.HandleCommand(new JoinGameCommand
+        {
+            PlayerName = "Player2",
+            Units = [targetMechData],
+            Tint = "#FF0000",
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = targetPlayerId
+        });
+        
+        // Set player statuses
+        game.HandleCommand(new UpdatePlayerStatusCommand
+        {
+            PlayerStatus = PlayerStatus.Playing,
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = playerId
+        });
+        game.HandleCommand(new UpdatePlayerStatusCommand
+        {
+            PlayerStatus = PlayerStatus.Playing,
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = targetPlayerId
+        });
+        
+        // Deploy units to positions
+        var attacker1Position = new HexPosition(new HexCoordinates(0, 0), HexDirection.Top);
+        var attacker2Position = new HexPosition(new HexCoordinates(0, 1), HexDirection.Top);
+        var targetPosition = new HexPosition(new HexCoordinates(1, 0), HexDirection.Top);
+        
+        // Get the units from the game
+        var attackers = _viewModel.Units.Where(u => u.Owner!.Id == playerId).ToList();
+        var attacker1 = attackers[0];
+        var attacker2 = attackers[1];
+        var target = _viewModel.Units.First(u => u.Owner!.Id == targetPlayerId);
+        
+        // Deploy the units
+        attacker1.Deploy(attacker1Position);
+        attacker2.Deploy(attacker2Position);
+        target.Deploy(targetPosition);
+        
+        // Get weapons from the attackers
+        var weapon1 = attacker1.Parts.SelectMany(p => p.GetComponents<Weapon>()).First();
+        var weapon2 = attacker2.Parts.SelectMany(p => p.GetComponents<Weapon>()).First();
+        
+        // Create weapon target data
+        var weaponTargetData1 = new WeaponTargetData
+        {
+            TargetId = target.Id,
+            Weapon = new WeaponData
+            {
+                Location = weapon1.MountedOn!.Location,
+                Slots = weapon1.MountedAtSlots,
+                Name = weapon1.Name
+            },
+            IsPrimaryTarget = true
+        };
+        
+        var weaponTargetData2 = new WeaponTargetData
+        {
+            TargetId = target.Id,
+            Weapon = new WeaponData
+            {
+                Location = weapon2.MountedOn!.Location,
+                Slots = weapon2.MountedAtSlots,
+                Name = weapon2.Name
+            },
+            IsPrimaryTarget = true
+        };
+        
+        // Create the weapon attack declaration commands
+        var weaponAttackCommand1 = new WeaponAttackDeclarationCommand
+        {
+            PlayerId = playerId,
+            AttackerId = attacker1.Id,
+            WeaponTargets = [weaponTargetData1],
+            GameOriginId = Guid.NewGuid()
+        };
+        
+        var weaponAttackCommand2 = new WeaponAttackDeclarationCommand
+        {
+            PlayerId = playerId,
+            AttackerId = attacker2.Id,
+            WeaponTargets = [weaponTargetData2],
+            GameOriginId = Guid.NewGuid()
+        };
+        
+        // Act
+        game.HandleCommand(weaponAttackCommand1);
+        game.HandleCommand(weaponAttackCommand2);
+        
+        // Assert
+        _viewModel.WeaponAttacks.ShouldNotBeNull();
+        _viewModel.WeaponAttacks.Count.ShouldBe(2);
+        
+        var attack1 = _viewModel.WeaponAttacks[0];
+        attack1.From.ShouldBe(attacker1Position.Coordinates);
+        attack1.To.ShouldBe(targetPosition.Coordinates);
+        attack1.Weapon.ShouldBe(weapon1);
+        attack1.AttackerTint.ShouldBe(player.Tint);
+        attack1.LineOffset.ShouldBe(5);
+        
+        var attack2 = _viewModel.WeaponAttacks[1];
+        attack2.From.ShouldBe(attacker2Position.Coordinates);
+        attack2.To.ShouldBe(targetPosition.Coordinates);
+        attack2.Weapon.ShouldBe(weapon2);
+        attack2.AttackerTint.ShouldBe(player.Tint);
+        attack2.LineOffset.ShouldBe(5);
+    }
 }
