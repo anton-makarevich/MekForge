@@ -12,6 +12,7 @@ using Sanet.MekForge.Core.Services.Localization;
 using Sanet.MekForge.Core.ViewModels.Wrappers;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
 namespace Sanet.MekForge.Core.ViewModels;
 
@@ -156,27 +157,43 @@ public class BattleMapViewModel : BaseViewModel
         // Initialize the collection if it's null
         WeaponAttacks ??= [];
         
-        var offset =  5; // Base offset 
+        // Dictionary to track offsets per target
+        var targetOffsets = new Dictionary<Guid, int>();
+        
         var newAttacks = command.WeaponTargets
             .Select(wt => 
             {
                 var target = Game.Players
                     .SelectMany(p => p.Units)
                     .FirstOrDefault(u => u.Id == wt.TargetId);
+
+                if (target?.Position == null) throw new Exception("The target should e deployed");
                 
-                if (target?.Position == null) return null;
-            
-                offset += 5; // Increment offset for each weapon
-                return new WeaponAttackViewModel
+                // Get or initialize offset for this target
+                var offset = targetOffsets.GetValueOrDefault(target.Id, 5);
+
+                // Initial offset for new target
+                // Get the actual weapon from the attacker
+                var weapon = attacker.GetMountedComponentAtLocation<Weapon>(
+                    wt.Weapon.Location,
+                    wt.Weapon.Slots);
+                
+                if (weapon == null) throw new Exception("The weapon is not found");
+
+                var attack = new WeaponAttackViewModel
                 {
                     From = attacker.Position!.Value.Coordinates,
                     To = target.Position!.Value.Coordinates,
-                    WeaponName = wt.Weapon.Name,
+                    Weapon = weapon,
                     AttackerTint = attacker.Owner.Tint,
                     LineOffset = offset
                 };
+
+                // Increment and save offset for this target
+                targetOffsets[target.Id] = offset + 5;
+                
+                return attack;
             })
-            .Where(attack => attack != null)
             .ToList();
             
         WeaponAttacks.AddRange(newAttacks!);

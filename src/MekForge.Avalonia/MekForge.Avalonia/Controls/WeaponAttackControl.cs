@@ -1,9 +1,9 @@
 using System;
-using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Sanet.MekForge.Core.Models.Map;
+using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.ViewModels;
 
 namespace Sanet.MekForge.Avalonia.Controls;
@@ -18,9 +18,21 @@ public class WeaponAttackControl : Control
     public WeaponAttackControl(WeaponAttackViewModel viewModel)
     {
         _viewModel = viewModel;
-        _from = new Point(viewModel.From.H+HexCoordinates.HexWidth*0.5, viewModel.From.V+HexCoordinates.HexHeight*0.5);
-        _to = new Point(viewModel.To.H + HexCoordinates.HexWidth * 0.5, viewModel.To.V+HexCoordinates.HexHeight*0.5);
+        _from = new Point(viewModel.From.H + HexCoordinates.HexWidth * 0.5, viewModel.From.V + HexCoordinates.HexHeight * 0.5);
+        _to = new Point(viewModel.To.H + HexCoordinates.HexWidth * 0.5, viewModel.To.V + HexCoordinates.HexHeight * 0.5);
         _color = new SolidColorBrush(Color.Parse(viewModel.AttackerTint));
+    }
+
+    private IDashStyle? GetDashStyleForWeapon()
+    {
+        var weaponType = _viewModel.Weapon.Type;
+        return weaponType switch
+        {
+            WeaponType.Energy => null,
+            WeaponType.Missile => DashStyle.Dash,
+            WeaponType.Ballistic => DashStyle.DashDotDot,
+            _ => null // Default to solid
+        };
     }
 
     public override void Render(DrawingContext context)
@@ -41,8 +53,8 @@ public class WeaponAttackControl : Control
             to = to + new Point(offsetX, offsetY);
         }
 
-        // Draw arrow line
-        var pen = new Pen(_color, 2, dashStyle: DashStyle.Dash);
+        // Draw arrow line with weapon-specific style
+        var pen = new Pen(_color, 2, dashStyle: GetDashStyleForWeapon());
         context.DrawLine(pen, from, to);
 
         // Draw arrowhead
