@@ -7,6 +7,7 @@ public enum PhaseNames
     Initiative,
     Movement,
     WeaponsAttack,
+    WeaponAttackResolution,
     PhysicalAttack,
     End
 }

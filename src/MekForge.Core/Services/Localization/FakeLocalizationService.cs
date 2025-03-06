@@ -20,6 +20,7 @@ public class FakeLocalizationService: ILocalizationService
             "Command_WeaponAttackDeclaration_NoAttacks" => "{0}'s {1} declares no attacks",
             "Command_WeaponAttackDeclaration_Header" => "{0}'s {1} declares attacks:",
             "Command_WeaponAttackDeclaration_WeaponLine" => "- {0} targeting {1}'s {2}",
+            "Command_WeaponAttackResolution" => "{0}'s {1} attacks with {2} targeting {3}'s {4}. To hit number: {5}",
             "Direction_Forward" => "forward",
             "Direction_Backward" => "backward",
             
