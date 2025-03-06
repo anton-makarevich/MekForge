@@ -9,7 +9,7 @@ public class WeaponsAttackPhase : MainGamePhase
     {
     }
 
-    protected override GamePhase GetNextPhase() => new PhysicalAttackPhase(Game);
+    protected override GamePhase GetNextPhase() => new WeaponAttackResolutionPhase(Game);
 
     public override void HandleCommand(GameCommand command)
     {
