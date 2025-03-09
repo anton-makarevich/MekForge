@@ -7,7 +7,7 @@ using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
 namespace Sanet.MekForge.Core.Models.Game.Phases;
 
-public class WeaponAttackResolutionPhase : MainGamePhase
+public class WeaponAttackResolutionPhase : GamePhase
 {
     private int _currentPlayerIndex;
     private int _currentUnitIndex;
@@ -159,18 +159,12 @@ public class WeaponAttackResolutionPhase : MainGamePhase
         
         Game.CommandPublisher.PublishCommand(command);
     }
-    
-    // This phase doesn't process incoming commands, but we need to implement this method
-    protected override void ProcessCommand(GameCommand command)
-    {
-        // This phase doesn't process any commands
-    }
-    
-    protected override GamePhase GetNextPhase() => new PhysicalAttackPhase(Game);
+
+    private GamePhase GetNextPhase() => new PhysicalAttackPhase(Game);
 
     public override void HandleCommand(GameCommand command)
     {
-        throw new NotImplementedException();
+        // This phase doesn't process incoming commands, but we need to implement this method
     }
 
     public override PhaseNames Name => PhaseNames.WeaponAttackResolution;
