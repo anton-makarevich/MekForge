@@ -1,7 +1,6 @@
 using NSubstitute;
 using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
-using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Phases;
@@ -143,6 +142,31 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
     }
 
     [Fact]
+    public void Enter_ShouldSkipWeaponsWithoutTargets()
+    {
+        // Arrange - Setup weapon targets (including one without a target)
+        SetupWeaponTargets();
+
+        // Act
+        _sut.Enter();
+
+        // Assert
+        // Verify ToHitCalculator was called exactly twice (only for weapons with targets)
+        // and not for the third weapon that has no target
+        Game.ToHitCalculator.Received(2).GetToHitNumber(
+            Arg.Any<Unit>(), 
+            Arg.Any<Unit>(), 
+            Arg.Any<Weapon>(), 
+            Arg.Any<BattleMap>());
+            
+        // Verify only two attack resolution commands were published
+        // (one for each weapon with a target)
+        CommandPublisher.Received(2).PublishCommand(
+            Arg.Is<WeaponAttackResolutionCommand>(cmd => 
+                cmd.GameOriginId == Game.Id));
+    }
+
+    [Fact]
     public void HandleCommand_ShouldIgnoreAllCommands()
     {
         // Arrange
@@ -174,6 +198,12 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
         var part2 = _unit2.Parts[0];
         part2.TryAddComponent(weapon2,[1]);
         weapon2.Target = _unit1; // Set target for weapon2
+        
+        // Add a third weapon without a target to test that it's properly skipped
+        var weaponWithoutTarget = new TestWeapon();
+        var part3 = _unit1.Parts[1]; // Using the second part of unit1
+        part3.TryAddComponent(weaponWithoutTarget,[2]);
+        // Deliberately not setting a target for this weapon
 
         // Setup ToHitCalculator to return a value
         Game.ToHitCalculator.GetToHitNumber(
