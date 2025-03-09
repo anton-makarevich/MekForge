@@ -7,7 +7,7 @@ using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
 namespace Sanet.MekForge.Core.Models.Game.Phases;
 
-public class WeaponAttackResolutionPhase : GamePhase
+public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
 {
     private int _currentPlayerIndex;
     private int _currentUnitIndex;
@@ -18,11 +18,7 @@ public class WeaponAttackResolutionPhase : GamePhase
     
     // Units with weapons that have targets, organized by player
     private readonly Dictionary<Guid, List<Unit>> _unitsWithTargets = new();
-    
-    public WeaponAttackResolutionPhase(ServerGame game) : base(game)
-    {
-    }
-    
+
     public override void Enter()
     {
         base.Enter();
@@ -56,7 +52,7 @@ public class WeaponAttackResolutionPhase : GamePhase
             }
         }
     }
-    
+
     private void ResolveNextAttack()
     {
         // Check if we've processed all players
@@ -65,9 +61,9 @@ public class WeaponAttackResolutionPhase : GamePhase
             Game.TransitionToPhase(GetNextPhase());
             return;
         }
-        
+
         var currentPlayer = _playersInOrder[_currentPlayerIndex];
-        
+
         // Skip players with no units that have targets
         if (!_unitsWithTargets.TryGetValue(currentPlayer.Id, out var unitsWithTargets) || unitsWithTargets.Count == 0)
         {
@@ -83,12 +79,12 @@ public class WeaponAttackResolutionPhase : GamePhase
             ResolveNextAttack();
             return;
         }
-        
+
         var currentUnit = unitsWithTargets[_currentUnitIndex];
         var weaponsWithTargets = currentUnit.Parts.SelectMany(p => p.GetComponents<Weapon>())
             .Where(weapon => weapon.Target != null)
             .ToList();
-        
+
         // Check if we've processed all weapons for the current unit
         if (_currentWeaponIndex >= weaponsWithTargets.Count)
         {
@@ -96,36 +92,30 @@ public class WeaponAttackResolutionPhase : GamePhase
             ResolveNextAttack();
             return;
         }
-        
+
         var currentWeapon = weaponsWithTargets[_currentWeaponIndex];
         var targetUnit = currentWeapon.Target;
-        
+
         if (targetUnit != null)
         {
             // Calculate to-hit number
             var toHitNumber = Game.ToHitCalculator.GetToHitNumber(
-                currentUnit, 
-                targetUnit, 
-                currentWeapon, 
+                currentUnit,
+                targetUnit,
+                currentWeapon,
                 Game.BattleMap);
-            
+
             // Publish the attack resolution information
             PublishAttackResolution(currentPlayer, currentUnit, currentWeapon, targetUnit, toHitNumber);
-            
-            // Move to the next weapon
-            _currentWeaponIndex++;
-            
-            // Continue resolving attacks
-            ResolveNextAttack();
         }
-        else
-        {
-            // Skip weapons without targets (shouldn't happen, but just in case)
-            _currentWeaponIndex++;
-            ResolveNextAttack();
-        }
+
+        // Move to the next weapon
+        _currentWeaponIndex++;
+
+        // Continue resolving attacks
+        ResolveNextAttack();
     }
-    
+
     private void MoveToNextUnit()
     {
         _currentUnitIndex++;
