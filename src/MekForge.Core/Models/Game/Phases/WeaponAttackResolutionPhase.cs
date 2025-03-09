@@ -98,15 +98,8 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
 
         if (targetUnit != null)
         {
-            // Calculate to-hit number
-            var toHitNumber = Game.ToHitCalculator.GetToHitNumber(
-                currentUnit,
-                targetUnit,
-                currentWeapon,
-                Game.BattleMap);
-
-            // Publish the attack resolution information
-            PublishAttackResolution(currentPlayer, currentUnit, currentWeapon, targetUnit, toHitNumber);
+            var resolution = ResolveAttack(currentUnit, targetUnit, currentWeapon);
+            PublishAttackResolution(currentPlayer, currentUnit, currentWeapon, targetUnit, resolution);
         }
 
         // Move to the next weapon
@@ -114,6 +107,27 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
 
         // Continue resolving attacks
         ResolveNextAttack();
+    }
+
+    private AttackResolutionData ResolveAttack(Unit attacker, Unit target, Weapon weapon)
+    {
+        // Calculate to-hit number
+        var toHitNumber = Game.ToHitCalculator.GetToHitNumber(
+            attacker,
+            target,
+            weapon,
+            Game.BattleMap);
+
+        // Roll 2D6 for attack
+        var attackRoll = Game.DiceRoller.Roll2D6();
+        var totalRoll = attackRoll.Sum(d => d.Result);
+        
+        var isHit = totalRoll >= toHitNumber;
+        
+        // If hit, determine location
+        var hitLocation = isHit ? Game.DiceRoller.Roll2D6().First() : null;
+
+        return new AttackResolutionData(toHitNumber, attackRoll, isHit, hitLocation);
     }
 
     private void MoveToNextUnit()
@@ -129,7 +143,7 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
         _currentWeaponIndex = 0;
     }
     
-    private void PublishAttackResolution(IPlayer player, Unit attacker, Weapon weapon, Unit target, int toHitNumber)
+    private void PublishAttackResolution(IPlayer player, Unit attacker, Weapon weapon, Unit target, AttackResolutionData resolution)
     {
         // Create and publish a command to inform clients about the attack resolution
         var command = new WeaponAttackResolutionCommand
@@ -144,7 +158,7 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
                 Slots = weapon.MountedAtSlots
             },
             TargetId = target.Id,
-            ToHitNumber = toHitNumber
+            ResolutionData = resolution
         };
         
         Game.CommandPublisher.PublishCommand(command);
