@@ -1,6 +1,7 @@
-using Sanet.MekForge.Core.Services.Localization;
 using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
+using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.Models.Game.Commands.Server;
 
@@ -10,7 +11,7 @@ public record WeaponAttackResolutionCommand : GameCommand
     public required Guid AttackerId { get; init; }
     public required WeaponData WeaponData { get; init; }
     public required Guid TargetId { get; init; }
-    public required int ToHitNumber { get; init; }
+    public required AttackResolutionData ResolutionData { get; init; }
     
     public override string Format(ILocalizationService localizationService, IGame game)
     {
@@ -26,14 +27,22 @@ public record WeaponAttackResolutionCommand : GameCommand
         {
             return string.Empty;
         }
-        
-        var template = localizationService.GetString("Command_WeaponAttackResolution");
+
+        var template = ResolutionData.IsHit ? 
+            localizationService.GetString("Command_WeaponAttackResolution_Hit") :
+            localizationService.GetString("Command_WeaponAttackResolution_Miss");
+
+        var rollTotal = ResolutionData.AttackRoll.Sum(d => d.Result);
+        var locationText = ResolutionData.HitLocation != null ? $" Location: {ResolutionData.HitLocation.Result}" : "";
+            
         return string.Format(template, 
-            player.Name, 
+            player.Name,
             attacker.Name, 
-            weapon.Name, 
-            targetPlayer.Name, 
-            target.Name, 
-            ToHitNumber);
+            weapon.Name,
+            targetPlayer.Name,
+            target.Name,
+            ResolutionData.ToHitNumber,
+            rollTotal,
+            locationText);
     }
 }
