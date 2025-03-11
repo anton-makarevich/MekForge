@@ -251,12 +251,18 @@ namespace Sanet.MekForge.Core.Tests.Utils.TechRules
             result.ShouldBe(expectedLocation);
         }
 
-        [Fact]
-        public void GetHitLocation_InvalidDiceResult_ThrowsArgumentOutOfRangeException()
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(13)]
+        [InlineData(20)]
+        public void GetHitLocation_InvalidDiceResult_ThrowsArgumentOutOfRangeException(int invalidDiceResult)
         {
             // Act & Assert
-            Should.Throw<ArgumentOutOfRangeException>(() => _provider.GetHitLocation(1, FiringArc.Forward));
-            Should.Throw<ArgumentOutOfRangeException>(() => _provider.GetHitLocation(13, FiringArc.Forward));
+            Should.Throw<ArgumentOutOfRangeException>(() => _provider.GetHitLocation(invalidDiceResult, FiringArc.Forward));
+            Should.Throw<ArgumentOutOfRangeException>(() => _provider.GetHitLocation(invalidDiceResult, FiringArc.Left));
+            Should.Throw<ArgumentOutOfRangeException>(() => _provider.GetHitLocation(invalidDiceResult, FiringArc.Right));
+            Should.Throw<ArgumentOutOfRangeException>(() => _provider.GetHitLocation(invalidDiceResult, FiringArc.Rear));
         }
 
         [Fact]
