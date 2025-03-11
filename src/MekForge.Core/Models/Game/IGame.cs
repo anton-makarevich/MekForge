@@ -2,6 +2,7 @@ using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Game.Combat;
+using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Models.Game;
 
@@ -23,4 +24,5 @@ public interface IGame
     Guid Id { get; }
     
     IToHitCalculator ToHitCalculator { get; }
+    IRulesProvider RulesProvider { get; }
 }
