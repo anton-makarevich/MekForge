@@ -3,6 +3,7 @@ using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
+using Sanet.MekForge.Core.Models.Game.Dice;
 using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Map;
@@ -56,6 +57,7 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
     {
         // Arrange - Setup weapon targets
         SetupWeaponTargets();
+        SetupDiceRolls(8, 6); // Set up dice rolls to ensure hits
 
         // Act
         _sut.Enter();
@@ -79,6 +81,7 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
     {
         // Arrange - Setup weapon targets
         SetupWeaponTargets();
+        SetupDiceRolls(8, 6); // Set up dice rolls to ensure hits
 
         // Act
         _sut.Enter();
@@ -97,12 +100,13 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
     {
         // Arrange - Setup weapon targets
         SetupWeaponTargets();
+        SetupDiceRolls(8, 6); // Set up dice rolls to ensure hits
 
         // Act
         _sut.Enter();
 
         // Assert
-        // Verify attack resolution commands were published
+        // Verify attack resolution commands were published with correct resolution data
         CommandPublisher.Received().PublishCommand(
             Arg.Is<WeaponAttackResolutionCommand>(cmd => 
                 cmd.GameOriginId == Game.Id && 
@@ -132,6 +136,7 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
     {
         // Arrange - Setup weapon targets
         SetupWeaponTargets();
+        SetupDiceRolls(8, 6); // Set up dice rolls to ensure hits
 
         // Act
         _sut.Enter();
@@ -146,6 +151,7 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
     {
         // Arrange - Setup weapon targets (including one without a target)
         SetupWeaponTargets();
+        SetupDiceRolls(8, 6); // Set up dice rolls to ensure hits
 
         // Act
         _sut.Enter();
@@ -164,6 +170,51 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
         CommandPublisher.Received(2).PublishCommand(
             Arg.Is<WeaponAttackResolutionCommand>(cmd => 
                 cmd.GameOriginId == Game.Id));
+    }
+
+    [Fact]
+    public void Enter_ShouldRollDiceForAttackResolution()
+    {
+        // Arrange - Setup weapon targets
+        SetupWeaponTargets();
+        SetupDiceRolls(8, 6); // Set up dice rolls to ensure hits
+
+        // Act
+        _sut.Enter();
+
+        // Assert
+        // Verify that dice were rolled for attack resolution
+        DiceRoller.Received().Roll2D6(); // Once for each attack
+    }
+
+    [Fact]
+    public void Enter_ShouldRollForHitLocation_WhenAttackHits()
+    {
+        // Arrange - Setup weapon targets
+        SetupWeaponTargets();
+        SetupDiceRolls(8, 6); // First roll is for attack (8), second is for hit location (6)
+
+        // Act
+        _sut.Enter();
+
+        // Assert
+        // Verify that dice were rolled for hit location when attack hits
+        DiceRoller.Received(4).Roll2D6(); // 2 for attacks, 2 for hit locations
+    }
+
+    [Fact]
+    public void Enter_ShouldNotRollForHitLocation_WhenAttackMisses()
+    {
+        // Arrange - Setup weapon targets
+        SetupWeaponTargets();
+        SetupDiceRolls(5, 6); // First roll is for attack (5), which is less than to-hit number (7)
+
+        // Act
+        _sut.Enter();
+
+        // Assert
+        // Verify that dice were rolled only for attacks, not for hit locations
+        DiceRoller.Received(2).Roll2D6(); // Only for attacks, not for hit locations
     }
 
     [Fact]
@@ -213,6 +264,32 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
             Arg.Any<BattleMap>())
             .Returns(7); // Return a default to-hit number of 7
     }
+
+    private void SetupDiceRolls(params int[] rolls)
+    {
+        var diceResults = new List<List<DiceResult>>();
+        
+        // Create dice results for each roll
+        foreach (var roll in rolls)
+        {
+            var diceResult = new List<DiceResult>
+            {
+                new() { Result = roll / 2 + roll % 2 },
+                new() { Result = roll / 2 }
+            };
+            diceResults.Add(diceResult);
+        }
+        
+        // Set up the dice roller to return the predefined results
+        var callCount = 0;
+        DiceRoller.Roll2D6().Returns(_ =>
+        {
+            var result = diceResults[callCount % diceResults.Count];
+            callCount++;
+            return result;
+        });
+    }
+
     private class TestWeapon(WeaponType type = WeaponType.Energy, AmmoType ammoType = AmmoType.None)
         : Weapon("Test Weapon", 5, 3, 0, 3, 6, 9, type, 10, 1, 1, ammoType);
 }
