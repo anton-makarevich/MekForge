@@ -2,6 +2,7 @@ using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Players;
+using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
@@ -125,7 +126,30 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
         var isHit = totalRoll >= toHitNumber;
         
         // If hit, determine location
-        var hitLocation = isHit ? Game.DiceRoller.Roll2D6().First() : null;
+        PartLocation? hitLocation = null;
+        
+        if (isHit)
+        {
+            // Roll for hit location
+            var locationRoll = Game.DiceRoller.Roll2D6();
+            var locationRollTotal = locationRoll.Sum(d => d.Result);
+            
+            // Determine attack direction (which firing arc the attack is coming from)
+            var attackDirection = FiringArc.Forward; // Default to forward
+            
+            // Check each firing arc to determine which one contains the attacker
+            foreach (FiringArc arc in Enum.GetValues<FiringArc>())
+            {
+                if (target.Position!.Value.Coordinates.IsInFiringArc(attacker.Position!.Value.Coordinates, target.Position.Value.Facing, arc))
+                {
+                    attackDirection = arc;
+                    break;
+                }
+            }
+            
+            // Get hit location based on roll and attack direction
+            hitLocation = Game.RulesProvider.GetHitLocation(locationRollTotal, attackDirection);
+        }
 
         return new AttackResolutionData(toHitNumber, attackRoll, isHit, hitLocation);
     }

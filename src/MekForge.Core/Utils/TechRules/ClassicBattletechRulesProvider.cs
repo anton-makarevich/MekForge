@@ -1,4 +1,5 @@
 using Sanet.MekForge.Core.Models.Game.Combat;
+using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
@@ -276,5 +277,60 @@ public class ClassicBattletechRulesProvider : IRulesProvider
     public int GetSecondaryTargetModifier(bool isFrontArc)
     {
         return isFrontArc ? 1 : 2; // +1 for front arc, +2 for other arcs
+    }
+
+    public PartLocation GetHitLocation(int diceResult, FiringArc attackDirection)
+    {
+        // Classic BattleTech hit location tables based on the attack direction
+        // Note: Front and Rear directions use the same hit location table
+        return attackDirection switch
+        {
+            FiringArc.Forward or FiringArc.Rear => diceResult switch
+            {
+                2 => PartLocation.CenterTorso, // Critical hit
+                3 => PartLocation.RightArm,
+                4 => PartLocation.RightArm,
+                5 => PartLocation.RightLeg,
+                6 => PartLocation.RightTorso,
+                7 => PartLocation.CenterTorso,
+                8 => PartLocation.LeftTorso,
+                9 => PartLocation.LeftLeg,
+                10 => PartLocation.LeftArm,
+                11 => PartLocation.LeftArm,
+                12 => PartLocation.Head,
+                _ => throw new ArgumentOutOfRangeException(nameof(diceResult), "Invalid dice result")
+            },
+            FiringArc.Left => diceResult switch
+            {
+                2 => PartLocation.LeftTorso, // Critical hit
+                3 => PartLocation.LeftLeg,
+                4 => PartLocation.LeftArm,
+                5 => PartLocation.LeftArm,
+                6 => PartLocation.LeftLeg,
+                7 => PartLocation.LeftTorso,
+                8 => PartLocation.CenterTorso,
+                9 => PartLocation.RightTorso,
+                10 => PartLocation.RightArm,
+                11 => PartLocation.RightLeg,
+                12 => PartLocation.Head,
+                _ => throw new ArgumentOutOfRangeException(nameof(diceResult), "Invalid dice result")
+            },
+            FiringArc.Right => diceResult switch
+            {
+                2 => PartLocation.RightTorso, // Critical hit
+                3 => PartLocation.RightLeg,
+                4 => PartLocation.RightArm,
+                5 => PartLocation.RightArm,
+                6 => PartLocation.RightLeg,
+                7 => PartLocation.RightTorso,
+                8 => PartLocation.CenterTorso,
+                9 => PartLocation.LeftTorso,
+                10 => PartLocation.LeftArm,
+                11 => PartLocation.LeftLeg,
+                12 => PartLocation.Head,
+                _ => throw new ArgumentOutOfRangeException(nameof(diceResult), "Invalid dice result")
+            },
+            _ => throw new ArgumentOutOfRangeException(nameof(attackDirection), "Invalid attack direction")
+        };
     }
 }

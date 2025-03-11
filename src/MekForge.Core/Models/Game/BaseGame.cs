@@ -37,6 +37,7 @@ public abstract class BaseGame : IGame
     public IObservable<int> UnitsToPlayChanges => _unitsToPlaySubject.AsObservable();
     public BattleMap BattleMap { get; }
     public IToHitCalculator ToHitCalculator { get; }
+    public IRulesProvider RulesProvider { get; }
     
     public int Turn
     {
@@ -92,6 +93,7 @@ public abstract class BaseGame : IGame
     {
         Id = Guid.NewGuid(); 
         BattleMap = battleMap;
+        RulesProvider = rulesProvider;
         CommandPublisher = commandPublisher;
         _mechFactory = new MechFactory(rulesProvider);
         ToHitCalculator = toHitCalculator;

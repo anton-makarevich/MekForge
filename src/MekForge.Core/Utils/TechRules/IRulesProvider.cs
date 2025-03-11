@@ -1,3 +1,5 @@
+using Sanet.MekForge.Core.Models.Game.Dice;
+using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
@@ -39,4 +41,12 @@ public interface IRulesProvider
     /// <param name="isFrontArc">Whether the target is in the front arc</param>
     /// <returns>The modifier value to apply</returns>
     int GetSecondaryTargetModifier(bool isFrontArc);
+    
+    /// <summary>
+    /// Determines the hit location on a unit based on dice roll and attack direction
+    /// </summary>
+    /// <param name="diceResult">The 2D6 roll result determining hit location</param>
+    /// <param name="attackDirection">The direction from which the attack is coming</param>
+    /// <returns>The part location that was hit</returns>
+    PartLocation GetHitLocation(int diceResult, FiringArc attackDirection);
 }

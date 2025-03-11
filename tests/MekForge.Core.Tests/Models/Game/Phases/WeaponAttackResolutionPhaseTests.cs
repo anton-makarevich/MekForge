@@ -46,9 +46,13 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
         Game.SetInitiativeOrder(new List<IPlayer> { player2, player1 });
 
         // Deploy units
+        var q = 1;
+        var r = 1;
         foreach (var unit in player1.Units.Concat(player2.Units))
         {
-            unit.Deploy(new HexPosition(1, 1, HexDirection.Top));
+            unit.Deploy(new HexPosition(q, r, HexDirection.Top));
+            q++;
+            r++;
         }
     }
 

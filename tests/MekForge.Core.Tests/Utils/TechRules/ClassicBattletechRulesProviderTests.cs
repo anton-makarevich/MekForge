@@ -3,6 +3,7 @@ using Shouldly;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Utils.TechRules;
+using Sanet.MekForge.Core.Models.Map;
 
 namespace Sanet.MekForge.Core.Tests.Utils.TechRules
 {
@@ -163,5 +164,114 @@ namespace Sanet.MekForge.Core.Tests.Utils.TechRules
         {
             _provider.GetSecondaryTargetModifier(isFrontArc).ShouldBe(expectedModifier);
         }
+
+        #region Hit Location Tests
+
+        [Theory]
+        [InlineData(2, PartLocation.CenterTorso)]  // Critical hit
+        [InlineData(3, PartLocation.RightArm)]
+        [InlineData(4, PartLocation.RightArm)]
+        [InlineData(5, PartLocation.RightLeg)]
+        [InlineData(6, PartLocation.RightTorso)]
+        [InlineData(7, PartLocation.CenterTorso)]
+        [InlineData(8, PartLocation.LeftTorso)]
+        [InlineData(9, PartLocation.LeftLeg)]
+        [InlineData(10, PartLocation.LeftArm)]
+        [InlineData(11, PartLocation.LeftArm)]
+        [InlineData(12, PartLocation.Head)]
+        public void GetHitLocation_FrontAttack_ReturnsCorrectLocation(int diceResult, PartLocation expectedLocation)
+        {
+            // Act
+            var result = _provider.GetHitLocation(diceResult, FiringArc.Forward);
+
+            // Assert
+            result.ShouldBe(expectedLocation);
+        }
+
+        [Theory]
+        [InlineData(2, PartLocation.CenterTorso)]  // Critical hit
+        [InlineData(3, PartLocation.RightArm)]
+        [InlineData(4, PartLocation.RightArm)]
+        [InlineData(5, PartLocation.RightLeg)]
+        [InlineData(6, PartLocation.RightTorso)]
+        [InlineData(7, PartLocation.CenterTorso)]
+        [InlineData(8, PartLocation.LeftTorso)]
+        [InlineData(9, PartLocation.LeftLeg)]
+        [InlineData(10, PartLocation.LeftArm)]
+        [InlineData(11, PartLocation.LeftArm)]
+        [InlineData(12, PartLocation.Head)]
+        public void GetHitLocation_RearAttack_ReturnsCorrectLocation(int diceResult, PartLocation expectedLocation)
+        {
+            // Act
+            var result = _provider.GetHitLocation(diceResult, FiringArc.Rear);
+
+            // Assert
+            result.ShouldBe(expectedLocation);
+        }
+
+        [Theory]
+        [InlineData(2, PartLocation.LeftTorso)]  // Critical hit
+        [InlineData(3, PartLocation.LeftLeg)]
+        [InlineData(4, PartLocation.LeftArm)]
+        [InlineData(5, PartLocation.LeftArm)]
+        [InlineData(6, PartLocation.LeftLeg)]
+        [InlineData(7, PartLocation.LeftTorso)]
+        [InlineData(8, PartLocation.CenterTorso)]
+        [InlineData(9, PartLocation.RightTorso)]
+        [InlineData(10, PartLocation.RightArm)]
+        [InlineData(11, PartLocation.RightLeg)]
+        [InlineData(12, PartLocation.Head)]
+        public void GetHitLocation_LeftAttack_ReturnsCorrectLocation(int diceResult, PartLocation expectedLocation)
+        {
+            // Act
+            var result = _provider.GetHitLocation(diceResult, FiringArc.Left);
+
+            // Assert
+            result.ShouldBe(expectedLocation);
+        }
+
+        [Theory]
+        [InlineData(2, PartLocation.RightTorso)]  // Critical hit
+        [InlineData(3, PartLocation.RightLeg)]
+        [InlineData(4, PartLocation.RightArm)]
+        [InlineData(5, PartLocation.RightArm)]
+        [InlineData(6, PartLocation.RightLeg)]
+        [InlineData(7, PartLocation.RightTorso)]
+        [InlineData(8, PartLocation.CenterTorso)]
+        [InlineData(9, PartLocation.LeftTorso)]
+        [InlineData(10, PartLocation.LeftArm)]
+        [InlineData(11, PartLocation.LeftLeg)]
+        [InlineData(12, PartLocation.Head)]
+        public void GetHitLocation_RightAttack_ReturnsCorrectLocation(int diceResult, PartLocation expectedLocation)
+        {
+            // Act
+            var result = _provider.GetHitLocation(diceResult, FiringArc.Right);
+
+            // Assert
+            result.ShouldBe(expectedLocation);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(13)]
+        [InlineData(20)]
+        public void GetHitLocation_InvalidDiceResult_ThrowsArgumentOutOfRangeException(int invalidDiceResult)
+        {
+            // Act & Assert
+            Should.Throw<ArgumentOutOfRangeException>(() => _provider.GetHitLocation(invalidDiceResult, FiringArc.Forward));
+            Should.Throw<ArgumentOutOfRangeException>(() => _provider.GetHitLocation(invalidDiceResult, FiringArc.Left));
+            Should.Throw<ArgumentOutOfRangeException>(() => _provider.GetHitLocation(invalidDiceResult, FiringArc.Right));
+            Should.Throw<ArgumentOutOfRangeException>(() => _provider.GetHitLocation(invalidDiceResult, FiringArc.Rear));
+        }
+
+        [Fact]
+        public void GetHitLocation_InvalidAttackDirection_ThrowsArgumentOutOfRangeException()
+        {
+            // Act & Assert
+            Should.Throw<ArgumentOutOfRangeException>(() => _provider.GetHitLocation(7, (FiringArc)999));
+        }
+
+        #endregion
     }
 }

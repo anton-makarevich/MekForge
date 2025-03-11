@@ -1,5 +1,4 @@
 using Sanet.MekForge.Core.Data;
-using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Services.Localization;
 
@@ -33,7 +32,7 @@ public record WeaponAttackResolutionCommand : GameCommand
             localizationService.GetString("Command_WeaponAttackResolution_Miss");
 
         var rollTotal = ResolutionData.AttackRoll.Sum(d => d.Result);
-        var locationText = ResolutionData.HitLocation != null ? $" Location: {ResolutionData.HitLocation.Result}" : "";
+        var locationText = ResolutionData.HitLocation != null ? $" Location: {ResolutionData.HitLocation.Value}" : "";
             
         return string.Format(template, 
             player.Name,
