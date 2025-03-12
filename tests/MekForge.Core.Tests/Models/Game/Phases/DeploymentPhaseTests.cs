@@ -1,10 +1,11 @@
 using Shouldly;
 using NSubstitute;
-using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Phases;
+using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Tests.Data;
+using Sanet.MekForge.Core.Tests.Data.Community;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
 
@@ -63,9 +64,9 @@ public class DeploymentPhaseTests : GameStateTestsBase
         // Assert
         var unit = player.Units[0];
         unit.IsDeployed.ShouldBeTrue();
-        unit.Position.HasValue.ShouldBeTrue();
-        unit.Position.Value.Coordinates.Q.ShouldBe(1);
-        unit.Position.Value.Coordinates.R.ShouldBe(1);
+        unit.Position.ShouldNotBeNull();
+        unit.Position.Coordinates.Q.ShouldBe(1);
+        unit.Position.Coordinates.R.ShouldBe(1);
     }
 
     [Fact]

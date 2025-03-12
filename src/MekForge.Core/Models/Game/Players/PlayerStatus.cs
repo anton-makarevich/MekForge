@@ -1,4 +1,4 @@
-﻿namespace Sanet.MekForge.Core.Models.Game;
+﻿namespace Sanet.MekForge.Core.Models.Game.Players;
 
 public enum PlayerStatus
 {

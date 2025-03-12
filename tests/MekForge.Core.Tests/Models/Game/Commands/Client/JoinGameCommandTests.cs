@@ -7,7 +7,7 @@ using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Commands.Client;
 
-public class JoinGameCommandTests : GameCommandTestBase<JoinGameCommand>
+public class JoinGameCommandTests
 {
     private readonly ILocalizationService _localizationService = Substitute.For<ILocalizationService>();
     private readonly IGame _game = Substitute.For<IGame>();
@@ -19,7 +19,7 @@ public class JoinGameCommandTests : GameCommandTestBase<JoinGameCommand>
         _game.Players.Returns([_player1]);
     }
 
-    protected override JoinGameCommand CreateCommand()
+    private JoinGameCommand CreateCommand()
     {
         return new JoinGameCommand
         {
@@ -29,14 +29,6 @@ public class JoinGameCommandTests : GameCommandTestBase<JoinGameCommand>
             Units = [],
             Tint = "#FF0000"
         };
-    }
-
-    protected override void AssertCommandSpecificProperties(JoinGameCommand original, JoinGameCommand? cloned)
-    {
-        base.AssertCommandSpecificProperties(original, cloned);
-        cloned!.PlayerId.ShouldBe(original.PlayerId);
-        cloned.PlayerName.ShouldBe(original.PlayerName);
-        cloned.Units.ShouldBeEquivalentTo(original.Units);
     }
 
     [Fact]

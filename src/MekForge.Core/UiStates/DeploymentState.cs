@@ -88,7 +88,7 @@ public class DeploymentState : IUiState
 
     private bool IsHexOccupied(Hex hex)
     {
-        return _viewModel.Units.Any(u => u.IsDeployed &&u.Position!.Value.Coordinates == hex.Coordinates);
+        return _viewModel.Units.Any(u => u.IsDeployed &&u.Position!.Coordinates == hex.Coordinates);
     }
 
     private void CompleteDeployment()
@@ -96,7 +96,7 @@ public class DeploymentState : IUiState
         var command = _builder.Build();
         if (command != null && _viewModel.Game is ClientGame clientGame)
         {
-            clientGame.DeployUnit(command);
+            clientGame.DeployUnit(command.Value);
         }
         
         _builder.Reset();

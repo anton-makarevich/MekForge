@@ -17,7 +17,7 @@ public class Mech : Unit
         {
             if (Position == null) return false;
             var torsos = _parts.OfType<Torso>();
-            return torsos.Any(t => t.Facing != Position.Value.Facing);
+            return torsos.Any(t => t.Facing != Position.Facing);
         }
     }
 
@@ -45,7 +45,7 @@ public class Mech : Unit
         if (!CanRotateTorso)
             return;
 
-        var currentUnitFacing = (int)Position!.Value.Facing;
+        var currentUnitFacing = (int)Position!.Facing;
         var newFacingInt = (int)newFacing;
         
         // Calculate steps in both directions (clockwise and counterclockwise)

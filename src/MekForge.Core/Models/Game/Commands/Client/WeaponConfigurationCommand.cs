@@ -3,17 +3,21 @@ using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.Models.Game.Commands.Client;
 
-public record WeaponConfigurationCommand : ClientCommand
+public record struct WeaponConfigurationCommand : IClientCommand
 {
-    public required Guid UnitId { get; set; }
+    public required Guid UnitId { get; init; }
     public required WeaponConfiguration Configuration { get; set; }
 
-    public override string Format(ILocalizationService localizationService, IGame game)
+    public Guid GameOriginId { get; set; }
+    public DateTime Timestamp { get; init; }
+
+    public string Format(ILocalizationService localizationService, IGame game)
     {
-        var player = game.Players.FirstOrDefault(p => p.Id == PlayerId);
+        var command = this;
+        var player = game.Players.FirstOrDefault(p => p.Id == command.PlayerId);
         if (player == null) return string.Empty;
 
-        var unit = player.Units.FirstOrDefault(u => u.Id == UnitId);
+        var unit = player.Units.FirstOrDefault(u => u.Id == command.UnitId);
         if (unit == null || !unit.IsDeployed) return string.Empty;
 
         return Configuration.Type switch
@@ -22,7 +26,7 @@ public record WeaponConfigurationCommand : ClientCommand
                 localizationService.GetString("Command_WeaponConfiguration_TorsoRotation"),
                 player.Name,
                 unit.Name,
-                unit.Position!.Value.Coordinates.Neighbor((HexDirection)Configuration.Value)),
+                unit.Position!.Coordinates.Neighbor((HexDirection)Configuration.Value)),
             WeaponConfigurationType.ArmsFlip => string.Format(
                 localizationService.GetString("Command_WeaponConfiguration_ArmsFlip"),
                 player.Name,
@@ -33,4 +37,6 @@ public record WeaponConfigurationCommand : ClientCommand
             _ => string.Empty
         };
     }
+
+    public Guid PlayerId { get; init; }
 }

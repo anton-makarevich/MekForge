@@ -7,7 +7,7 @@ using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Commands.Client;
 
-public class UpdatePlayerStatusCommandTests : GameCommandTestBase<UpdatePlayerStatusCommand>
+public class UpdatePlayerStatusCommandTests
 {
     private readonly ILocalizationService _localizationService = Substitute.For<ILocalizationService>();
     private readonly IGame _game = Substitute.For<IGame>();
@@ -19,7 +19,7 @@ public class UpdatePlayerStatusCommandTests : GameCommandTestBase<UpdatePlayerSt
         _game.Players.Returns([_player1]);
     }
 
-    protected override UpdatePlayerStatusCommand CreateCommand()
+    private UpdatePlayerStatusCommand CreateCommand()
     {
         return new UpdatePlayerStatusCommand
         {
@@ -27,13 +27,6 @@ public class UpdatePlayerStatusCommandTests : GameCommandTestBase<UpdatePlayerSt
             PlayerId = _player1.Id,
             PlayerStatus = PlayerStatus.Playing
         };
-    }
-
-    protected override void AssertCommandSpecificProperties(UpdatePlayerStatusCommand original, UpdatePlayerStatusCommand? cloned)
-    {
-        base.AssertCommandSpecificProperties(original, cloned);
-        cloned!.PlayerId.ShouldBe(original.PlayerId);
-        cloned.PlayerStatus.ShouldBe(original.PlayerStatus);
     }
 
     [Fact]

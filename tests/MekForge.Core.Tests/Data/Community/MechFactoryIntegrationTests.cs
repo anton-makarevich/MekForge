@@ -1,10 +1,11 @@
-using Shouldly;
-using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Data.Community;
+using Sanet.MekForge.Core.Data.Units;
 using Sanet.MekForge.Core.Models.Units.Mechs;
+using Sanet.MekForge.Core.Utils;
 using Sanet.MekForge.Core.Utils.TechRules;
+using Shouldly;
 
-namespace Sanet.MekForge.Core.Tests.Data;
+namespace Sanet.MekForge.Core.Tests.Data.Community;
 
 public class MechFactoryIntegrationTests
 {   

@@ -10,8 +10,8 @@ namespace Sanet.MekForge.Avalonia.Game.Transport;
 
 public class ChannelCommandPublisher : ICommandPublisher, IDisposable
 {
-    private readonly Channel<GameCommand> _channel;
-    private readonly List<Action<GameCommand>> _subscribers;
+    private readonly Channel<IGameCommand> _channel;
+    private readonly List<Action<IGameCommand>> _subscribers;
     private readonly CancellationTokenSource _cts;
     private readonly Task _processTask;
 
@@ -24,15 +24,15 @@ public class ChannelCommandPublisher : ICommandPublisher, IDisposable
             SingleWriter = false
         };
         
-        _channel = Channel.CreateBounded<GameCommand>(options);
-        _subscribers = new List<Action<GameCommand>>();
+        _channel = Channel.CreateBounded<IGameCommand>(options);
+        _subscribers = new List<Action<IGameCommand>>();
         _cts = new CancellationTokenSource();
         
         // Start processing messages in background
         _processTask = ProcessMessagesAsync(_cts.Token);
     }
 
-    public async void PublishCommand(GameCommand command)
+    public async void PublishCommand(IGameCommand command)
     {
         try
         {
@@ -44,7 +44,7 @@ public class ChannelCommandPublisher : ICommandPublisher, IDisposable
         }
     }
 
-    public void Subscribe(Action<GameCommand> onCommandReceived)
+    public void Subscribe(Action<IGameCommand> onCommandReceived)
     {
         lock (_subscribers)
         {
@@ -58,7 +58,7 @@ public class ChannelCommandPublisher : ICommandPublisher, IDisposable
         {
             await foreach (var command in _channel.Reader.ReadAllAsync(cancellationToken))
             {
-                Action<GameCommand>[] currentSubscribers;
+                Action<IGameCommand>[] currentSubscribers;
                 lock (_subscribers)
                 {
                     currentSubscribers = _subscribers.ToArray();

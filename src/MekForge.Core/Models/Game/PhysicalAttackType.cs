@@ -1,4 +1,4 @@
-namespace Sanet.MekForge.Core.Models.Game.Commands.Client;
+namespace Sanet.MekForge.Core.Models.Game;
 
 public enum PhysicalAttackType
 {

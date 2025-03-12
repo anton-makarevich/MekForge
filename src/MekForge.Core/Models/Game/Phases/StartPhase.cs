@@ -1,23 +1,24 @@
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Game.Players;
 
 namespace Sanet.MekForge.Core.Models.Game.Phases;
 
-public class StartPhase : GamePhase
+public class StartPhase(ServerGame game) : GamePhase(game)
 {
-    public StartPhase(ServerGame game) : base(game) { }
-
-    public override void HandleCommand(GameCommand command)
+    public override void HandleCommand(IGameCommand command)
     {
         switch (command)
         {
             case JoinGameCommand joinGameCommand:
-                var broadcastJoinCommand = joinGameCommand.CloneWithGameId(Game.Id);
+                var broadcastJoinCommand = joinGameCommand;
+                broadcastJoinCommand.GameOriginId = Game.Id;
                 Game.OnPlayerJoined(joinGameCommand);
                 Game.CommandPublisher.PublishCommand(broadcastJoinCommand);
                 break;
             case UpdatePlayerStatusCommand playerStatusCommand:
-                var broadcastStatusCommand = playerStatusCommand.CloneWithGameId(Game.Id);
+                var broadcastStatusCommand = playerStatusCommand;
+                broadcastStatusCommand.GameOriginId = Game.Id;
                 Game.OnPlayerStatusUpdated(playerStatusCommand);
                 Game.CommandPublisher.PublishCommand(broadcastStatusCommand);
                 if (AllPlayersReady())

@@ -1,4 +1,3 @@
-using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
@@ -7,6 +6,7 @@ using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Utils.TechRules;
 using System.Reactive.Subjects;
 using System.Reactive.Linq;
+using Sanet.MekForge.Core.Data.Units;
 using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Players;
 
@@ -14,11 +14,11 @@ namespace Sanet.MekForge.Core.Models.Game;
 
 public class ClientGame : BaseGame
 {
-    private readonly Subject<GameCommand> _commandSubject = new();
-    private readonly List<GameCommand> _commandLog = [];
+    private readonly Subject<IGameCommand> _commandSubject = new();
+    private readonly List<IGameCommand> _commandLog = [];
 
-    public IObservable<GameCommand> Commands => _commandSubject.AsObservable();
-    public IReadOnlyList<GameCommand> CommandLog => _commandLog;
+    public IObservable<IGameCommand> Commands => _commandSubject.AsObservable();
+    public IReadOnlyList<IGameCommand> CommandLog => _commandLog;
     
     public ClientGame(BattleMap battleMap, IReadOnlyList<IPlayer> localPlayers,
         IRulesProvider rulesProvider, ICommandPublisher commandPublisher, IToHitCalculator toHitCalculator)
@@ -29,7 +29,7 @@ public class ClientGame : BaseGame
     
     public IReadOnlyList<IPlayer> LocalPlayers { get; }
 
-    public override void HandleCommand(GameCommand command)
+    public override void HandleCommand(IGameCommand command)
     {
         if (!ShouldHandleCommand(command)) return;
         

@@ -127,7 +127,9 @@ public class ChannelCommandPublisherTests
 }
 
 // Test command class for testing
-public record TestCommand : GameCommand
+public record struct TestCommand : IGameCommand
 {
-    public override string Format(ILocalizationService localizationService, IGame game) => "Test";
+    public Guid GameOriginId { get; set; }
+    public DateTime Timestamp { get; init; }
+    public string Format(ILocalizationService localizationService, IGame game) => "Test";
 }

@@ -24,7 +24,7 @@ public abstract class Torso : UnitPart
     public void ResetRotation()
     {
         if (Unit?.Position != null)
-            Facing = Unit.Position.Value.Facing;
+            Facing = Unit.Position.Facing;
     }
 
     protected override int ReduceArmor(int damage, HitDirection direction)

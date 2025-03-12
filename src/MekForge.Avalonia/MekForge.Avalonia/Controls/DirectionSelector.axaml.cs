@@ -51,18 +51,19 @@ namespace Sanet.MekForge.Avalonia.Controls
             }
         }
 
-        public static readonly DirectProperty<DirectionSelector,HexCoordinates> PositionProperty =
-            AvaloniaProperty.RegisterDirect<DirectionSelector, HexCoordinates>(nameof(Position),
+        public static readonly DirectProperty<DirectionSelector,HexCoordinates?> PositionProperty =
+            AvaloniaProperty.RegisterDirect<DirectionSelector, HexCoordinates?>(nameof(Position),
                 o => o.Position,
                 (o, v) => o.Position = v);
 
-        private HexCoordinates _position;
-        public HexCoordinates Position
+        private HexCoordinates? _position;
+        public HexCoordinates? Position
         {
             get => _position;
             set
             {
                 SetAndRaise(PositionProperty, ref _position, value);
+                if (value == null) return;
                 Canvas.SetLeft(this, value.H-35);
                 Canvas.SetTop(this, value.V-38.5);
             }

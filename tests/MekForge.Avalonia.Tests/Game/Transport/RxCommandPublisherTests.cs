@@ -58,7 +58,7 @@ public class RxCommandPublisherTests
     {
         // Arrange
         var publisher = new RxCommandPublisher();
-        var receivedCommands = new List<GameCommand>();
+        var receivedCommands = new List<IGameCommand>();
         var command1 = new TestCommand { GameOriginId = Guid.NewGuid() };
         var command2 = new TestCommand { GameOriginId = Guid.NewGuid() };
         var command3 = new TestCommand { GameOriginId = Guid.NewGuid() };
@@ -82,7 +82,7 @@ public class RxCommandPublisherTests
     {
         // Arrange
         var publisher = new RxCommandPublisher();
-        var receivedCommands = new List<GameCommand>();
+        var receivedCommands = new List<IGameCommand>();
         var command1 = new TestCommand { GameOriginId = Guid.NewGuid() };
         var command2 = new TestCommand { GameOriginId = Guid.NewGuid() };
         

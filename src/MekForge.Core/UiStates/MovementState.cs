@@ -33,8 +33,8 @@ public class MovementState : IUiState
         
         // Get hexes with enemy units - these will be excluded from pathfinding
         _prohibitedHexes = _viewModel.Units
-            .Where(u=>u.Owner?.Id != _viewModel.Game.ActivePlayer?.Id && u.Position.HasValue)
-            .Select(u => u.Position!.Value.Coordinates)
+            .Where(u=>u.Owner?.Id != _viewModel.Game.ActivePlayer?.Id && u.Position!=null)
+            .Select(u => u.Position!.Coordinates)
             .ToList();
     }
 
@@ -76,7 +76,7 @@ public class MovementState : IUiState
                 // For jumping, we use the simplified method that ignores terrain and facing
                 var reachableHexes = _viewModel.Game.BattleMap
                     .GetJumpReachableHexes(
-                        _selectedUnit.Position.Value.Coordinates,
+                        _selectedUnit.Position.Coordinates,
                         _movementPoints,
                         _prohibitedHexes)
                     .Where(hex => !_viewModel.Units
@@ -91,7 +91,7 @@ public class MovementState : IUiState
             {
                 // Get forward reachable hexes
                 _forwardReachableHexes = _viewModel.Game.BattleMap
-                    .GetReachableHexes(_selectedUnit.Position.Value, _movementPoints, _prohibitedHexes)
+                    .GetReachableHexes(_selectedUnit.Position, _movementPoints, _prohibitedHexes)
                     .Select(x => x.coordinates)
                     .Where(hex => !_viewModel.Units
                         .Any(u => u != _selectedUnit 
@@ -103,7 +103,7 @@ public class MovementState : IUiState
                 _backwardReachableHexes = [];
                 if (_selectedUnit.CanMoveBackward(movementType))
                 {
-                    var oppositePosition = _selectedUnit.Position.Value.GetOppositeDirectionPosition();
+                    var oppositePosition = _selectedUnit.Position.GetOppositeDirectionPosition();
                     _backwardReachableHexes = _viewModel.Game.BattleMap
                         .GetReachableHexes(oppositePosition, _movementPoints, _prohibitedHexes)
                         .Select(x => x.coordinates)
@@ -178,7 +178,7 @@ public class MovementState : IUiState
         var isForwardReachable = _forwardReachableHexes.Contains(hex.Coordinates);
         var isBackwardReachable = _backwardReachableHexes.Contains(hex.Coordinates);
         
-        // Reset selection if clicked outside of reachable hexes during target hex selection
+        // Reset selection if clicked outside reachable hexes during target hex selection
         if (!isForwardReachable && !isBackwardReachable)
         {
             ResetUnitSelection();
@@ -199,7 +199,7 @@ public class MovementState : IUiState
             {
                 var targetPos = new HexPosition(hex.Coordinates, direction);
                 var path = _viewModel.Game.BattleMap.FindJumpPath(
-                    _selectedUnit.Position.Value,
+                    _selectedUnit.Position,
                     targetPos,
                     _movementPoints);
 
@@ -220,7 +220,7 @@ public class MovementState : IUiState
                 {
                     // Try forward movement
                     path = _viewModel.Game?.BattleMap.FindPath(
-                        _selectedUnit.Position.Value,
+                        _selectedUnit.Position,
                         targetPos,
                         _movementPoints,
                         _prohibitedHexes);
@@ -229,7 +229,7 @@ public class MovementState : IUiState
                 if (path == null && isBackwardReachable)
                 {
                     // Try backward movement
-                    var oppositeStartPos = _selectedUnit.Position.Value.GetOppositeDirectionPosition();
+                    var oppositeStartPos = _selectedUnit.Position.GetOppositeDirectionPosition();
                     var oppositeTargetPos = targetPos.GetOppositeDirectionPosition();
                     
                     path = _viewModel.Game?.BattleMap.FindPath(
@@ -270,7 +270,7 @@ public class MovementState : IUiState
         {
             _viewModel.HideMovementPath();
             _viewModel.HideDirectionSelector();
-            clientGame.MoveUnit(command);
+            clientGame.MoveUnit(command.Value);
         }
         
         _builder.Reset();
@@ -301,29 +301,28 @@ public class MovementState : IUiState
         if (CurrentMovementStep != MovementStep.SelectingMovementType || _selectedUnit == null)
             return new List<StateAction>();
 
-        var actions = new List<StateAction>();
-
-        // Stand Still
-        actions.Add(new StateAction(
-            _viewModel.LocalizationService.GetString("Action_StandStill"),
-            true,
-            () => HandleMovementTypeSelection(MovementType.StandingStill)));
-
-        // Walk
-        actions.Add(new StateAction(
-            string.Format(_viewModel.LocalizationService.GetString("Action_MovementPoints"), 
-                _viewModel.LocalizationService.GetString("MovementType_Walk"), 
-                _selectedUnit.GetMovementPoints(MovementType.Walk)),
-            true,
-            () => HandleMovementTypeSelection(MovementType.Walk)));
-
-        // Run
-        actions.Add(new StateAction(
-            string.Format(_viewModel.LocalizationService.GetString("Action_MovementPoints"), 
-                _viewModel.LocalizationService.GetString("MovementType_Run"), 
-                _selectedUnit.GetMovementPoints(MovementType.Run)),
-            true,
-            () => HandleMovementTypeSelection(MovementType.Run)));
+        var actions = new List<StateAction>
+        {
+            // Stand Still
+            new StateAction(
+                _viewModel.LocalizationService.GetString("Action_StandStill"),
+                true,
+                () => HandleMovementTypeSelection(MovementType.StandingStill)),
+            // Walk
+            new StateAction(
+                string.Format(_viewModel.LocalizationService.GetString("Action_MovementPoints"), 
+                    _viewModel.LocalizationService.GetString("MovementType_Walk"), 
+                    _selectedUnit.GetMovementPoints(MovementType.Walk)),
+                true,
+                () => HandleMovementTypeSelection(MovementType.Walk)),
+            // Run
+            new StateAction(
+                string.Format(_viewModel.LocalizationService.GetString("Action_MovementPoints"), 
+                    _viewModel.LocalizationService.GetString("MovementType_Run"), 
+                    _selectedUnit.GetMovementPoints(MovementType.Run)),
+                true,
+                () => HandleMovementTypeSelection(MovementType.Run))
+        };
 
         // Jump
         var jumpPoints = _selectedUnit.GetMovementPoints(MovementType.Jump);

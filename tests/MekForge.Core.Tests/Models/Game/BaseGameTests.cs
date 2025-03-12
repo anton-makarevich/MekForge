@@ -1,6 +1,7 @@
 using Shouldly;
 using NSubstitute;
-using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Data.Game;
+using Sanet.MekForge.Core.Data.Units;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Commands;
@@ -13,6 +14,7 @@ using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.Tests.Data;
+using Sanet.MekForge.Core.Tests.Data.Community;
 using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MekForge.Core.Utils.TechRules;
 
@@ -356,7 +358,7 @@ public class BaseGameTests() : BaseGame(BattleMap.GenerateMap(5, 5, new SingleTe
         leftArmWeapon.Target.ShouldBe(targetMech2);
     }
 
-    public override void HandleCommand(GameCommand command)
+    public override void HandleCommand(IGameCommand command)
     {
         throw new NotImplementedException();
     }

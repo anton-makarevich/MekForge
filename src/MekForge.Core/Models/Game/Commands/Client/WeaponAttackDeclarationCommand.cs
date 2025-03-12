@@ -1,15 +1,19 @@
-using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Services.Localization;
 using System.Text;
+using Sanet.MekForge.Core.Data.Game;
 
 namespace Sanet.MekForge.Core.Models.Game.Commands.Client;
 
-public record WeaponAttackDeclarationCommand : ClientCommand
+public record struct WeaponAttackDeclarationCommand : IClientCommand
 {
-    public override string Format(ILocalizationService localizationService, IGame game)
+    public Guid GameOriginId { get; set; }
+    public DateTime Timestamp { get; init; }
+
+    public string Format(ILocalizationService localizationService, IGame game)
     {
-        var player = game.Players.FirstOrDefault(p => p.Id == PlayerId);
-        var attacker = player?.Units.FirstOrDefault(u => u.Id == AttackerId);
+        var command = this;
+        var player = game.Players.FirstOrDefault(p => p.Id == command.PlayerId);
+        var attacker = player?.Units.FirstOrDefault(u => u.Id == command.AttackerId);
         
         if (attacker == null || player == null) return string.Empty;
         
@@ -45,4 +49,5 @@ public record WeaponAttackDeclarationCommand : ClientCommand
 
     public required Guid AttackerId { get; init; }
     public required List<WeaponTargetData> WeaponTargets { get; init; }
+    public Guid PlayerId { get; init; }
 }

@@ -1,6 +1,5 @@
 using Shouldly;
 using NSubstitute;
-using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Players;
@@ -8,11 +7,13 @@ using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services.Localization;
 using Sanet.MekForge.Core.Tests.Data;
+using Sanet.MekForge.Core.Tests.Data.Community;
+using Sanet.MekForge.Core.Utils;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Commands.Client;
 
-public class WeaponConfigurationCommandTests : GameCommandTestBase<WeaponConfigurationCommand>
+public class WeaponConfigurationCommandTests
 {
     private readonly ILocalizationService _localizationService = Substitute.For<ILocalizationService>();
     private readonly IGame _game = Substitute.For<IGame>();
@@ -37,7 +38,7 @@ public class WeaponConfigurationCommandTests : GameCommandTestBase<WeaponConfigu
             .Returns("backward");
     }
 
-    protected override WeaponConfigurationCommand CreateCommand()
+    private WeaponConfigurationCommand CreateCommand()
     {
         return new WeaponConfigurationCommand
         {
@@ -50,15 +51,6 @@ public class WeaponConfigurationCommandTests : GameCommandTestBase<WeaponConfigu
                 Value = (int)HexDirection.Bottom
             }
         };
-    }
-
-    protected override void AssertCommandSpecificProperties(WeaponConfigurationCommand original, WeaponConfigurationCommand? cloned)
-    {
-        base.AssertCommandSpecificProperties(original, cloned);
-        cloned!.PlayerId.ShouldBe(original.PlayerId);
-        cloned.UnitId.ShouldBe(original.UnitId);
-        cloned.Configuration.Type.ShouldBe(original.Configuration.Type);
-        cloned.Configuration.Value.ShouldBe(original.Configuration.Value);
     }
 
     [Fact]
@@ -106,7 +98,7 @@ public class WeaponConfigurationCommandTests : GameCommandTestBase<WeaponConfigu
         // Arrange
         var command = CreateCommand();
         _unit.Deploy(new HexPosition(new HexCoordinates(1,1), HexDirection.Top));
-        var expectedHex = _unit.Position!.Value.Coordinates.Neighbor(HexDirection.Bottom);
+        var expectedHex = _unit.Position!.Coordinates.Neighbor(HexDirection.Bottom);
 
         // Act
         var result = command.Format(_localizationService, _game);

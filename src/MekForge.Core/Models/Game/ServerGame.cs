@@ -46,9 +46,9 @@ public class ServerGame : BaseGame
         _currentPhase.Enter();
     }
 
-    public override void HandleCommand(GameCommand command)
+    public override void HandleCommand(IGameCommand command)
     {
-        if (command is not ClientCommand) return;
+        if (command is not IClientCommand) return;
         if (!ShouldHandleCommand(command)) return;
         if (!ValidateCommand(command)) return;
         

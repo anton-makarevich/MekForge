@@ -1,9 +1,9 @@
 using Shouldly;
-using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
-using Sanet.MekForge.Core.Tests.Data;
+using Sanet.MekForge.Core.Tests.Data.Community;
+using Sanet.MekForge.Core.Utils;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Commands.Client.Builders;
@@ -95,12 +95,12 @@ public class DeploymentCommandBuilderTests
         
         // Assert
         result.ShouldNotBeNull();
-        result!.GameOriginId.ShouldBe(_gameId);
-        result.PlayerId.ShouldBe(_playerId);
-        result.UnitId.ShouldBe(_unit.Id);
-        result.Position.Q.ShouldBe(_coordinates.Q);
-        result.Position.R.ShouldBe(_coordinates.R);
-        result.Direction.ShouldBe((int)HexDirection.Top);
+        result.Value.GameOriginId.ShouldBe(_gameId);
+        result.Value.PlayerId.ShouldBe(_playerId);
+        result.Value.UnitId.ShouldBe(_unit.Id);
+        result.Value.Position.Q.ShouldBe(_coordinates.Q);
+        result.Value.Position.R.ShouldBe(_coordinates.R);
+        result.Value.Direction.ShouldBe((int)HexDirection.Top);
     }
     
     [Fact]

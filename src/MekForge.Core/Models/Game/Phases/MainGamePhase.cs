@@ -33,7 +33,7 @@ public abstract class MainGamePhase : GamePhase
 
     protected abstract GamePhase GetNextPhase();
 
-    protected void HandleUnitAction(GameCommand command, Guid playerId)
+    protected void HandleUnitAction(IGameCommand command, Guid playerId)
     {
         if (playerId != Game.ActivePlayer?.Id) return;
 
@@ -48,5 +48,5 @@ public abstract class MainGamePhase : GamePhase
         Game.SetActivePlayer(Game.ActivePlayer, _remainingUnits);
     }
 
-    protected abstract void ProcessCommand(GameCommand command);
+    protected abstract void ProcessCommand(IGameCommand command);
 }

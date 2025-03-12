@@ -1,7 +1,7 @@
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 
-namespace MekForge.Core.Tests.Models.Units.Mechs;
+namespace Sanet.MekForge.Core.Tests.Models.Units.Mechs;
 
 public class SideTorsoTests
 {

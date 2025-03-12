@@ -1,4 +1,3 @@
-using Sanet.MekForge.Core.Models.Game.Dice;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;

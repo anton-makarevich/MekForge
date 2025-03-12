@@ -1,8 +1,9 @@
+using Sanet.MekForge.Core.Data.Community;
 using Sanet.MekForge.Core.Models.Units;
 
-namespace Sanet.MekForge.Core.Data;
+namespace Sanet.MekForge.Core.Data.Units;
 
-public record struct UnitData
+public record UnitData
 {
     public Guid? Id { get; set; } 
     public required string Chassis { get; init; }

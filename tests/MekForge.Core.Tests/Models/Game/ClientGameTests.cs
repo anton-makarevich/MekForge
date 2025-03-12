@@ -1,6 +1,8 @@
 using Shouldly;
 using NSubstitute;
-using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Data.Game;
+using Sanet.MekForge.Core.Data.Map;
+using Sanet.MekForge.Core.Data.Units;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Commands;
@@ -14,6 +16,7 @@ using Sanet.MekForge.Core.Models.Map.Terrains;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.Tests.Data;
+using Sanet.MekForge.Core.Tests.Data.Community;
 using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MekForge.Core.Utils.TechRules;
 
@@ -260,7 +263,7 @@ public class ClientGameTests
             Units = [],
             Tint = "#FF0000"
         };
-        var receivedCommands = new List<GameCommand>();
+        var receivedCommands = new List<IGameCommand>();
         using var subscription = _clientGame.Commands.Subscribe(cmd => receivedCommands.Add(cmd));
 
         // Act
@@ -424,9 +427,9 @@ public class ClientGameTests
         // Assert
         var deployedUnit = _clientGame.Players.First().Units.First();
         deployedUnit.IsDeployed.ShouldBeTrue();
-        deployedUnit.Position!.Value.Coordinates.Q.ShouldBe(1);
-        deployedUnit.Position.Value.Coordinates.R.ShouldBe(1);
-        deployedUnit.Position.Value.Facing.ShouldBe(HexDirection.Top);
+        deployedUnit.Position!.Coordinates.Q.ShouldBe(1);
+        deployedUnit.Position.Coordinates.R.ShouldBe(1);
+        deployedUnit.Position.Facing.ShouldBe(HexDirection.Top);
     }
 
     [Fact]
@@ -515,9 +518,9 @@ public class ClientGameTests
 
         // Assert
         var movedUnit = _clientGame.Players[0].Units[0];
-        movedUnit.Position!.Value.Coordinates.Q.ShouldBe(2);
-        movedUnit.Position.Value.Coordinates.R.ShouldBe(2);
-        movedUnit.Position.Value.Facing.ShouldBe(HexDirection.Top);
+        movedUnit.Position!.Coordinates.Q.ShouldBe(2);
+        movedUnit.Position.Coordinates.R.ShouldBe(2);
+        movedUnit.Position.Facing.ShouldBe(HexDirection.Top);
     }
 
     [Fact]

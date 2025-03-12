@@ -2,11 +2,12 @@
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Browser;
-using Sanet.MekForge.Avalonia;
 using Sanet.MekForge.Avalonia.Browser.DependencyInjection;
 using Sanet.MVVM.DI.Avalonia.Extensions;
 
 [assembly: SupportedOSPlatform("browser")]
+
+namespace Sanet.MekForge.Avalonia.Browser;
 
 internal sealed partial class Program
 {

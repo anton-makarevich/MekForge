@@ -11,7 +11,7 @@ public class EndPhase : GamePhase
         Game.IncrementTurn();
     }
 
-    public override void HandleCommand(GameCommand command)
+    public override void HandleCommand(IGameCommand command)
     {
         // End state doesn't handle any commands
     }

@@ -2,13 +2,17 @@ using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.Models.Game.Commands.Server;
 
-public record DiceRolledCommand : GameCommand
+public record struct DiceRolledCommand : IGameCommand
 {
     public required Guid PlayerId { get; init; }
     public required int Roll { get; init; }
-    public override string Format(ILocalizationService localizationService, IGame game)
+    public Guid GameOriginId { get; set; }
+    public DateTime Timestamp { get; init; }
+
+    public string Format(ILocalizationService localizationService, IGame game)
     {
-        var player = game.Players.FirstOrDefault(p => p.Id == PlayerId);
+        var command = this;
+        var player = game.Players.FirstOrDefault(p => p.Id == command.PlayerId);
         if (player == null) return string.Empty;
         var localizedTemplate = localizationService.GetString("Command_DiceRolled");
         return string.Format(localizedTemplate, player.Name, Roll);

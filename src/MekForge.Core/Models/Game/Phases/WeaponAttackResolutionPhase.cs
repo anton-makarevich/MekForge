@@ -1,4 +1,5 @@
-using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Data.Game;
+using Sanet.MekForge.Core.Data.Units;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Players;
@@ -140,7 +141,7 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
             // Check each firing arc to determine which one contains the attacker
             foreach (FiringArc arc in Enum.GetValues<FiringArc>())
             {
-                if (target.Position!.Value.Coordinates.IsInFiringArc(attacker.Position!.Value.Coordinates, target.Position.Value.Facing, arc))
+                if (target.Position!.Coordinates.IsInFiringArc(attacker.Position!.Coordinates, target.Position.Facing, arc))
                 {
                     attackDirection = arc;
                     break;
@@ -190,7 +191,7 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
 
     private GamePhase GetNextPhase() => new PhysicalAttackPhase(Game);
 
-    public override void HandleCommand(GameCommand command)
+    public override void HandleCommand(IGameCommand command)
     {
         // This phase doesn't process incoming commands, but we need to implement this method
     }

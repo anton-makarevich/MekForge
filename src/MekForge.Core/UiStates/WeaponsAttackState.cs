@@ -6,7 +6,8 @@ using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.ViewModels;
 using Sanet.MekForge.Core.ViewModels.Wrappers;
-using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Data.Game;
+using Sanet.MekForge.Core.Data.Units;
 
 namespace Sanet.MekForge.Core.UiStates;
 
@@ -175,7 +176,7 @@ public class WeaponsAttackState : IUiState
                     () => 
                     {
                         UpdateAvailableDirections();
-                        _viewModel.ShowDirectionSelector(mech.Position!.Value.Coordinates, _availableDirections);
+                        _viewModel.ShowDirectionSelector(mech.Position!.Coordinates, _availableDirections);
                         CurrentStep = WeaponsAttackStep.WeaponsConfiguration;
                         _viewModel.NotifyStateChanged();
                     }));
@@ -213,7 +214,7 @@ public class WeaponsAttackState : IUiState
     {
         if (Attacker is not Mech mech || mech.Position == null) return;
         
-        var currentFacing = (int)mech.Position.Value.Facing;
+        var currentFacing = (int)mech.Position.Facing;
         _availableDirections.Clear();
 
         // Add available directions based on PossibleTorsoRotation
@@ -235,7 +236,7 @@ public class WeaponsAttackState : IUiState
         if (Attacker?.Position == null) return;
 
         var reachableHexes = new HashSet<HexCoordinates>();
-        var unitPosition = Attacker.Position.Value;
+        var unitPosition = Attacker.Position;
         _weaponRanges.Clear();
 
         foreach (var part in Attacker.Parts)
@@ -293,7 +294,7 @@ public class WeaponsAttackState : IUiState
             .SelectMany(p => p.GetComponents<Weapon>())
             .Max(w => w.LongRange);
 
-        var allPossibleHexes = Attacker.Position.Value.Coordinates
+        var allPossibleHexes = Attacker.Position.Coordinates
             .GetCoordinatesInRange(maxRange);
 
         _weaponRanges.Clear();
@@ -345,7 +346,7 @@ public class WeaponsAttackState : IUiState
     {
         if (Attacker == null || SelectedTarget?.Position == null) return;
 
-        var targetCoords = SelectedTarget.Position.Value.Coordinates;
+        var targetCoords = SelectedTarget.Position.Coordinates;
         foreach (var vm in _weaponViewModels)
         {
             var isInRange = IsWeaponInRange(vm.Weapon, targetCoords);
@@ -435,7 +436,7 @@ public class WeaponsAttackState : IUiState
         // Check for targets in the forward arc
         if (Attacker?.Position == null) return targets[0];
         
-        var attackerPosition = Attacker.Position.Value;
+        var attackerPosition = Attacker.Position;
         var facing = Attacker is Mech mech ? mech.TorsoDirection : attackerPosition.Facing;
         
         if (facing == null) return targets[0];
@@ -444,7 +445,7 @@ public class WeaponsAttackState : IUiState
         var targetsInForwardArc = targets
             .Where(t => t.Position != null && 
                        attackerPosition.Coordinates.IsInFiringArc(
-                           t.Position.Value.Coordinates, 
+                           t.Position.Coordinates, 
                            facing.Value, 
                            FiringArc.Forward))
             .ToList();

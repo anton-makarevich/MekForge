@@ -1,5 +1,4 @@
 using Sanet.MekForge.Core.Models.Map;
-using Xunit;
 
 namespace Sanet.MekForge.Core.Tests.Models.Map;
 

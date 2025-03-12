@@ -148,8 +148,8 @@ namespace Sanet.MekForge.Avalonia.Controls
 
                     var torsoFacing = isMech && state.TorsoDirection.HasValue 
                         ? (int)state.TorsoDirection.Value 
-                        : (int)state.Position!.Value.Facing;
-                    var unitFacing = (int)state.Position!.Value.Facing;
+                        : (int)state.Position!.Facing;
+                    var unitFacing = (int)state.Position!.Facing;
                     
                     // Rotate entire control to show torso/unit direction
                     RenderTransform = new RotateTransform(torsoFacing * 60, 0, 0);
@@ -158,7 +158,7 @@ namespace Sanet.MekForge.Avalonia.Controls
                     if (isMech)
                     {
                         torsoArrow.IsVisible = state.IsWeaponsPhase && state.TorsoDirection.HasValue &&
-                                               state.Position.HasValue;
+                                               state.Position!=null;
                         if (!torsoArrow.IsVisible) return;
                         // Since control is rotated to torso direction, we need opposite delta
                         var deltaAngle = (unitFacing - torsoFacing + 6) % 6 * 60;
@@ -227,8 +227,8 @@ namespace Sanet.MekForge.Avalonia.Controls
             if (_unit.Position == null) return;
             var hexPosition = _unit.Position;
             
-            var leftPos = hexPosition.Value.Coordinates.H;
-            var topPos = hexPosition.Value.Coordinates.V;
+            var leftPos = hexPosition.Coordinates.H;
+            var topPos = hexPosition.Coordinates.V;
             
             SetValue(Canvas.LeftProperty, leftPos);
             SetValue(Canvas.TopProperty, topPos);

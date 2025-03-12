@@ -1,4 +1,4 @@
-using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Data.Game;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units.Components;
@@ -290,9 +290,9 @@ public abstract class Unit
             throw new InvalidOperationException("Unit is not deployed.");
         } 
         var position = movementType==MovementType.StandingStill
-            ? Position.Value
+            ? Position
             :new HexPosition(movementPath.Last().To);
-        var distance = Position.Value.Coordinates.DistanceTo(position.Coordinates);
+        var distance = Position.Coordinates.DistanceTo(position.Coordinates);
         DistanceCovered = distance;
         MovementPointsSpent = movementPath.Sum(s=>s.Cost);
         MovementTypeUsed = movementType;

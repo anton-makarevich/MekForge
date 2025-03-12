@@ -1,3 +1,5 @@
+using Sanet.MekForge.Core.Data.Community;
+using Sanet.MekForge.Core.Data.Units;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Engines;
@@ -9,18 +11,18 @@ using Sanet.MekForge.Core.Models.Units.Components.Weapons.Missile;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.Utils.TechRules;
 
-namespace Sanet.MekForge.Core.Data;
+namespace Sanet.MekForge.Core.Utils;
 
 public class MechFactory
 {
     private readonly IRulesProvider _rulesProvider;
 
-    public MechFactory( IRulesProvider rulesProvider)
+    public MechFactory(IRulesProvider rulesProvider)
     {
         _rulesProvider = rulesProvider;
     }
 
-    public Mech Create(Data.UnitData unitData)
+    public Mech Create(UnitData unitData)
     {
         
         // Create parts with appropriate armor and structure
@@ -62,7 +64,7 @@ public class MechFactory
         return parts;
     }
 
-    private void AddEquipmentToParts(Mech mech, Data.UnitData unitData)
+    private void AddEquipmentToParts(Mech mech, UnitData unitData)
     {
         foreach (var (location, equipment) in unitData.LocationEquipment)
         {
@@ -82,7 +84,7 @@ public class MechFactory
         }
     }
 
-    private Component? CreateComponent(MekForgeComponent itemName, Data.UnitData unitData)
+    private Component? CreateComponent(MekForgeComponent itemName, UnitData unitData)
     {
         return itemName switch
         {

@@ -7,13 +7,13 @@ using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Commands.Server;
 
-public class ChangePhaseCommandTests : GameCommandTestBase<ChangePhaseCommand>
+public class ChangePhaseCommandTests
 {
     private readonly ILocalizationService _localizationService = Substitute.For<ILocalizationService>();
     private readonly IGame _game = Substitute.For<IGame>();
     private readonly Guid _gameId = Guid.NewGuid();
 
-    protected override ChangePhaseCommand CreateCommand()
+    private ChangePhaseCommand CreateCommand()
     {
         return new ChangePhaseCommand
         {
@@ -22,11 +22,6 @@ public class ChangePhaseCommandTests : GameCommandTestBase<ChangePhaseCommand>
         };
     }
 
-    protected override void AssertCommandSpecificProperties(ChangePhaseCommand original, ChangePhaseCommand? cloned)
-    {
-        base.AssertCommandSpecificProperties(original, cloned);
-        cloned!.Phase.ShouldBe(original.Phase);
-    }
 
     [Fact]
     public void Format_ShouldFormatCorrectly()

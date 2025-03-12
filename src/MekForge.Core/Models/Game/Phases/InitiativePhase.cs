@@ -1,6 +1,7 @@
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
+using Sanet.MekForge.Core.Models.Game.Players;
 
 namespace Sanet.MekForge.Core.Models.Game.Phases;
 
@@ -56,12 +57,13 @@ public class InitiativePhase : GamePhase
         Game.TransitionToPhase(new MovementPhase(Game));
     }
 
-    public override void HandleCommand(GameCommand command)
+    public override void HandleCommand(IGameCommand command)
     {
         if (command is not RollDiceCommand rollCommand) return;
         if (rollCommand.PlayerId != Game.ActivePlayer?.Id) return;
 
-        var broadcastRollCommand = rollCommand.CloneWithGameId(Game.Id);
+        var broadcastRollCommand = rollCommand;
+        broadcastRollCommand.GameOriginId = Game.Id;
         Game.CommandPublisher.PublishCommand(broadcastRollCommand);
 
         var roll = Roll2D6();

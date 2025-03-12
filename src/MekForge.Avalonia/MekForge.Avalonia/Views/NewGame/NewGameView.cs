@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Data.Community;
+using Sanet.MekForge.Core.Data.Units;
 using Sanet.MekForge.Core.ViewModels;
 using Sanet.MVVM.Views.Avalonia;
 

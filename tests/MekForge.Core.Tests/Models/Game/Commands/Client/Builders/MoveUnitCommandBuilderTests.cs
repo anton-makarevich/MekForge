@@ -1,10 +1,10 @@
-using Shouldly;
-using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
-using Sanet.MekForge.Core.Tests.Data;
+using Sanet.MekForge.Core.Tests.Data.Community;
+using Sanet.MekForge.Core.Utils;
 using Sanet.MekForge.Core.Utils.TechRules;
+using Shouldly;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Commands.Client.Builders;
 
@@ -14,14 +14,12 @@ public class MoveUnitCommandBuilderTests
     private readonly Guid _gameId = Guid.NewGuid();
     private readonly Guid _playerId;
     private readonly Unit _unit;
-    private readonly HexCoordinates _coordinates;
-    
+
     public MoveUnitCommandBuilderTests()
     {
         _playerId = Guid.NewGuid();
         _builder = new MoveUnitCommandBuilder(_gameId, _playerId);
         _unit = new MechFactory(new ClassicBattletechRulesProvider()).Create(MechFactoryTests.CreateDummyMechData());
-        _coordinates = new HexCoordinates(1, 1);
     }
     
     [Fact]
@@ -115,14 +113,14 @@ public class MoveUnitCommandBuilderTests
         
         // Assert
         command.ShouldNotBeNull();
-        command.GameOriginId.ShouldBe(_gameId);
-        command.MovementType.ShouldBe(MovementType.Walk);
-        command.PlayerId.ShouldBe(_playerId);
-        command.UnitId.ShouldBe(_unit.Id);
-        command.MovementPath.Count.ShouldBe(1);
-        command.MovementPath[0].Cost.ShouldBe(1);
-        command.MovementPath[0].From.Coordinates.ShouldBeEquivalentTo(startPos.Coordinates.ToData());
-        command.MovementPath[0].To.Coordinates.ShouldBeEquivalentTo(endPos.Coordinates.ToData());
+        command.Value.GameOriginId.ShouldBe(_gameId);
+        command.Value.MovementType.ShouldBe(MovementType.Walk);
+        command.Value.PlayerId.ShouldBe(_playerId);
+        command.Value.UnitId.ShouldBe(_unit.Id);
+        command.Value.MovementPath.Count.ShouldBe(1);
+        command.Value.MovementPath[0].Cost.ShouldBe(1);
+        command.Value.MovementPath[0].From.Coordinates.ShouldBeEquivalentTo(startPos.Coordinates.ToData());
+        command.Value.MovementPath[0].To.Coordinates.ShouldBeEquivalentTo(endPos.Coordinates.ToData());
     }
     
     [Fact]
@@ -194,13 +192,13 @@ public class MoveUnitCommandBuilderTests
         
         // Assert
         result.ShouldNotBeNull();
-        result!.GameOriginId.ShouldBe(_gameId);
-        result.PlayerId.ShouldBe(_playerId);
-        result.UnitId.ShouldBe(_unit.Id);
-        result.MovementType.ShouldBe(MovementType.Walk);
-        result.MovementPath.Count.ShouldBe(2);
-        result.MovementPath[0].Cost.ShouldBe(1);
-        result.MovementPath[1].Cost.ShouldBe(1);
+        result.Value.GameOriginId.ShouldBe(_gameId);
+        result.Value.PlayerId.ShouldBe(_playerId);
+        result.Value.UnitId.ShouldBe(_unit.Id);
+        result.Value.MovementType.ShouldBe(MovementType.Walk);
+        result.Value.MovementPath.Count.ShouldBe(2);
+        result.Value.MovementPath[0].Cost.ShouldBe(1);
+        result.Value.MovementPath[1].Cost.ShouldBe(1);
     }
     
     [Fact]

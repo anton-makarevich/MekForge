@@ -2,13 +2,17 @@
 
 namespace Sanet.MekForge.Core.Models.Game.Commands.Server;
 
-public record ChangeActivePlayerCommand : GameCommand
+public record struct ChangeActivePlayerCommand : IGameCommand
 {
     public required Guid? PlayerId { get; init; }
     public required int UnitsToPlay { get; init; }
-    public override string Format(ILocalizationService localizationService, IGame game)
+    public Guid GameOriginId { get; set; }
+    public DateTime Timestamp { get; init; }
+
+    public string Format(ILocalizationService localizationService, IGame game)
     {
-        var player = game.Players.FirstOrDefault(p => p.Id == PlayerId);
+        var command = this;
+        var player = game.Players.FirstOrDefault(p => p.Id == command.PlayerId);
         if (player == null) return string.Empty;
         var localizationKey = UnitsToPlay >0 
             ? "Command_ChangeActivePlayerUnits"
