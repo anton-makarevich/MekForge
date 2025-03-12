@@ -1,6 +1,6 @@
 using Shouldly;
-using Sanet.MekForge.Core.Data;
 using Sanet.MekForge.Core.Data.Community;
+using Sanet.MekForge.Core.Data.Units;
 using Sanet.MekForge.Core.Models.Units;
 
 namespace Sanet.MekForge.Core.Tests.Data.Community;

@@ -1,6 +1,8 @@
-namespace Sanet.MekForge.Core.Data
+using Sanet.MekForge.Core.Data.Map;
+
+namespace Sanet.MekForge.Core.Data.Game
 {
-    public record struct PathSegmentData
+    public record PathSegmentData
     {
         public required HexPositionData From { get; init; }
         public required HexPositionData To { get; init; }

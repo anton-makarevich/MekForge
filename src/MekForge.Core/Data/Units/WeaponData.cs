@@ -1,6 +1,6 @@
 using Sanet.MekForge.Core.Models.Units;
 
-namespace Sanet.MekForge.Core.Data;
+namespace Sanet.MekForge.Core.Data.Units;
 
 /// <summary>
 /// Serializable data to identify a specific weapon on a unit

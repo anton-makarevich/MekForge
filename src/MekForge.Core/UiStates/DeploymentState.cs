@@ -88,7 +88,7 @@ public class DeploymentState : IUiState
 
     private bool IsHexOccupied(Hex hex)
     {
-        return _viewModel.Units.Any(u => u.IsDeployed &&u.Position!.Value.Coordinates == hex.Coordinates);
+        return _viewModel.Units.Any(u => u.IsDeployed &&u.Position!.Coordinates == hex.Coordinates);
     }
 
     private void CompleteDeployment()

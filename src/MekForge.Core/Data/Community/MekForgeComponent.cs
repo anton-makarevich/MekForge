@@ -1,4 +1,4 @@
-namespace Sanet.MekForge.Core.Data;
+namespace Sanet.MekForge.Core.Data.Community;
 
 public enum MekForgeComponent
 {

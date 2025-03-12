@@ -27,15 +27,14 @@ public class BattleMapViewModel : BaseViewModel
     private bool _isCommandLogExpanded;
     private bool _isRecordSheetExpanded;
     private readonly ILocalizationService _localizationService;
-    private HexCoordinates _directionSelectorPosition;
+    private HexCoordinates? _directionSelectorPosition;
     private bool _isDirectionSelectorVisible;
     private IEnumerable<HexDirection>? _availableDirections;
     private List<PathSegmentViewModel>? _movementPath;
     private List<WeaponAttackViewModel>? _weaponAttacks;
     private bool _isWeaponSelectionVisible;
-    private readonly ObservableCollection<WeaponSelectionViewModel> _weaponSelectionItems = new();
 
-    public HexCoordinates DirectionSelectorPosition
+    public HexCoordinates? DirectionSelectorPosition
     {
         get => _directionSelectorPosition;
         private set => SetProperty(ref _directionSelectorPosition, value);
@@ -91,7 +90,7 @@ public class BattleMapViewModel : BaseViewModel
 
     public IReadOnlyCollection<string> CommandLog => _commandLog;
 
-    public ObservableCollection<WeaponSelectionViewModel> WeaponSelectionItems => _weaponSelectionItems;
+    public ObservableCollection<WeaponSelectionViewModel> WeaponSelectionItems { get; } = [];
 
     public bool IsWeaponSelectionVisible
     {
@@ -182,8 +181,8 @@ public class BattleMapViewModel : BaseViewModel
 
                 var attack = new WeaponAttackViewModel
                 {
-                    From = attacker.Position!.Value.Coordinates,
-                    To = target.Position!.Value.Coordinates,
+                    From = attacker.Position!.Coordinates,
+                    To = target.Position!.Coordinates,
                     Weapon = weapon,
                     AttackerTint = attacker.Owner.Tint,
                     LineOffset = offset
@@ -196,7 +195,7 @@ public class BattleMapViewModel : BaseViewModel
             })
             .ToList();
             
-        WeaponAttacks.AddRange(newAttacks!);
+        WeaponAttacks.AddRange(newAttacks);
         NotifyPropertyChanged(nameof(WeaponAttacks));
     }
 

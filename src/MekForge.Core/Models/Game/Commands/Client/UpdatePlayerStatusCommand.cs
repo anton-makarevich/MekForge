@@ -1,4 +1,5 @@
-﻿using Sanet.MekForge.Core.Services.Localization;
+﻿using Sanet.MekForge.Core.Models.Game.Players;
+using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.Models.Game.Commands.Client;
 

@@ -27,8 +27,8 @@ public class ClassicToHitCalculator : IToHitCalculator
 
     public ToHitBreakdown GetModifierBreakdown(Unit attacker, Unit target, Weapon weapon, BattleMap map, bool isPrimaryTarget = true)
     {
-        var hasLos = map.HasLineOfSight(attacker.Position!.Value.Coordinates, target.Position!.Value.Coordinates);
-        var distance = attacker.Position!.Value.Coordinates.DistanceTo(target.Position!.Value.Coordinates);
+        var hasLos = map.HasLineOfSight(attacker.Position!.Coordinates, target.Position!.Coordinates);
+        var distance = attacker.Position!.Coordinates.DistanceTo(target.Position!.Coordinates);
         var range = weapon.GetRangeBracket(distance);
         var rangeValue = range switch
         {
@@ -39,7 +39,7 @@ public class ClassicToHitCalculator : IToHitCalculator
             WeaponRange.OutOfRange => weapon.LongRange+1,
             _ => throw new ArgumentException($"Unknown weapon range: {range}")
         };
-        var otherModifiers = GetDetailedOtherModifiers(attacker, target, weapon, map, isPrimaryTarget);
+        var otherModifiers = GetDetailedOtherModifiers(attacker, target, isPrimaryTarget);
         var terrainModifiers = GetTerrainModifiers(attacker, target, map);
 
         return new ToHitBreakdown
@@ -72,7 +72,7 @@ public class ClassicToHitCalculator : IToHitCalculator
         };
     }
 
-    private IReadOnlyList<AttackModifier> GetDetailedOtherModifiers(Unit attacker, Unit target, Weapon weapon, BattleMap map, bool isPrimaryTarget = true)
+    private IReadOnlyList<AttackModifier> GetDetailedOtherModifiers(Unit attacker, Unit target, bool isPrimaryTarget = true)
     {
         var modifiers = new List<AttackModifier> {
             new HeatAttackModifier
@@ -85,13 +85,13 @@ public class ClassicToHitCalculator : IToHitCalculator
         // Add secondary target modifier if not primary
         if (!isPrimaryTarget && attacker is { Position: not null } && target is { Position: not null })
         {
-            var attackerPosition = attacker.Position.Value;
+            var attackerPosition = attacker.Position;
             var facing = attacker is Mech mech ? mech.TorsoDirection : attackerPosition.Facing;
             
             if (facing != null)
             {
                 var isInFrontArc = attackerPosition.Coordinates.IsInFiringArc(
-                    target.Position.Value.Coordinates,
+                    target.Position.Coordinates,
                     facing.Value,
                     FiringArc.Forward);
                 
@@ -113,8 +113,8 @@ public class ClassicToHitCalculator : IToHitCalculator
     private IReadOnlyList<TerrainAttackModifier> GetTerrainModifiers(Unit attacker, Unit target, BattleMap map)
     {
         var hexes = map.GetHexesAlongLineOfSight(
-            attacker.Position!.Value.Coordinates,
-            target.Position!.Value.Coordinates);
+            attacker.Position!.Coordinates,
+            target.Position!.Coordinates);
 
         return hexes
             .Skip(1) // Skip attacker's hex

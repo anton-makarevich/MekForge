@@ -1,9 +1,9 @@
 using Shouldly;
 using NSubstitute;
-using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Phases;
+using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Tests.Data;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;

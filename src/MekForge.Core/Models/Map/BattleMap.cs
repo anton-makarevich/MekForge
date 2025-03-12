@@ -1,4 +1,4 @@
-using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Data.Map;
 using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Models.Map.Terrains;
 using Sanet.MekForge.Core.Utils.Generators;
@@ -8,19 +8,13 @@ namespace Sanet.MekForge.Core.Models.Map;
 /// <summary>
 /// Represents the game battle map, managing hexes and providing pathfinding capabilities
 /// </summary>
-public class BattleMap
+public class BattleMap(int width, int height)
 {
     private readonly Dictionary<HexCoordinates, Hex> _hexes = new();
     private readonly LineOfSightCache _losCache = new();
 
-    public int Width { get; }
-    public int Height { get; }
-
-    public BattleMap(int width, int height)
-    {
-        Width = width;
-        Height = height;
-    }
+    public int Width { get; } = width;
+    public int Height { get; } = height;
 
     /// <summary>
     /// Adds a hex to the map. Throws HexOutsideOfMapBoundariesException if hex coordinates are outside map boundaries
@@ -316,7 +310,7 @@ public class BattleMap
         var segments = from.LineTo(to);
         
         // If no divided segments, just return main options
-        if (!segments.Any(s => s.SecondOption != null))
+        if (segments.All(s => s.SecondOption == null))
         {
             var path = segments.Select(s => s.MainOption).ToList();
             _losCache.AddPath(from, to, path);
@@ -329,7 +323,7 @@ public class BattleMap
             .Sum(s => GetHex(s.MainOption)?.GetTerrains().Sum(t => t.InterveningFactor) ?? 0);
 
         var secondaryOptionsFactor = dividedSegments
-            .Sum(s => GetHex(s.SecondOption!.Value)?.GetTerrains().Sum(t => t.InterveningFactor) ?? 0);
+            .Sum(s => GetHex(s.SecondOption!)?.GetTerrains().Sum(t => t.InterveningFactor) ?? 0);
 
         // Choose whether to use secondary options based on which gives better defense
         var useSecondaryOptions = secondaryOptionsFactor > mainOptionsFactor;
@@ -337,7 +331,7 @@ public class BattleMap
         // Build the final path using the chosen option for divided segments
         var resolvedPath = segments.Select(s => 
             dividedSegments.Contains(s) && useSecondaryOptions 
-                ? s.SecondOption!.Value 
+                ? s.SecondOption! 
                 : s.MainOption).ToList();
 
         // Cache the resolved path

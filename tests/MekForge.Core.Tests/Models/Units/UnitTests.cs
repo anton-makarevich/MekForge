@@ -1,5 +1,6 @@
 using Shouldly;
-using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Data.Game;
+using Sanet.MekForge.Core.Data.Units;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;

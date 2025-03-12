@@ -1,4 +1,4 @@
-using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Data.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
 
 namespace Sanet.MekForge.Core.Models.Map;

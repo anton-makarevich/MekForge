@@ -1,9 +1,8 @@
-﻿using Sanet.MekForge.Core.Data;
-using Sanet.MVVM.Core.ViewModels;
+﻿using Sanet.MVVM.Core.ViewModels;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using AsyncAwaitBestPractices.MVVM;
-using Sanet.MekForge.Core.Models.Game;
+using Sanet.MekForge.Core.Data.Units;
 using Sanet.MekForge.Core.Models.Game.Players;
 
 namespace Sanet.MekForge.Core.ViewModels.Wrappers;
@@ -41,13 +40,13 @@ namespace Sanet.MekForge.Core.ViewModels.Wrappers;
 
         private Task AddUnit()
         {
-            if (!SelectedUnit.HasValue) return Task.CompletedTask;
-            var unit = SelectedUnit.Value;
+            if (SelectedUnit==null) return Task.CompletedTask;
+            var unit = SelectedUnit;
             unit.Id= Guid.NewGuid();
             Units.Add(unit);
             _onUnitAdded?.Invoke();
             return Task.CompletedTask;
         }
         
-        public bool CanAddUnit => SelectedUnit.HasValue; 
+        public bool CanAddUnit => SelectedUnit!=null; 
     }

@@ -1,4 +1,4 @@
-using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Data.Map;
 using Sanet.MekForge.Core.Exceptions;
 
 namespace Sanet.MekForge.Core.Models.Map;
@@ -6,7 +6,7 @@ namespace Sanet.MekForge.Core.Models.Map;
 /// <summary>
 /// Represents coordinates in a hexagonal grid using axial coordinate system
 /// </summary>
-public readonly record struct HexCoordinates
+public record HexCoordinates
 {
     public const double HexWidth = 100;
     public const double HexHeight = 86.6;
@@ -184,11 +184,11 @@ public readonly record struct HexCoordinates
                 {
                     // When options are not equal, create two separate segments
                     var nextSegment = new LineOfSightSegment(next);
-                    var additionalSegment = new LineOfSightSegment(additional.Value);
+                    var additionalSegment = new LineOfSightSegment(additional);
                     if (!result.Contains(nextSegment))
                         result.Add(new LineOfSightSegment(next));
                     if (!result.Contains(additionalSegment))
-                        result.Add(new LineOfSightSegment(additional.Value));
+                        result.Add(new LineOfSightSegment(additional));
                 }
             }
             else

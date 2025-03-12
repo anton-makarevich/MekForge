@@ -3,7 +3,7 @@ using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
 namespace Sanet.MekForge.Core.ViewModels;
 
-public record struct WeaponAttackViewModel
+public record WeaponAttackViewModel
 {
     public required HexCoordinates From { get; init; }
     public required HexCoordinates To { get; init; }

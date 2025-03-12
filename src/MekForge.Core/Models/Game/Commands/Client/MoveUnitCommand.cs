@@ -1,4 +1,4 @@
-using Sanet.MekForge.Core.Data;
+using Sanet.MekForge.Core.Data.Game;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services.Localization;
@@ -15,7 +15,7 @@ public record MoveUnitCommand: ClientCommand
         var localizedTemplate = localizationService.GetString("Command_MoveUnit");
         var position = MovementPath.Count>0 ? 
             MovementPath.Last().To
-            : unit.Position.Value.ToData();
+            : unit.Position.ToData();
         var facingHex = new HexCoordinates(position.Coordinates).Neighbor((HexDirection)position.Facing);
         return string.Format(localizedTemplate, 
             player?.Name, 

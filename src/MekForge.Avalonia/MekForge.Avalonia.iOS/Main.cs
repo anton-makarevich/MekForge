@@ -1,7 +1,6 @@
-using Sanet.MekForge.Avalonia.iOS;
 using UIKit;
 
-namespace MekForge.Avalonia.iOS;
+namespace Sanet.MekForge.Avalonia.iOS;
 
 public class Application
 {

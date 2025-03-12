@@ -1,21 +1,12 @@
-namespace Sanet.MekForge.Core.Models.Map;
+using Sanet.MekForge.Core.Data.Map;
 
-using Sanet.MekForge.Core.Data;
+namespace Sanet.MekForge.Core.Models.Map;
 
 /// <summary>
 /// Represents a position on the hex map, combining coordinates and facing direction
 /// </summary>
-public readonly record struct HexPosition
+public record HexPosition(HexCoordinates Coordinates, HexDirection Facing)
 {
-    public HexCoordinates Coordinates { get; init; }
-    public HexDirection Facing { get; init; }
-
-    public HexPosition(HexCoordinates coordinates, HexDirection facing)
-    {
-        Coordinates = coordinates;
-        Facing = facing;
-    }
-
     public HexPosition(int q, int r, HexDirection facing)
         : this(new HexCoordinates(q, r), facing)
     {

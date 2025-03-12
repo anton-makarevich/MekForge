@@ -22,7 +22,7 @@ public record WeaponConfigurationCommand : ClientCommand
                 localizationService.GetString("Command_WeaponConfiguration_TorsoRotation"),
                 player.Name,
                 unit.Name,
-                unit.Position!.Value.Coordinates.Neighbor((HexDirection)Configuration.Value)),
+                unit.Position!.Coordinates.Neighbor((HexDirection)Configuration.Value)),
             WeaponConfigurationType.ArmsFlip => string.Format(
                 localizationService.GetString("Command_WeaponConfiguration_ArmsFlip"),
                 player.Name,
