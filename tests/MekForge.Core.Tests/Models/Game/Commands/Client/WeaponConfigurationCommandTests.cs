@@ -7,6 +7,7 @@ using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services.Localization;
 using Sanet.MekForge.Core.Tests.Data;
+using Sanet.MekForge.Core.Tests.Data.Community;
 using Sanet.MekForge.Core.Utils;
 using Sanet.MekForge.Core.Utils.TechRules;
 
@@ -106,7 +107,7 @@ public class WeaponConfigurationCommandTests : GameCommandTestBase<WeaponConfigu
         // Arrange
         var command = CreateCommand();
         _unit.Deploy(new HexPosition(new HexCoordinates(1,1), HexDirection.Top));
-        var expectedHex = _unit.Position!.Value.Coordinates.Neighbor(HexDirection.Bottom);
+        var expectedHex = _unit.Position!.Coordinates.Neighbor(HexDirection.Bottom);
 
         // Act
         var result = command.Format(_localizationService, _game);

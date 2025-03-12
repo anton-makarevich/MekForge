@@ -15,6 +15,7 @@ using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.Services.Localization;
 using Sanet.MekForge.Core.Tests.Data;
+using Sanet.MekForge.Core.Tests.Data.Community;
 using Sanet.MekForge.Core.UiStates;
 using Sanet.MekForge.Core.Utils;
 using Sanet.MekForge.Core.Utils.Generators;
@@ -494,7 +495,7 @@ public class MovementStateTests
         var startPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
         var unit = _viewModel.Units.First();
         unit.Deploy(startPosition);
-        var unitHex = _game.BattleMap.GetHex(unit.Position!.Value.Coordinates)!;
+        var unitHex = _game.BattleMap.GetHex(unit.Position!.Coordinates)!;
         _state.HandleHexSelection(unitHex);
         _state.HandleMovementTypeSelection(MovementType.Walk);
         var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 4))!;
@@ -619,7 +620,7 @@ public class MovementStateTests
         var unit = _viewModel.Units.First();
         var startPosition = new HexPosition(new HexCoordinates(1, 2), HexDirection.Top);
         unit.Deploy(startPosition);
-        var unitHex = _game.BattleMap.GetHex(unit.Position!.Value.Coordinates)!;
+        var unitHex = _game.BattleMap.GetHex(unit.Position!.Coordinates)!;
         _state.HandleHexSelection(unitHex);
         _state.HandleUnitSelection(unit);
         _state.HandleMovementTypeSelection(MovementType.Walk);

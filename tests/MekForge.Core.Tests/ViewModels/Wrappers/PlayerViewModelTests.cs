@@ -1,6 +1,7 @@
 ﻿using Shouldly;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Tests.Data;
+using Sanet.MekForge.Core.Tests.Data.Community;
 using Sanet.MekForge.Core.ViewModels.Wrappers;
 
 namespace Sanet.MekForge.Core.Tests.ViewModels.Wrappers;
