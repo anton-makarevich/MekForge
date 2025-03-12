@@ -3,10 +3,13 @@ using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.Models.Game.Commands.Server;
 
-public record ChangePhaseCommand : GameCommand
+public record struct ChangePhaseCommand : IGameCommand
 {
     public required PhaseNames Phase { get; init; }
-    public override string Format(ILocalizationService localizationService, IGame game)
+    public Guid GameOriginId { get; set; }
+    public DateTime Timestamp { get; init; }
+
+    public string Format(ILocalizationService localizationService, IGame game)
     {
         var localizedTemplate = localizationService.GetString("Command_ChangePhase"); 
         

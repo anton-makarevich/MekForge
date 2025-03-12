@@ -128,7 +128,7 @@ public class BattleMapViewModel : BaseViewModel
             });
     }
 
-    private void ProcessCommand(GameCommand command)
+    private void ProcessCommand(IGameCommand command)
     {
         if (Game == null) return;
         var formattedCommand = command.Format(_localizationService, Game);

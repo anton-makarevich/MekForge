@@ -358,7 +358,7 @@ public class BaseGameTests() : BaseGame(BattleMap.GenerateMap(5, 5, new SingleTe
         leftArmWeapon.Target.ShouldBe(targetMech2);
     }
 
-    public override void HandleCommand(GameCommand command)
+    public override void HandleCommand(IGameCommand command)
     {
         throw new NotImplementedException();
     }

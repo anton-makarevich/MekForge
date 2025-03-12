@@ -263,7 +263,7 @@ public class ClientGameTests
             Units = [],
             Tint = "#FF0000"
         };
-        var receivedCommands = new List<GameCommand>();
+        var receivedCommands = new List<IGameCommand>();
         using var subscription = _clientGame.Commands.Subscribe(cmd => receivedCommands.Add(cmd));
 
         // Act

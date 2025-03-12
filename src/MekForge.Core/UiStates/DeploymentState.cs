@@ -96,7 +96,7 @@ public class DeploymentState : IUiState
         var command = _builder.Build();
         if (command != null && _viewModel.Game is ClientGame clientGame)
         {
-            clientGame.DeployUnit(command);
+            clientGame.DeployUnit(command.Value);
         }
         
         _builder.Reset();

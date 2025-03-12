@@ -182,7 +182,7 @@ public abstract class BaseGame : IGame
         Console.WriteLine("physical attack");
     }
     
-    protected bool ValidateCommand(GameCommand command)
+    protected bool ValidateCommand(IGameCommand command)
     {
         return command switch
         {
@@ -202,7 +202,7 @@ public abstract class BaseGame : IGame
         return player != null;
     }
 
-    protected bool ShouldHandleCommand(GameCommand command)
+    protected bool ShouldHandleCommand(IGameCommand command)
     {
         return command.GameOriginId != Id && command.GameOriginId != Guid.Empty;
     }
@@ -217,5 +217,5 @@ public abstract class BaseGame : IGame
         return true; //unit != null && !unit.Position.HasValue;
     }
 
-    public abstract void HandleCommand(GameCommand command);
+    public abstract void HandleCommand(IGameCommand command);
 }

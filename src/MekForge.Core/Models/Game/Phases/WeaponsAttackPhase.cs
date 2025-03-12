@@ -3,17 +3,13 @@ using Sanet.MekForge.Core.Models.Game.Commands.Client;
 
 namespace Sanet.MekForge.Core.Models.Game.Phases;
 
-public class WeaponsAttackPhase : MainGamePhase
+public class WeaponsAttackPhase(ServerGame game) : MainGamePhase(game)
 {
-    public WeaponsAttackPhase(ServerGame game) : base(game)
-    {
-    }
-
     protected override GamePhase GetNextPhase() => new WeaponAttackResolutionPhase(Game);
 
-    public override void HandleCommand(GameCommand command)
+    public override void HandleCommand(IGameCommand command)
     {
-        if (command is not ClientCommand clientCommand) return;
+        if (command is not IClientCommand clientCommand) return;
 
         switch (clientCommand)
         {
@@ -28,14 +24,16 @@ public class WeaponsAttackPhase : MainGamePhase
 
     private void ProcessWeaponConfiguration(WeaponConfigurationCommand configCommand)
     {
-        var broadcastConfig = configCommand.CloneWithGameId(Game.Id);
+        var broadcastConfig = configCommand;
+        broadcastConfig.GameOriginId = Game.Id;
         Game.CommandPublisher.PublishCommand(broadcastConfig);
     }
 
-    protected override void ProcessCommand(GameCommand command)
+    protected override void ProcessCommand(IGameCommand command)
     {
         var attackCommand = (WeaponAttackDeclarationCommand)command;
-        var broadcastAttack = attackCommand.CloneWithGameId(Game.Id);
+        var broadcastAttack = attackCommand;
+        broadcastAttack.GameOriginId = Game.Id;
         Game.OnWeaponsAttack(attackCommand);
         Game.CommandPublisher.PublishCommand(broadcastAttack);
     }

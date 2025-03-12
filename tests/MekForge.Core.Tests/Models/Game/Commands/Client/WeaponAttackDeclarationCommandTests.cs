@@ -1,21 +1,20 @@
-using Shouldly;
 using NSubstitute;
 using Sanet.MekForge.Core.Data.Game;
 using Sanet.MekForge.Core.Data.Units;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Players;
+using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services.Localization;
-using Sanet.MekForge.Core.Tests.Data;
-using Sanet.MekForge.Core.Utils.TechRules;
-using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Tests.Data.Community;
 using Sanet.MekForge.Core.Utils;
+using Sanet.MekForge.Core.Utils.TechRules;
+using Shouldly;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Commands.Client;
 
-public class WeaponAttackDeclarationCommandTests : GameCommandTestBase<WeaponAttackDeclarationCommand>
+public class WeaponAttackDeclarationCommandTests
 {
     private readonly ILocalizationService _localizationService = Substitute.For<ILocalizationService>();
     private readonly IGame _game = Substitute.For<IGame>();
@@ -49,55 +48,30 @@ public class WeaponAttackDeclarationCommandTests : GameCommandTestBase<WeaponAtt
             .Returns("- {0} at {1}'s {2}");
     }
 
-    protected override WeaponAttackDeclarationCommand CreateCommand()
+    private WeaponAttackDeclarationCommand CreateCommand()
     {
         return new WeaponAttackDeclarationCommand
         {
             GameOriginId = _gameId,
             PlayerId = _player1.Id,
             AttackerId = _attacker.Id,
-            WeaponTargets = new List<WeaponTargetData>
-            {
+            WeaponTargets =
+            [
                 new WeaponTargetData
                 {
                     Weapon = new WeaponData
                     {
                         Name = "Medium Laser",
                         Location = PartLocation.RightArm,
-                        Slots = new[] { 1, 2 }
+                        Slots = [1, 2]
                     },
                     TargetId = _target.Id,
                     IsPrimaryTarget = true
                 }
-            }
+            ]
         };
     }
-
-    protected override void AssertCommandSpecificProperties(WeaponAttackDeclarationCommand original, WeaponAttackDeclarationCommand? cloned)
-    {
-        base.AssertCommandSpecificProperties(original, cloned);
-        cloned!.PlayerId.ShouldBe(original.PlayerId);
-        cloned.AttackerId.ShouldBe(original.AttackerId);
-        cloned.WeaponTargets.Count.ShouldBe(original.WeaponTargets.Count);
-        
-        for (int i = 0; i < original.WeaponTargets.Count; i++)
-        {
-            var originalTarget = original.WeaponTargets[i];
-            var clonedTarget = cloned.WeaponTargets[i];
-            
-            clonedTarget.TargetId.ShouldBe(originalTarget.TargetId);
-            clonedTarget.IsPrimaryTarget.ShouldBe(originalTarget.IsPrimaryTarget);
-            clonedTarget.Weapon.Name.ShouldBe(originalTarget.Weapon.Name);
-            clonedTarget.Weapon.Location.ShouldBe(originalTarget.Weapon.Location);
-            clonedTarget.Weapon.Slots.Length.ShouldBe(originalTarget.Weapon.Slots.Length);
-            
-            for (int j = 0; j < originalTarget.Weapon.Slots.Length; j++)
-            {
-                clonedTarget.Weapon.Slots[j].ShouldBe(originalTarget.Weapon.Slots[j]);
-            }
-        }
-    }
-
+    
     [Fact]
     public void Format_ReturnsEmpty_WhenPlayerNotFound()
     {
@@ -226,7 +200,7 @@ public class WeaponAttackDeclarationCommandTests : GameCommandTestBase<WeaponAtt
             {
                 Name = "Large Laser",
                 Location = PartLocation.LeftArm,
-                Slots = new[] { 1, 2, 3 }
+                Slots = [1, 2, 3]
             },
             TargetId = _target.Id,
             IsPrimaryTarget = false

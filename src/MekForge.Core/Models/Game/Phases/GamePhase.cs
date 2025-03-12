@@ -14,6 +14,6 @@ public abstract class GamePhase
     public virtual void Enter() { }
     public virtual void Exit() { }
     
-    public abstract void HandleCommand(GameCommand command);
+    public abstract void HandleCommand(IGameCommand command);
     public abstract PhaseNames Name { get; }
 }

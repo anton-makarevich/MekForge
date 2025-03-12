@@ -7,7 +7,7 @@ using Sanet.MekForge.Core.Services.Localization;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Commands.Server;
 
-public class DiceRolledCommandTests : GameCommandTestBase<DiceRolledCommand>
+public class DiceRolledCommandTests
 {
     private readonly ILocalizationService _localizationService = Substitute.For<ILocalizationService>();
     private readonly IGame _game = Substitute.For<IGame>();
@@ -19,7 +19,7 @@ public class DiceRolledCommandTests : GameCommandTestBase<DiceRolledCommand>
         _game.Players.Returns([_player1]);
     }
 
-    protected override DiceRolledCommand CreateCommand()
+    private DiceRolledCommand CreateCommand()
     {
         return new DiceRolledCommand
         {
@@ -27,13 +27,6 @@ public class DiceRolledCommandTests : GameCommandTestBase<DiceRolledCommand>
             PlayerId = _player1.Id,
             Roll = 10
         };
-    }
-
-    protected override void AssertCommandSpecificProperties(DiceRolledCommand original, DiceRolledCommand? cloned)
-    {
-        base.AssertCommandSpecificProperties(original, cloned);
-        cloned!.PlayerId.ShouldBe(original.PlayerId);
-        cloned.Roll.ShouldBe(original.Roll);
     }
 
     [Fact]

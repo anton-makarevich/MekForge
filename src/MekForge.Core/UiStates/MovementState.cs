@@ -270,7 +270,7 @@ public class MovementState : IUiState
         {
             _viewModel.HideMovementPath();
             _viewModel.HideDirectionSelector();
-            clientGame.MoveUnit(command);
+            clientGame.MoveUnit(command.Value);
         }
         
         _builder.Reset();

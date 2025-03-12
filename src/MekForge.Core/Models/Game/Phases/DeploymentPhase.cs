@@ -4,14 +4,9 @@ using Sanet.MekForge.Core.Models.Game.Players;
 
 namespace Sanet.MekForge.Core.Models.Game.Phases;
 
-public class DeploymentPhase : GamePhase
+public class DeploymentPhase(ServerGame game) : GamePhase(game)
 {
-    private Queue<IPlayer> _deploymentOrderQueue;
-
-    public DeploymentPhase(ServerGame game) : base(game)
-    {
-        _deploymentOrderQueue = new Queue<IPlayer>();
-    }
+    private Queue<IPlayer> _deploymentOrderQueue = new();
 
     public override void Enter()
     {
@@ -19,12 +14,13 @@ public class DeploymentPhase : GamePhase
         SetNextDeployingPlayer();
     }
 
-    public override void HandleCommand(GameCommand command)
+    public override void HandleCommand(IGameCommand command)
     {
         if (command is not DeployUnitCommand deployCommand) return;
         if (deployCommand.PlayerId != Game.ActivePlayer?.Id) return;
 
-        var broadcastCommand = deployCommand.CloneWithGameId(Game.Id);
+        var broadcastCommand = deployCommand;
+        broadcastCommand.GameOriginId = Game.Id;
         Game.OnDeployUnit(deployCommand);
         Game.CommandPublisher.PublishCommand(broadcastCommand);
         HandleDeploymentProgress();

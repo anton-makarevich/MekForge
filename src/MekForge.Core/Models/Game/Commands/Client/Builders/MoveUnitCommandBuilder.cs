@@ -3,16 +3,11 @@ using Sanet.MekForge.Core.Models.Units;
 
 namespace Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 
-public class MoveUnitCommandBuilder : ClientCommandBuilder
+public class MoveUnitCommandBuilder(Guid gameId, Guid playerId) : ClientCommandBuilder(gameId, playerId)
 {
     private Guid? _unitId;
     private MovementType? _movementType;
     private List<PathSegment>? _movementPath;
-
-    public MoveUnitCommandBuilder(Guid gameId, Guid playerId) 
-        : base(gameId, playerId)
-    {
-    }
 
     public override bool CanBuild => 
         _unitId != null 
@@ -34,7 +29,7 @@ public class MoveUnitCommandBuilder : ClientCommandBuilder
         _movementPath = movementPath;
     }
 
-    public override MoveUnitCommand? Build()
+    public MoveUnitCommand? Build()
     {
         if (_unitId == null || _movementType == null || _movementPath == null)
             return null;

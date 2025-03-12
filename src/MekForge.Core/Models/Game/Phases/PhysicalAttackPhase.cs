@@ -3,24 +3,21 @@ using Sanet.MekForge.Core.Models.Game.Commands.Client;
 
 namespace Sanet.MekForge.Core.Models.Game.Phases;
 
-public class PhysicalAttackPhase : MainGamePhase
+public class PhysicalAttackPhase(ServerGame game) : MainGamePhase(game)
 {
-    public PhysicalAttackPhase(ServerGame game) : base(game)
-    {
-    }
-
     protected override GamePhase GetNextPhase() => new EndPhase(Game);
 
-    public override void HandleCommand(GameCommand command)
+    public override void HandleCommand(IGameCommand command)
     {
         if (command is not PhysicalAttackCommand attackCommand) return;
         HandleUnitAction(command, attackCommand.PlayerId);
     }
 
-    protected override void ProcessCommand(GameCommand command)
+    protected override void ProcessCommand(IGameCommand command)
     {
         var attackCommand = (PhysicalAttackCommand)command;
-        var broadcastCommand = attackCommand.CloneWithGameId(Game.Id);
+        var broadcastCommand = attackCommand;
+        broadcastCommand.GameOriginId = Game.Id;
         Game.OnPhysicalAttack(attackCommand);
         Game.CommandPublisher.PublishCommand(broadcastCommand);
     }

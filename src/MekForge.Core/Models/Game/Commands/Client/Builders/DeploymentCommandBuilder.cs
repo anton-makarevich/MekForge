@@ -22,7 +22,7 @@ public class DeploymentCommandBuilder(Guid gameId, Guid playerId) : ClientComman
         _direction = null;
     }
     
-    public override DeployUnitCommand? Build()
+    public DeployUnitCommand? Build()
     {
         if (_unitId == null || _position == null || _direction == null)
             return null;

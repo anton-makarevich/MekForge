@@ -4,6 +4,6 @@ namespace Sanet.MekForge.Core.Models.Game.Transport;
 
 public interface ICommandPublisher
 {
-    void PublishCommand(GameCommand command);
-    void Subscribe(Action<GameCommand> onCommandReceived);
+    void PublishCommand(IGameCommand command);
+    void Subscribe(Action<IGameCommand> onCommandReceived);
 }

@@ -13,7 +13,7 @@ using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Commands.Client;
 
-public class MoveUnitCommandTests : GameCommandTestBase<MoveUnitCommand>
+public class MoveUnitCommandTests
 {
     private readonly ILocalizationService _localizationService = Substitute.For<ILocalizationService>();
     private readonly IGame _game = Substitute.For<IGame>();
@@ -30,7 +30,7 @@ public class MoveUnitCommandTests : GameCommandTestBase<MoveUnitCommand>
         _player1.AddUnit(_unit);
     }
 
-    protected override MoveUnitCommand CreateCommand()
+    private MoveUnitCommand CreateCommand()
     {
         var startPos = new HexPosition(3, 5, HexDirection.Top);
         var endPos = new HexPosition(4, 5, HexDirection.Bottom);
@@ -44,14 +44,6 @@ public class MoveUnitCommandTests : GameCommandTestBase<MoveUnitCommand>
             UnitId = _unit.Id,
             MovementPath = [pathSegment.ToData()]
         };
-    }
-
-    protected override void AssertCommandSpecificProperties(MoveUnitCommand original, MoveUnitCommand? cloned)
-    {
-        base.AssertCommandSpecificProperties(original, cloned);
-        cloned!.PlayerId.ShouldBe(original.PlayerId);
-        cloned.UnitId.ShouldBe(original.UnitId);
-        cloned.MovementPath.ShouldBeEquivalentTo(original.MovementPath);
     }
 
     [Fact]

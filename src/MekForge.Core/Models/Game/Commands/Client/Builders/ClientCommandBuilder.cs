@@ -1,17 +1,9 @@
 namespace Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 
-public abstract class ClientCommandBuilder
+public abstract class ClientCommandBuilder(Guid gameId, Guid playerId)
 {
-    protected readonly Guid GameId;
-    protected readonly Guid PlayerId;
+    protected readonly Guid GameId = gameId;
+    protected readonly Guid PlayerId = playerId;
 
-    protected ClientCommandBuilder(Guid gameId, Guid playerId)
-    {
-        GameId = gameId;
-        PlayerId = playerId;
-    }
-    
     public abstract bool CanBuild { get; }
-
-    public abstract ClientCommand? Build();
 }

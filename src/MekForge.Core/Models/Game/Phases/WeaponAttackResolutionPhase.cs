@@ -191,7 +191,7 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
 
     private GamePhase GetNextPhase() => new PhysicalAttackPhase(Game);
 
-    public override void HandleCommand(GameCommand command)
+    public override void HandleCommand(IGameCommand command)
     {
         // This phase doesn't process incoming commands, but we need to implement this method
     }
