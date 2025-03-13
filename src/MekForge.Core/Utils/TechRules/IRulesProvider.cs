@@ -48,4 +48,12 @@ public interface IRulesProvider
     /// <param name="attackDirection">The direction from which the attack is coming</param>
     /// <returns>The part location that was hit</returns>
     PartLocation GetHitLocation(int diceResult, FiringArc attackDirection);
+    
+    /// <summary>
+    /// Determines how many missiles hit the target based on the cluster hit table
+    /// </summary>
+    /// <param name="diceResult">The 2D6 roll result</param>
+    /// <param name="weaponSize">The total number of missiles in the weapon (Clusters * ClusterSize)</param>
+    /// <returns>The number of missiles that hit the target</returns>
+    int GetClusterHits(int diceResult, int weaponSize);
 }
