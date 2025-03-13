@@ -9,12 +9,7 @@ namespace Sanet.MekForge.Core.Tests.Utils.TechRules
 {
     public class ClassicBattletechRulesProviderTests
     {
-        private readonly IRulesProvider _provider;
-
-        public ClassicBattletechRulesProviderTests()
-        {
-            _provider = new ClassicBattletechRulesProvider();
-        }
+        private readonly IRulesProvider _provider = new ClassicBattletechRulesProvider();
 
         [Theory]
         [InlineData(20, 3, 6, 5, 5, 3, 3, 4, 4)]
@@ -270,6 +265,220 @@ namespace Sanet.MekForge.Core.Tests.Utils.TechRules
         {
             // Act & Assert
             Should.Throw<ArgumentOutOfRangeException>(() => _provider.GetHitLocation(7, (FiringArc)999));
+        }
+
+        #endregion
+
+        #region Cluster Hits Tests
+
+        [Theory]
+        // Test for 2-missile weapons (SRM-2)
+        [InlineData(2, 2, 1)]   // Roll 2 -> 1 hit
+        [InlineData(3, 2, 1)]   // Roll 3 -> 1 hit
+        [InlineData(4, 2, 1)]   // Roll 4 -> 1 hit
+        [InlineData(5, 2, 1)]   // Roll 5 -> 1 hit
+        [InlineData(6, 2, 1)]   // Roll 6 -> 1 hit
+        [InlineData(7, 2, 1)]   // Roll 7 -> 1 hit
+        [InlineData(8, 2, 2)]   // Roll 8 -> 2 hits
+        [InlineData(9, 2, 2)]   // Roll 9 -> 2 hits
+        [InlineData(10, 2, 2)]  // Roll 10 -> 2 hits
+        [InlineData(11, 2, 2)]  // Roll 11 -> 2 hits
+        [InlineData(12, 2, 2)]  // Roll 12 -> 2 hits
+        public void GetClusterHits_SRM2_ReturnsCorrectHits(int diceResult, int weaponSize, int expectedHits)
+        {
+            // Act
+            var result = _provider.GetClusterHits(diceResult, weaponSize);
+
+            // Assert
+            result.ShouldBe(expectedHits);
+        }
+
+        [Theory]
+        // Test for 4-missile weapons (SRM-4)
+        [InlineData(2, 4, 1)]   // Roll 2 -> 1 hit
+        [InlineData(3, 4, 2)]   // Roll 3 -> 2 hits
+        [InlineData(4, 4, 2)]   // Roll 4 -> 2 hits
+        [InlineData(5, 4, 2)]   // Roll 5 -> 2 hits
+        [InlineData(6, 4, 2)]   // Roll 6 -> 2 hits
+        [InlineData(7, 4, 3)]   // Roll 7 -> 3 hits
+        [InlineData(8, 4, 3)]   // Roll 8 -> 3 hits
+        [InlineData(9, 4, 3)]   // Roll 9 -> 3 hits
+        [InlineData(10, 4, 3)]  // Roll 10 -> 3 hits
+        [InlineData(11, 4, 4)]  // Roll 11 -> 4 hits
+        [InlineData(12, 4, 4)]  // Roll 12 -> 4 hits
+        public void GetClusterHits_SRM4_ReturnsCorrectHits(int diceResult, int weaponSize, int expectedHits)
+        {
+            // Act
+            var result = _provider.GetClusterHits(diceResult, weaponSize);
+
+            // Assert
+            result.ShouldBe(expectedHits);
+        }
+
+        [Theory]
+        // Test for 5-missile weapons (LRM-5)
+        [InlineData(2, 5, 1)]   // Roll 2 -> 1 hit
+        [InlineData(3, 5, 2)]   // Roll 3 -> 2 hits
+        [InlineData(4, 5, 2)]   // Roll 4 -> 2 hits
+        [InlineData(5, 5, 3)]   // Roll 5 -> 3 hits
+        [InlineData(6, 5, 3)]   // Roll 6 -> 3 hits
+        [InlineData(7, 5, 3)]   // Roll 7 -> 3 hits
+        [InlineData(8, 5, 3)]   // Roll 8 -> 3 hits
+        [InlineData(9, 5, 4)]   // Roll 9 -> 4 hits
+        [InlineData(10, 5, 4)]  // Roll 10 -> 4 hits
+        [InlineData(11, 5, 5)]  // Roll 11 -> 5 hits
+        [InlineData(12, 5, 5)]  // Roll 12 -> 5 hits
+        public void GetClusterHits_LRM5_ReturnsCorrectHits(int diceResult, int weaponSize, int expectedHits)
+        {
+            // Act
+            var result = _provider.GetClusterHits(diceResult, weaponSize);
+
+            // Assert
+            result.ShouldBe(expectedHits);
+        }
+
+        [Theory]
+        // Test for 6-missile weapons (SRM-6)
+        [InlineData(2, 6, 2)]   // Roll 2 -> 2 hits
+        [InlineData(3, 6, 2)]   // Roll 3 -> 2 hits
+        [InlineData(4, 6, 3)]   // Roll 4 -> 3 hits
+        [InlineData(5, 6, 3)]   // Roll 5 -> 3 hits
+        [InlineData(6, 6, 4)]   // Roll 6 -> 4 hits
+        [InlineData(7, 6, 4)]   // Roll 7 -> 4 hits
+        [InlineData(8, 6, 4)]   // Roll 8 -> 4 hits
+        [InlineData(9, 6, 5)]   // Roll 9 -> 5 hits
+        [InlineData(10, 6, 5)]  // Roll 10 -> 5 hits
+        [InlineData(11, 6, 6)]  // Roll 11 -> 6 hits
+        [InlineData(12, 6, 6)]  // Roll 12 -> 6 hits
+        public void GetClusterHits_SRM6_ReturnsCorrectHits(int diceResult, int weaponSize, int expectedHits)
+        {
+            // Act
+            var result = _provider.GetClusterHits(diceResult, weaponSize);
+
+            // Assert
+            result.ShouldBe(expectedHits);
+        }
+
+        [Theory]
+        // Test for 10-missile weapons (LRM-10)
+        [InlineData(2, 10, 3)]   // Roll 2 -> 3 hits
+        [InlineData(3, 10, 3)]   // Roll 3 -> 3 hits
+        [InlineData(4, 10, 4)]   // Roll 4 -> 4 hits
+        [InlineData(5, 10, 6)]   // Roll 5 -> 6 hits
+        [InlineData(6, 10, 6)]   // Roll 6 -> 6 hits
+        [InlineData(7, 10, 6)]   // Roll 7 -> 6 hits
+        [InlineData(8, 10, 6)]   // Roll 8 -> 6 hits
+        [InlineData(9, 10, 8)]   // Roll 9 -> 8 hits
+        [InlineData(10, 10, 8)]  // Roll 10 -> 8 hits
+        [InlineData(11, 10, 10)] // Roll 11 -> 10 hits
+        [InlineData(12, 10, 10)] // Roll 12 -> 10 hits
+        public void GetClusterHits_LRM10_ReturnsCorrectHits(int diceResult, int weaponSize, int expectedHits)
+        {
+            // Act
+            var result = _provider.GetClusterHits(diceResult, weaponSize);
+
+            // Assert
+            result.ShouldBe(expectedHits);
+        }
+
+        [Theory]
+        // Test for 15-missile weapons (LRM-15)
+        [InlineData(2, 15, 5)]   // Roll 2 -> 5 hits
+        [InlineData(3, 15, 5)]   // Roll 3 -> 5 hits
+        [InlineData(4, 15, 6)]   // Roll 4 -> 6 hits
+        [InlineData(5, 15, 9)]   // Roll 5 -> 9 hits
+        [InlineData(6, 15, 9)]   // Roll 6 -> 9 hits
+        [InlineData(7, 15, 9)]   // Roll 7 -> 9 hits
+        [InlineData(8, 15, 9)]   // Roll 8 -> 9 hits
+        [InlineData(9, 15, 12)]  // Roll 9 -> 12 hits
+        [InlineData(10, 15, 12)] // Roll 10 -> 12 hits
+        [InlineData(11, 15, 15)] // Roll 11 -> 15 hits
+        [InlineData(12, 15, 15)] // Roll 12 -> 15 hits
+        public void GetClusterHits_LRM15_ReturnsCorrectHits(int diceResult, int weaponSize, int expectedHits)
+        {
+            // Act
+            var result = _provider.GetClusterHits(diceResult, weaponSize);
+
+            // Assert
+            result.ShouldBe(expectedHits);
+        }
+
+        [Theory]
+        // Test for 20-missile weapons (LRM-20)
+        [InlineData(2, 20, 6)]   // Roll 2 -> 6 hits
+        [InlineData(3, 20, 6)]   // Roll 3 -> 6 hits
+        [InlineData(4, 20, 9)]   // Roll 4 -> 9 hits
+        [InlineData(5, 20, 12)]  // Roll 5 -> 12 hits
+        [InlineData(6, 20, 12)]  // Roll 6 -> 12 hits
+        [InlineData(7, 20, 12)]  // Roll 7 -> 12 hits
+        [InlineData(8, 20, 12)]  // Roll 8 -> 12 hits
+        [InlineData(9, 20, 16)]  // Roll 9 -> 16 hits
+        [InlineData(10, 20, 16)] // Roll 10 -> 16 hits
+        [InlineData(11, 20, 20)] // Roll 11 -> 20 hits
+        [InlineData(12, 20, 20)] // Roll 12 -> 20 hits
+        public void GetClusterHits_LRM20_ReturnsCorrectHits(int diceResult, int weaponSize, int expectedHits)
+        {
+            // Act
+            var result = _provider.GetClusterHits(diceResult, weaponSize);
+
+            // Assert
+            result.ShouldBe(expectedHits);
+        }
+
+        [Theory]
+        [InlineData(1, 10)]  // Invalid dice roll (too low)
+        [InlineData(13, 10)] // Invalid dice roll (too high)
+        public void GetClusterHits_InvalidDiceResult_ThrowsArgumentOutOfRangeException(int invalidDiceResult, int weaponSize)
+        {
+            // Act & Assert
+            Should.Throw<ArgumentOutOfRangeException>(() => _provider.GetClusterHits(invalidDiceResult, weaponSize));
+        }
+
+        [Theory]
+        [InlineData(7, 3)]  // Unsupported weapon size
+        [InlineData(7, 7)]  // Unsupported weapon size
+        [InlineData(7, 8)]  // Unsupported weapon size
+        [InlineData(7, 9)]  // Unsupported weapon size
+        [InlineData(7, 11)] // Unsupported weapon size
+        [InlineData(7, 12)] // Unsupported weapon size
+        [InlineData(7, 13)] // Unsupported weapon size
+        [InlineData(7, 14)] // Unsupported weapon size
+        [InlineData(7, 16)] // Unsupported weapon size
+        [InlineData(7, 17)] // Unsupported weapon size
+        [InlineData(7, 18)] // Unsupported weapon size
+        [InlineData(7, 19)] // Unsupported weapon size
+        [InlineData(7, 21)] // Unsupported weapon size
+        public void GetClusterHits_UnsupportedWeaponSize_ReturnsWeaponSize(int diceResult, int weaponSize)
+        {
+            // For unsupported weapon sizes, we should still get a valid result
+            // The implementation should default to the weapon size itself
+            
+            // Act
+            var result = _provider.GetClusterHits(diceResult, weaponSize);
+
+            // Assert
+            result.ShouldBe(weaponSize);
+        }
+
+        [Theory]
+        [InlineData(0, 2)]  // Invalid roll (too low)
+        [InlineData(13, 2)] // Invalid roll (too high)
+        public void GetClusterHits_InvalidRoll_ThrowsArgumentOutOfRangeException(int diceResult, int invalidWeaponSize)
+        {
+            // Act & Assert
+            Should.Throw<ArgumentOutOfRangeException>(() => _provider.GetClusterHits(diceResult, invalidWeaponSize));
+        }
+
+        [Fact]
+        public void GetClusterHits_WeaponSizeOne_ReturnsOne()
+        {
+            // For a weapon with size 1 (non-cluster weapon), should always return 1
+            
+            // Act
+            var result = _provider.GetClusterHits(7, 1);
+
+            // Assert
+            result.ShouldBe(1);
         }
 
         #endregion
