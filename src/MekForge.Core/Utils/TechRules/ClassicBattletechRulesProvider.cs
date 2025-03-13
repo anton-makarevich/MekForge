@@ -360,10 +360,10 @@ public class ClassicBattletechRulesProvider : IRulesProvider
                 return weaponSize;
         }
         
-        // Define the cluster hits table as per the provided image
+        // Define the cluster hits table
         // Format: [diceResult][columnIndex]
         var clusterHitsTable = new[,] {
-            // 2,  4,  5,  6,  10, 15, 20 (weapon sizes)
+           // 2,  4,  5,  6,  10, 15, 20 (weapon sizes)
             { 1,  1,  1,  2,  3,  5,  6  },  // Roll of 2
             { 1,  2,  2,  2,  3,  5,  6  },  // Roll of 3
             { 1,  2,  2,  3,  4,  6,  9  },  // Roll of 4
