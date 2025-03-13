@@ -19,7 +19,9 @@ public class LRM5Tests
         lrm5.Damage.ShouldBe(5); // Total damage for all missiles
         lrm5.BattleValue.ShouldBe(45);
         lrm5.AmmoType.ShouldBe(AmmoType.LRM5);
-        lrm5.Clusters.ShouldBe(1); 
+        lrm5.Clusters.ShouldBe(1);
+        lrm5.ClusterSize.ShouldBe(5);
+        lrm5.WeaponSize.ShouldBe(5); // 1 cluster * 5 missiles per cluster
         lrm5.IsDestroyed.ShouldBeFalse();
     }
 

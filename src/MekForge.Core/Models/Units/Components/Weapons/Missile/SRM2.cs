@@ -12,6 +12,8 @@ namespace Sanet.MekForge.Core.Models.Units.Components.Weapons.Missile
             longRange: 9,
             type: WeaponType.Missile,
             battleValue: 25,
+            clusters: 2,
+            clusterSize: 1,
             ammoType: AmmoType.SRM2)
         {
         }

@@ -13,6 +13,7 @@ public abstract class Weapon : Component
         int battleValue,
         int size = 1,
         int clusters = 1,
+        int clusterSize = 1,
         AmmoType ammoType = AmmoType.None) 
         : base(name, [],size)
     {
@@ -26,9 +27,12 @@ public abstract class Weapon : Component
         BattleValue = battleValue;
         AmmoType = ammoType;
         Clusters = clusters;
+        ClusterSize = clusterSize;
     }
 
     public int Clusters { get; }
+    public int ClusterSize { get; }
+    public int WeaponSize => Clusters * ClusterSize;
 
     public int Damage { get; }
     public int Heat { get; }
