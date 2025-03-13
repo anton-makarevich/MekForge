@@ -1,4 +1,6 @@
-﻿namespace Sanet.MekForge.Core.Data.Game;
+namespace Sanet.MekForge.Core.Data.Game;
+
+using Sanet.MekForge.Core.Models.Game.Dice;
 
 /// <summary>
 /// Represents all hit locations from a weapon attack
@@ -6,5 +8,5 @@
 public record AttackHitLocationsData(
     List<HitLocationData> HitLocations,
     int TotalDamage,
-    int ClusterRollResult,
+    List<DiceResult> ClusterRoll,
     int MissilesHit);

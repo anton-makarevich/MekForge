@@ -131,30 +131,25 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
         
         if (isHit)
         {
+            // Determine attack direction once for this weapon attack
+            var attackDirection = DetermineAttackDirection(attacker, target);
+            
             // Check if it's a cluster weapon
             if (weapon.WeaponSize > 1)
             {
                 // It's a cluster weapon, handle multiple hits
-                hitLocationsData = ResolveClusterWeaponHit(weapon, target, attackRoll);
+                hitLocationsData = ResolveClusterWeaponHit(weapon, attackDirection);
             }
             else
             {
                 // Standard weapon, single hit location
-                var locationRoll = Game.DiceRoller.Roll2D6();
-                var locationRollTotal = locationRoll.Sum(d => d.Result);
-                
-                // Determine attack direction (which firing arc the attack is coming from)
-                var attackDirection = DetermineAttackDirection(attacker, target);
-                
-                // Get hit location based on roll and attack direction
-                var hitLocation = Game.RulesProvider.GetHitLocation(locationRollTotal, attackDirection);
+                var hitLocationData = DetermineHitLocation(attackDirection, weapon.Damage);
                 
                 // Create hit locations data with a single hit
-                var hitLocationData = new HitLocationData(hitLocation, weapon.Damage, locationRoll);
                 hitLocationsData = new AttackHitLocationsData(
-                    new List<HitLocationData> { hitLocationData },
+                    [hitLocationData],
                     weapon.Damage,
-                    0, // No cluster roll for standard weapons
+                    [], // No cluster roll for standard weapons
                     1  // Single hit
                 );
             }
@@ -163,7 +158,7 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
         return new AttackResolutionData(toHitNumber, attackRoll, isHit, hitLocationsData);
     }
     
-    private AttackHitLocationsData ResolveClusterWeaponHit(Weapon weapon, Unit target, List<Models.Game.Dice.DiceResult> attackRoll)
+    private AttackHitLocationsData ResolveClusterWeaponHit(Weapon weapon, FiringArc attackDirection)
     {
         // Roll for cluster hits
         var clusterRoll = Game.DiceRoller.Roll2D6();
@@ -185,51 +180,62 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
         // For each complete cluster that hit
         for (var i = 0; i < completeClusterHits; i++)
         {
-            // Roll for hit location
-            var locationRoll = Game.DiceRoller.Roll2D6();
-            var locationRollTotal = locationRoll.Sum(d => d.Result);
-            
-            // Determine attack direction
-            var attackDirection = DetermineAttackDirection(null, target);
-            
-            // Get hit location
-            var hitLocation = Game.RulesProvider.GetHitLocation(locationRollTotal, attackDirection);
-            
             // Calculate damage for this cluster
             var clusterDamage = weapon.ClusterSize * damagePerMissile;
-            totalDamage += clusterDamage;
             
-            // Add to hit locations
-            hitLocations.Add(new HitLocationData(hitLocation, clusterDamage, locationRoll));
+            // Determine hit location for this cluster
+            var hitLocationData = DetermineHitLocation(attackDirection, clusterDamage);
+            
+            // Add to hit locations and update total damage
+            hitLocations.Add(hitLocationData);
+            totalDamage += clusterDamage;
         }
         
         // If there are remaining missiles (partial cluster)
         if (remainingMissiles > 0)
         {
-            // Roll for hit location for the partial cluster
-            var locationRoll = Game.DiceRoller.Roll2D6();
-            var locationRollTotal = locationRoll.Sum(d => d.Result);
-            
-            // Determine attack direction
-            var attackDirection = DetermineAttackDirection(null, target);
-            
-            // Get hit location
-            var hitLocation = Game.RulesProvider.GetHitLocation(locationRollTotal, attackDirection);
-            
             // Calculate damage for the partial cluster
             var partialClusterDamage = remainingMissiles * damagePerMissile;
-            totalDamage += partialClusterDamage;
             
-            // Add to hit locations
-            hitLocations.Add(new HitLocationData(hitLocation, partialClusterDamage, locationRoll));
+            // Determine hit location for the partial cluster
+            var hitLocationData = DetermineHitLocation(attackDirection, partialClusterDamage);
+            
+            // Add to hit locations and update total damage
+            hitLocations.Add(hitLocationData);
+            totalDamage += partialClusterDamage;
         }
         
-        return new AttackHitLocationsData(hitLocations, totalDamage, clusterRollTotal, missilesHit);
+        return new AttackHitLocationsData(hitLocations, totalDamage, clusterRoll, missilesHit);
+    }
+
+    /// <summary>
+    /// Determines the hit location for an attack
+    /// </summary>
+    /// <param name="attackDirection">The direction of the attack</param>
+    /// <param name="damage">The damage to be applied to this location</param>
+    /// <returns>Hit location data with location, damage and dice roll</returns>
+    private HitLocationData DetermineHitLocation(FiringArc attackDirection, int damage)
+    {
+        // Roll for hit location
+        var locationRoll = Game.DiceRoller.Roll2D6();
+        var locationRollTotal = locationRoll.Sum(d => d.Result);
+        
+        // Get hit location based on roll and attack direction
+        var hitLocation = Game.RulesProvider.GetHitLocation(locationRollTotal, attackDirection);
+        
+        // Return hit location data
+        return new HitLocationData(hitLocation, damage, locationRoll);
     }
     
+    /// <summary>
+    /// Determines the direction from which the attack is coming
+    /// </summary>
+    /// <param name="attacker">The attacking unit</param>
+    /// <param name="target">The target unit</param>
+    /// <returns>The firing arc that contains the attacker</returns>
     private FiringArc DetermineAttackDirection(Unit? attacker, Unit target)
     {
-        // Default to forward if no attacker is provided (used in cluster resolution)
+        // Default to forward if no attacker is provided or positions are missing
         if (attacker == null || attacker.Position == null || target.Position == null)
             return FiringArc.Forward;
             
