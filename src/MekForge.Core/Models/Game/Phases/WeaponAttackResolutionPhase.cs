@@ -139,7 +139,7 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
             var attackDirection = FiringArc.Forward; // Default to forward
             
             // Check each firing arc to determine which one contains the attacker
-            foreach (FiringArc arc in Enum.GetValues<FiringArc>())
+            foreach (var arc in Enum.GetValues<FiringArc>())
             {
                 if (target.Position!.Coordinates.IsInFiringArc(attacker.Position!.Coordinates, target.Position.Facing, arc))
                 {

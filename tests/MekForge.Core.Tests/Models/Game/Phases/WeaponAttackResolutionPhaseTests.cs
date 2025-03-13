@@ -294,5 +294,5 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
     }
 
     private class TestWeapon(WeaponType type = WeaponType.Energy, AmmoType ammoType = AmmoType.None)
-        : Weapon("Test Weapon", 5, 3, 0, 3, 6, 9, type, 10, 1, 1, ammoType);
+        : Weapon("Test Weapon", 5, 3, 0, 3, 6, 9, type, 10, 1, 1, 1,ammoType);
 }

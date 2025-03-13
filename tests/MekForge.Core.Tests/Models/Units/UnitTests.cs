@@ -15,7 +15,7 @@ public class UnitTests
     private class TestWeapon : Weapon
     {
         public TestWeapon(string name, int[] slots, WeaponType type = WeaponType.Energy, AmmoType ammoType = AmmoType.None) : base(
-            name, 5, 3, 0, 3, 6, 9, type, 10, slots.Length, 1,ammoType)
+            name, 5, 3, 0, 3, 6, 9, type, 10, slots.Length, 1,1,ammoType)
         {
             Mount(slots, null!); // Will be properly mounted later
         }

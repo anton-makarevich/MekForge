@@ -12,7 +12,8 @@ public class LRM10 : Weapon
         longRange: 21,
         type: WeaponType.Missile,
         battleValue: 90,
-        clusters:2,
+        clusters: 2,
+        clusterSize: 5,
         ammoType: AmmoType.LRM10)
     {
     }

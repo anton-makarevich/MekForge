@@ -105,7 +105,7 @@ public class WeaponTests
     private class TestWeapon : Weapon
     {
         public TestWeapon(WeaponType type, AmmoType ammoType) : base(
-            "Test Weapon", 5, 3, 0, 3, 6, 9, type, 10, 1, 1, ammoType)
+            "Test Weapon", 5, 3, 0, 3, 6, 9, type, 10, 1, 1,1, ammoType)
         {
         }
     }
