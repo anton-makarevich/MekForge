@@ -23,6 +23,9 @@ public class SRM2Tests
         srm2.ShortRange.ShouldBe(3);
         srm2.MediumRange.ShouldBe(6);
         srm2.LongRange.ShouldBe(9);
+        srm2.Clusters.ShouldBe(2);
+        srm2.ClusterSize.ShouldBe(1);
+        srm2.WeaponSize.ShouldBe(2); // 2 clusters * 1 missile per cluster
         srm2.IsDestroyed.ShouldBeFalse();
     }
 

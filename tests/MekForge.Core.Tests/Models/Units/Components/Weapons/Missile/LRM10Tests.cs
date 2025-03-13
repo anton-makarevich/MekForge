@@ -20,6 +20,8 @@ public class Lrm10Tests
         lrm10.BattleValue.ShouldBe(90);
         lrm10.AmmoType.ShouldBe(AmmoType.LRM10);
         lrm10.Clusters.ShouldBe(2);
+        lrm10.ClusterSize.ShouldBe(5);
+        lrm10.WeaponSize.ShouldBe(10); // 2 clusters * 5 missiles per cluster
         lrm10.IsDestroyed.ShouldBeFalse();
     }
 
