@@ -277,8 +277,8 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
         {
             var diceResult = new List<DiceResult>
             {
-                new() { Result = roll / 2 + roll % 2 },
-                new() { Result = roll / 2 }
+                new(roll / 2 + roll % 2),
+                new(roll / 2)
             };
             diceResults.Add(diceResult);
         }

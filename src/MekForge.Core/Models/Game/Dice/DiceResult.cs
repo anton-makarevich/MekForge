@@ -4,10 +4,15 @@ public class DiceResult
 {
     private int _result;
 
+    public DiceResult(int result)
+    {
+        Result = result;
+    }
+
     public int Result
     {
         get => _result;
-        set
+        private set
         {
             if (value is < 1 or > 6)
             {
