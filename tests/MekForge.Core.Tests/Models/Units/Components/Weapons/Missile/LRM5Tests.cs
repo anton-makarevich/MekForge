@@ -13,7 +13,7 @@ public class LRM5Tests
         var lrm5 = new LRM5();
 
         // Assert
-        lrm5.Name.ShouldBe("LRM-10");
+        lrm5.Name.ShouldBe("LRM-5");
         lrm5.Size.ShouldBe(1);
         lrm5.Heat.ShouldBe(2);
         lrm5.Damage.ShouldBe(5); // Total damage for all missiles
