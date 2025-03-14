@@ -3,7 +3,7 @@ using Sanet.MekForge.Core.Models.Units;
 
 namespace Sanet.MekForge.Core.Data.Units;
 
-public record UnitData
+public record struct UnitData
 {
     public Guid? Id { get; set; } 
     public required string Chassis { get; init; }
