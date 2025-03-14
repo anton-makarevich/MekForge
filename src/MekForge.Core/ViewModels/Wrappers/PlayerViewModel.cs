@@ -41,7 +41,7 @@ namespace Sanet.MekForge.Core.ViewModels.Wrappers;
         private Task AddUnit()
         {
             if (SelectedUnit==null) return Task.CompletedTask;
-            var unit = SelectedUnit;
+            var unit = SelectedUnit.Value;
             unit.Id= Guid.NewGuid();
             Units.Add(unit);
             _onUnitAdded?.Invoke();
