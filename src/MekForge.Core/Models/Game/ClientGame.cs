@@ -61,6 +61,9 @@ public class ClientGame : BaseGame
             case WeaponConfigurationCommand weaponConfigurationCommand:
                 OnWeaponConfiguration(weaponConfigurationCommand);
                 break;
+            case WeaponAttackDeclarationCommand weaponAttackDeclarationCommand:
+                OnWeaponsAttack(weaponAttackDeclarationCommand);
+                break;
         }
     }
     
