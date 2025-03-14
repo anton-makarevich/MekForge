@@ -333,4 +333,61 @@ public class ClassicBattletechRulesProvider : IRulesProvider
             _ => throw new ArgumentOutOfRangeException(nameof(attackDirection), "Invalid attack direction")
         };
     }
+    
+    public int GetClusterHits(int diceResult, int weaponSize)
+    {
+        // Implementation of the Cluster Hits Table
+        // Returns the number of missiles that hit based on 2D6 roll and weapon size
+        
+        // Special case for non-cluster weapons
+        if (weaponSize <= 1)
+            return weaponSize;
+            
+        // First, determine which column to use based on weapon size
+        int columnIndex;
+        switch (weaponSize)
+        {
+            case 2: columnIndex = 0; break;
+            case 4: columnIndex = 1; break;
+            case 5: columnIndex = 2; break;
+            case 6: columnIndex = 3; break;
+            case 10: columnIndex = 4; break;
+            case 15: columnIndex = 5; break;
+            case 20: columnIndex = 6; break;
+            default:
+                // For unsupported weapon sizes, return the weapon size itself
+                // This ensures we don't throw an exception for valid but non-standard weapon sizes
+                return weaponSize;
+        }
+        
+        // Define the cluster hits table
+        // Format: [diceResult][columnIndex]
+        var clusterHitsTable = new[,] {
+           // 2,  4,  5,  6,  10, 15, 20 (weapon sizes)
+            { 1,  1,  1,  2,  3,  5,  6  },  // Roll of 2
+            { 1,  2,  2,  2,  3,  5,  6  },  // Roll of 3
+            { 1,  2,  2,  3,  4,  6,  9  },  // Roll of 4
+            { 1,  2,  3,  3,  6,  9,  12 },  // Roll of 5
+            { 1,  2,  3,  4,  6,  9,  12 },  // Roll of 6
+            { 1,  3,  3,  4,  6,  9,  12 },  // Roll of 7
+            { 2,  3,  3,  4,  6,  9,  12 },  // Roll of 8
+            { 2,  3,  4,  5,  8,  12, 16 },  // Roll of 9
+            { 2,  3,  4,  5,  8,  12, 16 },  // Roll of 10
+            { 2,  4,  5,  6,  10, 15, 20 },  // Roll of 11
+            { 2,  4,  5,  6,  10, 15, 20 }   // Roll of 12
+        };
+        
+        // Adjust dice result to 0-based index (2 becomes 0, 3 becomes 1, etc.)
+        var rowIndex = diceResult - 2;
+        
+        // Ensure the indices are within bounds
+        if (rowIndex < 0 || rowIndex >= 11)
+            throw new ArgumentOutOfRangeException(nameof(diceResult), "Dice result must be between 2 and 12");
+        
+        // Get the number of hits from the table
+        var hits = clusterHitsTable[rowIndex, columnIndex];
+        
+        // Ensure we don't return more hits than the weapon size
+        return Math.Min(hits, weaponSize);
+    }
 }

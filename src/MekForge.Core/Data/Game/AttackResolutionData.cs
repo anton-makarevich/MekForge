@@ -7,4 +7,4 @@ public record AttackResolutionData(
     int ToHitNumber,
     List<DiceResult> AttackRoll,
     bool IsHit,
-    PartLocation? HitLocation = null);
+    AttackHitLocationsData? HitLocationsData = null);

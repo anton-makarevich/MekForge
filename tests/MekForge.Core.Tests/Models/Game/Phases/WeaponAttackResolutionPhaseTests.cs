@@ -73,7 +73,7 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
             CommandPublisher.PublishCommand(Arg.Is<WeaponAttackResolutionCommand>(cmd => 
                 cmd.PlayerId == _player2Id));
             
-            // Player 1 attacks are resolved second
+            // Player 1's attacks are resolved second
             CommandPublisher.PublishCommand(Arg.Is<WeaponAttackResolutionCommand>(cmd => 
                 cmd.PlayerId == _player1Id));
         });
@@ -295,4 +295,133 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
 
     private class TestWeapon(WeaponType type = WeaponType.Energy, AmmoType ammoType = AmmoType.None)
         : Weapon("Test Weapon", 5, 3, 0, 3, 6, 9, type, 10, 1, 1, 1,ammoType);
+        
+    // Custom cluster weapon class that allows setting damage for testing
+    private class TestClusterWeapon(
+        int damage =10,
+        int clusterSize = 1,
+        int clusters = 2,
+        WeaponType type = WeaponType.Missile,
+        AmmoType ammoType = AmmoType.None)
+        : Weapon("Test Cluster Weapon", damage, 3, 0, 3, 6, 9, type, 10, 1, clusters, clusterSize, ammoType);
+        
+    #region Cluster Weapon Tests
+    
+    [Fact]
+    public void Enter_ShouldRollForClusterHits_WhenClusterWeaponHits()
+    {
+        // Arrange
+        // Add a cluster weapon to unit1
+        var clusterWeapon = new TestClusterWeapon(10,5); 
+        var part1 = _unit1.Parts[0];
+        part1.TryAddComponent(clusterWeapon, [1]);
+        clusterWeapon.Target = _unit2; // Set target for the cluster weapon
+        
+        // Setup ToHitCalculator to return a value
+        Game.ToHitCalculator.GetToHitNumber(
+            Arg.Any<Unit>(), 
+            Arg.Any<Unit>(), 
+            Arg.Any<Weapon>(), 
+            Arg.Any<BattleMap>())
+            .Returns(7); // Return a to-hit number of 7
+            
+        // Setup dice rolls: first for attack (8), second for cluster (9), third and fourth for hit locations
+        SetupDiceRolls(8, 9, 6, 6);
+        
+        // Act
+        _sut.Enter();
+        
+        // Assert
+        // Verify that dice were rolled for attack, cluster hits, and hit locations
+        DiceRoller.Received(4).Roll2D6(); // 1 for attack, 1 for cluster, 2 for hit locations
+        
+        // Verify the attack resolution command contains the correct data
+        CommandPublisher.Received().PublishCommand(
+            Arg.Is<WeaponAttackResolutionCommand>(cmd => 
+                cmd.GameOriginId == Game.Id && 
+                cmd.AttackerId == _unit1Id &&
+                cmd.ResolutionData.IsHit &&
+                cmd.ResolutionData.HitLocationsData != null &&
+                cmd.ResolutionData.HitLocationsData.ClusterRoll.Count == 2 && // 2 dice for cluster roll
+                cmd.ResolutionData.HitLocationsData.ClusterRoll.Sum(d => d.Result) == 9 && // Total of 9
+                cmd.ResolutionData.HitLocationsData.MissilesHit == 8 && // 8 hits for LRM-10 with roll of 9
+                cmd.ResolutionData.HitLocationsData.HitLocations.Count == 2 && //2 clusters hit
+                cmd.ResolutionData.HitLocationsData.HitLocations[0].Location == PartLocation.RightTorso &&
+                cmd.ResolutionData.HitLocationsData.HitLocations[0].Damage == 5 && //first 5 missiles
+                cmd.ResolutionData.HitLocationsData.HitLocations[1].Damage == 3 )); //second 8-5=3
+    }
+    
+    [Fact]
+    public void Enter_ShouldCalculateCorrectDamage_ForClusterWeapon()
+    {
+        // Arrange
+        // Add a cluster weapon to unit1 (SRM-6 with 1 damage per missile)
+        var clusterWeapon = new TestClusterWeapon(6, 6, 1); // 6 missiles, 1 damage per missile
+        var part1 = _unit1.Parts[0];
+        part1.TryAddComponent(clusterWeapon, [1]);
+        clusterWeapon.Target = _unit2; // Set target for the cluster weapon
+        
+        // Setup ToHitCalculator to return a value
+        Game.ToHitCalculator.GetToHitNumber(
+            Arg.Any<Unit>(), 
+            Arg.Any<Unit>(), 
+            Arg.Any<Weapon>(), 
+            Arg.Any<BattleMap>())
+            .Returns(7); // Return a to-hit number of 7
+            
+        // Setup dice rolls: first for attack (8), second for cluster (9 = 5 hits), third for hit location
+        SetupDiceRolls(8, 9, 6);
+        
+        // Act
+        _sut.Enter();
+        
+        // Assert
+        // Verify the attack resolution command contains the correct damage
+        CommandPublisher.Received().PublishCommand(
+            Arg.Is<WeaponAttackResolutionCommand>(cmd => 
+                cmd.GameOriginId == Game.Id && 
+                cmd.AttackerId == _unit1Id &&
+                cmd.ResolutionData.IsHit &&
+                cmd.ResolutionData.HitLocationsData != null &&
+                cmd.ResolutionData.HitLocationsData.TotalDamage == 5)); // 5 hits * 1 damage per missile = 5 damage
+    }
+    
+    [Fact]
+    public void Enter_ShouldNotRollForClusterHits_WhenClusterWeaponMisses()
+    {
+        // Arrange
+        // Add a cluster weapon to unit1
+        var clusterWeapon = new TestClusterWeapon(1010,5); // LRM-10
+        var part1 = _unit1.Parts[0];
+        part1.TryAddComponent(clusterWeapon, [1]);
+        clusterWeapon.Target = _unit2; // Set target for the cluster weapon
+        
+        // Setup ToHitCalculator to return a value
+        Game.ToHitCalculator.GetToHitNumber(
+            Arg.Any<Unit>(), 
+            Arg.Any<Unit>(), 
+            Arg.Any<Weapon>(), 
+            Arg.Any<BattleMap>())
+            .Returns(7); // Return a to-hit number of 7
+            
+        // Setup dice rolls: first for attack (6), which is less than to-hit number (7)
+        SetupDiceRolls(6);
+        
+        // Act
+        _sut.Enter();
+        
+        // Assert
+        // Verify that dice were rolled only for attack, not for cluster hits or hit locations
+        DiceRoller.Received(1).Roll2D6(); // Only for attack
+        
+        // Verify the attack resolution command contains the correct data
+        CommandPublisher.Received().PublishCommand(
+            Arg.Is<WeaponAttackResolutionCommand>(cmd => 
+                cmd.GameOriginId == Game.Id && 
+                cmd.AttackerId == _unit1Id &&
+                !cmd.ResolutionData.IsHit &&
+                cmd.ResolutionData.HitLocationsData == null));
+    }
+    
+    #endregion
 }

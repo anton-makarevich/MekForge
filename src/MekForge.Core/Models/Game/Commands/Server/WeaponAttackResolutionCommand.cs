@@ -37,7 +37,7 @@ public record struct WeaponAttackResolutionCommand : IGameCommand
             localizationService.GetString("Command_WeaponAttackResolution_Miss");
 
         var rollTotal = ResolutionData.AttackRoll.Sum(d => d.Result);
-        var locationText = ResolutionData.HitLocation != null ? $" Location: {ResolutionData.HitLocation.Value}" : "";
+        var locationText = ResolutionData.HitLocationsData?.HitLocations.Count >0 ? $" Location: {ResolutionData.HitLocationsData.HitLocations.First()}" : "";
             
         return string.Format(template, 
             player.Name,
