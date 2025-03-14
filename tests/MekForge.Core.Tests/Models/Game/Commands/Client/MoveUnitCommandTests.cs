@@ -6,7 +6,6 @@ using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Services.Localization;
-using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Tests.Data.Community;
 using Sanet.MekForge.Core.Utils;
 using Sanet.MekForge.Core.Utils.TechRules;
@@ -20,7 +19,6 @@ public class MoveUnitCommandTests
     private readonly Guid _gameId = Guid.NewGuid();
     private readonly Player _player1 = new Player(Guid.NewGuid(), "Player 1");
     private readonly Unit _unit;
-    private readonly HexCoordinates _position = new(4, 5);
 
     public MoveUnitCommandTests()
     {
