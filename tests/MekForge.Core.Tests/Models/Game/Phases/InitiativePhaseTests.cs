@@ -41,8 +41,8 @@ public class InitiativePhaseTests : GameStateTestsBase
             callNumber++;
             return
             [
-                new DiceResult { Result = currentRoll / 2 },
-                new DiceResult { Result = (currentRoll + 1) / 2 }
+                new DiceResult (currentRoll / 2 ),
+                new DiceResult ((currentRoll + 1) / 2 )
             ];
         });
     }
@@ -114,7 +114,7 @@ public class InitiativePhaseTests : GameStateTestsBase
     }
 
     [Fact]
-    public void HandleCommand_WhenPlayersRollTie_ShouldRerollTiedPlayers()
+    public void HandleCommand_WhenPlayersRollTie_ShouldReRollTiedPlayers()
     {
         // Arrange
         Game.SetPhase(PhaseNames.Initiative);
@@ -180,42 +180,42 @@ public class InitiativePhaseTests : GameStateTestsBase
     }
 
     [Fact]
-    public void Enter_WhenAutoRollAndTiesOccur_ShouldRerollAutomatically()
+    public void Enter_WhenAutoRollAndTiesOccur_ShouldReRollAutomatically()
     {
         // Arrange
         Game.IsAutoRoll = true;
         SetupDiceRolls(7,7,8,6); // First player rolls 7
         // Second player rolls 7 too
-        // First player rerolls 8
-        // Second player rerolls 6
+        // First player re-rolls 8
+        // Second player re-rolls 6
     
         // Act
         _sut.Enter();
     
         // Assert
-        CommandPublisher.Received(4).PublishCommand(Arg.Any<DiceRolledCommand>()); // Should receive 4 roll commands (2 initial + 2 rerolls)
+        CommandPublisher.Received(4).PublishCommand(Arg.Any<DiceRolledCommand>()); // Should receive 4 roll commands (2 initial + 2 re-rolls)
         Game.TurnPhase.ShouldBe(PhaseNames.Movement); // Should proceed to movement after resolving ties
         Game.InitiativeOrder[0].ShouldBe(Game.Players[0]); // Player who rerolled 8 should be first
         Game.InitiativeOrder[1].ShouldBe(Game.Players[1]); // Player who rerolled 6 should be second
     }
 
     [Fact]
-    public void Enter_WhenAutoRollAndMultipleTiesOccur_ShouldKeepRerollingUntilResolved()
+    public void Enter_WhenAutoRollAndMultipleTiesOccur_ShouldKeepReRollingUntilResolved()
     {
         // Arrange
         Game.IsAutoRoll = true;
         SetupDiceRolls(7,7,6,6,8,5); // First player rolls 7
         // Second player rolls 7
-        // First player rerolls 6
-        // Second player rerolls 6
-        // First player rerolls again 8
-        // Second player rerolls again 5
+        // First player re-rolls 6
+        // Second player re-rolls 6
+        // First player re-rolls again 8
+        // Second player re-rolls again 5
     
         // Act
         _sut.Enter();
     
         // Assert
-        CommandPublisher.Received(6).PublishCommand(Arg.Any<DiceRolledCommand>()); // Should receive 6 roll commands (2 initial + 2 first reroll + 2 second reroll)
+        CommandPublisher.Received(6).PublishCommand(Arg.Any<DiceRolledCommand>()); // Should receive 6 roll commands (2 initial + 2 first re-roll + 2 second re-roll)
         Game.TurnPhase.ShouldBe(PhaseNames.Movement);
         Game.InitiativeOrder[0].ShouldBe(Game.Players[0]); // Player who rolled 8 should be first
         Game.InitiativeOrder[1].ShouldBe(Game.Players[1]); // Player who rolled 5 should be second
@@ -281,21 +281,23 @@ public class InitiativePhaseTests : GameStateTestsBase
         });
 
         // Assert
-        CommandPublisher.Received(4).PublishCommand(Arg.Any<DiceRolledCommand>()); // Should receive 4 roll commands (2 initial + 2 rerolls)
+        CommandPublisher.Received(4).PublishCommand(Arg.Any<DiceRolledCommand>()); // Should receive 4 roll commands (2 initial + 2 re-rolls)
         Game.TurnPhase.ShouldBe(PhaseNames.Movement);
         Game.InitiativeOrder[0].ShouldBe(player1); // Player who rolled 8 in second round should be first
         Game.InitiativeOrder[1].ShouldBe(player2); // Player who rolled 6 in second round should be second
     }
 
     [Fact]
-    public void HandleCommand_WhenTieOccurs_ShouldOnlyRerollTiedPlayers()
+    public void HandleCommand_WhenTieOccurs_ShouldOnlyReRollTiedPlayers()
     {
         // Arrange
         var battleMap = BattleMap.GenerateMap(10, 10,
             new SingleTerrainGenerator(10,10, new ClearTerrain()));
         var game = new ServerGame(battleMap, new ClassicBattletechRulesProvider(), CommandPublisher, DiceRoller,
-            Substitute.For<IToHitCalculator>());
-        game.IsAutoRoll = false;
+            Substitute.For<IToHitCalculator>())
+        {
+            IsAutoRoll = false
+        };
         var player3Id = Guid.NewGuid();
         var player4Id = Guid.NewGuid();
         var sut = new InitiativePhase(game);

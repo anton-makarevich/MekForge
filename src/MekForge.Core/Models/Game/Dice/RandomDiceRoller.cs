@@ -6,7 +6,7 @@ public class RandomDiceRoller : IDiceRoller
 
     public DiceResult RollD6()
     {
-        var result = new DiceResult { Result = _random.Next(1, 7) };
+        var result = new DiceResult(_random.Next(1, 7));
         return result;
     }
 

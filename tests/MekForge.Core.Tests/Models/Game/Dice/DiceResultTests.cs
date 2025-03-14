@@ -8,11 +8,8 @@ public class DiceResultTests
     [Fact]
     public void SettingResult_ShouldThrowException_WhenValueIsOutOfRange()
     {
-        // Arrange
-        var diceResult = new DiceResult();
-
         // Act & Assert
-        var ex = Should.Throw<ArgumentOutOfRangeException>(() => diceResult.Result = 7);
+        var ex = Should.Throw<ArgumentOutOfRangeException>(() => new DiceResult(7));
         ex.ParamName.ShouldBe("value");
     }
 
@@ -26,11 +23,8 @@ public class DiceResultTests
     public void SettingResult_ShouldSetValue_WhenValueIsInRange(int input, int expected)
     {
         // Arrange
-        var diceResult = new DiceResult();
-
-        // Act
-        diceResult.Result = input;
-
+        var diceResult = new DiceResult(input);
+        
         // Assert
         diceResult.Result.ShouldBe(expected);
     }
