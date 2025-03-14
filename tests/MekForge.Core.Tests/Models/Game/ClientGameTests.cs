@@ -756,4 +756,87 @@ public class ClientGameTests
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<WeaponAttackDeclarationCommand>());
     }
+
+    [Fact]
+    public void HandleCommand_ShouldDeclareWeaponAttack_WhenWeaponAttackDeclarationCommandIsReceived()
+    {
+        // Arrange
+        var attackerPlayer = new Player(Guid.NewGuid(), "Attacker");
+        var attackerUnitData = MechFactoryTests.CreateDummyMechData();
+        attackerUnitData.Id = Guid.NewGuid();
+        _clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = attackerPlayer.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = attackerPlayer.Name,
+            Units = [attackerUnitData],
+            Tint = "#FF0000"
+        });
+
+        // Deploy the attacker unit
+        var deployCommand = new DeployUnitCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = attackerPlayer.Id,
+            Position = new HexCoordinateData(1, 1),
+            Direction = 0,
+            UnitId = attackerUnitData.Id.Value
+        };
+        _clientGame.HandleCommand(deployCommand);
+
+        // Add a target player and unit
+        var targetPlayer = new Player(Guid.NewGuid(), "Target");
+        var targetUnitData = MechFactoryTests.CreateDummyMechData();
+        targetUnitData.Id = Guid.NewGuid();
+        _clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = targetPlayer.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = targetPlayer.Name,
+            Units = [targetUnitData],
+            Tint = "#00FF00"
+        });
+
+        // Deploy the target unit
+        var deployTargetCommand = new DeployUnitCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = targetPlayer.Id,
+            Position = new HexCoordinateData(2, 2),
+            Direction = 0,
+            UnitId = targetUnitData.Id.Value
+        };
+        _clientGame.HandleCommand(deployTargetCommand);
+
+        // Create weapon attack declaration command
+        var weaponAttackCommand = new WeaponAttackDeclarationCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = attackerPlayer.Id,
+            AttackerId = attackerUnitData.Id.Value,
+            WeaponTargets =
+            [
+                new WeaponTargetData
+                {
+                    Weapon = new WeaponData
+                    {
+                        Name = "Medium Laser",
+                        Location = PartLocation.RightArm,
+                        Slots = [1, 2]
+                    },
+                    TargetId = targetUnitData.Id.Value,
+                    IsPrimaryTarget = true
+                }
+            ]
+        };
+
+        // Act
+        _clientGame.HandleCommand(weaponAttackCommand);
+
+        // Assert
+        var attackerUnit = _clientGame.Players.First(p => p.Id == attackerPlayer.Id).Units.First();
+        
+        // Verify that the unit has declared a weapon attack
+        attackerUnit.HasDeclaredWeaponAttack.ShouldBeTrue();
+    }
 }
