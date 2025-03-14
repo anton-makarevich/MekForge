@@ -2,6 +2,7 @@ using Sanet.MekForge.Core.Data.Game;
 using Sanet.MekForge.Core.Data.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Services.Localization;
+using System.Text;
 
 namespace Sanet.MekForge.Core.Models.Game.Commands.Server;
 
@@ -32,21 +33,76 @@ public record struct WeaponAttackResolutionCommand : IGameCommand
             return string.Empty;
         }
 
-        var template = ResolutionData.IsHit ? 
-            localizationService.GetString("Command_WeaponAttackResolution_Hit") :
-            localizationService.GetString("Command_WeaponAttackResolution_Miss");
-
         var rollTotal = ResolutionData.AttackRoll.Sum(d => d.Result);
-        var locationText = ResolutionData.HitLocationsData?.HitLocations.Count >0 ? $" Location: {ResolutionData.HitLocationsData.HitLocations.First()}" : "";
-            
-        return string.Format(template, 
-            player.Name,
-            attacker.Name, 
-            weapon.Name,
-            targetPlayer.Name,
-            target.Name,
-            ResolutionData.ToHitNumber,
-            rollTotal,
-            locationText);
+        var stringBuilder = new StringBuilder();
+
+        if (ResolutionData.IsHit)
+        {
+            var hitTemplate = localizationService.GetString("Command_WeaponAttackResolution_Hit");
+            stringBuilder.AppendLine(string.Format(hitTemplate,
+                player.Name,
+                attacker.Name,
+                weapon.Name,
+                targetPlayer.Name,
+                target.Name,
+                ResolutionData.ToHitNumber,
+                rollTotal));
+
+            // Add damage information if hit
+            if (ResolutionData.HitLocationsData == null) return stringBuilder.ToString().TrimEnd();
+            // Add total damage
+            stringBuilder.AppendLine(string.Format(
+                localizationService.GetString("Command_WeaponAttackResolution_TotalDamage"),
+                ResolutionData.HitLocationsData.TotalDamage));
+
+            // Add missiles hit information for cluster weapons
+            if (ResolutionData.HitLocationsData.ClusterRoll.Count > 1)
+            {
+
+
+                // Add cluster roll information
+                if (ResolutionData.HitLocationsData.ClusterRoll.Count > 0)
+                {
+                    var clusterRollTotal = ResolutionData.HitLocationsData.ClusterRoll.Sum(d => d.Result);
+                    stringBuilder.AppendLine(string.Format(
+                        localizationService.GetString("Command_WeaponAttackResolution_ClusterRoll"),
+                        clusterRollTotal));
+                }
+
+                stringBuilder.AppendLine(string.Format(
+                    localizationService.GetString("Command_WeaponAttackResolution_MissilesHit"),
+                    ResolutionData.HitLocationsData.MissilesHit));
+            }
+
+            // Add hit locations with damage
+            if (ResolutionData.HitLocationsData.HitLocations.Count <= 0) return stringBuilder.ToString().TrimEnd();
+
+            stringBuilder.AppendLine(localizationService.GetString("Command_WeaponAttackResolution_HitLocations"));
+
+            foreach (var hitLocation in ResolutionData.HitLocationsData.HitLocations)
+            {
+                var locationRollTotal = hitLocation.LocationRoll.Sum(d => d.Result);
+                stringBuilder.AppendLine(string.Format(
+                    localizationService.GetString("Command_WeaponAttackResolution_HitLocation"),
+                    hitLocation.Location,
+                    hitLocation.Damage,
+                    locationRollTotal));
+            }
+        }
+        else
+        {
+            // Miss case
+            var missTemplate = localizationService.GetString("Command_WeaponAttackResolution_Miss");
+            stringBuilder.AppendLine(string.Format(missTemplate, 
+                player.Name,
+                attacker.Name, 
+                weapon.Name,
+                targetPlayer.Name,
+                target.Name,
+                ResolutionData.ToHitNumber,
+                rollTotal));
+        }
+        
+        return stringBuilder.ToString().TrimEnd();
     }
 }
