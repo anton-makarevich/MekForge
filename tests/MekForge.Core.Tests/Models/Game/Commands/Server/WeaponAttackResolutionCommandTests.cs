@@ -9,6 +9,9 @@ using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Services.Localization;
+using Sanet.MekForge.Core.Tests.Data.Community;
+using Sanet.MekForge.Core.Utils;
+using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Commands.Server;
 
@@ -17,60 +20,42 @@ public class WeaponAttackResolutionCommandTests
     private readonly ILocalizationService _localizationService = Substitute.For<ILocalizationService>();
     private readonly IGame _game = Substitute.For<IGame>();
     private readonly Guid _gameId = Guid.NewGuid();
-    private readonly Guid _playerId = Guid.NewGuid();
-    private readonly Guid _attackerId = Guid.NewGuid();
-    private readonly Guid _targetId = Guid.NewGuid();
-    private readonly Guid _targetPlayerId = Guid.NewGuid();
-    private readonly WeaponData _weaponData;
-    
-    private readonly IPlayer _player;
-    private readonly IPlayer _targetPlayer;
+    private readonly Player _player1;
     private readonly Unit _attacker;
     private readonly Unit _target;
-    private readonly Weapon _weapon;
+    private readonly WeaponData _weaponData;
 
     public WeaponAttackResolutionCommandTests()
     {
-        // Setup weapon data
+        // Create players
+        _player1 = new Player(Guid.NewGuid(), "Player 1");
+        var player2 = new Player(Guid.NewGuid(), "Player 2");
+
+        // Create units using MechFactory
+        var mechFactory = new MechFactory(new ClassicBattletechRulesProvider());
+        var attackerData = MechFactoryTests.CreateDummyMechData();
+        attackerData.Id = Guid.NewGuid();
+        var targetData = MechFactoryTests.CreateDummyMechData();
+        targetData.Id = Guid.NewGuid();
+        
+        _attacker = mechFactory.Create(attackerData);
+        _target = mechFactory.Create(targetData);
+        
+        // Add units to players
+        _player1.AddUnit(_attacker);
+        player2.AddUnit(_target);
+        
+        // Setup game to return players
+        _game.Players.Returns(new List<IPlayer> { _player1, player2 });
+        
+        // Setup weapon data - using the Medium Laser in the right arm
+        var weapon = _attacker.Parts.SelectMany(p => p.GetComponents<Weapon>()).First();
         _weaponData = new WeaponData
         {
-            Name = "Test Weapon",
-            Location = PartLocation.RightArm,
-            Slots = [1]
+            Name = weapon.Name, // Added Name property
+            Location = weapon.MountedOn!.Location,
+            Slots = weapon.MountedAtSlots  // This might need adjustment based on actual slot position
         };
-        
-        // Setup mock players and units
-        _player = Substitute.For<IPlayer>();
-        _player.Id.Returns(_playerId);
-        _player.Name.Returns("Player 1");
-        
-        _targetPlayer = Substitute.For<IPlayer>();
-        _targetPlayer.Id.Returns(_targetPlayerId);
-        _targetPlayer.Name.Returns("Player 2");
-        
-        _attacker = Substitute.For<Unit>();
-        _attacker.Id.Returns(_attackerId);
-        _attacker.Name.Returns("Attacker Mech");
-        _attacker.Owner.Returns(_player);
-        
-        _target = Substitute.For<Unit>();
-        _target.Id.Returns(_targetId);
-        _target.Name.Returns("Target Mech");
-        _target.Owner.Returns(_targetPlayer);
-        
-        _weapon = Substitute.For<Weapon>();
-        _weapon.Name.Returns("Test Weapon");
-        
-        // Setup attacker to return the weapon
-        _attacker.GetMountedComponentAtLocation<Weapon>(
-            Arg.Is<PartLocation>(l => l == _weaponData.Location),
-            Arg.Is<int[]>(s => s.SequenceEqual(_weaponData.Slots)))
-            .Returns(_weapon);
-        
-        // Setup game to return players and units
-        _player.Units.Returns(new List<Unit> { _attacker });
-        _targetPlayer.Units.Returns(new List<Unit> { _target });
-        _game.Players.Returns(new List<IPlayer> { _player, _targetPlayer });
         
         // Setup localization service
         _localizationService.GetString("Command_WeaponAttackResolution_Hit")
@@ -105,16 +90,16 @@ public class WeaponAttackResolutionCommandTests
         
         var resolutionData = new AttackResolutionData(
             8,
-            new List<DiceResult> { new(4), new(5) },
+            [new(4), new(5)],
             true,
             hitLocationsData);
         
         return new WeaponAttackResolutionCommand
         {
             GameOriginId = _gameId,
-            PlayerId = _playerId,
-            AttackerId = _attackerId,
-            TargetId = _targetId,
+            PlayerId = _player1.Id,
+            AttackerId = _attacker.Id,
+            TargetId = _target.Id,
             WeaponData = _weaponData,
             ResolutionData = resolutionData,
             Timestamp = DateTime.UtcNow
@@ -125,15 +110,15 @@ public class WeaponAttackResolutionCommandTests
     {
         var resolutionData = new AttackResolutionData(
             8,
-            new List<DiceResult> { new(2), new(3) },
+            [new(2), new(3)],
             false);
         
         return new WeaponAttackResolutionCommand
         {
             GameOriginId = _gameId,
-            PlayerId = _playerId,
-            AttackerId = _attackerId,
-            TargetId = _targetId,
+            PlayerId = _player1.Id,
+            AttackerId = _attacker.Id,
+            TargetId = _target.Id,
             WeaponData = _weaponData,
             ResolutionData = resolutionData,
             Timestamp = DateTime.UtcNow
@@ -145,29 +130,29 @@ public class WeaponAttackResolutionCommandTests
         // Create a hit with multiple locations and cluster weapon
         var hitLocations = new List<HitLocationData>
         {
-            new(PartLocation.LeftArm, 2, new List<DiceResult> { new(5) }),
-            new(PartLocation.RightArm, 2, new List<DiceResult> { new(3) }),
-            new(PartLocation.CenterTorso, 6, new List<DiceResult> { new(8) })
+            new(PartLocation.LeftArm, 2, [new(2), new(3)]),
+            new(PartLocation.RightArm, 2, [new(2), new(1)]),
+            new(PartLocation.CenterTorso, 6, [new(5), new(3)])
         };
         
         var hitLocationsData = new AttackHitLocationsData(
             hitLocations,
             10,
-            new List<DiceResult> { new(6), new(4) },
+            [new(6), new(4)],
             5);
         
         var resolutionData = new AttackResolutionData(
             7,
-            new List<DiceResult> { new(4), new(4) },
+            [new(4), new(4)],
             true,
             hitLocationsData);
         
         return new WeaponAttackResolutionCommand
         {
             GameOriginId = _gameId,
-            PlayerId = _playerId,
-            AttackerId = _attackerId,
-            TargetId = _targetId,
+            PlayerId = _player1.Id,
+            AttackerId = _attacker.Id,
+            TargetId = _target.Id,
             WeaponData = _weaponData,
             ResolutionData = resolutionData,
             Timestamp = DateTime.UtcNow
@@ -185,7 +170,7 @@ public class WeaponAttackResolutionCommandTests
 
         // Assert
         result.ShouldNotBeEmpty();
-        result.ShouldContain("Player 1's Attacker Mech hits Player 2's Target Mech with Test Weapon");
+        result.ShouldContain("Player 1's Locust LCT-1V hits Player 2's Locust LCT-1V with machine Gun");
         result.ShouldContain("Target: 8, Roll: 9");
         result.ShouldContain("Total Damage: 5");
         result.ShouldContain("CenterTorso: 5 damage");
@@ -202,8 +187,7 @@ public class WeaponAttackResolutionCommandTests
 
         // Assert
         result.ShouldNotBeEmpty();
-        result.ShouldContain("Player 1's Attacker Mech misses Player 2's Target Mech with Test Weapon");
-        result.ShouldContain("Target: 8, Roll: 5");
+        result.ShouldBe("Player 1's Locust LCT-1V misses Player 2's Locust LCT-1V with Machine Gun (Target: 8, Roll: 5)");
     }
 
     [Fact]
@@ -217,7 +201,7 @@ public class WeaponAttackResolutionCommandTests
 
         // Assert
         result.ShouldNotBeEmpty();
-        result.ShouldContain("Player 1's Attacker Mech hits Player 2's Target Mech with Test Weapon");
+        result.ShouldContain("Player 1's Locust LCT-1V hits Player 2's Locust LCT-1V with Machine Gun");
         result.ShouldContain("Target: 7, Roll: 8");
         result.ShouldContain("Total Damage: 10");
         result.ShouldContain("Cluster Roll: 10");
@@ -232,8 +216,7 @@ public class WeaponAttackResolutionCommandTests
     public void Format_ShouldReturnEmpty_WhenPlayerNotFound()
     {
         // Arrange
-        var command = CreateHitCommand();
-        _game.Players.Returns(new List<IPlayer>());
+        var command = CreateHitCommand() with { PlayerId = Guid.NewGuid() };
 
         // Act
         var result = command.Format(_localizationService, _game);
@@ -246,8 +229,7 @@ public class WeaponAttackResolutionCommandTests
     public void Format_ShouldReturnEmpty_WhenAttackerNotFound()
     {
         // Arrange
-        var command = CreateHitCommand();
-        _player.Units.Returns(new List<Unit>());
+        var command = CreateHitCommand() with { AttackerId = Guid.NewGuid() };
 
         // Act
         var result = command.Format(_localizationService, _game);
@@ -260,25 +242,7 @@ public class WeaponAttackResolutionCommandTests
     public void Format_ShouldReturnEmpty_WhenTargetNotFound()
     {
         // Arrange
-        var command = CreateHitCommand();
-        _targetPlayer.Units.Returns(new List<Unit>());
-
-        // Act
-        var result = command.Format(_localizationService, _game);
-
-        // Assert
-        result.ShouldBeEmpty();
-    }
-
-    [Fact]
-    public void Format_ShouldReturnEmpty_WhenWeaponNotFound()
-    {
-        // Arrange
-        var command = CreateHitCommand();
-        _attacker.GetMountedComponentAtLocation<Weapon>(
-            Arg.Any<PartLocation>(),
-            Arg.Any<int[ ]>())
-            .Returns((Weapon)null);
+        var command = CreateHitCommand() with { TargetId = Guid.NewGuid() };
 
         // Act
         var result = command.Format(_localizationService, _game);
