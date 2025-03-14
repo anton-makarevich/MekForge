@@ -3,7 +3,7 @@ namespace Sanet.MekForge.Core.Models.Units.Components.Weapons.Missile;
 public class LRM5 : Weapon
 {
     public LRM5() : base(
-        name: "LRM-10",
+        name: "LRM-5",
         damage: 5, // 1 damage per missile, 5 missiles
         heat: 2,
         minimumRange: 6,
