@@ -64,10 +64,12 @@ public class ClientGame : BaseGame
             case WeaponAttackDeclarationCommand weaponAttackDeclarationCommand:
                 OnWeaponsAttack(weaponAttackDeclarationCommand);
                 break;
+            case WeaponAttackResolutionCommand attackResolutionCommand:
+                OnWeaponsAttackResolution(attackResolutionCommand);
+                break;
         }
     }
     
-
     public void JoinGameWithUnits(IPlayer player, List<UnitData> units)
     {
         var joinCommand = new JoinGameCommand
