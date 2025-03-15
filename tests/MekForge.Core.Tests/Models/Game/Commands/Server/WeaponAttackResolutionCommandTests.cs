@@ -6,6 +6,7 @@ using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Dice;
 using Sanet.MekForge.Core.Models.Game.Players;
+using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Services.Localization;
@@ -92,6 +93,7 @@ public class WeaponAttackResolutionCommandTests
             8,
             [new(4), new(5)],
             true,
+            FiringArc.Forward,
             hitLocationsData);
         
         return new WeaponAttackResolutionCommand
@@ -145,6 +147,7 @@ public class WeaponAttackResolutionCommandTests
             7,
             [new(4), new(4)],
             true,
+            FiringArc.Forward,
             hitLocationsData);
         
         return new WeaponAttackResolutionCommand
