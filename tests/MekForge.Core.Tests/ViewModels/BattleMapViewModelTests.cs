@@ -6,6 +6,7 @@ using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
+using Sanet.MekForge.Core.Models.Game.Dice;
 using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
@@ -15,7 +16,6 @@ using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.Services.Localization;
-using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Tests.Data.Community;
 using Sanet.MekForge.Core.Utils;
 using Sanet.MekForge.Core.Utils.Generators;
@@ -990,7 +990,7 @@ public class BattleMapViewModelTests
             Substitute.For<ICommandPublisher>(),
             Substitute.For<IToHitCalculator>());
         
-        _viewModel.Game =game;
+        _viewModel.Game = game;
         game.HandleCommand(new JoinGameCommand
         {
             PlayerName = "Player1",
@@ -1222,5 +1222,146 @@ public class BattleMapViewModelTests
         attack2.Weapon.ShouldBe(weapon2);
         attack2.AttackerTint.ShouldBe(player.Tint);
         attack2.LineOffset.ShouldBe(5);
+    }
+    
+    [Fact]
+    public void WeaponAttacks_ShouldRemoveSpecificAttack_WhenWeaponAttackResolutionCommandReceived()
+    {
+        // Arrange
+        var playerId = Guid.NewGuid();
+        var player = new Player(playerId, "Player1");
+        var targetPlayerId = Guid.NewGuid();
+        var targetPlayer = new Player(targetPlayerId, "Player2");
+        
+        var mechData = MechFactoryTests.CreateDummyMechData();
+        mechData.Id = Guid.NewGuid();
+        
+        // Create a game with the players
+        var game = new ClientGame(
+            BattleMap.GenerateMap(3, 3, new SingleTerrainGenerator(3, 3, new ClearTerrain())),
+            [player, targetPlayer],
+            new ClassicBattletechRulesProvider(),
+            Substitute.For<ICommandPublisher>(),
+            Substitute.For<IToHitCalculator>());
+        
+        _viewModel.Game = game;
+        
+        // Add units to the game via commands
+        game.HandleCommand(new JoinGameCommand
+        {
+            PlayerName = "Player1",
+            Units = [mechData],
+            Tint = "#ffffff",
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = playerId
+        });
+        
+        // Create target unit
+        var targetMechData = MechFactoryTests.CreateDummyMechData();
+        targetMechData.Id = Guid.NewGuid();
+        game.HandleCommand(new JoinGameCommand
+        {
+            PlayerName = "Player2",
+            Units = [targetMechData],
+            Tint = "#FF0000",
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = targetPlayerId
+        });
+        
+        // Set player statuses
+        game.HandleCommand(new UpdatePlayerStatusCommand
+        {
+            PlayerStatus = PlayerStatus.Playing,
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = playerId
+        });
+        game.HandleCommand(new UpdatePlayerStatusCommand
+        {
+            PlayerStatus = PlayerStatus.Playing,
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = targetPlayerId
+        });
+        
+        // Deploy units to positions
+        var attackerPosition = new HexPosition(new HexCoordinates(0, 0), HexDirection.Top);
+        var targetPosition = new HexPosition(new HexCoordinates(1, 0), HexDirection.Top);
+        
+        // Get the units from the game
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == playerId);
+        var target = _viewModel.Units.First(u => u.Owner!.Id == targetPlayerId);
+        
+        // Deploy the units
+        attacker.Deploy(attackerPosition);
+        target.Deploy(targetPosition);
+        
+        // Get two weapons from the attacker
+        var weapons = attacker.Parts.SelectMany(p => p.GetComponents<Weapon>()).Take(2).ToList();
+        var weapon1 = weapons[0];
+        var weapon2 = weapons.Count > 1 ? weapons[1] : weapons[0]; // Fallback in case there's only one weapon
+        
+        // Create weapon target data for two weapons
+        var weaponTargetData1 = new WeaponTargetData
+        {
+            TargetId = target.Id,
+            Weapon = new WeaponData
+            {
+                Location = weapon1.MountedOn!.Location,
+                Slots = weapon1.MountedAtSlots,
+                Name = weapon1.Name
+            },
+            IsPrimaryTarget = true
+        };
+        
+        var weaponTargetData2 = new WeaponTargetData
+        {
+            TargetId = target.Id,
+            Weapon = new WeaponData
+            {
+                Location = weapon2.MountedOn!.Location,
+                Slots = weapon2.MountedAtSlots,
+                Name = weapon2.Name
+            },
+            IsPrimaryTarget = true
+        };
+        
+        // Create and handle the weapon attack declaration command with two weapons
+        var weaponAttackCommand = new WeaponAttackDeclarationCommand
+        {
+            PlayerId = playerId,
+            AttackerId = attacker.Id,
+            WeaponTargets = [weaponTargetData1, weaponTargetData2],
+            GameOriginId = Guid.NewGuid()
+        };
+        
+        game.HandleCommand(weaponAttackCommand);
+        
+        // Verify both attacks are present
+        _viewModel.WeaponAttacks.ShouldNotBeNull();
+        _viewModel.WeaponAttacks.Count.ShouldBe(2);
+        
+        // Create a resolution command for the first weapon
+        var resolutionCommand = new WeaponAttackResolutionCommand
+        {
+            PlayerId = playerId,
+            AttackerId = attacker.Id,
+            TargetId = target.Id,
+            WeaponData = weaponTargetData1.Weapon,
+            ResolutionData = new AttackResolutionData(
+                ToHitNumber: 7,
+                AttackRoll: new List<DiceResult> { new DiceResult(6) },
+                IsHit: true),
+            GameOriginId = Guid.NewGuid()
+        };
+        
+        // Act
+        game.HandleCommand(resolutionCommand);
+        
+        // Assert
+        _viewModel.WeaponAttacks.Count.ShouldBe(1); // Only one attack should remain
+        
+        // The remaining attack should be for weapon2
+        var remainingAttack = _viewModel.WeaponAttacks.First();
+        remainingAttack.Weapon.ShouldBe(weapon2);
+        remainingAttack.TargetId.ShouldBe(target.Id);
     }
 }
