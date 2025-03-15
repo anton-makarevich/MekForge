@@ -9,6 +9,7 @@ using Sanet.MekForge.Core.Utils.TechRules;
 using System.Reactive.Subjects;
 using Sanet.MekForge.Core.Models.Units.Mechs;
 using Sanet.MekForge.Core.Models.Game.Combat;
+using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Utils;
 
 namespace Sanet.MekForge.Core.Models.Game;
@@ -177,6 +178,22 @@ public abstract class BaseGame : IGame
         attackerUnit.DeclareWeaponAttack(attackCommand.WeaponTargets, targetUnits);
     }
     
+    public void OnWeaponsAttackResolution(WeaponAttackResolutionCommand attackResolutionCommand)
+    {
+        // Find the target unit with the target Id
+        var targetUnit = _players
+            .SelectMany(p => p.Units)
+            .FirstOrDefault(u => u.Id == attackResolutionCommand.TargetId);
+        
+        if (targetUnit == null) return;
+        
+        // Apply damage to the target unit using the hit locations data
+        if (attackResolutionCommand.ResolutionData is { IsHit: true, HitLocationsData: not null })
+        {
+            targetUnit.ApplyDamage(attackResolutionCommand.ResolutionData.HitLocationsData.HitLocations);
+        }
+    }
+    
     public void OnPhysicalAttack(PhysicalAttackCommand attackCommand)
     {
         Console.WriteLine("physical attack");
@@ -192,6 +209,7 @@ public abstract class BaseGame : IGame
             MoveUnitCommand => true,
             WeaponConfigurationCommand => true,
             WeaponAttackDeclarationCommand=> true,
+            WeaponAttackResolutionCommand => true,
             _ => false
         };
     }

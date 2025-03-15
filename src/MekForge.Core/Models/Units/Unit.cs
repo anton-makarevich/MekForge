@@ -167,22 +167,30 @@ public abstract class Unit
         }
     }
     
+    public void ApplyDamage(List<HitLocationData> hitLocations)
+    {
+        foreach (var hitLocation in hitLocations)
+        {
+            var targetPart = _parts.Find(p => p.Location == hitLocation.Location);
+            if (targetPart != null)
+            {
+                ApplyDamage(hitLocation.Damage, targetPart);
+            }
+        }
+    }
+
     public virtual void ApplyDamage(int damage, UnitPart targetPart)
     {
         var remainingDamage = targetPart.ApplyDamage(damage);
         
-        // If there's remaining damage and this is a limb, transfer to the connected part
-        if (remainingDamage > 0)
+        // If there's remaining damage, transfer to the connected part
+        if (remainingDamage <= 0) return;
+        var transferLocation = GetTransferLocation(targetPart.Location);
+        if (!transferLocation.HasValue) return;
+        var transferPart = _parts.Find(p => p.Location == transferLocation.Value);
+        if (transferPart != null)
         {
-            var transferLocation = GetTransferLocation(targetPart.Location);
-            if (transferLocation.HasValue)
-            {
-                var transferPart = _parts.Find(p => p.Location == transferLocation.Value);
-                if (transferPart != null)
-                {
-                    ApplyDamage(remainingDamage, transferPart);
-                }
-            }
+            ApplyDamage(remainingDamage, transferPart);
         }
     }
 
