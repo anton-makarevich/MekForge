@@ -28,6 +28,9 @@ namespace Sanet.MekForge.Avalonia.Controls
         private readonly IDisposable _subscription;
         private readonly Border _tintBorder;
         private readonly StackPanel _actionButtons;
+        private readonly StackPanel _healthBars;
+        private readonly ProgressBar _armorBar;
+        private readonly ProgressBar _structureBar;
 
         public UnitControl(Unit unit, IImageService<Bitmap> imageService, BattleMapViewModel viewModel)
         {
@@ -68,6 +71,51 @@ namespace Sanet.MekForge.Avalonia.Controls
                 Spacing = 4,
                 Margin = new Thickness(4)
             };
+
+            // Create health bars panel
+            _healthBars = new StackPanel
+            {
+                Orientation = Orientation.Vertical,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                IsVisible = true,
+                IsHitTestVisible = false,
+                Spacing = 2,
+                Margin = new Thickness(4),
+                Width = Width * 0.8
+            };
+
+            // Create armor bar (yellow)
+            _armorBar = new ProgressBar
+            {
+                Foreground = new SolidColorBrush(Colors.Yellow),
+                Background = new SolidColorBrush(Color.FromArgb(128, 0, 0, 0)),
+                Height = 6,
+                MinWidth = 0,
+                Width = Width * 0.8,
+                CornerRadius = new CornerRadius(3),
+                Minimum = 0,
+                Maximum = 1,
+                Value = 1
+            };
+
+            // Create structure bar (orange)
+            _structureBar = new ProgressBar
+            {
+                Foreground = new SolidColorBrush(Colors.Orange),
+                Background = new SolidColorBrush(Color.FromArgb(128, 0, 0, 0)),
+                Height = 6,
+                MinWidth = 0,
+                Width = Width * 0.8,
+                CornerRadius = new CornerRadius(3),
+                Minimum = 0,
+                Maximum = 1,
+                Value = 1
+            };
+
+            // Add bars to the panel
+            _healthBars.Children.Add(_armorBar);
+            _healthBars.Children.Add(_structureBar);
 
             var color = _unit.Owner!=null 
                 ?Color.Parse(_unit.Owner.Tint)
@@ -131,7 +179,11 @@ namespace Sanet.MekForge.Avalonia.Controls
                     viewModel.SelectedUnit,
                     Actions = viewModel.CurrentState.GetAvailableActions(),
                     IsWeaponsPhase = viewModel.CurrentState is WeaponsAttackState,
-                    (_unit as Mech)?.TorsoDirection
+                    (_unit as Mech)?.TorsoDirection,
+                    _unit.TotalMaxArmor,
+                    _unit.TotalCurrentArmor,
+                    _unit.TotalMaxStructure,
+                    _unit.TotalCurrentStructure
                 })
                 .ObserveOn(SynchronizationContext.Current) // Ensure events are processed on the UI thread
                 .Subscribe(state => 
@@ -142,6 +194,7 @@ namespace Sanet.MekForge.Avalonia.Controls
                     selectionBorder.IsVisible = state.SelectedUnit == _unit
                                                 || _viewModel.CurrentState is WeaponsAttackState attackState && (attackState.Attacker == _unit || attackState.SelectedTarget == _unit);
                     UpdateActionButtons(state.Actions);
+                    UpdateHealthBars(state.TotalCurrentArmor, state.TotalMaxArmor, state.TotalCurrentStructure, state.TotalMaxStructure);
                     
                     // Calculate rotation angles
                     var isMech = _unit is Mech;
@@ -180,6 +233,18 @@ namespace Sanet.MekForge.Avalonia.Controls
             // Initial update
             Render();
             UpdateImage();
+            UpdateHealthBars(_unit.TotalCurrentArmor, _unit.TotalMaxArmor, _unit.TotalCurrentStructure, _unit.TotalMaxStructure);
+        }
+
+        private void UpdateHealthBars(int currentArmor, int maxArmor, int currentStructure, int maxStructure)
+        {
+            // Update armor bar
+            _armorBar.Maximum = maxArmor;
+            _armorBar.Value = currentArmor;
+            
+            // Update structure bar
+            _structureBar.Maximum = maxStructure;
+            _structureBar.Value = currentStructure;
         }
 
         private void UpdateActionButtons(IEnumerable<StateAction> actions)
@@ -237,9 +302,18 @@ namespace Sanet.MekForge.Avalonia.Controls
             if (_actionButtons.Parent == null && Parent is Canvas canvas)
             {
                 canvas.Children.Add(_actionButtons);
+                
             }
             Canvas.SetLeft(_actionButtons, leftPos);
             Canvas.SetTop(_actionButtons, topPos + Height);
+
+            // Update health bars position to follow the unit
+            if (_healthBars.Parent == null && Parent is Canvas canvas2)
+            {
+                canvas2.Children.Add(_healthBars);
+            }
+            Canvas.SetLeft(_healthBars, leftPos);
+            Canvas.SetTop(_healthBars, topPos - 15); // Position above the unit
         }
         
         private void UpdateImage()
