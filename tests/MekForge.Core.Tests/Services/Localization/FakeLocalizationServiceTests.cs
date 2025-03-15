@@ -23,6 +23,7 @@ public class FakeLocalizationServiceTests
     [InlineData("Command_WeaponAttackResolution", "{0}'s {1} attacks with {2} targeting {3}'s {4}. To hit number: {5}")]
     [InlineData("Command_WeaponAttackResolution_Hit", "{0}'s {1} hits {3}'s {4} with {2} (Target: {5}, Roll: {6})")]
     [InlineData("Command_WeaponAttackResolution_Miss", "{0}'s {1} misses {3}'s {4} with {2} (Target: {5}, Roll: {6})")]
+    [InlineData("Command_WeaponAttackResolution_Direction", "Attack Direction: {0}")]
     [InlineData("Command_WeaponAttackResolution_TotalDamage", "Total Damage: {0}")]
     [InlineData("Command_WeaponAttackResolution_MissilesHit", "Missiles Hit: {0}")]
     [InlineData("Command_WeaponAttackResolution_ClusterRoll", "Cluster Roll: {0}")]
@@ -31,6 +32,10 @@ public class FakeLocalizationServiceTests
     [InlineData("Direction_Forward", "forward")]
     [InlineData("Direction_Backward", "backward")]
     // Attack modifiers
+    [InlineData("AttackDirection_Left", "Left")]
+    [InlineData("AttackDirection_Right", "Right")]
+    [InlineData("AttackDirection_Forward", "Front")]
+    [InlineData("AttackDirection_Rear", "Rear")]
     [InlineData("Modifier_GunnerySkill", "Gunnery Skill: +{0}")]
     [InlineData("Modifier_AttackerMovement", "Attacker Movement ({0}): +{1}")]
     [InlineData("Modifier_TargetMovement", "Target Movement ({0} hexes): +{1}")]

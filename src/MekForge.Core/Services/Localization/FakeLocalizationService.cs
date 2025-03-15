@@ -23,6 +23,7 @@ public class FakeLocalizationService: ILocalizationService
             "Command_WeaponAttackResolution" => "{0}'s {1} attacks with {2} targeting {3}'s {4}. To hit number: {5}",
             "Command_WeaponAttackResolution_Hit" => "{0}'s {1} hits {3}'s {4} with {2} (Target: {5}, Roll: {6})",
             "Command_WeaponAttackResolution_Miss" => "{0}'s {1} misses {3}'s {4} with {2} (Target: {5}, Roll: {6})",
+            "Command_WeaponAttackResolution_Direction" => "Attack Direction: {0}",
             "Command_WeaponAttackResolution_TotalDamage" => "Total Damage: {0}",
             "Command_WeaponAttackResolution_MissilesHit" => "Missiles Hit: {0}",
             "Command_WeaponAttackResolution_ClusterRoll" => "Cluster Roll: {0}",
@@ -30,6 +31,12 @@ public class FakeLocalizationService: ILocalizationService
             "Command_WeaponAttackResolution_HitLocation" => "{0}: {1} damage (Roll: {2})",
             "Direction_Forward" => "forward",
             "Direction_Backward" => "backward",
+            
+            // Attack direction strings
+            "AttackDirection_Left" => "Left",
+            "AttackDirection_Right" => "Right",
+            "AttackDirection_Forward" => "Front",
+            "AttackDirection_Rear" => "Rear",
             
             // Attack modifiers
             "Modifier_GunnerySkill" => "Gunnery Skill: +{0}",

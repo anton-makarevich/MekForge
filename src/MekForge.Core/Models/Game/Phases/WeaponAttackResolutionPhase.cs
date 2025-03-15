@@ -126,36 +126,40 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
         
         var isHit = totalRoll >= toHitNumber;
         
+        // Determine attack direction (will be null if not a hit)
+        FiringArc? attackDirection = null;
+        
         // If hit, determine location and damage
         AttackHitLocationsData? hitLocationsData = null;
-        
+
         if (isHit)
         {
             // Determine attack direction once for this weapon attack
-            var attackDirection = DetermineAttackDirection(attacker, target);
-            
+            attackDirection = DetermineAttackDirection(attacker, target);
+
             // Check if it's a cluster weapon
             if (weapon.WeaponSize > 1)
             {
                 // It's a cluster weapon, handle multiple hits
-                hitLocationsData = ResolveClusterWeaponHit(weapon, attackDirection);
+                hitLocationsData = ResolveClusterWeaponHit(weapon, attackDirection.Value);
+
+                // Create hit locations data with multiple hits
+                return new AttackResolutionData(toHitNumber, attackRoll, isHit, attackDirection, hitLocationsData);
             }
-            else
-            {
-                // Standard weapon, single hit location
-                var hitLocationData = DetermineHitLocation(attackDirection, weapon.Damage);
-                
-                // Create hit locations data with a single hit
-                hitLocationsData = new AttackHitLocationsData(
-                    [hitLocationData],
-                    weapon.Damage,
-                    [], // No cluster roll for standard weapons
-                    1  // Single hit
-                );
-            }
+
+            // Standard weapon, single hit location
+            var hitLocationData = DetermineHitLocation(attackDirection.Value, weapon.Damage);
+
+            // Create hit locations data with a single hit
+            hitLocationsData = new AttackHitLocationsData(
+                [hitLocationData],
+                weapon.Damage,
+                [], // No cluster roll for standard weapons
+                1 // Single hit
+            );
         }
 
-        return new AttackResolutionData(toHitNumber, attackRoll, isHit, hitLocationsData);
+        return new AttackResolutionData(toHitNumber, attackRoll, isHit, attackDirection, hitLocationsData);
     }
     
     private AttackHitLocationsData ResolveClusterWeaponHit(Weapon weapon, FiringArc attackDirection)

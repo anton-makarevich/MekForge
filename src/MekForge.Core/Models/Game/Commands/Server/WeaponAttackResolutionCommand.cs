@@ -48,6 +48,17 @@ public record struct WeaponAttackResolutionCommand : IGameCommand
                 ResolutionData.ToHitNumber,
                 rollTotal));
 
+            // Add attack direction if available
+            if (ResolutionData.AttackDirection.HasValue)
+            {
+                var directionKey = $"AttackDirection_{ResolutionData.AttackDirection.Value}";
+                var directionString = localizationService.GetString(directionKey);
+                
+                stringBuilder.AppendLine(string.Format(
+                    localizationService.GetString("Command_WeaponAttackResolution_Direction"),
+                    directionString));
+            }
+
             // Add damage information if hit
             if (ResolutionData.HitLocationsData == null) return stringBuilder.ToString().TrimEnd();
             // Add total damage
@@ -58,8 +69,6 @@ public record struct WeaponAttackResolutionCommand : IGameCommand
             // Add missiles hit information for cluster weapons
             if (ResolutionData.HitLocationsData.ClusterRoll.Count > 1)
             {
-
-
                 // Add cluster roll information
                 if (ResolutionData.HitLocationsData.ClusterRoll.Count > 0)
                 {
