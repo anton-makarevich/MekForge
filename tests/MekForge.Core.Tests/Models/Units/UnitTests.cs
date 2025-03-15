@@ -479,7 +479,7 @@ public class UnitTests
     {
         // Arrange
         var testUnit = CreateTestUnit();
-        var energyWeapon = new TestWeapon("Energy Weapon", [0, 1], WeaponType.Energy, AmmoType.None);
+        var energyWeapon = new TestWeapon("Energy Weapon", [0, 1]);
         
         // Act
         var remainingShots = testUnit.GetRemainingAmmoShots(energyWeapon);
@@ -596,6 +596,127 @@ public class UnitTests
         }
     }
     
-    // Helper class for testing generic methods
+    [Fact]
+    public void TotalMaxArmor_ShouldReturnSumOfAllPartsMaxArmor()
+    {
+        // Arrange
+        var parts = new List<UnitPart>
+        {
+            new TestUnitPart("Center Torso", PartLocation.CenterTorso, 10, 5, 10),
+            new TestUnitPart("Left Arm", PartLocation.LeftArm, 15, 5, 10),
+            new TestUnitPart("Right Arm", PartLocation.RightArm, 20, 5, 10)
+        };
+        
+        var unit = new TestUnit("Test", "Unit", 20, 4, parts);
+        
+        // Act
+        var totalMaxArmor = unit.TotalMaxArmor;
+        
+        // Assert
+        totalMaxArmor.ShouldBe(45); // 10 + 15 + 20
+    }
+    
+    [Fact]
+    public void TotalCurrentArmor_ShouldReturnSumOfAllPartsCurrentArmor()
+    {
+        // Arrange
+        var parts = new List<UnitPart>
+        {
+            new TestUnitPart("Center Torso", PartLocation.CenterTorso, 10, 5, 10),
+            new TestUnitPart("Left Arm", PartLocation.LeftArm, 15, 5, 10),
+            new TestUnitPart("Right Arm", PartLocation.RightArm, 20, 5, 10)
+        };
+        
+        var unit = new TestUnit("Test", "Unit", 20, 4, parts);
+        
+        // Apply damage to reduce armor
+        unit.ApplyDamage(5, parts[0]); // Center Torso: 10 -> 5
+        unit.ApplyDamage(10, parts[1]); // Left Arm: 15 -> 5
+        
+        // Act
+        var totalCurrentArmor = unit.TotalCurrentArmor;
+        
+        // Assert
+        totalCurrentArmor.ShouldBe(30); // 5 + 5 + 20
+    }
+    
+    [Fact]
+    public void TotalMaxStructure_ShouldReturnSumOfAllPartsMaxStructure()
+    {
+        // Arrange
+        var parts = new List<UnitPart>
+        {
+            new TestUnitPart("Center Torso", PartLocation.CenterTorso, 10, 5, 10),
+            new TestUnitPart("Left Arm", PartLocation.LeftArm, 15, 8, 10),
+            new TestUnitPart("Right Arm", PartLocation.RightArm, 20, 12, 10)
+        };
+        
+        var unit = new TestUnit("Test", "Unit", 20, 4, parts);
+        
+        // Act
+        var totalMaxStructure = unit.TotalMaxStructure;
+        
+        // Assert
+        totalMaxStructure.ShouldBe(25); // 5 + 8 + 12
+    }
+    
+    [Fact]
+    public void TotalCurrentStructure_ShouldReturnSumOfAllPartsCurrentStructure()
+    {
+        // Arrange
+        var parts = new List<UnitPart>
+        {
+            new TestUnitPart("Center Torso", PartLocation.CenterTorso, 10, 5, 10),
+            new TestUnitPart("Left Arm", PartLocation.LeftArm, 15, 8, 10),
+            new TestUnitPart("Right Arm", PartLocation.RightArm, 20, 12, 10)
+        };
+        
+        var unit = new TestUnit("Test", "Unit", 20, 4, parts);
+        
+        // Apply damage to reduce armor and structure
+        unit.ApplyDamage(15, parts[0]); // Center Torso: 10 armor -> 0, 5 structure -> 0
+        unit.ApplyDamage(20, parts[1]); // Left Arm: 15 armor -> 0, 8 structure -> 3
+        
+        // Act
+        var totalCurrentStructure = unit.TotalCurrentStructure;
+        
+        // Assert
+        totalCurrentStructure.ShouldBe(15); // 0 + 3 + 12
+    }
+    
+    [Fact]
+    public void ArmorAndStructure_ShouldUpdateCorrectly_WhenDamageIsApplied()
+    {
+        // Arrange
+        var parts = new List<UnitPart>
+        {
+            new TestUnitPart("Center Torso", PartLocation.CenterTorso, 10, 5, 10),
+            new TestUnitPart("Left Arm", PartLocation.LeftArm, 15, 8, 10),
+            new TestUnitPart("Right Arm", PartLocation.RightArm, 20, 12, 10)
+        };
+        
+        var unit = new TestUnit("Test", "Unit", 20, 4, parts);
+        
+        // Initial values
+        unit.TotalMaxArmor.ShouldBe(45); // 10 + 15 + 20
+        unit.TotalCurrentArmor.ShouldBe(45);
+        unit.TotalMaxStructure.ShouldBe(25); // 5 + 8 + 12
+        unit.TotalCurrentStructure.ShouldBe(25);
+        
+        // Act - Apply damage to one part
+        unit.ApplyDamage(5, parts[0]); // Reduce Center Torso armor by 5
+        
+        // Assert - Check updated values
+        unit.TotalCurrentArmor.ShouldBe(40); // 5 + 15 + 20
+        unit.TotalCurrentStructure.ShouldBe(25); // Structure unchanged
+        
+        // Act - Apply more damage to penetrate armor and damage structure
+        unit.ApplyDamage(8, parts[0]); // Reduce remaining CT armor (5) and damage structure (3)
+        
+        // Assert - Check updated values
+        unit.TotalCurrentArmor.ShouldBe(35); // 0 + 15 + 20
+        unit.TotalCurrentStructure.ShouldBe(22); // 2 + 8 + 12
+    }
+
     private class TestDerivedComponent(string name, int size = 1) : TestComponent(name, size);
 }
