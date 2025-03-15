@@ -88,7 +88,7 @@ namespace Sanet.MekForge.Avalonia.Controls
             // Create armor bar (yellow)
             _armorBar = new ProgressBar
             {
-                Foreground = new SolidColorBrush(Colors.Yellow),
+                Foreground = new SolidColorBrush(Colors.LightBlue),
                 Background = new SolidColorBrush(Color.FromArgb(128, 0, 0, 0)),
                 Height = 6,
                 MinWidth = 0,
