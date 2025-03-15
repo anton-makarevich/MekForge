@@ -63,6 +63,16 @@ public class WeaponAttackResolutionCommandTests
             .Returns("{0}'s {1} hits {3}'s {4} with {2} (Target: {5}, Roll: {6})");
         _localizationService.GetString("Command_WeaponAttackResolution_Miss")
             .Returns("{0}'s {1} misses {3}'s {4} with {2} (Target: {5}, Roll: {6})");
+        _localizationService.GetString("Command_WeaponAttackResolution_Direction")
+            .Returns("Attack Direction: {0}");
+        _localizationService.GetString("AttackDirection_Forward")
+            .Returns("Front");
+        _localizationService.GetString("AttackDirection_Left")
+            .Returns("Left");
+        _localizationService.GetString("AttackDirection_Right")
+            .Returns("Right");
+        _localizationService.GetString("AttackDirection_Rear")
+            .Returns("Rear");
         _localizationService.GetString("Command_WeaponAttackResolution_TotalDamage")
             .Returns("Total Damage: {0}");
         _localizationService.GetString("Command_WeaponAttackResolution_MissilesHit")
@@ -191,6 +201,7 @@ public class WeaponAttackResolutionCommandTests
         // Assert
         result.ShouldNotBeEmpty();
         result.ShouldBe("Player 1's Locust LCT-1V misses Player 2's Locust LCT-1V with Machine Gun (Target: 8, Roll: 5)");
+        result.ShouldNotContain("Attack Direction");
     }
 
     [Fact]
@@ -252,5 +263,77 @@ public class WeaponAttackResolutionCommandTests
 
         // Assert
         result.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void Format_ShouldIncludeAttackDirection_WhenHit()
+    {
+        // Arrange
+        var command = CreateHitCommand();
+
+        // Act
+        var result = command.Format(_localizationService, _game);
+
+        // Assert
+        result.ShouldNotBeEmpty();
+        result.ShouldContain("Attack Direction: Front");
+    }
+    
+    [Fact]
+    public void Format_ShouldIncludeAttackDirection_WithClusterWeapon()
+    {
+        // Arrange
+        var command = CreateClusterHitCommand();
+
+        // Act
+        var result = command.Format(_localizationService, _game);
+
+        // Assert
+        result.ShouldNotBeEmpty();
+        result.ShouldContain("Attack Direction: Front");
+    }
+    
+    [Theory]
+    [InlineData(FiringArc.Left, "Attack Direction: Left")]
+    [InlineData(FiringArc.Right, "Attack Direction: Right")]
+    [InlineData(FiringArc.Rear, "Attack Direction: Rear")]
+    public void Format_ShouldDisplayCorrectAttackDirection(FiringArc direction, string expectedDirectionText)
+    {
+        // Arrange
+        var hitLocations = new List<HitLocationData>
+        {
+            new(PartLocation.CenterTorso, 5, [new(6)])
+        };
+        
+        var hitLocationsData = new AttackHitLocationsData(
+            hitLocations,
+            5,
+            new List<DiceResult>(),
+            0);
+        
+        var resolutionData = new AttackResolutionData(
+            8,
+            [new(4), new(5)],
+            true,
+            direction,
+            hitLocationsData);
+        
+        var command = new WeaponAttackResolutionCommand
+        {
+            GameOriginId = _gameId,
+            PlayerId = _player1.Id,
+            AttackerId = _attacker.Id,
+            TargetId = _target.Id,
+            WeaponData = _weaponData,
+            ResolutionData = resolutionData,
+            Timestamp = DateTime.UtcNow
+        };
+
+        // Act
+        var result = command.Format(_localizationService, _game);
+
+        // Assert
+        result.ShouldNotBeEmpty();
+        result.ShouldContain(expectedDirectionText);
     }
 }
