@@ -180,6 +180,14 @@ public abstract class BaseGame : IGame
     
     public void OnWeaponsAttackResolution(WeaponAttackResolutionCommand attackResolutionCommand)
     {
+        // Find the attacking unit
+        var attackerUnit = _players
+            .SelectMany(p => p.Units)
+            .FirstOrDefault(u => u.Id == attackResolutionCommand.AttackerId);
+            
+        if (attackerUnit == null) return;
+        // Fire the weapon from the attacker unit
+        attackerUnit.FireWeapon(attackResolutionCommand.WeaponData);
         // Find the target unit with the target Id
         var targetUnit = _players
             .SelectMany(p => p.Units)

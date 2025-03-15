@@ -79,8 +79,7 @@ public class Mech : Unit
     
     public override void ApplyHeat(int heat)
     {
-        CurrentHeat = Math.Max(0, CurrentHeat + heat - HeatDissipation);
-        ApplyHeatEffects();
+        CurrentHeat = Math.Max(0, CurrentHeat + heat);
     }
 
     public override void ApplyDamage(int damage, UnitPart targetPart)

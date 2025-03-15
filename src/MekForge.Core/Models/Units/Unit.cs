@@ -1,4 +1,5 @@
 using Sanet.MekForge.Core.Data.Game;
+using Sanet.MekForge.Core.Data.Units;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units.Components;
@@ -311,5 +312,42 @@ public abstract class Unit
         MovementPointsSpent = movementPath.Sum(s=>s.Cost);
         MovementTypeUsed = movementType;
         Position = position; 
+    }
+    
+    /// <summary>
+    /// Fires a weapon based on the provided weapon data.
+    /// This applies heat to the unit and consumes ammo if required.
+    /// </summary>
+    /// <param name="weaponData">Data identifying the weapon to fire</param>
+    public void FireWeapon(WeaponData weaponData)
+    {
+        // Find the weapon using the location and slots from weaponData
+        var weapon = GetMountedComponentAtLocation<Weapon>(
+            weaponData.Location, 
+            weaponData.Slots);
+            
+        if (weapon == null || weapon.IsDestroyed)
+            return;
+            
+        // Apply heat from the weapon
+        ApplyHeat(weapon.Heat);
+        
+        // If the weapon requires ammo, find and use ammo
+        if (!weapon.RequiresAmmo) return;
+        // Get all available ammo of the correct type
+        var availableAmmo = GetAmmoForWeapon(weapon)
+            .Where(a => a.RemainingShots > 0)
+            .ToList();
+                
+        if (availableAmmo.Count == 0)
+            return; // No ammo available
+                
+        // Find the ammo with the most remaining shots
+        var ammo = availableAmmo
+            .OrderByDescending(a => a.RemainingShots)
+            .First();
+                
+        // Use a shot from the ammo
+        ammo.UseShot();
     }
 }
