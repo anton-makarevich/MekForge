@@ -10,4 +10,5 @@ public record WeaponAttackViewModel
     public required Weapon Weapon { get; init; }
     public required string AttackerTint { get; init; } 
     public required int LineOffset { get; init; }
+    public required Guid TargetId { get; init; }
 }

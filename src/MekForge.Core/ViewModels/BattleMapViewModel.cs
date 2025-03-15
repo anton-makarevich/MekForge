@@ -13,6 +13,7 @@ using Sanet.MekForge.Core.ViewModels.Wrappers;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
+using Sanet.MekForge.Core.Models.Game.Commands.Server;
 
 namespace Sanet.MekForge.Core.ViewModels;
 
@@ -140,6 +141,9 @@ public class BattleMapViewModel : BaseViewModel
             case WeaponAttackDeclarationCommand weaponCommand:
                 ProcessWeaponAttackDeclaration(weaponCommand);
                 break;
+            case WeaponAttackResolutionCommand resolutionCommand:
+                ProcessWeaponAttackResolution(resolutionCommand);
+                break;
         }
     }
 
@@ -185,7 +189,8 @@ public class BattleMapViewModel : BaseViewModel
                     To = target.Position!.Coordinates,
                     Weapon = weapon,
                     AttackerTint = attacker.Owner.Tint,
-                    LineOffset = offset
+                    LineOffset = offset,
+                    TargetId = target.Id
                 };
 
                 // Increment and save offset for this target
@@ -197,6 +202,27 @@ public class BattleMapViewModel : BaseViewModel
             
         WeaponAttacks.AddRange(newAttacks);
         NotifyPropertyChanged(nameof(WeaponAttacks));
+    }
+
+    private void ProcessWeaponAttackResolution(WeaponAttackResolutionCommand command)
+    {
+        if (Game == null || WeaponAttacks == null || !WeaponAttacks.Any()) return;
+        
+        // Find and remove the attack that matches the weapon name and target ID
+        var attacksToRemove = WeaponAttacks
+            .Where(attack => 
+                attack.Weapon.Name == command.WeaponData.Name &&
+                attack.TargetId == command.TargetId)
+            .ToList();
+            
+        if (attacksToRemove.Any())
+        {
+            foreach (var attack in attacksToRemove)
+            {
+                WeaponAttacks.Remove(attack);
+            }
+            NotifyPropertyChanged(nameof(WeaponAttacks));
+        }
     }
 
     private void UpdateGamePhase()
