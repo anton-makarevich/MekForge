@@ -1,4 +1,3 @@
-using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Pilots;
 using Sanet.MekForge.Core.Models.Map;
@@ -74,14 +73,6 @@ public class Mech : Unit
         _ => null
     };
 
-    // Heat management
-    public int HeatDissipation => GetAllComponents<HeatSink>().Sum(hs => hs.HeatDissipation);
-    
-    public override void ApplyHeat(int heat)
-    {
-        CurrentHeat = Math.Max(0, CurrentHeat + heat);
-    }
-
     public override void ApplyDamage(int damage, UnitPart targetPart)
     {
         base.ApplyDamage(damage, targetPart);
@@ -98,7 +89,7 @@ public class Mech : Unit
         }
     }
 
-    private void ApplyHeatEffects()
+    protected override void ApplyHeatEffects()
     {
         // Apply effects based on current heat level
         if (CurrentHeat >= 30)

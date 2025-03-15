@@ -39,9 +39,9 @@ public class UnitTests
 
         protected override PartLocation? GetTransferLocation(PartLocation location) => null;
 
-        public override void ApplyHeat(int heat)
+        protected override void ApplyHeatEffects()
         {
-            CurrentHeat+=heat;
+            throw new NotImplementedException();
         }
     }
     

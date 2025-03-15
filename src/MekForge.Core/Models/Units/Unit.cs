@@ -89,7 +89,19 @@ public abstract class Unit
 
     // Heat management
     public int CurrentHeat { get; protected set; }
-    public virtual void ApplyHeat(int heat) { } // Default no-op for units that don't use heat
+    public int HeatDissipation => GetAllComponents<HeatSink>().Sum(hs => hs.HeatDissipation);
+    
+    public void ApplyHeat(int heat)
+    {
+        CurrentHeat = CurrentHeat + heat;
+    }
+    public void DissipateHeat()
+    {
+        CurrentHeat = Math.Max(0, CurrentHeat - HeatDissipation);
+        ApplyHeatEffects();
+    }
+
+    protected abstract void ApplyHeatEffects();
     
     // Parts management
     public IReadOnlyList<UnitPart> Parts =>_parts;

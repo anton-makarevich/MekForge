@@ -142,6 +142,7 @@ public class MechTests
 
         // Act
         mech.ApplyHeat(5); // Apply 5 heat with 2 heat sinks
+        mech.DissipateHeat();
 
         // Assert
         mech.CurrentHeat.ShouldBe(3, "5 heat - 2 heat sinks = 3 heat");

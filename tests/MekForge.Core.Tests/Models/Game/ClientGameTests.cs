@@ -872,7 +872,7 @@ public class ClientGameTests
         {
             GameOriginId = Guid.NewGuid(),
             PlayerId = Guid.NewGuid(),
-            AttackerId = Guid.NewGuid(),
+            AttackerId = targetMech.Id,
             TargetId = targetMech.Id,
             WeaponData = new WeaponData
             {
