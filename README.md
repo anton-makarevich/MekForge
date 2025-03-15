@@ -6,13 +6,14 @@ A cross-platform implementation of tactical turn-based mech combat game, inspire
 
 MekForge is an open-source tactical combat game featuring giant walking war machines. The game focuses on strategic combat, unit customization, and both single-player and multiplayer experiences.
 
-![MekForge](docs/screenshots/win/050325.png)
+![MekForge](docs/screenshots/win/150325.png)
 
 ## Features
 ### Implemented
 - Hex map generator with the simplest terrain types (clear, light and heavy wood) (MegaMek assets)
 - [Client-Server app architecture](https://github.com/anton-makarevich/MekForge/wiki/Game-(Protocol)-High-Level-Architecture) with RX communication for local play 
 - Units deployment and movement, including path finding for all the basic movement types
+- Weapon attack declaration and resolution (no crits yet)
 - Cross-platform support (Windows, Linux, macOS, Web, Android, iOS)
 - Test UI built with AvaloniaUI
 - Importing mechs defined in MTF format 

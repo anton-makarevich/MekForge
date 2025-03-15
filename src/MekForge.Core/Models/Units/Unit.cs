@@ -95,6 +95,12 @@ public abstract class Unit
     public Guid Id { get; private set; } = Guid.Empty;
     public IPilot? Crew { get; protected set; }
 
+    // Armor and Structure totals
+    public int TotalMaxArmor => _parts.Sum(p => p.MaxArmor);
+    public int TotalCurrentArmor => _parts.Sum(p => p.CurrentArmor);
+    public int TotalMaxStructure => _parts.Sum(p => p.MaxStructure);
+    public int TotalCurrentStructure => _parts.Sum(p => p.CurrentStructure);
+
     // Movement tracking
     public int MovementPointsSpent { get; private set; }
     public MovementType? MovementTypeUsed { get; private set; }
