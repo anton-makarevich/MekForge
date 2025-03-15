@@ -38,6 +38,11 @@ public class UnitTests
         public override bool CanMoveBackward(MovementType type) => true;
 
         protected override PartLocation? GetTransferLocation(PartLocation location) => null;
+
+        protected override void ApplyHeatEffects()
+        {
+            throw new NotImplementedException();
+        }
     }
     
     private TestUnit CreateTestUnit(Guid? id = null)
@@ -718,5 +723,170 @@ public class UnitTests
         unit.TotalCurrentStructure.ShouldBe(22); // 2 + 8 + 12
     }
 
+    [Fact]
+    public void FireWeapon_ShouldApplyHeat_ForEnergyWeapon()
+    {
+        // Arrange
+        var unit = CreateTestUnit();
+        var energyWeapon = new TestWeapon("Energy Weapon", [0, 1]);
+        MountWeaponOnUnit(unit, energyWeapon, PartLocation.LeftArm, [0, 1]);
+        
+        var weaponData = new WeaponData
+        {
+            Name = energyWeapon.Name,
+            Location = PartLocation.LeftArm,
+            Slots = [0, 1]
+        };
+        
+        var initialHeat = unit.CurrentHeat;
+        
+        // Act
+        unit.FireWeapon(weaponData);
+        
+        // Assert
+        unit.CurrentHeat.ShouldBe(initialHeat + energyWeapon.Heat);
+    }
+    
+    [Fact]
+    public void FireWeapon_ShouldApplyHeatAndUseAmmo_ForBallisticWeapon()
+    {
+        // Arrange
+        var unit = CreateTestUnit();
+        var ballisticWeapon = new TestWeapon("Ballistic Weapon", [0, 1], WeaponType.Ballistic, AmmoType.AC5);
+        MountWeaponOnUnit(unit, ballisticWeapon, PartLocation.LeftArm, [0, 1]);
+        
+        // Add ammo to the unit
+        var ammo = new Ammo(AmmoType.AC5, 10);
+        var rightArmPart = unit.Parts.First(p => p.Location == PartLocation.RightArm);
+        rightArmPart.TryAddComponent(ammo);
+        
+        var weaponData = new WeaponData
+        {
+            Name = ballisticWeapon.Name,
+            Location = PartLocation.LeftArm,
+            Slots = [0, 1]
+        };
+        
+        var initialHeat = unit.CurrentHeat;
+        var initialAmmoShots = ammo.RemainingShots;
+        
+        // Act
+        unit.FireWeapon(weaponData);
+        
+        // Assert
+        unit.CurrentHeat.ShouldBe(initialHeat + ballisticWeapon.Heat);
+        ammo.RemainingShots.ShouldBe(initialAmmoShots - 1);
+    }
+    
+    [Fact]
+    public void FireWeapon_ShouldNotFire_WhenWeaponNotFound()
+    {
+        // Arrange
+        var unit = CreateTestUnit();
+        
+        var weaponData = new WeaponData
+        {
+            Name = "Non-existent Weapon",
+            Location = PartLocation.LeftArm,
+            Slots = [0, 1]
+        };
+        
+        var initialHeat = unit.CurrentHeat;
+        
+        // Act
+        unit.FireWeapon(weaponData);
+        
+        // Assert
+        unit.CurrentHeat.ShouldBe(initialHeat); // Heat should not change
+    }
+    
+    [Fact]
+    public void FireWeapon_ShouldNotFire_WhenWeaponDestroyed()
+    {
+        // Arrange
+        var unit = CreateTestUnit();
+        var weapon = new TestWeapon("Test Weapon", [0, 1]);
+        MountWeaponOnUnit(unit, weapon, PartLocation.LeftArm, [0, 1]);
+        
+        // Destroy the weapon
+        weapon.Hit();
+        
+        var weaponData = new WeaponData
+        {
+            Name = weapon.Name,
+            Location = PartLocation.LeftArm,
+            Slots = [0, 1]
+        };
+        
+        var initialHeat = unit.CurrentHeat;
+        
+        // Act
+        unit.FireWeapon(weaponData);
+        
+        // Assert
+        unit.CurrentHeat.ShouldBe(initialHeat); // Heat should not change
+    }
+    
+    [Fact]
+    public void FireWeapon_ShouldNotFire_WhenNoAmmoAvailable()
+    {
+        // Arrange
+        var unit = CreateTestUnit();
+        var ballisticWeapon = new TestWeapon("Ballistic Weapon", [0, 1], WeaponType.Ballistic, AmmoType.AC5);
+        MountWeaponOnUnit(unit, ballisticWeapon, PartLocation.LeftArm, [0, 1]);
+        
+        // No ammo added to the unit
+        
+        var weaponData = new WeaponData
+        {
+            Name = ballisticWeapon.Name,
+            Location = PartLocation.LeftArm,
+            Slots = [0, 1]
+        };
+        
+        var initialHeat = unit.CurrentHeat;
+        
+        // Act
+        unit.FireWeapon(weaponData);
+        
+        // Assert
+        unit.CurrentHeat.ShouldBe(initialHeat + ballisticWeapon.Heat); // Heat is still applied even if there's no ammo
+    }
+    
+    [Fact]
+    public void FireWeapon_ShouldUseAmmoWithMostShots_WhenMultipleAmmoAvailable()
+    {
+        // Arrange
+        var unit = CreateTestUnit();
+        var ballisticWeapon = new TestWeapon("Ballistic Weapon", [0, 1], WeaponType.Ballistic, AmmoType.AC5);
+        MountWeaponOnUnit(unit, ballisticWeapon, PartLocation.LeftArm, [0, 1]);
+        
+        // Add multiple ammo components with different shot counts
+        var ammo1 = new Ammo(AmmoType.AC5, 3);
+        var ammo2 = new Ammo(AmmoType.AC5, 8); // This one has more shots
+        var ammo3 = new Ammo(AmmoType.AC5, 5);
+        
+        var rightArmPart = unit.Parts.First(p => p.Location == PartLocation.RightArm);
+        rightArmPart.TryAddComponent(ammo1);
+        rightArmPart.TryAddComponent(ammo2);
+        rightArmPart.TryAddComponent(ammo3);
+        
+        var weaponData = new WeaponData
+        {
+            Name = ballisticWeapon.Name,
+            Location = PartLocation.LeftArm,
+            Slots = [0, 1]
+        };
+        
+        // Act
+        unit.FireWeapon(weaponData);
+        
+        // Assert
+        ammo1.RemainingShots.ShouldBe(3); // Unchanged
+        ammo2.RemainingShots.ShouldBe(7); // Reduced by 1
+        ammo3.RemainingShots.ShouldBe(5); // Unchanged
+    }
+    
+    // Helper class for testing generic methods
     private class TestDerivedComponent(string name, int size = 1) : TestComponent(name, size);
 }

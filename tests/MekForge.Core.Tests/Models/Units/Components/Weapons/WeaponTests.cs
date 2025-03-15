@@ -119,7 +119,11 @@ public class WeaponTests
         public override int CalculateBattleValue() => 0;
         
         public override bool CanMoveBackward(MovementType type) => true;
-        
+        protected override void ApplyHeatEffects()
+        {
+            throw new NotImplementedException();
+        }
+
         protected override PartLocation? GetTransferLocation(PartLocation location) => null;
     }
 }
