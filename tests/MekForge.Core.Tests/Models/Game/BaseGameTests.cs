@@ -6,6 +6,7 @@ using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
+using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
@@ -13,7 +14,6 @@ using Sanet.MekForge.Core.Models.Map.Terrains;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Mechs;
-using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Tests.Data.Community;
 using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MekForge.Core.Utils.TechRules;
@@ -356,6 +356,164 @@ public class BaseGameTests() : BaseGame(BattleMap.GenerateMap(5, 5, new SingleTe
         
         leftArmWeapon.Target.ShouldNotBeNull();
         leftArmWeapon.Target.ShouldBe(targetMech2);
+    }
+
+    [Fact]
+    public void OnWeaponsAttackResolution_DoesNothing_WhenTargetNotFound()
+    {
+        // Arrange
+        var command = new WeaponAttackResolutionCommand
+        {
+            GameOriginId = Id,
+            PlayerId = Guid.NewGuid(),
+            AttackerId = Guid.NewGuid(),
+            TargetId = Guid.NewGuid(),
+            WeaponData = new WeaponData
+            {
+                Name = "Test Weapon",
+                Location = PartLocation.RightArm,
+                Slots = [0, 1]
+            },
+            ResolutionData = new AttackResolutionData(
+                10,
+                [],
+                true,
+                null,
+                new AttackHitLocationsData([], 0, [], 0))
+        };
+
+        // Act & Assert
+        // No exception should be thrown
+        var action = () => OnWeaponsAttackResolution(command);
+        action.ShouldNotThrow();
+    }
+    
+    [Fact]
+    public void OnWeaponsAttackResolution_AppliesDamage_WhenTargetFound()
+    {
+        // Arrange
+        // Add target player and unit
+        var targetPlayerId = Guid.NewGuid();
+        var targetUnitData = MechFactoryTests.CreateDummyMechData();
+        targetUnitData.Id = Guid.NewGuid();
+        var targetJoinCommand = new JoinGameCommand
+        {
+            PlayerId = targetPlayerId,
+            PlayerName = "Target",
+            GameOriginId = Guid.NewGuid(),
+            Units = [targetUnitData],
+            Tint = "#00FF00"
+        };
+        OnPlayerJoined(targetJoinCommand);
+        var targetPlayer = Players.First(p => p.Id == targetPlayerId);
+        var targetMech = targetPlayer.Units.First() as Mech;
+        targetMech!.Deploy(new HexPosition(new HexCoordinates(1, 2), HexDirection.Top));
+        
+        // Create hit locations data
+        var hitLocations = new List<HitLocationData>
+        {
+            new(PartLocation.CenterTorso, 5, []),
+            new(PartLocation.LeftArm, 3, [])
+        };
+        
+        // Create the attack resolution command
+        var command = new WeaponAttackResolutionCommand
+        {
+            GameOriginId = Id,
+            PlayerId = Guid.NewGuid(),
+            AttackerId = Guid.NewGuid(),
+            TargetId = targetMech.Id,
+            WeaponData = new WeaponData
+            {
+                Name = "Test Weapon",
+                Location = PartLocation.RightArm,
+                Slots = [0, 1]
+            },
+            ResolutionData = new AttackResolutionData(
+                10,
+                [],
+                true,
+                null,
+                new AttackHitLocationsData(hitLocations, 8, [], 0))
+        };
+
+        // Get initial armor values for verification
+        var centerTorsoPart = targetMech.Parts.First(p => p.Location == PartLocation.CenterTorso);
+        var leftArmPart = targetMech.Parts.First(p => p.Location == PartLocation.LeftArm);
+        var initialCenterTorsoArmor = centerTorsoPart.CurrentArmor;
+        var initialLeftArmArmor = leftArmPart.CurrentArmor;
+
+        // Act
+        OnWeaponsAttackResolution(command);
+
+        // Assert
+        // Verify that armor was reduced by the damage amount
+        centerTorsoPart.CurrentArmor.ShouldBe(initialCenterTorsoArmor - 5);
+        leftArmPart.CurrentArmor.ShouldBe(initialLeftArmArmor - 3);
+    }
+    
+    [Fact]
+    public void OnWeaponsAttackResolution_DoesNotApplyDamage_WhenAttackMissed()
+    {
+        // Arrange
+        // Add target player and unit
+        var targetPlayerId = Guid.NewGuid();
+        var targetUnitData = MechFactoryTests.CreateDummyMechData();
+        targetUnitData.Id = Guid.NewGuid();
+        var targetJoinCommand = new JoinGameCommand
+        {
+            PlayerId = targetPlayerId,
+            PlayerName = "Target",
+            GameOriginId = Guid.NewGuid(),
+            Units = [targetUnitData],
+            Tint = "#00FF00"
+        };
+        OnPlayerJoined(targetJoinCommand);
+        var targetPlayer = Players.First(p => p.Id == targetPlayerId);
+        var targetMech = targetPlayer.Units.First() as Mech;
+        targetMech!.Deploy(new HexPosition(new HexCoordinates(1, 2), HexDirection.Top));
+        
+        // Create hit locations data
+        var hitLocations = new List<HitLocationData>
+        {
+            new(PartLocation.CenterTorso, 5, []),
+            new(PartLocation.LeftArm, 3, [])
+        };
+        
+        // Create the attack resolution command with IsHit = false
+        var command = new WeaponAttackResolutionCommand
+        {
+            GameOriginId = Id,
+            PlayerId = Guid.NewGuid(),
+            AttackerId = Guid.NewGuid(),
+            TargetId = targetMech.Id,
+            WeaponData = new WeaponData
+            {
+                Name = "Test Weapon",
+                Location = PartLocation.RightArm,
+                Slots = [0, 1]
+            },
+            ResolutionData = new AttackResolutionData(
+                10,
+                [],
+                false, // Attack missed
+                null,
+                new AttackHitLocationsData(hitLocations, 8, [], 0))
+        };
+
+        // Get initial armor values for verification
+        var centerTorsoPart = targetMech.Parts.First(p => p.Location == PartLocation.CenterTorso);
+        var leftArmPart = targetMech.Parts.First(p => p.Location == PartLocation.LeftArm);
+        var initialCenterTorsoArmor = centerTorsoPart.CurrentArmor;
+        var initialLeftArmArmor = leftArmPart.CurrentArmor;
+
+        // Act
+        OnWeaponsAttackResolution(command);
+
+        // Assert
+        // Verify that armor was not reduced
+        centerTorsoPart.CurrentArmor.ShouldBe(initialCenterTorsoArmor);
+        leftArmPart.CurrentArmor.ShouldBe(initialLeftArmArmor);
     }
 
     public override void HandleCommand(IGameCommand command)

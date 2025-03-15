@@ -437,7 +437,7 @@ public class UnitTests
     {
         // Arrange
         var testUnit = CreateTestUnit();
-        var energyWeapon = new TestWeapon("Energy Weapon", [0, 1], WeaponType.Energy, AmmoType.None);
+        var energyWeapon = new TestWeapon("Energy Weapon", [0, 1]);
         
         // Act
         var ammo = testUnit.GetAmmoForWeapon(energyWeapon);
@@ -526,6 +526,74 @@ public class UnitTests
         
         // Assert
         remainingShots.ShouldBe(0);
+    }
+    
+    [Fact]
+    public void ApplyDamage_WithHitLocationsList_ShouldApplyDamageToCorrectParts()
+    {
+        // Arrange
+        var unit = CreateTestUnit();
+        var hitLocations = new List<HitLocationData>
+        {
+            new(PartLocation.CenterTorso, 5, []),
+            new(PartLocation.LeftArm, 3, [])
+        };
+        
+        // Get initial armor values
+        var centerTorsoPart = unit.Parts.First(p => p.Location == PartLocation.CenterTorso);
+        var leftArmPart = unit.Parts.First(p => p.Location == PartLocation.LeftArm);
+        var initialCenterTorsoArmor = centerTorsoPart.CurrentArmor;
+        var initialLeftArmArmor = leftArmPart.CurrentArmor;
+        
+        // Act
+        unit.ApplyDamage(hitLocations);
+        
+        // Assert
+        centerTorsoPart.CurrentArmor.ShouldBe(initialCenterTorsoArmor - 5);
+        leftArmPart.CurrentArmor.ShouldBe(initialLeftArmArmor - 3);
+    }
+    
+    [Fact]
+    public void ApplyDamage_WithHitLocationsList_ShouldIgnoreNonExistentParts()
+    {
+        // Arrange
+        var unit = CreateTestUnit();
+        var hitLocations = new List<HitLocationData>
+        {
+            new(PartLocation.CenterTorso, 5, []),
+            new(PartLocation.Head, 3, []) // Unit doesn't have a Head part
+        };
+        
+        // Get initial armor values
+        var centerTorsoPart = unit.Parts.First(p => p.Location == PartLocation.CenterTorso);
+        var initialCenterTorsoArmor = centerTorsoPart.CurrentArmor;
+        
+        // Act
+        unit.ApplyDamage(hitLocations);
+        
+        // Assert
+        centerTorsoPart.CurrentArmor.ShouldBe(initialCenterTorsoArmor - 5);
+        // No exception should be thrown for the non-existent part
+    }
+    
+    [Fact]
+    public void ApplyDamage_WithEmptyHitLocationsList_ShouldNotChangeArmor()
+    {
+        // Arrange
+        var unit = CreateTestUnit();
+        var hitLocations = new List<HitLocationData>();
+        
+        // Get initial armor values for all parts
+        var initialArmorValues = unit.Parts.ToDictionary(p => p.Location, p => p.CurrentArmor);
+        
+        // Act
+        unit.ApplyDamage(hitLocations);
+        
+        // Assert
+        foreach (var part in unit.Parts)
+        {
+            part.CurrentArmor.ShouldBe(initialArmorValues[part.Location]);
+        }
     }
     
     // Helper class for testing generic methods
