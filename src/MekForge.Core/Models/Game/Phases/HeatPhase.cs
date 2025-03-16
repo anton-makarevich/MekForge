@@ -162,7 +162,6 @@ public class HeatPhase(ServerGame game) : GamePhase(game)
         var command = new HeatUpdatedCommand
         {
             UnitId = unit.Id,
-            UnitName = unit.Name,
             MovementHeatSources = movementHeatSources,
             WeaponHeatSources = weaponHeatSources,
             DissipationData = dissipationData,

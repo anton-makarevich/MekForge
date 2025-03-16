@@ -62,7 +62,6 @@ public class HeatUpdatedCommandTests
         var command = new HeatUpdatedCommand
         {
             UnitId = _unit.Id,
-            UnitName = _unit.Name,
             MovementHeatSources = [],
             WeaponHeatSources = [],
             DissipationData = new HeatDissipationData
@@ -100,7 +99,6 @@ public class HeatUpdatedCommandTests
         var command = new HeatUpdatedCommand
         {
             UnitId = _unit.Id,
-            UnitName = _unit.Name,
             MovementHeatSources = movementHeatSources,
             WeaponHeatSources = [],
             DissipationData = new HeatDissipationData
@@ -140,7 +138,6 @@ public class HeatUpdatedCommandTests
         var command = new HeatUpdatedCommand
         {
             UnitId = _unit.Id,
-            UnitName = _unit.Name,
             MovementHeatSources = [],
             WeaponHeatSources = weaponHeatSources,
             DissipationData = new HeatDissipationData
@@ -186,7 +183,6 @@ public class HeatUpdatedCommandTests
         var command = new HeatUpdatedCommand
         {
             UnitId = _unit.Id,
-            UnitName = _unit.Name,
             MovementHeatSources = movementHeatSources,
             WeaponHeatSources = weaponHeatSources,
             DissipationData = new HeatDissipationData
@@ -222,7 +218,6 @@ public class HeatUpdatedCommandTests
         var command = new HeatUpdatedCommand
         {
             UnitId = Guid.NewGuid(), // Different unit ID that doesn't exist in the game
-            UnitName = "Unknown Unit",
             MovementHeatSources = [],
             WeaponHeatSources = [],
             DissipationData = new HeatDissipationData

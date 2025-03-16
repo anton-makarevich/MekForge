@@ -14,7 +14,7 @@ using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
 
-public class InitiativePhaseTests : GameStateTestsBase
+public class InitiativePhaseTests : GamePhaseTestsBase
 {
     private readonly InitiativePhase _sut;
     private readonly Guid _player1Id = Guid.NewGuid();

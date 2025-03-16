@@ -12,7 +12,7 @@ using Shouldly;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
 
-public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
+public class WeaponAttackResolutionPhaseTests : GamePhaseTestsBase
 {
     private readonly WeaponAttackResolutionPhase _sut;
     private readonly Guid _player1Id = Guid.NewGuid();

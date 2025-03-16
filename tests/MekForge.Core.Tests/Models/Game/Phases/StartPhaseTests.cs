@@ -6,7 +6,7 @@ using Sanet.MekForge.Core.Models.Game.Players;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
 
-public class StartPhaseTests : GameStateTestsBase
+public class StartPhaseTests : GamePhaseTestsBase
 {
     private StartPhase _sut = null!;
 

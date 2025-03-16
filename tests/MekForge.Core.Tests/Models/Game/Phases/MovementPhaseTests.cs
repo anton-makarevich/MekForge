@@ -9,7 +9,7 @@ using Sanet.MekForge.Core.Models.Units;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
 
-public class MovementPhaseTests : GameStateTestsBase
+public class MovementPhaseTests : GamePhaseTestsBase
 {
     private readonly MovementPhase _sut;
     private readonly Guid _player1Id = Guid.NewGuid();

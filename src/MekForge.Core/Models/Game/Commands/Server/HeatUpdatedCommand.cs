@@ -7,7 +7,6 @@ namespace Sanet.MekForge.Core.Models.Game.Commands.Server;
 public record struct HeatUpdatedCommand : IGameCommand
 {
     public required Guid UnitId { get; init; }
-    public required string UnitName { get; init; }
     public required List<MovementHeatData> MovementHeatSources { get; init; }
     public required List<WeaponHeatData> WeaponHeatSources { get; init; }
     public required HeatDissipationData DissipationData { get; init; }
@@ -34,7 +33,7 @@ public record struct HeatUpdatedCommand : IGameCommand
         // Unit name and previous heat
         stringBuilder.AppendLine(string.Format(
             localizationService.GetString("Command_HeatUpdated_Header"),
-            UnitName,
+            unit.Name,
             PreviousHeat));
             
         // Heat sources
