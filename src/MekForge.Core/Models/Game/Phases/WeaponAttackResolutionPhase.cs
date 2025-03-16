@@ -287,6 +287,9 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
             ResolutionData = resolution
         };
         
+        attacker.FireWeapon(command.WeaponData);
+        target.ApplyDamage(command.ResolutionData.HitLocationsData!.HitLocations);
+        
         Game.CommandPublisher.PublishCommand(command);
     }
 
