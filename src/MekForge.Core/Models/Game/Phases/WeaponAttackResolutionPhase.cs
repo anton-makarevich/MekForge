@@ -287,6 +287,12 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
             ResolutionData = resolution
         };
         
+        attacker.FireWeapon(command.WeaponData);
+        if (command.ResolutionData.IsHit && command.ResolutionData.HitLocationsData?.HitLocations!=null)
+        {
+            target.ApplyDamage(command.ResolutionData.HitLocationsData.HitLocations);
+        }
+
         Game.CommandPublisher.PublishCommand(command);
     }
 
