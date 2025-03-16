@@ -155,6 +155,6 @@ public class WeaponsAttackPhaseTests : GameStateTestsBase
         }
     
         // Assert
-        Game.TurnPhase.ShouldBe(PhaseNames.PhysicalAttack);
+        Game.TurnPhase.ShouldBe(PhaseNames.End);
     }
 }

@@ -216,12 +216,12 @@ public abstract class Unit
     // Different unit types will have different damage transfer patterns
     protected abstract PartLocation? GetTransferLocation(PartLocation location);
 
-    protected IEnumerable<T> GetAllComponents<T>() where T : Component
+    public IEnumerable<T> GetAllComponents<T>() where T : Component
     {
         return Parts.SelectMany(p => p.GetComponents<T>());
     }
 
-    protected bool HasActiveComponent<T>() where T : Component
+    public bool HasActiveComponent<T>() where T : Component
     {
         return GetAllComponents<T>().Any(c => c is { IsActive: true, IsDestroyed: false });
     }

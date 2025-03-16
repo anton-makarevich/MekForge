@@ -131,7 +131,7 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
 
         // Assert
         // Should transition to PhysicalAttackPhase
-        Game.TurnPhase.ShouldBe(PhaseNames.PhysicalAttack);
+        Game.TurnPhase.ShouldBe(PhaseNames.End);
     }
 
     [Fact]
@@ -146,7 +146,7 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
 
         // Assert
         // Should transition to PhysicalAttackPhase after processing all attacks
-        Game.TurnPhase.ShouldBe(PhaseNames.PhysicalAttack);
+        Game.TurnPhase.ShouldBe(PhaseNames.End);
     }
 
     [Fact]

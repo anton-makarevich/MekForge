@@ -1,7 +1,9 @@
+using Sanet.MekForge.Core.Data.Game;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Units;
+using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 
 namespace Sanet.MekForge.Core.Models.Game.Phases;
@@ -29,6 +31,7 @@ public class HeatPhase(ServerGame game) : GamePhase(game)
 
     public override void HandleCommand(IGameCommand command)
     {
+        // No commands to handle in this phase
     }
 
     public override PhaseNames Name => PhaseNames.Heat;
@@ -75,14 +78,25 @@ public class HeatPhase(ServerGame game) : GamePhase(game)
     
     private void CalculateAndApplyHeat(Unit unit)
     {
-        var heatGenerated = 0;
+        var movementHeatSources = new List<MovementHeatData>();
+        var weaponHeatSources = new List<WeaponHeatData>();
         
         // 1. Calculate movement heat
         if (unit.MovementTypeUsed.HasValue)
         {
-            heatGenerated += Game.RulesProvider.GetMovementHeatPoints(
+            var movementHeatPoints = Game.RulesProvider.GetMovementHeatPoints(
                 unit.MovementTypeUsed.Value, 
                 unit.MovementPointsSpent);
+                
+            if (movementHeatPoints > 0)
+            {
+                movementHeatSources.Add(new MovementHeatData
+                {
+                    MovementType = unit.MovementTypeUsed.Value,
+                    MovementPointsSpent = unit.MovementPointsSpent,
+                    HeatPoints = movementHeatPoints
+                });
+            }
         }
         
         // 1.2 Calculate weapon heat for weapons with targets
@@ -92,32 +106,70 @@ public class HeatPhase(ServerGame game) : GamePhase(game)
             
         foreach (var weapon in weaponsWithTargets)
         {
-            heatGenerated += weapon.Heat;
+            if (weapon.Heat > 0)
+            {
+                weaponHeatSources.Add(new WeaponHeatData
+                {
+                    WeaponName = weapon.Name,
+                    HeatPoints = weapon.Heat
+                });
+            }
         }
         
         // 2. Get heat dissipation
+        var heatSinks = unit.GetAllComponents<HeatSink>().Count();
+        var engineHeatSinks = 10; // Always 10 engine heat sinks
         var heatDissipation = unit.HeatDissipation;
+        var dissipationData = new HeatDissipationData
+        {
+            HeatSinks = heatSinks,
+            EngineHeatSinks = engineHeatSinks,
+            DissipationPoints = heatDissipation
+        };
+        
+        // Store previous heat before applying new heat
+        var previousHeat = unit.CurrentHeat;
         
         // Apply heat to the unit
-        unit.ApplyHeat(heatGenerated);
+        var totalHeatGenerated =
+            movementHeatSources.Sum(source => source.HeatPoints) +
+            weaponHeatSources.Sum(source => source.HeatPoints); 
+            
+        unit.ApplyHeat(totalHeatGenerated);
         
         // Dissipate heat
         unit.DissipateHeat();
         var finalHeat = unit.CurrentHeat;
         
         // 3. Publish heat updated command
-        PublishHeatUpdatedCommand(unit, heatGenerated, heatDissipation, finalHeat);
+        PublishHeatUpdatedCommand(
+            unit, 
+            movementHeatSources, 
+            weaponHeatSources, 
+            dissipationData, 
+            previousHeat, 
+            finalHeat);
     }
     
-    private void PublishHeatUpdatedCommand(Unit unit, int heatGenerated, int heatDissipated, int finalHeat)
+    private void PublishHeatUpdatedCommand(
+        Unit unit, 
+        List<MovementHeatData> movementHeatSources,
+        List<WeaponHeatData> weaponHeatSources,
+        HeatDissipationData dissipationData,
+        int previousHeat, 
+        int finalHeat)
     {
         var command = new HeatUpdatedCommand
         {
             UnitId = unit.Id,
-            HeatGenerated = heatGenerated,
-            HeatDissipated = heatDissipated,
+            UnitName = unit.Name,
+            MovementHeatSources = movementHeatSources,
+            WeaponHeatSources = weaponHeatSources,
+            DissipationData = dissipationData,
+            PreviousHeat = previousHeat,
             FinalHeat = finalHeat,
-            Timestamp = DateTime.UtcNow
+            Timestamp = DateTime.UtcNow,
+            GameOriginId = Game.Id
         };
         
         Game.CommandPublisher.PublishCommand(command);
