@@ -131,9 +131,9 @@ public class HeatPhase(ServerGame game) : GamePhase(game)
         var previousHeat = unit.CurrentHeat;
         
         // Apply heat to the unit
-        var totalHeatGenerated =
-            movementHeatSources.Sum(source => source.HeatPoints) +
-            weaponHeatSources.Sum(source => source.HeatPoints); 
+        var totalHeatGenerated = 
+            movementHeatSources.Sum(source => source.HeatPoints) + 
+            weaponHeatSources.Sum(source => source.HeatPoints);
             
         unit.ApplyHeat(totalHeatGenerated);
         

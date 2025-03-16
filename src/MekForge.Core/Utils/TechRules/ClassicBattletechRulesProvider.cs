@@ -403,7 +403,7 @@ public class ClassicBattletechRulesProvider : IRulesProvider
         {
             MovementType.Walk => 1,
             MovementType.Run => 2,
-            MovementType.Jump => Math.Min(3, movementPointSpent),
+            MovementType.Jump => Math.Max(3, movementPointSpent),
             _ => 0 // No heat for other movement types
         };
     }
