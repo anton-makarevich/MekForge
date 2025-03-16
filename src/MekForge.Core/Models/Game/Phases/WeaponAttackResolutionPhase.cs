@@ -296,7 +296,7 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
         Game.CommandPublisher.PublishCommand(command);
     }
 
-    private GamePhase GetNextPhase() => new PhysicalAttackPhase(Game);
+    private GamePhase GetNextPhase() => new HeatPhase(Game);
 
     public override void HandleCommand(IGameCommand command)
     {

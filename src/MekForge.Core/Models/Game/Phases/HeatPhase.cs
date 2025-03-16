@@ -29,7 +29,6 @@ public class HeatPhase(ServerGame game) : GamePhase(game)
 
     public override void HandleCommand(IGameCommand command)
     {
-        throw new NotImplementedException();
     }
 
     public override PhaseNames Name => PhaseNames.Heat;
