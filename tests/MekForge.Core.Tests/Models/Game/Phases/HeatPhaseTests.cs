@@ -133,6 +133,7 @@ public class HeatPhaseTests : GamePhaseTestsBase
             }
         });
         var initialHeat = _unit1.CurrentHeat;
+        _unit1.ResetTurnState();
 
         // Act
         _sut.Enter();
