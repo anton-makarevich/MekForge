@@ -7,9 +7,7 @@ namespace Sanet.MekForge.Core.Models.Game.Commands.Server;
 public record struct HeatUpdatedCommand : IGameCommand
 {
     public required Guid UnitId { get; init; }
-    public required List<MovementHeatData> MovementHeatSources { get; init; }
-    public required List<WeaponHeatData> WeaponHeatSources { get; init; }
-    public required HeatDissipationData DissipationData { get; init; }
+    public required HeatData HeatData { get; init; }
     public required int PreviousHeat { get; init; }
     public required int FinalHeat { get; init; }
     
@@ -40,7 +38,7 @@ public record struct HeatUpdatedCommand : IGameCommand
         stringBuilder.AppendLine(localizationService.GetString("Command_HeatUpdated_Sources"));
         
         // Movement heat sources
-        foreach (var source in MovementHeatSources)
+        foreach (var source in HeatData.MovementHeatSources)
         {
             stringBuilder.AppendLine(string.Format(
                 localizationService.GetString("Command_HeatUpdated_MovementHeat"),
@@ -50,7 +48,7 @@ public record struct HeatUpdatedCommand : IGameCommand
         }
         
         // Weapon heat sources
-        foreach (var source in WeaponHeatSources)
+        foreach (var source in HeatData.WeaponHeatSources)
         {
             stringBuilder.AppendLine(string.Format(
                 localizationService.GetString("Command_HeatUpdated_WeaponHeat"),
@@ -59,20 +57,16 @@ public record struct HeatUpdatedCommand : IGameCommand
         }
         
         // Total heat generated
-        var totalGenerated = 
-            MovementHeatSources.Sum(s => s.HeatPoints) + 
-            WeaponHeatSources.Sum(s => s.HeatPoints);
-            
         stringBuilder.AppendLine(string.Format(
             localizationService.GetString("Command_HeatUpdated_TotalGenerated"),
-            totalGenerated));
+            HeatData.TotalHeatToApply));
             
         // Heat dissipation
         stringBuilder.AppendLine(string.Format(
             localizationService.GetString("Command_HeatUpdated_Dissipation"),
-            DissipationData.HeatSinks,
-            DissipationData.EngineHeatSinks,
-            DissipationData.DissipationPoints));
+            HeatData.DissipationData.HeatSinks,
+            HeatData.DissipationData.EngineHeatSinks,
+            HeatData.DissipationData.DissipationPoints));
             
         // Final heat
         stringBuilder.AppendLine(string.Format(
