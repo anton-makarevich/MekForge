@@ -158,6 +158,7 @@ public abstract class Unit
             + heatData.TotalHeatPoints 
             - heatData.TotalHeatDissipationPoints);
         ApplyHeatEffects();
+        HasAppliedHeat = true;
     }
 
     protected abstract void ApplyHeatEffects();
@@ -181,17 +182,32 @@ public abstract class Unit
     public bool HasMoved => MovementTypeUsed.HasValue;
     
     /// <summary>
-    /// Indicates whether this unit has declared weapon attacks for the current phase
+    /// Indicates whether this unit has declared weapon attacks for the current turn
     /// </summary>
     public bool HasDeclaredWeaponAttack { get; protected set; }
+    
+    /// <summary>
+    /// Indicates whether this unit has applied heat for the current turn
+    /// </summary>
+    public bool HasAppliedHeat { get; protected set; }
 
-    public void ResetMovement()
+    private void ResetMovement()
     { 
         MovementPointsSpent = 0;
         MovementTypeUsed = null;
         DistanceCovered = 0;
     }
     
+    /// <summary>
+    /// Resets the turn state for the unit
+    /// </summary>
+    public void ResetTurnState()
+    {
+        ResetMovement();
+        HasAppliedHeat = false;
+        HasDeclaredWeaponAttack = false;
+    }
+
     /// <summary>
     /// Declares weapon attacks against target units
     /// </summary>

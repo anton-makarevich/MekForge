@@ -211,6 +211,8 @@ public abstract class BaseGame : IGame
             
         if (unit == null) return;
         
+        if (unit.HasAppliedHeat) return;
+        
         // Apply heat to the unit using the heat data from the command
         unit.ApplyHeat(heatUpdatedCommand.HeatData);
     }

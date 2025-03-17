@@ -120,7 +120,7 @@ public class MechTests
         mech.Move(MovementType.Walk, [new PathSegment(deployPosition, newCoordinates, 1).ToData()]);
 
         // Act
-        mech.ResetMovement();
+        mech.ResetTurnState();
 
         // Assert
         mech.Position.ShouldBe(newCoordinates);
