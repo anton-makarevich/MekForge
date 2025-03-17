@@ -59,9 +59,8 @@ public class HeatUpdatedCommandTests
     public void Format_WithNoHeatSources_ReturnsExpectedString()
     {
         // Arrange
-        var command = new HeatUpdatedCommand
+        var heatData = new HeatData
         {
-            UnitId = _unit.Id,
             MovementHeatSources = [],
             WeaponHeatSources = [],
             DissipationData = new HeatDissipationData
@@ -69,7 +68,13 @@ public class HeatUpdatedCommandTests
                 HeatSinks = 10,
                 EngineHeatSinks = 10,
                 DissipationPoints = 20
-            },
+            }
+        };
+
+        var command = new HeatUpdatedCommand
+        {
+            UnitId = _unit.Id,
+            HeatData = heatData,
             PreviousHeat = 0,
             FinalHeat = 0,
             GameOriginId = _gameId,
@@ -96,9 +101,8 @@ public class HeatUpdatedCommandTests
             new() { MovementType = MovementType.Run, MovementPointsSpent = 5, HeatPoints = 2 }
         };
 
-        var command = new HeatUpdatedCommand
+        var heatData = new HeatData
         {
-            UnitId = _unit.Id,
             MovementHeatSources = movementHeatSources,
             WeaponHeatSources = [],
             DissipationData = new HeatDissipationData
@@ -106,7 +110,13 @@ public class HeatUpdatedCommandTests
                 HeatSinks = 10,
                 EngineHeatSinks = 10,
                 DissipationPoints = 20
-            },
+            }
+        };
+
+        var command = new HeatUpdatedCommand
+        {
+            UnitId = _unit.Id,
+            HeatData = heatData,
             PreviousHeat = 0,
             FinalHeat = 0,
             GameOriginId = _gameId,
@@ -135,9 +145,8 @@ public class HeatUpdatedCommandTests
             new() { WeaponName = "Large Laser", HeatPoints = 8 }
         };
 
-        var command = new HeatUpdatedCommand
+        var heatData = new HeatData
         {
-            UnitId = _unit.Id,
             MovementHeatSources = [],
             WeaponHeatSources = weaponHeatSources,
             DissipationData = new HeatDissipationData
@@ -145,7 +154,13 @@ public class HeatUpdatedCommandTests
                 HeatSinks = 10,
                 EngineHeatSinks = 10,
                 DissipationPoints = 20
-            },
+            }
+        };
+
+        var command = new HeatUpdatedCommand
+        {
+            UnitId = _unit.Id,
+            HeatData = heatData,
             PreviousHeat = 0,
             FinalHeat = 0,
             GameOriginId = _gameId,
@@ -180,9 +195,8 @@ public class HeatUpdatedCommandTests
             new() { WeaponName = "PPC", HeatPoints = 10 }
         };
 
-        var command = new HeatUpdatedCommand
+        var heatData = new HeatData
         {
-            UnitId = _unit.Id,
             MovementHeatSources = movementHeatSources,
             WeaponHeatSources = weaponHeatSources,
             DissipationData = new HeatDissipationData
@@ -190,7 +204,13 @@ public class HeatUpdatedCommandTests
                 HeatSinks = 10,
                 EngineHeatSinks = 10,
                 DissipationPoints = 20
-            },
+            }
+        };
+
+        var command = new HeatUpdatedCommand
+        {
+            UnitId = _unit.Id,
+            HeatData = heatData,
             PreviousHeat = 5,
             FinalHeat = 1,
             GameOriginId = _gameId,
@@ -215,9 +235,8 @@ public class HeatUpdatedCommandTests
     public void Format_WithUnitNotFound_ReturnsEmptyString()
     {
         // Arrange
-        var command = new HeatUpdatedCommand
+        var heatData = new HeatData
         {
-            UnitId = Guid.NewGuid(), // Different unit ID that doesn't exist in the game
             MovementHeatSources = [],
             WeaponHeatSources = [],
             DissipationData = new HeatDissipationData
@@ -225,7 +244,13 @@ public class HeatUpdatedCommandTests
                 HeatSinks = 10,
                 EngineHeatSinks = 10,
                 DissipationPoints = 20
-            },
+            }
+        };
+
+        var command = new HeatUpdatedCommand
+        {
+            UnitId = Guid.NewGuid(), // Different unit ID that doesn't exist in the game
+            HeatData = heatData,
             PreviousHeat = 0,
             FinalHeat = 0,
             GameOriginId = _gameId,

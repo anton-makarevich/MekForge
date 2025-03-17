@@ -301,16 +301,12 @@ public class WeaponAttackResolutionPhaseTests : GamePhaseTestsBase
         SetupDiceRolls(8, 6); // Set up dice rolls to ensure hits
         
         // Get initial values for verification
-        var initialAttackerHeat = _unit1.CurrentHeat;
         var initialArmor = _unit2.TotalCurrentArmor;
         
         // Act
         _sut.Enter();
 
         // Assert
-        // Verify that heat was applied to the attacker
-        _unit1.CurrentHeat.ShouldBeGreaterThan(initialAttackerHeat);
-        
         // Verify that damage was applied to the target
         _unit2.TotalCurrentArmor.ShouldBeLessThan(initialArmor);
     }

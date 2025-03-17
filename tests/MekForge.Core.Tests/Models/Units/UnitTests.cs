@@ -1,10 +1,12 @@
-using Shouldly;
+using NSubstitute;
 using Sanet.MekForge.Core.Data.Game;
 using Sanet.MekForge.Core.Data.Units;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
+using Sanet.MekForge.Core.Utils.TechRules;
+using Shouldly;
 
 namespace Sanet.MekForge.Core.Tests.Models.Units;
 
@@ -885,6 +887,153 @@ public class UnitTests
         ammo1.RemainingShots.ShouldBe(3); // Unchanged
         ammo2.RemainingShots.ShouldBe(7); // Reduced by 1
         ammo3.RemainingShots.ShouldBe(5); // Unchanged
+    }
+    
+    [Fact]
+    public void GetHeatData_WithNoHeatSources_ReturnsExpectedData()
+    {
+        // Arrange
+        var unit = CreateTestUnit();
+        var rulesProvider = Substitute.For<IRulesProvider>();
+        
+        // Act
+        var heatData = unit.GetHeatData(rulesProvider);
+        
+        // Assert
+        heatData.MovementHeatSources.ShouldBeEmpty();
+        heatData.WeaponHeatSources.ShouldBeEmpty();
+        heatData.TotalHeatToApply.ShouldBe(0);
+        heatData.DissipationData.HeatSinks.ShouldBe(unit.GetAllComponents<HeatSink>().Count());
+        heatData.DissipationData.EngineHeatSinks.ShouldBe(10); // Default engine heat sinks
+        heatData.DissipationData.DissipationPoints.ShouldBe(unit.HeatDissipation);
+    }
+    
+    [Fact]
+    public void GetHeatData_WithMovementHeat_ReturnsExpectedData()
+    {
+        // Arrange
+        var unit = CreateTestUnit();
+        var rulesProvider = new ClassicBattletechRulesProvider();
+        var deployPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        unit.Deploy(deployPosition);
+        
+        // Move the unit with Run movement type
+        unit.Move(MovementType.Run, [
+            new PathSegmentData
+            {
+                From = deployPosition.ToData(),
+                To = deployPosition.ToData(), // Fixed: Using proper HexPositionData
+                Cost = 5
+            }
+        ]);
+        
+        // Act
+        var heatData = unit.GetHeatData(rulesProvider);
+        
+        // Assert
+        heatData.MovementHeatSources.ShouldNotBeEmpty();
+        heatData.MovementHeatSources.Count.ShouldBe(1);
+        heatData.MovementHeatSources[0].MovementType.ShouldBe(MovementType.Run);
+        heatData.MovementHeatSources[0].MovementPointsSpent.ShouldBe(5);
+        heatData.WeaponHeatSources.ShouldBeEmpty();
+        heatData.TotalHeatToApply.ShouldBe(heatData.MovementHeatSources[0].HeatPoints);
+    }
+    
+    [Fact]
+    public void GetHeatData_WithWeaponHeat_ReturnsExpectedData()
+    {
+        // Arrange
+        var unit = CreateTestUnit();
+        var targetUnit = CreateTestUnit();
+        var rulesProvider = Substitute.For<IRulesProvider>();
+        
+        // Add a weapon to the unit
+        var weapon = new TestWeapon("Test Laser", [3]);
+        MountWeaponOnUnit(unit, weapon, PartLocation.RightArm,[3]);
+        
+        // Set the weapon's target
+        weapon.Target = targetUnit;
+        
+        // Act
+        var heatData = unit.GetHeatData(rulesProvider);
+        
+        // Assert
+        heatData.MovementHeatSources.ShouldBeEmpty();
+        heatData.WeaponHeatSources.ShouldNotBeEmpty();
+        heatData.WeaponHeatSources.Count.ShouldBe(1);
+        heatData.WeaponHeatSources[0].WeaponName.ShouldBe("Test Laser");
+        heatData.WeaponHeatSources[0].HeatPoints.ShouldBe(weapon.Heat);
+        heatData.TotalHeatToApply.ShouldBe(weapon.Heat);
+    }
+    
+    [Fact]
+    public void GetHeatData_WithCombinedHeatSources_ReturnsExpectedData()
+    {
+        // Arrange
+        var unit = CreateTestUnit();
+        var targetUnit = CreateTestUnit();
+        var rulesProvider = new ClassicBattletechRulesProvider();
+        
+        // Add a weapon to the unit
+        var weapon = new TestWeapon("Test Laser", [3]);
+        MountWeaponOnUnit(unit, weapon, PartLocation.RightArm,[3]);
+        
+        // Set the weapon's target
+        weapon.Target = targetUnit;
+        
+        // Deploy and move the unit
+        var deployPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        unit.Deploy(deployPosition);
+        
+        // Move the unit with Jump movement type
+        unit.Move(MovementType.Jump, [
+            new PathSegmentData
+            {
+                From = deployPosition.ToData(),
+                To = deployPosition.ToData(), // Fixed: Using proper HexPositionData
+                Cost = 3
+            }
+        ]);
+        
+        // Act
+        var heatData = unit.GetHeatData(rulesProvider);
+        
+        // Assert
+        heatData.MovementHeatSources.ShouldNotBeEmpty();
+        heatData.MovementHeatSources.Count.ShouldBe(1);
+        heatData.MovementHeatSources[0].MovementType.ShouldBe(MovementType.Jump);
+        
+        heatData.WeaponHeatSources.ShouldNotBeEmpty();
+        heatData.WeaponHeatSources.Count.ShouldBe(1);
+        heatData.WeaponHeatSources[0].WeaponName.ShouldBe("Test Laser");
+        
+        // Total heat should be the sum of movement and weapon heat
+        heatData.TotalHeatToApply.ShouldBe(
+            heatData.MovementHeatSources[0].HeatPoints + 
+            heatData.WeaponHeatSources[0].HeatPoints);
+    }
+    
+    [Fact]
+    public void GetHeatData_WithHeatSinks_ReturnsCorrectDissipationData()
+    {
+        // Arrange
+        var unit = CreateTestUnit();
+        var rulesProvider = Substitute.For<IRulesProvider>();
+        
+        // Add heat sinks to the unit
+        var rightArmPart = unit.Parts.First(p => p.Location == PartLocation.RightArm);
+        rightArmPart.TryAddComponent(new HeatSink());
+        rightArmPart.TryAddComponent(new HeatSink());
+        
+        // Act
+        var heatData = unit.GetHeatData(rulesProvider);
+        
+        // Assert
+        var expectedHeatSinks = unit.GetAllComponents<HeatSink>().Count();
+        heatData.DissipationData.HeatSinks.ShouldBe(expectedHeatSinks);
+        heatData.DissipationData.EngineHeatSinks.ShouldBe(10); // Default engine heat sinks
+        heatData.DissipationData.DissipationPoints.ShouldBe(unit.HeatDissipation);
+        heatData.TotalHeatToDissipate.ShouldBe(unit.HeatDissipation);
     }
     
     // Helper class for testing generic methods

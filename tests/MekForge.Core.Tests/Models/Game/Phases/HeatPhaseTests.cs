@@ -86,9 +86,9 @@ public class HeatPhaseTests : GamePhaseTestsBase
         CommandPublisher.Received(1).PublishCommand(
             Arg.Is<HeatUpdatedCommand>(cmd => 
                 cmd.UnitId == _unit1Id && 
-                cmd.MovementHeatSources.Count == 1 &&
-                cmd.MovementHeatSources[0].MovementType == MovementType.Run &&
-                cmd.MovementHeatSources[0].HeatPoints == 2)); // Run generates 2 heat points
+                cmd.HeatData.MovementHeatSources.Count == 1 &&
+                cmd.HeatData.MovementHeatSources[0].MovementType == MovementType.Run &&
+                cmd.HeatData.MovementHeatSources[0].HeatPoints == 2)); // Run generates 2 heat points
     }
 
     [Fact]
@@ -105,9 +105,9 @@ public class HeatPhaseTests : GamePhaseTestsBase
         CommandPublisher.Received(1).PublishCommand(
             Arg.Is<HeatUpdatedCommand>(cmd => 
                 cmd.UnitId == _unit2Id && 
-                cmd.WeaponHeatSources.Count == 1 &&
-                cmd.WeaponHeatSources[0].WeaponName == "Medium Laser" &&
-                cmd.WeaponHeatSources[0].HeatPoints == 3));
+                cmd.HeatData.WeaponHeatSources.Count == 1 &&
+                cmd.HeatData.WeaponHeatSources[0].WeaponName == "Medium Laser" &&
+                cmd.HeatData.WeaponHeatSources[0].HeatPoints == 3));
     }
 
     [Fact]
@@ -129,9 +129,9 @@ public class HeatPhaseTests : GamePhaseTestsBase
         CommandPublisher.Received().PublishCommand(
             Arg.Is<HeatUpdatedCommand>(cmd => 
                 cmd.UnitId == _unit1Id && 
-                cmd.DissipationData.HeatSinks == _unit1.GetAllComponents<HeatSink>().Count() &&
-                cmd.DissipationData.EngineHeatSinks == 10 &&
-                cmd.DissipationData.DissipationPoints > 0));
+                cmd.HeatData.DissipationData.HeatSinks == _unit1.GetAllComponents<HeatSink>().Count() &&
+                cmd.HeatData.DissipationData.EngineHeatSinks == 10 &&
+                cmd.HeatData.DissipationData.DissipationPoints > 0));
     }
 
     [Fact]
@@ -148,8 +148,8 @@ public class HeatPhaseTests : GamePhaseTestsBase
         CommandPublisher.Received(2).PublishCommand(
             Arg.Is<HeatUpdatedCommand>(cmd => 
                 (cmd.UnitId == _unit1Id || cmd.UnitId == _unit2Id) &&
-                cmd.MovementHeatSources.Count == 0 &&
-                cmd.WeaponHeatSources.Count == 0));
+                cmd.HeatData.MovementHeatSources.Count == 0 &&
+                cmd.HeatData.WeaponHeatSources.Count == 0));
     }
 
     [Fact]
@@ -168,9 +168,9 @@ public class HeatPhaseTests : GamePhaseTestsBase
         CommandPublisher.Received(1).PublishCommand(
             Arg.Is<HeatUpdatedCommand>(cmd => 
                 cmd.UnitId == _unit1Id && 
-                cmd.MovementHeatSources.Count == 1 &&
-                cmd.MovementHeatSources[0].MovementType == MovementType.Run &&
-                cmd.WeaponHeatSources.Count == 1));
+                cmd.HeatData.MovementHeatSources.Count == 1 &&
+                cmd.HeatData.MovementHeatSources[0].MovementType == MovementType.Run &&
+                cmd.HeatData.WeaponHeatSources.Count == 1));
     }
 
     #region Helper Methods
