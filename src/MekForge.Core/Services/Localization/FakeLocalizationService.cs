@@ -87,7 +87,6 @@ public class FakeLocalizationService: ILocalizationService
             "Command_HeatUpdated_WeaponHeat" => "  + Firing {0}: {1} heat",
             "Command_HeatUpdated_TotalGenerated" => "Total heat generated: {0}",
             "Command_HeatUpdated_Dissipation" => "  - Heat dissipation from {0} heat sinks and {1} engine heat sinks: -{2} heat",
-            "Command_HeatUpdated_Final" => "Final heat level: {0}",
             
             _ => key
         };

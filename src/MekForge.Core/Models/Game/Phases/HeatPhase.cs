@@ -82,36 +82,28 @@ public class HeatPhase(ServerGame game) : GamePhase(game)
         // Get heat data from the unit
         var heatData = unit.GetHeatData(Game.RulesProvider);
         
-        // Apply heat to the unit
-        unit.ApplyHeat(heatData.TotalHeatToApply);
-        
-        // Dissipate heat
-        unit.DissipateHeat();
-        var finalHeat = unit.CurrentHeat;
-        
         // Publish heat updated command
         PublishHeatUpdatedCommand(
             unit, 
             heatData,
-            previousHeat, 
-            finalHeat);
+            previousHeat);
     }
     
     private void PublishHeatUpdatedCommand(
         Unit unit, 
         HeatData heatData,
-        int previousHeat, 
-        int finalHeat)
+        int previousHeat)
     {
         var command = new HeatUpdatedCommand
         {
             UnitId = unit.Id,
             HeatData = heatData,
             PreviousHeat = previousHeat,
-            FinalHeat = finalHeat,
             Timestamp = DateTime.UtcNow,
             GameOriginId = Game.Id
         };
+        
+        Game.OnHeatUpdate(command);
         
         Game.CommandPublisher.PublishCommand(command);
     }

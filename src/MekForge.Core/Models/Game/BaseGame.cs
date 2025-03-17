@@ -201,6 +201,11 @@ public abstract class BaseGame : IGame
             targetUnit.ApplyDamage(attackResolutionCommand.ResolutionData.HitLocationsData.HitLocations);
         }
     }
+
+    public void OnHeatUpdate(HeatUpdatedCommand heatUpdatedCommand)
+    {
+        
+    }
     
     public void OnPhysicalAttack(PhysicalAttackCommand attackCommand)
     {

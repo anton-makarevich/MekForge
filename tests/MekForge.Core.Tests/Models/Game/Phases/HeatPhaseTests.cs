@@ -115,7 +115,23 @@ public class HeatPhaseTests : GamePhaseTestsBase
     {
         // Arrange
         // Add initial heat to unit
-        _unit1.ApplyHeat(25);
+        _unit1.ApplyHeat(new HeatData
+        {
+            MovementHeatSources = [],
+            WeaponHeatSources = [
+            new WeaponHeatData
+            {
+                WeaponName = "test",
+                HeatPoints = 15
+            }
+            ],
+            DissipationData = new HeatDissipationData
+            {
+                HeatSinks = 0,
+                EngineHeatSinks = 0,
+                DissipationPoints = 0
+            }
+        });
         var initialHeat = _unit1.CurrentHeat;
 
         // Act

@@ -131,7 +131,7 @@ public class MechTests
     }
 
     [Fact]
-    public void ApplyHeat_DissipatesHeatBasedOnHeatSinks()
+    public void HeatDissipation_CalculatedBasedOnHeatSinks()
     {
         // Arrange
         var parts = CreateBasicPartsData();
@@ -141,11 +141,10 @@ public class MechTests
         var mech = new Mech("Test", "TST-1A", 50, 4, parts);
 
         // Act
-        mech.ApplyHeat(15); // Apply 15 heat with 2 heat sinks
-        mech.DissipateHeat();
+        var dissipation = mech.HeatDissipation;
 
         // Assert
-        mech.CurrentHeat.ShouldBe(3, "15 heat - 2 heat sinks -10 engine HS = 3 heat");
+        dissipation.ShouldBe(12, "2 heat sinks + 10 engine HS");
     }
 
     [Fact]

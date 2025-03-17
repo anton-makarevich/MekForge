@@ -51,8 +51,6 @@ public class HeatUpdatedCommandTests
             .Returns("Total heat generated: {0}");
         _localizationService.GetString("Command_HeatUpdated_Dissipation")
             .Returns("  - Heat dissipation from {0} heat sinks and {1} engine heat sinks: -{2} heat");
-        _localizationService.GetString("Command_HeatUpdated_Final")
-            .Returns("Final heat level: {0}");
     }
 
     [Fact]
@@ -76,7 +74,6 @@ public class HeatUpdatedCommandTests
             UnitId = _unit.Id,
             HeatData = heatData,
             PreviousHeat = 0,
-            FinalHeat = 0,
             GameOriginId = _gameId,
             Timestamp = DateTime.UtcNow
         };
@@ -89,7 +86,6 @@ public class HeatUpdatedCommandTests
         result.ShouldContain("Heat sources:");
         result.ShouldContain("Total heat generated: 0");
         result.ShouldContain("Heat dissipation from 10 heat sinks and 10 engine heat sinks: -20 heat");
-        result.ShouldContain("Final heat level: 0");
     }
 
     [Fact]
@@ -118,7 +114,6 @@ public class HeatUpdatedCommandTests
             UnitId = _unit.Id,
             HeatData = heatData,
             PreviousHeat = 0,
-            FinalHeat = 0,
             GameOriginId = _gameId,
             Timestamp = DateTime.UtcNow
         };
@@ -132,7 +127,6 @@ public class HeatUpdatedCommandTests
         result.ShouldContain("Run movement (5 MP): 2 heat");
         result.ShouldContain("Total heat generated: 2");
         result.ShouldContain("Heat dissipation from 10 heat sinks and 10 engine heat sinks: -20 heat");
-        result.ShouldContain("Final heat level: 0");
     }
 
     [Fact]
@@ -162,7 +156,6 @@ public class HeatUpdatedCommandTests
             UnitId = _unit.Id,
             HeatData = heatData,
             PreviousHeat = 0,
-            FinalHeat = 0,
             GameOriginId = _gameId,
             Timestamp = DateTime.UtcNow
         };
@@ -177,7 +170,6 @@ public class HeatUpdatedCommandTests
         result.ShouldContain("Firing Large Laser: 8 heat");
         result.ShouldContain("Total heat generated: 11");
         result.ShouldContain("Heat dissipation from 10 heat sinks and 10 engine heat sinks: -20 heat");
-        result.ShouldContain("Final heat level: 0");
     }
 
     [Fact]
@@ -212,7 +204,6 @@ public class HeatUpdatedCommandTests
             UnitId = _unit.Id,
             HeatData = heatData,
             PreviousHeat = 5,
-            FinalHeat = 1,
             GameOriginId = _gameId,
             Timestamp = DateTime.UtcNow
         };
@@ -228,7 +219,6 @@ public class HeatUpdatedCommandTests
         result.ShouldContain("Firing PPC: 10 heat");
         result.ShouldContain("Total heat generated: 16");
         result.ShouldContain("Heat dissipation from 10 heat sinks and 10 engine heat sinks: -20 heat");
-        result.ShouldContain("Final heat level: 1");
     }
 
     [Fact]
@@ -252,7 +242,6 @@ public class HeatUpdatedCommandTests
             UnitId = Guid.NewGuid(), // Different unit ID that doesn't exist in the game
             HeatData = heatData,
             PreviousHeat = 0,
-            FinalHeat = 0,
             GameOriginId = _gameId,
             Timestamp = DateTime.UtcNow
         };

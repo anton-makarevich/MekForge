@@ -25,12 +25,12 @@ public record struct HeatData
     /// <summary>
     /// Total heat to apply to the unit
     /// </summary>
-    public int TotalHeatToApply => 
+    public int TotalHeatPoints => 
         MovementHeatSources.Sum(source => source.HeatPoints) + 
         WeaponHeatSources.Sum(source => source.HeatPoints);
     
     /// <summary>
     /// Total heat to dissipate
     /// </summary>
-    public int TotalHeatToDissipate => DissipationData.DissipationPoints;
+    public int TotalHeatDissipationPoints => DissipationData.DissipationPoints;
 }
