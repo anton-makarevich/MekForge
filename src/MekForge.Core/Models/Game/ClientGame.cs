@@ -67,6 +67,9 @@ public class ClientGame : BaseGame
             case WeaponAttackResolutionCommand attackResolutionCommand:
                 OnWeaponsAttackResolution(attackResolutionCommand);
                 break;
+            case HeatUpdatedCommand heatUpdateCommand:
+                OnHeatUpdate(heatUpdateCommand);
+                break;
         }
     }
     

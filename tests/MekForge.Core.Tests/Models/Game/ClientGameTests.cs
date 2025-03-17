@@ -902,4 +902,138 @@ public class ClientGameTests
         centerTorsoPart.CurrentArmor.ShouldBe(initialCenterTorsoArmor - 5);
         leftArmPart.CurrentArmor.ShouldBe(initialLeftArmArmor - 3);
     }
+
+    [Fact]
+    public void HandleCommand_ShouldApplyHeat_WhenHeatUpdatedCommandIsReceived()
+    {
+        // Arrange
+        // Add player and unit
+        var playerId = Guid.NewGuid();
+        var unitData = MechFactoryTests.CreateDummyMechData();
+        unitData.Id = Guid.NewGuid();
+        var joinCommand = new JoinGameCommand
+        {
+            PlayerId = playerId,
+            PlayerName = "Player1",
+            GameOriginId = Guid.NewGuid(),
+            Units = [unitData],
+            Tint = "#FF0000"
+        };
+        _clientGame.HandleCommand(joinCommand);
+        
+        // Get the unit and check initial heat
+        var unit = _clientGame.Players.First(p => p.Id == playerId).Units.First();
+        var initialHeat = unit.CurrentHeat;
+        
+        // Create heat data
+        var heatData = new HeatData
+        {
+            MovementHeatSources = 
+            [
+                new MovementHeatData
+                {
+                    MovementType = MovementType.Run,
+                    MovementPointsSpent = 5,
+                    HeatPoints = 12
+                }
+            ],
+            WeaponHeatSources = 
+            [
+                new WeaponHeatData
+                {
+                    WeaponName = "Medium Laser",
+                    HeatPoints = 13
+                }
+            ],
+            DissipationData = new HeatDissipationData
+            {
+                HeatSinks = 10,
+                EngineHeatSinks = 10,
+                DissipationPoints =20
+            }
+        };
+        
+        // Create the heat update command
+        var heatUpdateCommand = new HeatUpdatedCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            UnitId = unitData.Id.Value,
+            HeatData = heatData,
+            PreviousHeat = initialHeat,
+            Timestamp = DateTime.UtcNow
+        };
+        
+        // Act
+        _clientGame.HandleCommand(heatUpdateCommand);
+        
+        // Assert
+        unit.CurrentHeat.ShouldBe(5); //0+25-20
+    }
+    
+    [Fact]
+        public void HandleCommand_ShouldNotApplyHeat_WhenHeatUpdatedCommandIsReceived_WithWrongUnitId()
+    {
+        // Arrange
+        // Add player and unit
+        var playerId = Guid.NewGuid();
+        var unitData = MechFactoryTests.CreateDummyMechData();
+        unitData.Id = Guid.NewGuid();
+        var joinCommand = new JoinGameCommand
+        {
+            PlayerId = playerId,
+            PlayerName = "Player1",
+            GameOriginId = Guid.NewGuid(),
+            Units = [unitData],
+            Tint = "#FF0000"
+        };
+        _clientGame.HandleCommand(joinCommand);
+        
+        // Get the unit and check initial heat
+        var unit = _clientGame.Players.First(p => p.Id == playerId).Units.First();
+        var initialHeat = unit.CurrentHeat;
+        
+        // Create heat data
+        var heatData = new HeatData
+        {
+            MovementHeatSources = 
+            [
+                new MovementHeatData
+                {
+                    MovementType = MovementType.Run,
+                    MovementPointsSpent = 5,
+                    HeatPoints = 12
+                }
+            ],
+            WeaponHeatSources = 
+            [
+                new WeaponHeatData
+                {
+                    WeaponName = "Medium Laser",
+                    HeatPoints = 13
+                }
+            ],
+            DissipationData = new HeatDissipationData
+            {
+                HeatSinks = 10,
+                EngineHeatSinks = 10,
+                DissipationPoints =20
+            }
+        };
+        
+        // Create the heat update command
+        var heatUpdateCommand = new HeatUpdatedCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            UnitId = Guid.NewGuid(),
+            HeatData = heatData,
+            PreviousHeat = initialHeat,
+            Timestamp = DateTime.UtcNow
+        };
+        
+        // Act
+        _clientGame.HandleCommand(heatUpdateCommand);
+        
+        // Assert
+        unit.CurrentHeat.ShouldBe(initialHeat);
+    }
 }

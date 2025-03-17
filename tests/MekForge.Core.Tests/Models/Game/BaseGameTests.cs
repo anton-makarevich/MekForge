@@ -581,9 +581,6 @@ public class BaseGameTests() : BaseGame(BattleMap.GenerateMap(5, 5, new SingleTe
         OnWeaponsAttackResolution(command);
 
         // Assert
-        // Verify that heat was applied to the attacker
-        attackerMech.CurrentHeat.ShouldBeGreaterThan(initialAttackerHeat);
-        
         // Verify that damage was applied to the target
         centerTorsoPart.CurrentArmor.ShouldBe(initialCenterTorsoArmor - 5);
         leftArmPart.CurrentArmor.ShouldBe(initialLeftArmArmor - 3);

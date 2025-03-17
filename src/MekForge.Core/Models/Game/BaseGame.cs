@@ -201,6 +201,19 @@ public abstract class BaseGame : IGame
             targetUnit.ApplyDamage(attackResolutionCommand.ResolutionData.HitLocationsData.HitLocations);
         }
     }
+
+    public void OnHeatUpdate(HeatUpdatedCommand heatUpdatedCommand)
+    {
+        // Find the unit with the given ID across all players
+        var unit = _players
+            .SelectMany(p => p.Units)
+            .FirstOrDefault(u => u.Id == heatUpdatedCommand.UnitId);
+            
+        if (unit == null) return;
+        
+        // Apply heat to the unit using the heat data from the command
+        unit.ApplyHeat(heatUpdatedCommand.HeatData);
+    }
     
     public void OnPhysicalAttack(PhysicalAttackCommand attackCommand)
     {
@@ -218,6 +231,7 @@ public abstract class BaseGame : IGame
             WeaponConfigurationCommand => true,
             WeaponAttackDeclarationCommand=> true,
             WeaponAttackResolutionCommand => true,
+            HeatUpdatedCommand => true,
             _ => false
         };
     }

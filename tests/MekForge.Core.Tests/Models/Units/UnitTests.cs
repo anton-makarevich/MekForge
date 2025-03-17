@@ -724,33 +724,9 @@ public class UnitTests
         unit.TotalCurrentArmor.ShouldBe(35); // 0 + 15 + 20
         unit.TotalCurrentStructure.ShouldBe(22); // 2 + 8 + 12
     }
-
-    [Fact]
-    public void FireWeapon_ShouldApplyHeat_ForEnergyWeapon()
-    {
-        // Arrange
-        var unit = CreateTestUnit();
-        var energyWeapon = new TestWeapon("Energy Weapon", [0, 1]);
-        MountWeaponOnUnit(unit, energyWeapon, PartLocation.LeftArm, [0, 1]);
-        
-        var weaponData = new WeaponData
-        {
-            Name = energyWeapon.Name,
-            Location = PartLocation.LeftArm,
-            Slots = [0, 1]
-        };
-        
-        var initialHeat = unit.CurrentHeat;
-        
-        // Act
-        unit.FireWeapon(weaponData);
-        
-        // Assert
-        unit.CurrentHeat.ShouldBe(initialHeat + energyWeapon.Heat);
-    }
     
     [Fact]
-    public void FireWeapon_ShouldApplyHeatAndUseAmmo_ForBallisticWeapon()
+    public void FireWeapon_UseAmmo_ForBallisticWeapon()
     {
         // Arrange
         var unit = CreateTestUnit();
@@ -776,7 +752,6 @@ public class UnitTests
         unit.FireWeapon(weaponData);
         
         // Assert
-        unit.CurrentHeat.ShouldBe(initialHeat + ballisticWeapon.Heat);
         ammo.RemainingShots.ShouldBe(initialAmmoShots - 1);
     }
     
@@ -830,32 +805,6 @@ public class UnitTests
     }
     
     [Fact]
-    public void FireWeapon_ShouldNotFire_WhenNoAmmoAvailable()
-    {
-        // Arrange
-        var unit = CreateTestUnit();
-        var ballisticWeapon = new TestWeapon("Ballistic Weapon", [0, 1], WeaponType.Ballistic, AmmoType.AC5);
-        MountWeaponOnUnit(unit, ballisticWeapon, PartLocation.LeftArm, [0, 1]);
-        
-        // No ammo added to the unit
-        
-        var weaponData = new WeaponData
-        {
-            Name = ballisticWeapon.Name,
-            Location = PartLocation.LeftArm,
-            Slots = [0, 1]
-        };
-        
-        var initialHeat = unit.CurrentHeat;
-        
-        // Act
-        unit.FireWeapon(weaponData);
-        
-        // Assert
-        unit.CurrentHeat.ShouldBe(initialHeat + ballisticWeapon.Heat); // Heat is still applied even if there's no ammo
-    }
-    
-    [Fact]
     public void FireWeapon_ShouldUseAmmoWithMostShots_WhenMultipleAmmoAvailable()
     {
         // Arrange
@@ -902,7 +851,7 @@ public class UnitTests
         // Assert
         heatData.MovementHeatSources.ShouldBeEmpty();
         heatData.WeaponHeatSources.ShouldBeEmpty();
-        heatData.TotalHeatToApply.ShouldBe(0);
+        heatData.TotalHeatPoints.ShouldBe(0);
         heatData.DissipationData.HeatSinks.ShouldBe(unit.GetAllComponents<HeatSink>().Count());
         heatData.DissipationData.EngineHeatSinks.ShouldBe(10); // Default engine heat sinks
         heatData.DissipationData.DissipationPoints.ShouldBe(unit.HeatDissipation);
@@ -936,7 +885,7 @@ public class UnitTests
         heatData.MovementHeatSources[0].MovementType.ShouldBe(MovementType.Run);
         heatData.MovementHeatSources[0].MovementPointsSpent.ShouldBe(5);
         heatData.WeaponHeatSources.ShouldBeEmpty();
-        heatData.TotalHeatToApply.ShouldBe(heatData.MovementHeatSources[0].HeatPoints);
+        heatData.TotalHeatPoints.ShouldBe(heatData.MovementHeatSources[0].HeatPoints);
     }
     
     [Fact]
@@ -963,7 +912,7 @@ public class UnitTests
         heatData.WeaponHeatSources.Count.ShouldBe(1);
         heatData.WeaponHeatSources[0].WeaponName.ShouldBe("Test Laser");
         heatData.WeaponHeatSources[0].HeatPoints.ShouldBe(weapon.Heat);
-        heatData.TotalHeatToApply.ShouldBe(weapon.Heat);
+        heatData.TotalHeatPoints.ShouldBe(weapon.Heat);
     }
     
     [Fact]
@@ -1008,7 +957,7 @@ public class UnitTests
         heatData.WeaponHeatSources[0].WeaponName.ShouldBe("Test Laser");
         
         // Total heat should be the sum of movement and weapon heat
-        heatData.TotalHeatToApply.ShouldBe(
+        heatData.TotalHeatPoints.ShouldBe(
             heatData.MovementHeatSources[0].HeatPoints + 
             heatData.WeaponHeatSources[0].HeatPoints);
     }
@@ -1033,7 +982,7 @@ public class UnitTests
         heatData.DissipationData.HeatSinks.ShouldBe(expectedHeatSinks);
         heatData.DissipationData.EngineHeatSinks.ShouldBe(10); // Default engine heat sinks
         heatData.DissipationData.DissipationPoints.ShouldBe(unit.HeatDissipation);
-        heatData.TotalHeatToDissipate.ShouldBe(unit.HeatDissipation);
+        heatData.TotalHeatDissipationPoints.ShouldBe(unit.HeatDissipation);
     }
     
     // Helper class for testing generic methods

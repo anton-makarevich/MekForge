@@ -9,7 +9,6 @@ public record struct HeatUpdatedCommand : IGameCommand
     public required Guid UnitId { get; init; }
     public required HeatData HeatData { get; init; }
     public required int PreviousHeat { get; init; }
-    public required int FinalHeat { get; init; }
     
     public Guid GameOriginId { get; set; }
     public DateTime Timestamp { get; init; }
@@ -59,7 +58,7 @@ public record struct HeatUpdatedCommand : IGameCommand
         // Total heat generated
         stringBuilder.AppendLine(string.Format(
             localizationService.GetString("Command_HeatUpdated_TotalGenerated"),
-            HeatData.TotalHeatToApply));
+            HeatData.TotalHeatPoints));
             
         // Heat dissipation
         stringBuilder.AppendLine(string.Format(
@@ -67,11 +66,6 @@ public record struct HeatUpdatedCommand : IGameCommand
             HeatData.DissipationData.HeatSinks,
             HeatData.DissipationData.EngineHeatSinks,
             HeatData.DissipationData.DissipationPoints));
-            
-        // Final heat
-        stringBuilder.AppendLine(string.Format(
-            localizationService.GetString("Command_HeatUpdated_Final"),
-            FinalHeat));
             
         return stringBuilder.ToString().TrimEnd();
     }

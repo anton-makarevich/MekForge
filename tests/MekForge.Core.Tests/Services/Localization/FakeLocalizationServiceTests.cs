@@ -78,7 +78,6 @@ public class FakeLocalizationServiceTests
     [InlineData("Command_HeatUpdated_WeaponHeat", "  + Firing {0}: {1} heat")]
     [InlineData("Command_HeatUpdated_TotalGenerated", "Total heat generated: {0}")]
     [InlineData("Command_HeatUpdated_Dissipation", "  - Heat dissipation from {0} heat sinks and {1} engine heat sinks: -{2} heat")]
-    [InlineData("Command_HeatUpdated_Final", "Final heat level: {0}")]
     [InlineData("Key_Not_Found", "Key_Not_Found")]
     public void GetString_ReturnsExpectedString(string key, string expected)
     {

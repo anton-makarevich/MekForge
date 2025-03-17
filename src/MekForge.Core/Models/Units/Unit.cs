@@ -151,13 +151,12 @@ public abstract class Unit
         };
     }
     
-    public void ApplyHeat(int heat)
+    public void ApplyHeat(HeatData heatData)
     {
-        CurrentHeat = CurrentHeat + heat;
-    }
-    public void DissipateHeat()
-    {
-        CurrentHeat = Math.Max(0, CurrentHeat - HeatDissipation);
+        CurrentHeat = Math.Max(0,
+            CurrentHeat 
+            + heatData.TotalHeatPoints 
+            - heatData.TotalHeatDissipationPoints);
         ApplyHeatEffects();
     }
 
@@ -400,9 +399,6 @@ public abstract class Unit
             
         if (weapon == null || weapon.IsDestroyed)
             return;
-            
-        // Apply heat from the weapon
-        ApplyHeat(weapon.Heat);
         
         // If the weapon requires ammo, find and use ammo
         if (!weapon.RequiresAmmo) return;
