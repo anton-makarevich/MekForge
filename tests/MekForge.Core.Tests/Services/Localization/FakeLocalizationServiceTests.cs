@@ -71,8 +71,16 @@ public class FakeLocalizationServiceTests
     [InlineData("MovementType_Walk", "Walk")]
     [InlineData("MovementType_Run", "Run")]
     [InlineData("MovementType_Jump", "Jump")]
+    // Heat update command strings
+    [InlineData("Command_HeatUpdated_Header", "Heat update for {0} (Previous: {1})")]
+    [InlineData("Command_HeatUpdated_Sources", "Heat sources:")]
+    [InlineData("Command_HeatUpdated_MovementHeat", "  + {0} movement ({1} MP): {2} heat")]
+    [InlineData("Command_HeatUpdated_WeaponHeat", "  + Firing {0}: {1} heat")]
+    [InlineData("Command_HeatUpdated_TotalGenerated", "Total heat generated: {0}")]
+    [InlineData("Command_HeatUpdated_Dissipation", "  - Heat dissipation from {0} heat sinks and {1} engine heat sinks: -{2} heat")]
+    [InlineData("Command_HeatUpdated_Final", "Final heat level: {0}")]
     [InlineData("Key_Not_Found", "Key_Not_Found")]
-    public void GetString_ShouldReturnCorrectString(string key, string? expectedValue)
+    public void GetString_ReturnsExpectedString(string key, string expected)
     {
         // Arrange
         var localizationService = new FakeLocalizationService();
@@ -81,6 +89,6 @@ public class FakeLocalizationServiceTests
         var result = localizationService.GetString(key);
 
         // Assert
-        result.ShouldBe(expectedValue);
+        result.ShouldBe(expected);
     }
 }

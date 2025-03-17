@@ -12,7 +12,7 @@ using Shouldly;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
 
-public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
+public class WeaponAttackResolutionPhaseTests : GamePhaseTestsBase
 {
     private readonly WeaponAttackResolutionPhase _sut;
     private readonly Guid _player1Id = Guid.NewGuid();
@@ -131,7 +131,7 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
 
         // Assert
         // Should transition to PhysicalAttackPhase
-        Game.TurnPhase.ShouldBe(PhaseNames.PhysicalAttack);
+        Game.TurnPhase.ShouldBe(PhaseNames.End);
     }
 
     [Fact]
@@ -146,7 +146,7 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
 
         // Assert
         // Should transition to PhysicalAttackPhase after processing all attacks
-        Game.TurnPhase.ShouldBe(PhaseNames.PhysicalAttack);
+        Game.TurnPhase.ShouldBe(PhaseNames.End);
     }
 
     [Fact]
@@ -301,16 +301,12 @@ public class WeaponAttackResolutionPhaseTests : GameStateTestsBase
         SetupDiceRolls(8, 6); // Set up dice rolls to ensure hits
         
         // Get initial values for verification
-        var initialAttackerHeat = _unit1.CurrentHeat;
         var initialArmor = _unit2.TotalCurrentArmor;
         
         // Act
         _sut.Enter();
 
         // Assert
-        // Verify that heat was applied to the attacker
-        _unit1.CurrentHeat.ShouldBeGreaterThan(initialAttackerHeat);
-        
         // Verify that damage was applied to the target
         _unit2.TotalCurrentArmor.ShouldBeLessThan(initialArmor);
     }

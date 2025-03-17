@@ -11,20 +11,19 @@ using Sanet.MekForge.Core.Models.Game.Players;
 using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
-using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Tests.Data.Community;
 using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
 
-public abstract class GameStateTestsBase
+public abstract class GamePhaseTestsBase
 {
     protected readonly ServerGame Game;
     protected readonly ICommandPublisher CommandPublisher;
     protected readonly IDiceRoller DiceRoller;
 
-    protected GameStateTestsBase()
+    protected GamePhaseTestsBase()
     {
         CommandPublisher = Substitute.For<ICommandPublisher>();
         DiceRoller = Substitute.For<IDiceRoller>();

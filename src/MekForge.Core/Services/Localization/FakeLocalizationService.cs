@@ -80,6 +80,15 @@ public class FakeLocalizationService: ILocalizationService
             "MovementType_Run" => "Run",
             "MovementType_Jump" => "Jump",
             
+            // Heat update command strings
+            "Command_HeatUpdated_Header" => "Heat update for {0} (Previous: {1})",
+            "Command_HeatUpdated_Sources" => "Heat sources:",
+            "Command_HeatUpdated_MovementHeat" => "  + {0} movement ({1} MP): {2} heat",
+            "Command_HeatUpdated_WeaponHeat" => "  + Firing {0}: {1} heat",
+            "Command_HeatUpdated_TotalGenerated" => "Total heat generated: {0}",
+            "Command_HeatUpdated_Dissipation" => "  - Heat dissipation from {0} heat sinks and {1} engine heat sinks: -{2} heat",
+            "Command_HeatUpdated_Final" => "Final heat level: {0}",
+            
             _ => key
         };
     }

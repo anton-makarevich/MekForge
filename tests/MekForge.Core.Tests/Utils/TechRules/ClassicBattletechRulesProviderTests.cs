@@ -482,5 +482,24 @@ namespace Sanet.MekForge.Core.Tests.Utils.TechRules
         }
 
         #endregion
+
+        [Theory]
+        [InlineData(MovementType.StandingStill, 0, 0)]
+        [InlineData(MovementType.Walk, 5, 1)]
+        [InlineData(MovementType.Run, 5, 2)]
+        [InlineData(MovementType.Jump, 0, 3)]
+        [InlineData(MovementType.Jump, 1, 3)]
+        [InlineData(MovementType.Jump, 2, 3)]
+        [InlineData(MovementType.Jump, 3, 3)]
+        [InlineData(MovementType.Jump, 4, 4)]
+        [InlineData(MovementType.Jump, 5, 5)]
+        public void GetMovementHeatPoints_ReturnsExpectedHeatPoints(MovementType movementType, int movementPointsSpent, int expectedHeatPoints)
+        {
+            // Act
+            var result = _provider.GetMovementHeatPoints(movementType, movementPointsSpent);
+
+            // Assert
+            result.ShouldBe(expectedHeatPoints);
+        }
     }
 }

@@ -5,6 +5,7 @@ using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units.Components;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Pilots;
+using Sanet.MekForge.Core.Utils.TechRules;
 
 namespace Sanet.MekForge.Core.Models.Units;
 
@@ -89,7 +90,66 @@ public abstract class Unit
 
     // Heat management
     public int CurrentHeat { get; protected set; }
-    public int HeatDissipation => GetAllComponents<HeatSink>().Sum(hs => hs.HeatDissipation);
+    public int HeatDissipation => GetAllComponents<HeatSink>().Sum(hs => hs.HeatDissipation)
+                                  +10; // Engine heat sinks
+    
+    /// <summary>
+    /// Calculates and returns heat data for this unit
+    /// </summary>
+    /// <returns>A HeatData object containing all heat sources and dissipation information</returns>
+    public HeatData GetHeatData(IRulesProvider rulesProvider)
+    {
+        var movementHeatSources = new List<MovementHeatData>();
+        var weaponHeatSources = new List<WeaponHeatData>();
+        
+        // Calculate movement heat
+        if (MovementTypeUsed.HasValue)
+        {
+            var movementHeatPoints = rulesProvider.GetMovementHeatPoints(MovementTypeUsed.Value, MovementPointsSpent);
+                
+            if (movementHeatPoints > 0)
+            {
+                movementHeatSources.Add(new MovementHeatData
+                {
+                    MovementType = MovementTypeUsed.Value,
+                    MovementPointsSpent = MovementPointsSpent,
+                    HeatPoints = movementHeatPoints
+                });
+            }
+        }
+        
+        // Calculate weapon heat for weapons with targets
+        var weaponsWithTargets = GetAllComponents<Weapon>()
+            .Where(weapon => weapon.Target != null);
+            
+        foreach (var weapon in weaponsWithTargets)
+        {
+            if (weapon.Heat <= 0) continue;
+            weaponHeatSources.Add(new WeaponHeatData
+            {
+                WeaponName = weapon.Name,
+                HeatPoints = weapon.Heat
+            });
+        }
+        
+        // Get heat dissipation
+        var heatSinks = GetAllComponents<HeatSink>().Count();
+        var engineHeatSinks = 10; // Always 10 engine heat sinks
+        var heatDissipation = HeatDissipation;
+        var dissipationData = new HeatDissipationData
+        {
+            HeatSinks = heatSinks,
+            EngineHeatSinks = engineHeatSinks,
+            DissipationPoints = heatDissipation
+        };
+        
+        return new HeatData
+        {
+            MovementHeatSources = movementHeatSources,
+            WeaponHeatSources = weaponHeatSources,
+            DissipationData = dissipationData
+        };
+    }
     
     public void ApplyHeat(int heat)
     {
@@ -216,12 +276,12 @@ public abstract class Unit
     // Different unit types will have different damage transfer patterns
     protected abstract PartLocation? GetTransferLocation(PartLocation location);
 
-    protected IEnumerable<T> GetAllComponents<T>() where T : Component
+    public IEnumerable<T> GetAllComponents<T>() where T : Component
     {
         return Parts.SelectMany(p => p.GetComponents<T>());
     }
 
-    protected bool HasActiveComponent<T>() where T : Component
+    public bool HasActiveComponent<T>() where T : Component
     {
         return GetAllComponents<T>().Any(c => c is { IsActive: true, IsDestroyed: false });
     }

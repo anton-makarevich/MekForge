@@ -9,7 +9,7 @@ using Sanet.MekForge.Core.Tests.Data.Community;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
 
-public class DeploymentPhaseTests : GameStateTestsBase
+public class DeploymentPhaseTests : GamePhaseTestsBase
 {
     private DeploymentPhase _sut = null!;
 

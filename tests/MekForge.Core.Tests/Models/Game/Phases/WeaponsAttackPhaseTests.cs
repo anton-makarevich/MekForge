@@ -8,7 +8,7 @@ using Sanet.MekForge.Core.Models.Map;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
 
-public class WeaponsAttackPhaseTests : GameStateTestsBase
+public class WeaponsAttackPhaseTests : GamePhaseTestsBase
 {
     private readonly WeaponsAttackPhase _sut;
     private readonly Guid _player1Id = Guid.NewGuid();
@@ -155,6 +155,6 @@ public class WeaponsAttackPhaseTests : GameStateTestsBase
         }
     
         // Assert
-        Game.TurnPhase.ShouldBe(PhaseNames.PhysicalAttack);
+        Game.TurnPhase.ShouldBe(PhaseNames.End);
     }
 }

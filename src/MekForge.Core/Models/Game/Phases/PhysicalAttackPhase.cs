@@ -5,7 +5,7 @@ namespace Sanet.MekForge.Core.Models.Game.Phases;
 
 public class PhysicalAttackPhase(ServerGame game) : MainGamePhase(game)
 {
-    protected override GamePhase GetNextPhase() => new EndPhase(Game);
+    protected override GamePhase GetNextPhase() => new HeatPhase(Game);
 
     public override void HandleCommand(IGameCommand command)
     {
