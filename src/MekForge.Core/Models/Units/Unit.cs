@@ -89,7 +89,8 @@ public abstract class Unit
 
     // Heat management
     public int CurrentHeat { get; protected set; }
-    public int HeatDissipation => GetAllComponents<HeatSink>().Sum(hs => hs.HeatDissipation);
+    public int HeatDissipation => GetAllComponents<HeatSink>().Sum(hs => hs.HeatDissipation)
+                                  +10; // Engine heat sinks
     
     public void ApplyHeat(int heat)
     {

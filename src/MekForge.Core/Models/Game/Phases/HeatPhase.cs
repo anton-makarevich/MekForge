@@ -100,8 +100,7 @@ public class HeatPhase(ServerGame game) : GamePhase(game)
         }
         
         // 1.2 Calculate weapon heat for weapons with targets
-        var weaponsWithTargets = unit.Parts
-            .SelectMany(p => p.GetComponents<Weapon>())
+        var weaponsWithTargets = unit.GetAllComponents<Weapon>()
             .Where(weapon => weapon.Target != null);
             
         foreach (var weapon in weaponsWithTargets)

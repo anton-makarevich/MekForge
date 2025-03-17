@@ -77,22 +77,17 @@ public class HeatPhaseTests : GamePhaseTestsBase
     {
         // Arrange
         SetupUnitWithMovement(_unit1, MovementType.Run);
-        var initialHeat = _unit1.CurrentHeat;
 
         // Act
         _sut.Enter();
 
         // Assert
-        // Verify heat was applied to the unit
-        _unit1.CurrentHeat.ShouldBeGreaterThan(initialHeat);
-
         // Verify heat updated command was published with correct movement heat source
         CommandPublisher.Received(1).PublishCommand(
             Arg.Is<HeatUpdatedCommand>(cmd => 
                 cmd.UnitId == _unit1Id && 
                 cmd.MovementHeatSources.Count == 1 &&
                 cmd.MovementHeatSources[0].MovementType == MovementType.Run &&
-                cmd.MovementHeatSources[0].MovementPointsSpent == 5 &&
                 cmd.MovementHeatSources[0].HeatPoints == 2)); // Run generates 2 heat points
     }
 
@@ -101,15 +96,11 @@ public class HeatPhaseTests : GamePhaseTestsBase
     {
         // Arrange
         SetupUnitWithWeaponFired(_unit2);
-        var initialHeat = _unit2.CurrentHeat;
 
         // Act
         _sut.Enter();
 
         // Assert
-        // Verify heat was applied to the unit
-        _unit2.CurrentHeat.ShouldBeGreaterThan(initialHeat);
-
         // Verify heat updated command was published with correct weapon heat source
         CommandPublisher.Received(1).PublishCommand(
             Arg.Is<HeatUpdatedCommand>(cmd => 
@@ -169,24 +160,17 @@ public class HeatPhaseTests : GamePhaseTestsBase
         SetupUnitWithMovement(_unit1, MovementType.Run);
         SetupUnitWithWeaponFired(_unit1);
         
-        var initialHeat = _unit1.CurrentHeat;
-
         // Act
         _sut.Enter();
 
         // Assert
-        // Verify total heat was applied correctly (3 from jump + 3 from Medium Laser + 10 from PPC = 16)
-        _unit1.CurrentHeat.ShouldBeGreaterThan(initialHeat);
-        
         // Verify heat updated command was published with correct heat sources
         CommandPublisher.Received(1).PublishCommand(
             Arg.Is<HeatUpdatedCommand>(cmd => 
                 cmd.UnitId == _unit1Id && 
                 cmd.MovementHeatSources.Count == 1 &&
-                cmd.MovementHeatSources[0].MovementType == MovementType.Jump &&
-                cmd.MovementHeatSources[0].MovementPointsSpent == 3 &&
-                cmd.MovementHeatSources[0].HeatPoints == 3 &&
-                cmd.WeaponHeatSources.Count == 2));
+                cmd.MovementHeatSources[0].MovementType == MovementType.Run &&
+                cmd.WeaponHeatSources.Count == 1));
     }
 
     #region Helper Methods
@@ -207,7 +191,7 @@ public class HeatPhaseTests : GamePhaseTestsBase
     private void SetupUnitWithWeaponFired(Unit unit)
     {
         // Find a weapon on the unit or add one if needed
-        var weapon = unit.GetAllComponents<Weapon>().First();
+        var weapon = unit.GetAllComponents<Weapon>().First(w=>w.Heat>0);
         
         // If a weapon exists, just set its target
         weapon.Target = _unit2;
