@@ -40,13 +40,6 @@ public class EndPhase(ServerGame game) : GamePhase(game)
             // All players have ended their turns, start a new turn
             Game.IncrementTurn();
             
-            // // Send turn increment command to all clients
-            // Game.CommandPublisher.PublishCommand(new TurnIncrementedCommand
-            // {
-            //     GameOriginId = Game.Id,
-            //     TurnNumber = Game.Turn
-            // });
-            
             // Transition to Initiative phase for the next turn
             Game.TransitionToPhase(new InitiativePhase(Game));
         }

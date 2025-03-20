@@ -84,6 +84,13 @@ public class ServerGame : BaseGame
     {
         Turn++;
         _initiativeOrder.Clear(); // Clear initiative order at the start of new turn
+        
+        // Send turn increment command to all clients
+        CommandPublisher.PublishCommand(new TurnIncrementedCommand
+        {
+            GameOriginId = Id,
+            TurnNumber = Turn
+        });
     }
 
     public async Task Start()
