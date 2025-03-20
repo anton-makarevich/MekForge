@@ -43,8 +43,8 @@ public class EndPhase(ServerGame game) : GamePhase(game)
             // All players have ended their turns, start a new turn
             Game.IncrementTurn();
             
-            // Transition to Initiative phase for the next turn
-            Game.TransitionToPhase(new InitiativePhase(Game));
+            // Transition to the next phase using the phase manager
+            Game.TransitionToNextPhase(Name);
         }
     }
     

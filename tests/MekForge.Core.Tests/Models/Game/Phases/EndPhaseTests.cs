@@ -14,9 +14,14 @@ public class EndPhaseTests : GamePhaseTestsBase
     private readonly Guid _player1Id = Guid.NewGuid();
     private readonly Guid _player2Id = Guid.NewGuid();
     private readonly Guid _player3Id = Guid.NewGuid();
+    private readonly IGamePhase _mockNextPhase;
 
     public EndPhaseTests()
     {
+        // Create mock next phase and configure the phase manager
+        _mockNextPhase = Substitute.For<IGamePhase>();
+        MockPhaseManager.GetNextPhase(PhaseNames.End, Game).Returns(_mockNextPhase);
+        
         // Add three players
         Game.HandleCommand(CreateJoinCommand(_player1Id, "Player 1"));
         Game.HandleCommand(CreateJoinCommand(_player2Id, "Player 2"));
@@ -125,11 +130,11 @@ public class EndPhaseTests : GamePhaseTestsBase
     }
     
     [Fact]
-    public void HandleCommand_ShouldIncrementTurnAndTransitionToInitiativePhase_WhenAllPlayersEndTurn()
+    public void HandleCommand_ShouldIncrementTurnAndTransitionToNextPhase_WhenAllPlayersEndTurn()
     {
         // Arrange
         _sut.Enter();
-        int initialTurn = Game.Turn;
+        var initialTurn = Game.Turn;
         
         // First player ends turn
         _sut.HandleCommand(new TurnEndedCommand
@@ -159,7 +164,12 @@ public class EndPhaseTests : GamePhaseTestsBase
         
         // Assert
         Game.Turn.ShouldBe(initialTurn + 1);
-        VerifyPhaseChange(PhaseNames.Initiative);
+        
+        // Verify the phase manager was called to get the next phase
+        MockPhaseManager.Received(1).GetNextPhase(PhaseNames.End, Game);
+        
+        // Verify the mock next phase was entered
+        _mockNextPhase.Received(1).Enter();
         
         // Verify TurnIncrementedCommand was published
         CommandPublisher.Received(1).PublishCommand(
