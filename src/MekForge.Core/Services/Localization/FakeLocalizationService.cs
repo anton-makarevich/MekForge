@@ -29,6 +29,8 @@ public class FakeLocalizationService: ILocalizationService
             "Command_WeaponAttackResolution_ClusterRoll" => "Cluster Roll: {0}",
             "Command_WeaponAttackResolution_HitLocations" => "Hit Locations:",
             "Command_WeaponAttackResolution_HitLocation" => "{0}: {1} damage (Roll: {2})",
+            "Command_TurnEnded" => "{0} has ended their turn.",
+            "Command_TurnIncremented" => "Turn {0} has started.",
             "Direction_Forward" => "forward",
             "Direction_Backward" => "backward",
             
