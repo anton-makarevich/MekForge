@@ -29,7 +29,7 @@ public class ServerGame : BaseGame
         : base(battleMap, rulesProvider, commandPublisher, toHitCalculator)
     {
         DiceRoller = diceRoller;
-        PhaseManager = phaseManager ?? new BatteleTechPhaseManager();
+        PhaseManager = phaseManager ?? new BattleTechPhaseManager();
         _currentPhase = new StartPhase(this);
     }
 

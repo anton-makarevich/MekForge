@@ -3,7 +3,7 @@ namespace Sanet.MekForge.Core.Models.Game.Phases;
 /// <summary>
 /// Standard implementation of the phase manager that defines the default phase order
 /// </summary>
-public class BatteleTechPhaseManager : IPhaseManager
+public class BattleTechPhaseManager : IPhaseManager
 {
     /// <summary>
     /// Gets the next phase based on the current phase
