@@ -34,14 +34,12 @@ public class HeatPhase(ServerGame game) : GamePhase(game)
 
     public override PhaseNames Name => PhaseNames.Heat;
     
-    private GamePhase GetNextPhase() => new EndPhase(Game);
-
     private void ProcessNextUnitHeat()
     {
         // Check if we've processed all players
         if (_currentPlayerIndex >= _playersInOrder.Count)
         {
-            Game.TransitionToPhase(GetNextPhase());
+            Game.TransitionToNextPhase(Name);
             return;
         }
 
