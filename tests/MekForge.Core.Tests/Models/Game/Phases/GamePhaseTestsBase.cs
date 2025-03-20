@@ -22,16 +22,18 @@ public abstract class GamePhaseTestsBase
     protected readonly ServerGame Game;
     protected readonly ICommandPublisher CommandPublisher;
     protected readonly IDiceRoller DiceRoller;
+    protected readonly IPhaseManager MockPhaseManager;
 
     protected GamePhaseTestsBase()
     {
         CommandPublisher = Substitute.For<ICommandPublisher>();
         DiceRoller = Substitute.For<IDiceRoller>();
+        MockPhaseManager = Substitute.For<IPhaseManager>();
         IRulesProvider rulesProvider = new ClassicBattletechRulesProvider();
         var battleMap = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10,10,
             new ClearTerrain()));
         Game = new ServerGame(battleMap, rulesProvider, CommandPublisher, DiceRoller,
-            Substitute.For<IToHitCalculator>());
+            Substitute.For<IToHitCalculator>(), MockPhaseManager);
     }
 
     protected void VerifyPhaseChange(PhaseNames expectedPhaseNames)

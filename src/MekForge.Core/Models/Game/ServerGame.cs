@@ -13,19 +13,23 @@ namespace Sanet.MekForge.Core.Models.Game;
 
 public class ServerGame : BaseGame
 {
-    private GamePhase _currentPhase;
+    private IGamePhase _currentPhase;
     private List<IPlayer> _initiativeOrder = [];
     public bool IsAutoRoll { get; set; } = true;
+
+    private IPhaseManager PhaseManager { get; }
 
     public ServerGame(
         BattleMap battleMap, 
         IRulesProvider rulesProvider, 
         ICommandPublisher commandPublisher,
         IDiceRoller diceRoller,
-        IToHitCalculator toHitCalculator)
+        IToHitCalculator toHitCalculator,
+        IPhaseManager? phaseManager = null)
         : base(battleMap, rulesProvider, commandPublisher, toHitCalculator)
     {
         DiceRoller = diceRoller;
+        PhaseManager = phaseManager ?? new BattleTechPhaseManager();
         _currentPhase = new StartPhase(this);
     }
 
@@ -38,12 +42,21 @@ public class ServerGame : BaseGame
         _initiativeOrder = order.ToList();
     }
 
-    public void TransitionToPhase(GamePhase newPhase)
+    public void TransitionToPhase(IGamePhase newPhase)
     {
-        _currentPhase.Exit();
+        if (_currentPhase is GamePhase currentGamePhase)
+        {
+            currentGamePhase.Exit();
+        }
         _currentPhase = newPhase;
         SetPhase(newPhase.Name);
         _currentPhase.Enter();
+    }
+
+    public void TransitionToNextPhase(PhaseNames currentPhase)
+    {
+        var nextPhase = PhaseManager.GetNextPhase(currentPhase, this);
+        TransitionToPhase(nextPhase);
     }
 
     public override void HandleCommand(IGameCommand command)
@@ -51,14 +64,14 @@ public class ServerGame : BaseGame
         if (command is not IClientCommand) return;
         if (!ShouldHandleCommand(command)) return;
         if (!ValidateCommand(command)) return;
-        
+
         _currentPhase.HandleCommand(command);
     }
 
     public void SetActivePlayer(IPlayer? player, int unitsToMove)
     {
         ActivePlayer = player;
-        UnitsToPlayCurrentStep= unitsToMove;
+        UnitsToPlayCurrentStep = unitsToMove;
         if (player != null)
         {
             CommandPublisher.PublishCommand(new ChangeActivePlayerCommand
@@ -84,6 +97,13 @@ public class ServerGame : BaseGame
     {
         Turn++;
         _initiativeOrder.Clear(); // Clear initiative order at the start of new turn
+
+        // Send turn increment command to all clients
+        CommandPublisher.PublishCommand(new TurnIncrementedCommand
+        {
+            GameOriginId = Id,
+            TurnNumber = Turn
+        });
     }
 
     public async Task Start()

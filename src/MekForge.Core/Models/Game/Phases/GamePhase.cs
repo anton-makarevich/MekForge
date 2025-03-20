@@ -2,7 +2,7 @@ using Sanet.MekForge.Core.Models.Game.Commands;
 
 namespace Sanet.MekForge.Core.Models.Game.Phases;
 
-public abstract class GamePhase
+public abstract class GamePhase : IGamePhase
 {
     protected readonly ServerGame Game;
 

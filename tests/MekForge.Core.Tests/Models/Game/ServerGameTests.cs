@@ -12,7 +12,6 @@ using Sanet.MekForge.Core.Models.Game.Transport;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Map.Terrains;
 using Sanet.MekForge.Core.Models.Units;
-using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Tests.Data.Community;
 using Sanet.MekForge.Core.Utils.Generators;
 using Sanet.MekForge.Core.Utils.TechRules;
@@ -44,6 +43,23 @@ public class ServerGameTests
         });
         _serverGame = new ServerGame(battleMap, rulesProvider, _commandPublisher, diceRoller,
             Substitute.For<IToHitCalculator>());
+    }
+
+    [Fact]
+    public void IncrementTurn_ShouldPublishTurnIncrementedCommand_WhenCalled()
+    {
+        // Arrange
+        var initialTurn = _serverGame.Turn;
+
+        // Act
+        _serverGame.IncrementTurn();
+
+        // Assert
+        _serverGame.Turn.ShouldBe(initialTurn + 1);
+        _commandPublisher.Received(1).PublishCommand(Arg.Is<TurnIncrementedCommand>(cmd => 
+            cmd.TurnNumber == initialTurn + 1 &&
+            cmd.GameOriginId == _serverGame.Id
+        ));
     }
 
     [Fact]
