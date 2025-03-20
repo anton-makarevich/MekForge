@@ -4,20 +4,27 @@ using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Players;
-using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Tests.Data.Community;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Phases;
 
 public class DeploymentPhaseTests : GamePhaseTestsBase
 {
-    private DeploymentPhase _sut = null!;
+    private readonly DeploymentPhase _sut;
+    private readonly IGamePhase _mockNextPhase ;
+
+    public DeploymentPhaseTests()
+    {
+        // Create mock next phase and configure the phase manager
+        _mockNextPhase = Substitute.For<IGamePhase>();
+        MockPhaseManager.GetNextPhase(PhaseNames.Deployment, Game).Returns(_mockNextPhase);
+        
+        _sut = new DeploymentPhase(Game);
+    }
 
     [Fact]
     public void Name_ShouldBeDeployment()
     {
-        _sut = new DeploymentPhase(Game);
-
         _sut.Name.ShouldBe(PhaseNames.Deployment);
     }
 
@@ -27,7 +34,6 @@ public class DeploymentPhaseTests : GamePhaseTestsBase
         // Arrange
         var player1Id = Guid.NewGuid();
         var player2Id = Guid.NewGuid();
-        _sut = new DeploymentPhase(Game);
 
         // Add two players
         Game.HandleCommand(CreateJoinCommand(player1Id, "Player 1"));
@@ -50,7 +56,6 @@ public class DeploymentPhaseTests : GamePhaseTestsBase
         // Arrange
         Game.IsAutoRoll = false;
         var playerId = Guid.NewGuid();
-        _sut = new DeploymentPhase(Game);
 
         // Add a player with a unit
         Game.HandleCommand(CreateJoinCommand(playerId, "Player 1"));
@@ -70,13 +75,12 @@ public class DeploymentPhaseTests : GamePhaseTestsBase
     }
 
     [Fact]
-    public void HandleCommand_WhenAllUnitsDeployed_ShouldTransitionToInitiative()
+    public void HandleCommand_WhenAllUnitsDeployed_ShouldTransitionToNextPhase()
     {
         // Arrange
         Game.IsAutoRoll = false;
         var player1Id = Guid.NewGuid();
         var player2Id = Guid.NewGuid();
-        _sut = new DeploymentPhase(Game);
 
         // Add two players with one unit each
         Game.HandleCommand(CreateJoinCommand(player1Id, "Player 1"));
@@ -93,8 +97,8 @@ public class DeploymentPhaseTests : GamePhaseTestsBase
         _sut.HandleCommand(CreateDeployCommand(Game.ActivePlayer.Id, Game.ActivePlayer.Units[0].Id, 2, 2, 0));
         
         // Assert
-        Game.TurnPhase.ShouldBe(PhaseNames.Initiative);
-        VerifyPhaseChange(PhaseNames.Initiative);
+        MockPhaseManager.Received(1).GetNextPhase(PhaseNames.Deployment, Game);
+        _mockNextPhase.Received(1).Enter();
     }
 
     [Fact]
@@ -106,7 +110,6 @@ public class DeploymentPhaseTests : GamePhaseTestsBase
        unit1.Id = Guid.NewGuid();
        var unit2 = MechFactoryTests.CreateDummyMechData();
        unit2.Id = Guid.NewGuid();
-        _sut = new DeploymentPhase(Game);
 
         // Add a player with two units
         var joinCommand = new JoinGameCommand
@@ -131,7 +134,7 @@ public class DeploymentPhaseTests : GamePhaseTestsBase
 
         // Assert
         Game.ActivePlayer.ShouldBe(initialActivePlayer);
-        Game.TurnPhase.ShouldBe(PhaseNames.Deployment);
+        MockPhaseManager.DidNotReceive().GetNextPhase(PhaseNames.Deployment, Game);
         CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<ChangePhaseCommand>());
     }
 
@@ -141,7 +144,6 @@ public class DeploymentPhaseTests : GamePhaseTestsBase
         // Arrange
         var player1Id = Guid.NewGuid();
         var player2Id = Guid.NewGuid();
-        _sut = new DeploymentPhase(Game);
 
         // Add two players
         Game.HandleCommand(CreateJoinCommand(player1Id, "Player 1"));
@@ -160,6 +162,6 @@ public class DeploymentPhaseTests : GamePhaseTestsBase
 
         // Assert
         Game.ActivePlayer.ShouldNotBe(initialActivePlayer);
-        Game.TurnPhase.ShouldBe(PhaseNames.Deployment);
+        MockPhaseManager.DidNotReceive().GetNextPhase(PhaseNames.Deployment, Game);
     }
 }

@@ -60,7 +60,7 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
         // Check if we've processed all players
         if (_currentPlayerIndex >= _playersInOrder.Count)
         {
-            Game.TransitionToPhase(GetNextPhase());
+            Game.TransitionToNextPhase(Name);
             return;
         }
 
@@ -295,8 +295,6 @@ public class WeaponAttackResolutionPhase(ServerGame game) : GamePhase(game)
 
         Game.CommandPublisher.PublishCommand(command);
     }
-
-    private GamePhase GetNextPhase() => new HeatPhase(Game);
 
     public override void HandleCommand(IGameCommand command)
     {

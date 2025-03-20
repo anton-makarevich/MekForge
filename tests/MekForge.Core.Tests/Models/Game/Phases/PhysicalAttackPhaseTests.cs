@@ -15,9 +15,14 @@ public class PhysicalAttackPhaseTests : GamePhaseTestsBase
     private readonly Guid _player2Id = Guid.NewGuid();
     private readonly Guid _unit1Id;
     private readonly Guid _unit2Id;
+    private readonly IGamePhase _mockNextPhase;
 
     public PhysicalAttackPhaseTests()
     {
+        // Create mock next phase and configure the phase manager
+        _mockNextPhase = Substitute.For<IGamePhase>();
+        MockPhaseManager.GetNextPhase(PhaseNames.PhysicalAttack, Game).Returns(_mockNextPhase);
+        
         _sut = new PhysicalAttackPhase(Game);
 
         // Add two players with units
@@ -98,7 +103,7 @@ public class PhysicalAttackPhaseTests : GamePhaseTestsBase
     }
 
     [Fact]
-    public void HandleCommand_WhenAllUnitsAttacked_ShouldTransitionToEndPhase()
+    public void HandleCommand_WhenAllUnitsAttacked_ShouldTransitionToNextPhase()
     {
         // Arrange
         _sut.Enter();
@@ -135,14 +140,14 @@ public class PhysicalAttackPhaseTests : GamePhaseTestsBase
         }
     
         // Assert
-        Game.TurnPhase.ShouldBe(PhaseNames.End);
+        MockPhaseManager.Received(1).GetNextPhase(PhaseNames.PhysicalAttack, Game);
+        _mockNextPhase.Received(1).Enter();
     }
 
     [Fact]
     public void HandleCommand_WhenInvalidCommand_ShouldIgnoreCommand()
     {
         // Arrange
-        Game.TransitionToPhase(new PhysicalAttackPhase(Game));
         _sut.Enter();
         
         // Act
@@ -156,6 +161,6 @@ public class PhysicalAttackPhaseTests : GamePhaseTestsBase
     
         // Assert
         CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<WeaponAttackDeclarationCommand>());
-        Game.TurnPhase.ShouldBe(PhaseNames.PhysicalAttack);
+        MockPhaseManager.DidNotReceive().GetNextPhase(PhaseNames.PhysicalAttack, Game);
     }
 }

@@ -42,7 +42,7 @@ public class ServerGame : BaseGame
         _initiativeOrder = order.ToList();
     }
 
-    public void TransitionToPhase(IGamePhase newPhase)
+    private void TransitionToPhase(IGamePhase newPhase)
     {
         if (_currentPhase is GamePhase currentGamePhase)
         {

@@ -23,15 +23,13 @@ public abstract class MainGamePhase : GamePhase
         var nextStep = _turnOrder.GetNextStep();
         if (nextStep == null)
         {
-            Game.TransitionToPhase(GetNextPhase());
+            Game.TransitionToNextPhase(Name);
             return;
         }
 
         _remainingUnits = nextStep.UnitsToMove;
         Game.SetActivePlayer(nextStep.Player, _remainingUnits);
     }
-
-    protected abstract GamePhase GetNextPhase();
 
     protected void HandleUnitAction(IGameCommand command, Guid playerId)
     {

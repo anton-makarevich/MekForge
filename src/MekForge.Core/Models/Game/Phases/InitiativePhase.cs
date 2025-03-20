@@ -54,7 +54,7 @@ public class InitiativePhase : GamePhase
 
         // All rolls are complete, proceed to movement
         Game.SetInitiativeOrder(_initiativeOrder.GetOrderedPlayers());
-        Game.TransitionToPhase(new MovementPhase(Game));
+        Game.TransitionToNextPhase(Name);
     }
 
     public override void HandleCommand(IGameCommand command)
@@ -102,7 +102,7 @@ public class InitiativePhase : GamePhase
         {
             // No ties, we're done
             Game.SetInitiativeOrder(_initiativeOrder.GetOrderedPlayers());
-            Game.TransitionToPhase(new MovementPhase(Game));
+            Game.TransitionToNextPhase(Name);
         }
     }
 
