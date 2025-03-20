@@ -24,6 +24,9 @@ public class EndPhase(ServerGame game) : GamePhase(game)
     {
         if (command is not TurnEndedCommand turnEndedCommand) return;
         
+        // Only accept commands from the active player
+        if (Game.ActivePlayer == null || turnEndedCommand.PlayerId != Game.ActivePlayer.Id) return;
+        
         // Record that this player has ended their turn
         _playersEndedTurn.Add(turnEndedCommand.PlayerId);
         

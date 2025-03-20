@@ -54,13 +54,13 @@ public class EndPhaseTests : GamePhaseTestsBase
     }
     
     [Fact]
-    public void HandleCommand_ShouldSetNextPlayerAsActive_WhenPlayerEndsTurn()
+    public void HandleCommand_ShouldSetNextPlayerAsActive_WhenActivePlayerEndsTurn()
     {
         // Arrange
         _sut.Enter();
         CommandPublisher.ClearReceivedCalls();
         
-        // Act
+        // Act - Active player (player1) ends turn
         _sut.HandleCommand(new TurnEndedCommand
         {
             GameOriginId = Game.Id,
@@ -75,10 +75,61 @@ public class EndPhaseTests : GamePhaseTestsBase
     }
     
     [Fact]
-    public void HandleCommand_ShouldSetThirdPlayerAsActive_WhenFirstAndSecondPlayersEndTurn()
+    public void HandleCommand_ShouldIgnoreCommands_FromNonActivePlayer()
     {
         // Arrange
         _sut.Enter();
+        CommandPublisher.ClearReceivedCalls();
+        
+        // Act - Non-active player (player2) tries to end turn
+        _sut.HandleCommand(new TurnEndedCommand
+        {
+            GameOriginId = Game.Id,
+            PlayerId = _player2Id,
+            Timestamp = DateTime.UtcNow
+        });
+        
+        // Assert - Active player should still be player1
+        Game.ActivePlayer.ShouldNotBeNull();
+        Game.ActivePlayer.Id.ShouldBe(_player1Id);
+        CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<ChangeActivePlayerCommand>());
+    }
+    
+    [Fact]
+    public void HandleCommand_ShouldProgressThroughAllPlayers_InInitiativeOrder()
+    {
+        // Arrange
+        _sut.Enter();
+        
+        // Act & Assert - First player ends turn
+        _sut.HandleCommand(new TurnEndedCommand
+        {
+            GameOriginId = Game.Id,
+            PlayerId = _player1Id,
+            Timestamp = DateTime.UtcNow
+        });
+        
+        Game.ActivePlayer.ShouldNotBeNull();
+        Game.ActivePlayer.Id.ShouldBe(_player2Id);
+        
+        // Act & Assert - Second player ends turn
+        _sut.HandleCommand(new TurnEndedCommand
+        {
+            GameOriginId = Game.Id,
+            PlayerId = _player2Id,
+            Timestamp = DateTime.UtcNow
+        });
+        
+        Game.ActivePlayer.ShouldNotBeNull();
+        Game.ActivePlayer.Id.ShouldBe(_player3Id);
+    }
+    
+    [Fact]
+    public void HandleCommand_ShouldIncrementTurnAndTransitionToInitiativePhase_WhenAllPlayersEndTurn()
+    {
+        // Arrange
+        _sut.Enter();
+        int initialTurn = Game.Turn;
         
         // First player ends turn
         _sut.HandleCommand(new TurnEndedCommand
@@ -88,37 +139,7 @@ public class EndPhaseTests : GamePhaseTestsBase
             Timestamp = DateTime.UtcNow
         });
         
-        CommandPublisher.ClearReceivedCalls();
-        
-        // Act - Second player ends turn
-        _sut.HandleCommand(new TurnEndedCommand
-        {
-            GameOriginId = Game.Id,
-            PlayerId = _player2Id,
-            Timestamp = DateTime.UtcNow
-        });
-        
-        // Assert
-        Game.ActivePlayer.ShouldNotBeNull();
-        Game.ActivePlayer.Id.ShouldBe(_player3Id);
-        VerifyActivePlayerChange(_player3Id);
-    }
-    
-    [Fact]
-    public void HandleCommand_ShouldIncrementTurnAndTransitionToInitiativePhase_WhenAllPlayersEndTurn()
-    {
-        // Arrange
-        _sut.Enter();
-        var initialTurn = Game.Turn;
-        
-        // All players end their turns
-        _sut.HandleCommand(new TurnEndedCommand
-        {
-            GameOriginId = Game.Id,
-            PlayerId = _player1Id,
-            Timestamp = DateTime.UtcNow
-        });
-        
+        // Second player ends turn
         _sut.HandleCommand(new TurnEndedCommand
         {
             GameOriginId = Game.Id,
@@ -168,42 +189,5 @@ public class EndPhaseTests : GamePhaseTestsBase
         Game.ActivePlayer.ShouldNotBeNull();
         Game.ActivePlayer.Id.ShouldBe(_player1Id);
         CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<ChangeActivePlayerCommand>());
-    }
-    
-    [Fact]
-    public void HandleCommand_ShouldHandlePlayersEndingTurnInDifferentOrder()
-    {
-        // Arrange
-        _sut.Enter();
-        var initialTurn = Game.Turn;
-        
-        // Players end turns in reverse initiative order
-        _sut.HandleCommand(new TurnEndedCommand
-        {
-            GameOriginId = Game.Id,
-            PlayerId = _player3Id,
-            Timestamp = DateTime.UtcNow
-        });
-        
-        _sut.HandleCommand(new TurnEndedCommand
-        {
-            GameOriginId = Game.Id,
-            PlayerId = _player2Id,
-            Timestamp = DateTime.UtcNow
-        });
-        
-        CommandPublisher.ClearReceivedCalls();
-        
-        // Act - Last player ends turn
-        _sut.HandleCommand(new TurnEndedCommand
-        {
-            GameOriginId = Game.Id,
-            PlayerId = _player1Id,
-            Timestamp = DateTime.UtcNow
-        });
-        
-        // Assert
-        Game.Turn.ShouldBe(initialTurn + 1);
-        VerifyPhaseChange(PhaseNames.Initiative);
     }
 }
