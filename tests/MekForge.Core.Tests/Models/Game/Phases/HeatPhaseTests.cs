@@ -20,9 +20,14 @@ public class HeatPhaseTests : GamePhaseTestsBase
     private readonly Guid _unit2Id;
     private readonly Unit _unit1;
     private readonly Unit _unit2;
+    private readonly IGamePhase _mockNextPhase;
 
     public HeatPhaseTests()
     {
+        // Create mock next phase and configure the phase manager
+        _mockNextPhase = Substitute.For<IGamePhase>();
+        MockPhaseManager.GetNextPhase(PhaseNames.Heat, Game).Returns(_mockNextPhase);
+        
         _sut = new HeatPhase(Game);
 
         // Add two players with units
@@ -52,7 +57,7 @@ public class HeatPhaseTests : GamePhaseTestsBase
     }
 
     [Fact]
-    public void Enter_ShouldProcessHeatForAllUnits_AndTransitionToEndPhase()
+    public void Enter_ShouldProcessHeatForAllUnits_AndTransitionToNextPhase()
     {
         // Arrange
         // Setup units with heat sources
@@ -68,8 +73,9 @@ public class HeatPhaseTests : GamePhaseTestsBase
             Arg.Is<HeatUpdatedCommand>(cmd => 
                 cmd.UnitId == _unit1Id || cmd.UnitId == _unit2Id));
 
-        // Verify transition to End phase
-        VerifyPhaseChange(PhaseNames.End);
+        // Verify transition to next phase
+        MockPhaseManager.Received(1).GetNextPhase(PhaseNames.Heat, Game);
+        _mockNextPhase.Received(1).Enter();
     }
 
     [Fact]

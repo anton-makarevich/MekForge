@@ -21,9 +21,14 @@ public class WeaponAttackResolutionPhaseTests : GamePhaseTestsBase
     private readonly Guid _unit2Id;
     private readonly Unit _unit1;
     private readonly Unit _unit2;
+    private readonly IGamePhase _mockNextPhase;
 
     public WeaponAttackResolutionPhaseTests()
     {
+        // Create mock next phase and configure the phase manager
+        _mockNextPhase = Substitute.For<IGamePhase>();
+        MockPhaseManager.GetNextPhase(PhaseNames.WeaponAttackResolution, Game).Returns(_mockNextPhase);
+        
         _sut = new WeaponAttackResolutionPhase(Game);
 
         // Add two players with units
@@ -130,8 +135,9 @@ public class WeaponAttackResolutionPhaseTests : GamePhaseTestsBase
         _sut.Enter();
 
         // Assert
-        // Should transition to PhysicalAttackPhase
-        Game.TurnPhase.ShouldBe(PhaseNames.End);
+        // Should transition to next phase
+        MockPhaseManager.Received(1).GetNextPhase(PhaseNames.WeaponAttackResolution, Game);
+        _mockNextPhase.Received(1).Enter();
     }
 
     [Fact]
@@ -145,8 +151,9 @@ public class WeaponAttackResolutionPhaseTests : GamePhaseTestsBase
         _sut.Enter();
 
         // Assert
-        // Should transition to PhysicalAttackPhase after processing all attacks
-        Game.TurnPhase.ShouldBe(PhaseNames.End);
+        // Should transition to next phase after processing all attacks
+        MockPhaseManager.Received(1).GetNextPhase(PhaseNames.WeaponAttackResolution, Game);
+        _mockNextPhase.Received(1).Enter();
     }
 
     [Fact]
