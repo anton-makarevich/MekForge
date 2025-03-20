@@ -15,9 +15,14 @@ public class MovementPhaseTests : GamePhaseTestsBase
     private readonly Guid _player1Id = Guid.NewGuid();
     private readonly Guid _player2Id = Guid.NewGuid();
     private readonly Guid _unit1Id;
+    private readonly IGamePhase _mockNextPhase;
 
     public MovementPhaseTests()
     {
+        // Create mock next phase and configure the phase manager
+        _mockNextPhase = Substitute.For<IGamePhase>();
+        MockPhaseManager.GetNextPhase(PhaseNames.Movement, Game).Returns(_mockNextPhase);
+        
         _sut = new MovementPhase(Game);
 
         // Add two players with units
@@ -133,7 +138,7 @@ public class MovementPhaseTests : GamePhaseTestsBase
     }
 
     [Fact]
-    public void HandleCommand_WhenAllUnitsMoved_ShouldTransitionToAttack()
+    public void HandleCommand_WhenAllUnitsMoved_ShouldTransitionToNextPhase()
     {
         // Arrange
         _sut.Enter();
@@ -160,6 +165,7 @@ public class MovementPhaseTests : GamePhaseTestsBase
         }
     
         // Assert
-        Game.TurnPhase.ShouldBe(PhaseNames.WeaponsAttack);
+        MockPhaseManager.Received(1).GetNextPhase(PhaseNames.Movement, Game);
+        _mockNextPhase.Received(1).Enter();
     }
 }

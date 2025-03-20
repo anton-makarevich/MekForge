@@ -14,10 +14,14 @@ public class WeaponsAttackPhaseTests : GamePhaseTestsBase
     private readonly Guid _player1Id = Guid.NewGuid();
     private readonly Guid _player2Id = Guid.NewGuid();
     private readonly Guid _unit1Id;
-    private readonly Guid _unit2Id;
+    private readonly IGamePhase _mockNextPhase;
 
     public WeaponsAttackPhaseTests()
     {
+        // Create mock next phase and configure the phase manager
+        _mockNextPhase = Substitute.For<IGamePhase>();
+        MockPhaseManager.GetNextPhase(PhaseNames.WeaponsAttack, Game).Returns(_mockNextPhase);
+        
         _sut = new WeaponsAttackPhase(Game);
 
         // Add two players with units
@@ -31,7 +35,6 @@ public class WeaponsAttackPhaseTests : GamePhaseTestsBase
         _unit1Id = player1.Units[0].Id;
 
         var player2 = Game.Players[1];
-        _unit2Id = player2.Units[0].Id;
 
         // Set initiative order (player2 won, player1 lost)
         Game.SetInitiativeOrder(new List<IPlayer> { player2, player1 });
@@ -120,7 +123,7 @@ public class WeaponsAttackPhaseTests : GamePhaseTestsBase
     }
 
     [Fact]
-    public void HandleCommand_WhenAllUnitsAttacked_ShouldTransitionToPhysicalAttackPhase()
+    public void HandleCommand_WhenAllUnitsAttacked_ShouldTransitionToNextPhase()
     {
         // Arrange
         _sut.Enter();
@@ -155,6 +158,7 @@ public class WeaponsAttackPhaseTests : GamePhaseTestsBase
         }
     
         // Assert
-        Game.TurnPhase.ShouldBe(PhaseNames.End);
+        MockPhaseManager.Received(1).GetNextPhase(PhaseNames.WeaponsAttack, Game);
+        _mockNextPhase.Received(1).Enter();
     }
 }

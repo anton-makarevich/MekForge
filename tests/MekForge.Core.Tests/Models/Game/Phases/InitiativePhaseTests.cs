@@ -19,10 +19,16 @@ public class InitiativePhaseTests : GamePhaseTestsBase
     private readonly InitiativePhase _sut;
     private readonly Guid _player1Id = Guid.NewGuid();
     private readonly Guid _player2Id = Guid.NewGuid();
+    private readonly IGamePhase _mockNextPhase;
 
     public InitiativePhaseTests()
     {
         Game.IsAutoRoll = false;
+        
+        // Create mock next phase and configure the phase manager
+        _mockNextPhase = Substitute.For<IGamePhase>();
+        MockPhaseManager.GetNextPhase(PhaseNames.Initiative, Game).Returns(_mockNextPhase);
+        
         _sut = new InitiativePhase(Game);
 
         // Add two players
@@ -85,7 +91,7 @@ public class InitiativePhaseTests : GamePhaseTestsBase
     }
 
     [Fact]
-    public void HandleCommand_WhenAllPlayersRollDifferent_ShouldTransitionToMovement()
+    public void HandleCommand_WhenAllPlayersRollDifferent_ShouldTransitionToNextPhase()
     {
         // Arrange
         _sut.Enter();
@@ -108,7 +114,8 @@ public class InitiativePhaseTests : GamePhaseTestsBase
         });
 
         // Assert
-        Game.TurnPhase.ShouldBe(PhaseNames.Movement);
+        MockPhaseManager.Received(1).GetNextPhase(PhaseNames.Initiative, Game);
+        _mockNextPhase.Received(1).Enter();
         Game.InitiativeOrder.Count.ShouldBe(2);
         Game.InitiativeOrder[0].ShouldBe(firstPlayer); // Higher roll should be first
     }
@@ -139,7 +146,7 @@ public class InitiativePhaseTests : GamePhaseTestsBase
         CommandPublisher.ClearReceivedCalls();
 
         // Assert
-        Game.TurnPhase.ShouldBe(PhaseNames.Initiative); // Should stay in initiative
+        MockPhaseManager.DidNotReceive().GetNextPhase(PhaseNames.Initiative, Game);
         Game.ActivePlayer.ShouldBeOneOf(firstPlayer, secondPlayer); // One of tied players should be active
     }
 
@@ -174,7 +181,8 @@ public class InitiativePhaseTests : GamePhaseTestsBase
     
         // Assert
         CommandPublisher.Received(2).PublishCommand(Arg.Any<DiceRolledCommand>());
-        Game.TurnPhase.ShouldBe(PhaseNames.Movement);
+        MockPhaseManager.Received(1).GetNextPhase(PhaseNames.Initiative, Game);
+        _mockNextPhase.Received(1).Enter();
         Game.InitiativeOrder[0].ShouldBe(Game.Players[1]); // Player with roll 8 should be first
         Game.InitiativeOrder[1].ShouldBe(Game.Players[0]); // Player with roll 7 should be second
     }
@@ -194,7 +202,8 @@ public class InitiativePhaseTests : GamePhaseTestsBase
     
         // Assert
         CommandPublisher.Received(4).PublishCommand(Arg.Any<DiceRolledCommand>()); // Should receive 4 roll commands (2 initial + 2 re-rolls)
-        Game.TurnPhase.ShouldBe(PhaseNames.Movement); // Should proceed to movement after resolving ties
+        MockPhaseManager.Received(1).GetNextPhase(PhaseNames.Initiative, Game);
+        _mockNextPhase.Received(1).Enter();
         Game.InitiativeOrder[0].ShouldBe(Game.Players[0]); // Player who rerolled 8 should be first
         Game.InitiativeOrder[1].ShouldBe(Game.Players[1]); // Player who rerolled 6 should be second
     }
@@ -216,7 +225,8 @@ public class InitiativePhaseTests : GamePhaseTestsBase
     
         // Assert
         CommandPublisher.Received(6).PublishCommand(Arg.Any<DiceRolledCommand>()); // Should receive 6 roll commands (2 initial + 2 first re-roll + 2 second re-roll)
-        Game.TurnPhase.ShouldBe(PhaseNames.Movement);
+        MockPhaseManager.Received(1).GetNextPhase(PhaseNames.Initiative, Game);
+        _mockNextPhase.Received(1).Enter();
         Game.InitiativeOrder[0].ShouldBe(Game.Players[0]); // Player who rolled 8 should be first
         Game.InitiativeOrder[1].ShouldBe(Game.Players[1]); // Player who rolled 5 should be second
     }
@@ -233,7 +243,7 @@ public class InitiativePhaseTests : GamePhaseTestsBase
 
         // Assert
         CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<DiceRolledCommand>());
-        Game.TurnPhase.ShouldBe(PhaseNames.Initiative);
+        MockPhaseManager.DidNotReceive().GetNextPhase(PhaseNames.Initiative, Game);
         Game.ActivePlayer.ShouldBe(Game.Players[0]); // First player should be active
     }
 
@@ -282,7 +292,8 @@ public class InitiativePhaseTests : GamePhaseTestsBase
 
         // Assert
         CommandPublisher.Received(4).PublishCommand(Arg.Any<DiceRolledCommand>()); // Should receive 4 roll commands (2 initial + 2 re-rolls)
-        Game.TurnPhase.ShouldBe(PhaseNames.Movement);
+        MockPhaseManager.Received(1).GetNextPhase(PhaseNames.Initiative, Game);
+        _mockNextPhase.Received(1).Enter();
         Game.InitiativeOrder[0].ShouldBe(player1); // Player who rolled 8 in second round should be first
         Game.InitiativeOrder[1].ShouldBe(player2); // Player who rolled 6 in second round should be second
     }
@@ -293,8 +304,12 @@ public class InitiativePhaseTests : GamePhaseTestsBase
         // Arrange
         var battleMap = BattleMap.GenerateMap(10, 10,
             new SingleTerrainGenerator(10,10, new ClearTerrain()));
+        var mockPhaseManager = Substitute.For<IPhaseManager>();
+        var mockNextPhase = Substitute.For<IGamePhase>();
+        mockPhaseManager.GetNextPhase(PhaseNames.Initiative, Arg.Any<ServerGame>()).Returns(mockNextPhase);
+        
         var game = new ServerGame(battleMap, new ClassicBattletechRulesProvider(), CommandPublisher, DiceRoller,
-            Substitute.For<IToHitCalculator>())
+            Substitute.For<IToHitCalculator>(), mockPhaseManager)
         {
             IsAutoRoll = false
         };
