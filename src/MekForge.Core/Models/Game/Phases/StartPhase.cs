@@ -23,7 +23,7 @@ public class StartPhase(ServerGame game) : GamePhase(game)
                 Game.CommandPublisher.PublishCommand(broadcastStatusCommand);
                 if (AllPlayersReady())
                 {
-                    Game.TransitionToPhase(new DeploymentPhase(Game));
+                    Game.TransitionToNextPhase(Name);
                 }
                 break;
         }

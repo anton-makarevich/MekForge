@@ -40,7 +40,7 @@ public class DeploymentPhase(ServerGame game) : GamePhase(game)
         }
         else if (AllUnitsDeployed())
         {
-            Game.TransitionToPhase(new InitiativePhase(Game));
+            Game.TransitionToNextPhase(Name);
         }
     }
 

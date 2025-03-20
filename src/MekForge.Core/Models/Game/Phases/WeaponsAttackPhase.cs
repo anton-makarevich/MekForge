@@ -5,8 +5,6 @@ namespace Sanet.MekForge.Core.Models.Game.Phases;
 
 public class WeaponsAttackPhase(ServerGame game) : MainGamePhase(game)
 {
-    protected override GamePhase GetNextPhase() => new WeaponAttackResolutionPhase(Game);
-
     public override void HandleCommand(IGameCommand command)
     {
         if (command is not IClientCommand clientCommand) return;
