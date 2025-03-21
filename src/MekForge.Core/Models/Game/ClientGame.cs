@@ -121,4 +121,10 @@ public class ClientGame : BaseGame
         if (ActivePlayer == null) return;
         CommandPublisher.PublishCommand(command);
     }
+
+    public void EndTurn(TurnEndedCommand command)
+    {
+        if (ActivePlayer == null) return;
+        CommandPublisher.PublishCommand(command);
+    }
 }

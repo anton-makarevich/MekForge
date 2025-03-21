@@ -248,6 +248,10 @@ public class BattleMapViewModel : BaseViewModel
                 TransitionToState(new WeaponsAttackState(this));
                 break;
             
+            case PhaseNames.End:
+                TransitionToState(new EndState(this));
+                break;
+            
             default:
                 TransitionToState(new IdleState());
                 break;
@@ -386,6 +390,14 @@ public class BattleMapViewModel : BaseViewModel
     public void ToggleRecordSheet()
     {
         IsRecordSheetExpanded = !IsRecordSheetExpanded;
+    }
+
+    public void EndTurnCommand()
+    {
+        if (CurrentState is EndState endState)
+        {
+            endState.EndTurn();
+        }
     }
 
     public IEnumerable<Unit> Units => Game?.Players.SelectMany(p => p.Units) ?? [];
