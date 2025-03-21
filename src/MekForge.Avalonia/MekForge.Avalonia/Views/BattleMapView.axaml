@@ -245,6 +245,26 @@
                 IconData="M8 14v-4m4 4v-4m4 4v-4M3 21h18V7H3v14zM3 7V5a2 2 0 012-2h14a2 2 0 012 2v2H3z"/>
         </StackPanel>
 
+        <!-- Player Action Button -->
+        <Button HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Margin="0,0,0,20"
+                Padding="15,10"
+                Command="{Binding HandlePlayerAction}"
+                IsVisible="{Binding IsPlayerActionButtonVisible}"
+                Background="{Binding ActivePlayerTint, Converter={StaticResource HexColorToBrushConverter}}"
+                Foreground="{Binding ActivePlayerTint, Converter={StaticResource ContrastingForegroundConverter}}">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock Text="{Binding UserActionLabel}" 
+                         FontSize="16" 
+                         FontWeight="Bold"/>
+                <TextBlock Text="&#xf04b;" 
+                         FontFamily="{StaticResource AwesomeFontSolid}" 
+                         FontSize="16" 
+                         VerticalAlignment="Center"/>
+            </StackPanel>
+        </Button>
+
         <!-- Record Sheet Panel -->
         <templatedControls:GamePanel
             IsVisible="{Binding IsRecordSheetPanelVisible}"
