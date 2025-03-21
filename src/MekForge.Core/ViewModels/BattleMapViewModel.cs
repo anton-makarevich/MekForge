@@ -285,6 +285,7 @@ public class BattleMapViewModel : BaseViewModel
         NotifyPropertyChanged(nameof(AreUnitsToDeployVisible));
         NotifyPropertyChanged(nameof(WeaponSelectionItems));
         NotifyPropertyChanged(nameof(Attacker));
+        NotifyPropertyChanged(nameof(IsPlayerActionButtonVisible));
     }
 
     internal void HighlightHexes(List<HexCoordinates> coordinates, bool isHighlighted)
@@ -361,6 +362,16 @@ public class BattleMapViewModel : BaseViewModel
 
     public string UserActionLabel => CurrentState.ActionLabel;
     public bool IsUserActionLabelVisible => CurrentState.IsActionRequired;
+
+    public bool IsPlayerActionButtonVisible => Game?.TurnPhase == PhaseNames.End;
+
+    public void HandlePlayerAction()
+    {
+        if (CurrentState is EndState endState)
+        {
+            endState.EndTurn();
+        }
+    }
 
     public bool IsCommandLogExpanded
     {

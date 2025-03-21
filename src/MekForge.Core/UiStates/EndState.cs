@@ -36,17 +36,11 @@ public class EndState : IUiState
     {
         // Find unit at the selected hex
         var unit = _viewModel.Units.FirstOrDefault(u => u.Position?.Coordinates == hex.Coordinates);
-        
+
         // If there's a unit at this hex, select it
-        if (unit != null)
-        {
-            _viewModel.SelectedUnit = unit;
-        }
-        else
-        {
-            // If no unit at this hex, deselect current unit
-            _viewModel.SelectedUnit = null;
-        }
+        _viewModel.SelectedUnit = unit ??
+                                  // If no unit at this hex, deselect current unit
+                                  null;
     }
 
     public void HandleFacingSelection(HexDirection direction)
