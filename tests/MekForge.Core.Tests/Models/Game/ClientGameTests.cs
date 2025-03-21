@@ -340,7 +340,7 @@ public class ClientGameTests
         // Arrange
         var player = new Player(Guid.NewGuid(), "Player1");
         var unitData = MechFactoryTests.CreateDummyMechData();
-        unitData.Id= Guid.NewGuid();
+        unitData.Id = Guid.NewGuid();
         _clientGame.HandleCommand(new JoinGameCommand
         {
             PlayerId = player.Id,
@@ -1103,5 +1103,67 @@ public class ClientGameTests
         
         // Assert
         unit.CurrentHeat.ShouldBe(5); //0+25-20
+    }
+
+    [Fact]
+    public void EndTurn_ShouldPublishCommand_WhenActivePlayerExists()
+    {
+        // Arrange
+        var playerId = Guid.NewGuid();
+        var unitData = MechFactoryTests.CreateDummyMechData();
+        unitData.Id = Guid.NewGuid();
+        _clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = playerId,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = "player",
+            Units = [unitData],
+            Tint = "#FF0000"
+        });
+        _clientGame.HandleCommand(new ChangePhaseCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            Phase = PhaseNames.End
+        });
+        _clientGame.HandleCommand(new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = playerId,
+            UnitsToPlay = 0
+        });
+
+
+        var turnEndedCommand = new TurnEndedCommand
+        {
+            GameOriginId = _clientGame.Id,
+            PlayerId = playerId,
+            Timestamp = DateTime.UtcNow
+        };
+
+        // Act
+        _clientGame.EndTurn(turnEndedCommand);
+
+        // Assert
+        _commandPublisher.Received(1).PublishCommand(Arg.Is<TurnEndedCommand>(cmd =>
+            cmd.PlayerId == playerId &&
+            cmd.GameOriginId == _clientGame.Id));
+    }
+
+    [Fact]
+    public void EndTurn_ShouldNotPublishCommand_WhenNoActivePlayer()
+    {
+        // Arrange
+        var turnEndedCommand = new TurnEndedCommand
+        {
+            GameOriginId = _clientGame.Id,
+            PlayerId = Guid.NewGuid(),
+            Timestamp = DateTime.UtcNow
+        };
+
+        // Act
+        _clientGame.EndTurn(turnEndedCommand);
+
+        // Assert
+        _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<TurnEndedCommand>());
     }
 }
