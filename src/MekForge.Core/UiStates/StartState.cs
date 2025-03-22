@@ -50,17 +50,14 @@ public class StartState : IUiState
         if (_viewModel.Game is not ClientGame clientGame || clientGame.ActivePlayer == null) return;
         
         // Only set the active player as ready if they are a local player
-        if (clientGame.LocalPlayers.Any(p => p.Id == clientGame.ActivePlayer.Id))
+        if (clientGame.LocalPlayers.All(p => p.Id != clientGame.ActivePlayer.Id)) return;
+        var readyCommand = new UpdatePlayerStatusCommand
         {
-            var readyCommand = new UpdatePlayerStatusCommand
-            {
-                GameOriginId = clientGame.Id,
-                PlayerId = clientGame.ActivePlayer.Id,
-                PlayerStatus = PlayerStatus.Playing,
-                Timestamp = DateTime.UtcNow
-            };
+            GameOriginId = clientGame.Id,
+            PlayerId = clientGame.ActivePlayer.Id,
+            PlayerStatus = PlayerStatus.Playing,
+        };
 
-            clientGame.SetPlayerReady(readyCommand);
-        }
+        clientGame.SetPlayerReady(readyCommand);
     }
 }
