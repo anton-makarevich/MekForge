@@ -227,7 +227,7 @@ public class BattleMapViewModel : BaseViewModel
 
     private void UpdateGamePhase()
     {
-        if (Game is not ClientGame clientGame)
+        if (Game is not ClientGame { ActivePlayer: not null } clientGame)
         {
             TransitionToState(new IdleState());
             return;
@@ -239,16 +239,16 @@ public class BattleMapViewModel : BaseViewModel
                 TransitionToState(new StartState(this));
                 break;
                 
-            case PhaseNames.Deployment when clientGame.ActivePlayer?.Units.Any(u => !u.IsDeployed) == true:
+            case PhaseNames.Deployment when clientGame.ActivePlayer.Units.Any(u => !u.IsDeployed):
                 TransitionToState(new DeploymentState(this));
                 ShowUnitsToDeploy();
                 break;
             
-            case PhaseNames.Movement when clientGame.ActivePlayer is not null && clientGame.UnitsToPlayCurrentStep > 0:
+            case PhaseNames.Movement when clientGame.UnitsToPlayCurrentStep > 0:
                 TransitionToState(new MovementState(this));
                 break;
             
-            case PhaseNames.WeaponsAttack when clientGame.ActivePlayer is not null && clientGame.UnitsToPlayCurrentStep > 0:
+            case PhaseNames.WeaponsAttack when clientGame.UnitsToPlayCurrentStep > 0:
                 TransitionToState(new WeaponsAttackState(this));
                 break;
             
