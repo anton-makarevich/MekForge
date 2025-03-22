@@ -14,7 +14,6 @@ using Sanet.MekForge.Core.UiStates;
 using Sanet.MekForge.Core.ViewModels;
 using Sanet.MekForge.Core.Services;
 using Sanet.MekForge.Core.Services.Localization;
-using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Tests.Data.Community;
 using Sanet.MekForge.Core.Utils;
 using Sanet.MekForge.Core.Utils.TechRules;
@@ -23,7 +22,7 @@ namespace Sanet.MekForge.Core.Tests.UiStates;
 
 public class DeploymentStateTests
 {
-    private DeploymentState _state;
+    private DeploymentState _sut;
     private readonly ClientGame _game;
     private readonly Unit _unit;
     private readonly Hex _hex1;
@@ -54,15 +53,15 @@ public class DeploymentStateTests
         _viewModel.Game = _game;
         SetActivePlayer(player, unitData);
         _unit = _viewModel.Units.First();
-        _state = new DeploymentState(_viewModel);
+        _sut = new DeploymentState(_viewModel);
     }
 
     [Fact]
     public void InitialState_HasSelectUnitAction()
     {
         // Assert
-        _state.ActionLabel.ShouldBe("Select Unit");
-        _state.IsActionRequired.ShouldBeTrue();
+        _sut.ActionLabel.ShouldBe("Select Unit");
+        _sut.IsActionRequired.ShouldBeTrue();
     }
 
     private void SetActivePlayer(Player player, UnitData unitData)
@@ -87,23 +86,23 @@ public class DeploymentStateTests
     public void HandleUnitSelection_TransitionsToHexSelection()
     {
         // Act
-        _state.HandleUnitSelection(_unit);
+        _sut.HandleUnitSelection(_unit);
 
         // Assert
-        _state.ActionLabel.ShouldBe("Select Hex");
+        _sut.ActionLabel.ShouldBe("Select Hex");
     }
 
     [Fact]
     public void HandleHexSelection_ForDeployment_UpdatesStepToSelectDirection()
     {
         // Arrange
-        _state.HandleUnitSelection(_unit);
+        _sut.HandleUnitSelection(_unit);
         
         // Act
-        _state.HandleHexSelection(_hex1);
+        _sut.HandleHexSelection(_hex1);
 
         // Assert
-        _state.ActionLabel.ShouldBe("Select Direction");
+        _sut.ActionLabel.ShouldBe("Select Direction");
     }
     
     [Fact]
@@ -132,10 +131,10 @@ public class DeploymentStateTests
     public void HandleHexSelection_WhenSelectingHex_ShowsDirectionSelector()
     {
         // Arrange
-        _state.HandleUnitSelection(_unit);
+        _sut.HandleUnitSelection(_unit);
         
         // Act
-        _state.HandleHexSelection(_hex1);
+        _sut.HandleHexSelection(_hex1);
 
         // Assert
         _viewModel.DirectionSelectorPosition.ShouldBe(_hex1.Coordinates);
@@ -147,11 +146,11 @@ public class DeploymentStateTests
     public void HandleHexSelection_WhenSelectingHexTwice_ShouldSelectSecondHex()
     {
         // Arrange
-        _state.HandleUnitSelection(_unit);
+        _sut.HandleUnitSelection(_unit);
         
         // Act
-        _state.HandleHexSelection(_hex1);
-        _state.HandleHexSelection(_hex2);
+        _sut.HandleHexSelection(_hex1);
+        _sut.HandleHexSelection(_hex2);
 
         // Assert
         _viewModel.DirectionSelectorPosition.ShouldBe(_hex2.Coordinates);
@@ -161,14 +160,14 @@ public class DeploymentStateTests
     public void HandleFacingSelection_WhenDirectionSelected_CompletesDeployment()
     {
         // Arrange
-        _state.HandleUnitSelection(_unit);
-        _state.HandleHexSelection(_hex1);
+        _sut.HandleUnitSelection(_unit);
+        _sut.HandleHexSelection(_hex1);
     
         // Act
-        _state.HandleFacingSelection(HexDirection.Top);
+        _sut.HandleFacingSelection(HexDirection.Top);
     
         // Assert
-        _state.ActionLabel.ShouldBe("");
+        _sut.ActionLabel.ShouldBe("");
         _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
     }
 
@@ -177,10 +176,10 @@ public class DeploymentStateTests
     {
         // Arrange
         var hex = new Hex(new HexCoordinates(1, 1));
-        _state.HandleHexSelection(hex);
+        _sut.HandleHexSelection(hex);
 
         // Act
-        _state.HandleFacingSelection(HexDirection.Top);
+        _sut.HandleFacingSelection(HexDirection.Top);
 
         // Assert
         _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
@@ -190,19 +189,19 @@ public class DeploymentStateTests
     public void HandleHexSelection_WhenHexIsOccupied_ShouldNotShowDirectionSelector()
     {
         // Arrange
-        _state.HandleUnitSelection(_unit);
+        _sut.HandleUnitSelection(_unit);
         // Deploy first unit
-        _state.HandleHexSelection(_hex1);
-        _state.HandleFacingSelection(HexDirection.Top);
+        _sut.HandleHexSelection(_hex1);
+        _sut.HandleFacingSelection(HexDirection.Top);
         _unit.Deploy(new HexPosition(_hex1.Coordinates,HexDirection.Top));
         
         // Try to deploy second unit to the same hex
         var secondUnit = new MechFactory(new ClassicBattletechRulesProvider()).Create(MechFactoryTests.CreateDummyMechData());
-        _state = new DeploymentState(_viewModel);
-        _state.HandleUnitSelection(secondUnit);
+        _sut = new DeploymentState(_viewModel);
+        _sut.HandleUnitSelection(secondUnit);
         
         // Act
-        _state.HandleHexSelection(_hex1);
+        _sut.HandleHexSelection(_hex1);
 
         // Assert
         _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();

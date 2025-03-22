@@ -51,7 +51,7 @@ public class EndState : IUiState
     /// <summary>
     /// Sends the TurnEndedCommand to end the current player's turn
     /// </summary>
-    public void EndTurn()
+    public void ExecutePlayerAction()
     {
         if (!IsActivePlayer || _viewModel.Game == null) return;
 

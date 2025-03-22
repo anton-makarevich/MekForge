@@ -233,8 +233,12 @@ public class BattleMapViewModel : BaseViewModel
             return;
         }
 
-        switch (TurnPhaseNames)
+        switch (TurnPhaseName)
         {
+            case PhaseNames.Start:
+                TransitionToState(new StartState(this));
+                break;
+                
             case PhaseNames.Deployment when clientGame.ActivePlayer.Units.Any(u => !u.IsDeployed):
                 TransitionToState(new DeploymentState(this));
                 ShowUnitsToDeploy();
@@ -277,7 +281,7 @@ public class BattleMapViewModel : BaseViewModel
     public void NotifyStateChanged()
     {
         NotifyPropertyChanged(nameof(Turn));
-        NotifyPropertyChanged(nameof(TurnPhaseNames));
+        NotifyPropertyChanged(nameof(TurnPhaseName));
         NotifyPropertyChanged(nameof(ActivePlayerName));
         NotifyPropertyChanged(nameof(ActivePlayerTint));
         NotifyPropertyChanged(nameof(UserActionLabel));
@@ -314,7 +318,7 @@ public class BattleMapViewModel : BaseViewModel
 
     public int Turn => Game?.Turn ?? 0;
 
-    public PhaseNames TurnPhaseNames => Game?.TurnPhase ?? PhaseNames.Start;
+    public PhaseNames TurnPhaseName => Game?.TurnPhase ?? PhaseNames.Start;
     
     public string ActivePlayerName => Game?.ActivePlayer?.Name ?? string.Empty;
 
@@ -340,18 +344,6 @@ public class BattleMapViewModel : BaseViewModel
 
     public void HandleHexSelection(Hex selectedHex)
     {
-        if (TurnPhaseNames == PhaseNames.Start)
-        {
-            if (Game is ClientGame localGame)
-            {
-                foreach (var player in localGame.Players)
-                {
-                    localGame.SetPlayerReady(player);
-                }
-            }
-            return;
-        }
-
         CurrentState.HandleHexSelection(selectedHex);
     }
 
@@ -363,14 +355,12 @@ public class BattleMapViewModel : BaseViewModel
     public string UserActionLabel => CurrentState.ActionLabel;
     public bool IsUserActionLabelVisible => CurrentState.IsActionRequired;
 
-    public bool IsPlayerActionButtonVisible => Game?.TurnPhase == PhaseNames.End;
+    public bool IsPlayerActionButtonVisible =>
+        Game?.TurnPhase is PhaseNames.End or PhaseNames.Start;
 
     public void HandlePlayerAction()
     {
-        if (CurrentState is EndState endState)
-        {
-            endState.EndTurn();
-        }
+        CurrentState.ExecutePlayerAction();
     }
 
     public bool IsCommandLogExpanded
@@ -401,14 +391,6 @@ public class BattleMapViewModel : BaseViewModel
     public void ToggleRecordSheet()
     {
         IsRecordSheetExpanded = !IsRecordSheetExpanded;
-    }
-
-    public void EndTurnCommand()
-    {
-        if (CurrentState is EndState endState)
-        {
-            endState.EndTurn();
-        }
     }
 
     public IEnumerable<Unit> Units => Game?.Players.SelectMany(p => p.Units) ?? [];

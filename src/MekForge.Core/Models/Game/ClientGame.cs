@@ -9,10 +9,11 @@ using System.Reactive.Linq;
 using Sanet.MekForge.Core.Data.Units;
 using Sanet.MekForge.Core.Models.Game.Combat;
 using Sanet.MekForge.Core.Models.Game.Players;
+using Sanet.MekForge.Core.Models.Game.Phases;
 
 namespace Sanet.MekForge.Core.Models.Game;
 
-public class ClientGame : BaseGame
+public sealed class ClientGame : BaseGame
 {
     private readonly Subject<IGameCommand> _commandSubject = new();
     private readonly List<IGameCommand> _commandLog = [];
@@ -25,6 +26,8 @@ public class ClientGame : BaseGame
         : base(battleMap, rulesProvider, commandPublisher, toHitCalculator)
     {
         LocalPlayers = localPlayers;
+        TurnPhase = PhaseNames.Start;
+        ActivePlayer = LocalPlayers.FirstOrDefault(p => p.Status == PlayerStatus.Joining);
     }
     
     public IReadOnlyList<IPlayer> LocalPlayers { get; }
@@ -41,8 +44,21 @@ public class ClientGame : BaseGame
             case JoinGameCommand joinCmd:
                 OnPlayerJoined(joinCmd);
                 break;
-            case UpdatePlayerStatusCommand playerStatusCommand:
-                OnPlayerStatusUpdated(playerStatusCommand);
+            case UpdatePlayerStatusCommand statusCommand:
+                OnPlayerStatusUpdated(statusCommand);
+                // If we're in the Start phase and the player who just got updated was the active player
+                if (TurnPhase == PhaseNames.Start && 
+                    ActivePlayer != null && 
+                    statusCommand.PlayerId == ActivePlayer.Id &&
+                    statusCommand.PlayerStatus == PlayerStatus.Playing)
+                {
+                    // Find the first local player with Joining status
+                    // We need to check both that the player is in the LocalPlayers collection
+                    // and that their status is Joining in the Players collection
+                    ActivePlayer = Players
+                        .Where(p => p.Status == PlayerStatus.Joining)
+                        .FirstOrDefault(p => LocalPlayers.Any(lp => lp.Id == p.Id));
+                }
                 break;
             case ChangePhaseCommand changePhaseCommand:
                 TurnPhase = changePhaseCommand.Phase;
@@ -72,7 +88,7 @@ public class ClientGame : BaseGame
                 break;
         }
     }
-    
+
     public void JoinGameWithUnits(IPlayer player, List<UnitData> units)
     {
         var joinCommand = new JoinGameCommand
@@ -89,9 +105,8 @@ public class ClientGame : BaseGame
         }
     }
     
-    public void SetPlayerReady(IPlayer player)
+    public void SetPlayerReady(UpdatePlayerStatusCommand readyCommand)
     {
-        var readyCommand = new UpdatePlayerStatusCommand() { PlayerId = player.Id, GameOriginId = Id, PlayerStatus = PlayerStatus.Playing };
         if (ValidateCommand(readyCommand))
         {
             CommandPublisher.PublishCommand(readyCommand);

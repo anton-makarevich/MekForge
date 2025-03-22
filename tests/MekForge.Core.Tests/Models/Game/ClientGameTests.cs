@@ -129,9 +129,13 @@ public class ClientGameTests
     {
         // Arrange
         var player = new Player(Guid.NewGuid(), "Player1");
-
+        var readyCommand = new UpdatePlayerStatusCommand
+        {
+            PlayerStatus = PlayerStatus.Playing,
+            PlayerId = player.Id
+        };
         // Act
-        _clientGame.SetPlayerReady(player);
+        _clientGame.SetPlayerReady(readyCommand);
 
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<UpdatePlayerStatusCommand>());
@@ -151,8 +155,15 @@ public class ClientGameTests
             Tint = "#FF0000"
         });
 
+        var readyCommand = new UpdatePlayerStatusCommand
+        {
+            PlayerStatus = PlayerStatus.Playing,
+            PlayerId = player.Id,
+            GameOriginId = _clientGame.Id 
+        };
+
         // Act
-        _clientGame.SetPlayerReady(player);
+        _clientGame.SetPlayerReady(readyCommand);
 
         // Assert
         _commandPublisher.Received(1).PublishCommand(Arg.Is<UpdatePlayerStatusCommand>(cmd => 
@@ -1165,5 +1176,126 @@ public class ClientGameTests
 
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<TurnEndedCommand>());
+    }
+    
+    [Fact]
+    public void Constructor_ShouldSetFirstJoiningLocalPlayerAsActive_WhenLocalPlayersExist()
+    {
+        // Arrange
+        var battleState = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5, 5, new ClearTerrain()));
+        var rulesProvider = new ClassicBattletechRulesProvider();
+        var commandPublisher = Substitute.For<ICommandPublisher>();
+        
+        var localPlayer1 = new Player(Guid.NewGuid(), "LocalPlayer1") { Status = PlayerStatus.Joining };
+        var localPlayer2 = new Player(Guid.NewGuid(), "LocalPlayer2") { Status = PlayerStatus.Joining };
+        var localPlayers = new List<IPlayer> { localPlayer1, localPlayer2 };
+        
+        // Act
+        var clientGame = new ClientGame(
+            battleState,
+            localPlayers,
+            rulesProvider,
+            commandPublisher,
+            Substitute.For<IToHitCalculator>());
+        
+        // Assert
+        clientGame.ActivePlayer.ShouldNotBeNull();
+        clientGame.ActivePlayer.Id.ShouldBe(localPlayer1.Id);
+    }
+    
+    [Fact]
+    public void HandleCommand_ShouldSetNextJoiningLocalPlayerAsActive_WhenPlayerStatusChangesToPlaying()
+    {
+        // Arrange
+        var battleState = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5, 5, new ClearTerrain()));
+        var rulesProvider = new ClassicBattletechRulesProvider();
+        var commandPublisher = Substitute.For<ICommandPublisher>();
+        
+        var localPlayer1 = new Player(Guid.NewGuid(), "LocalPlayer1") { Status = PlayerStatus.Joining };
+        var localPlayer2 = new Player(Guid.NewGuid(), "LocalPlayer2") { Status = PlayerStatus.Joining };
+        var localPlayers = new List<IPlayer> { localPlayer1, localPlayer2 };
+        
+        var clientGame = new ClientGame(
+            battleState,
+            localPlayers,
+            rulesProvider,
+            commandPublisher,
+            Substitute.For<IToHitCalculator>());
+
+        clientGame.HandleCommand(new JoinGameCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = localPlayer1.Id,
+            PlayerName = localPlayer1.Name,
+            Units = [],
+            Tint = "#ffffff"
+        });
+        clientGame.HandleCommand(new JoinGameCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = localPlayer2.Id,
+            PlayerName = localPlayer2.Name,
+            Units = [],
+            Tint = "#fff0ff"
+        });
+        
+        // Verify initial active player is localPlayer1
+        clientGame.ActivePlayer.ShouldNotBeNull();
+        clientGame.ActivePlayer.Id.ShouldBe(localPlayer1.Id);
+        
+        // Act - Change the status of localPlayer1 to Playing
+        clientGame.HandleCommand(new UpdatePlayerStatusCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = localPlayer1.Id,
+            PlayerStatus = PlayerStatus.Playing
+        });
+        
+        // Assert - localPlayer2 should now be the active player
+        clientGame.ActivePlayer.ShouldNotBeNull();
+        clientGame.ActivePlayer.Id.ShouldBe(localPlayer2.Id);
+    }
+    
+        [Fact]
+    public void HandleCommand_ShouldSetActivePlayerNull_WhenPlayerStatusChangesToPlayingAndOnlyOneLocalPlayer()
+    {
+        // Arrange
+        var battleState = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5, 5, new ClearTerrain()));
+        var rulesProvider = new ClassicBattletechRulesProvider();
+        var commandPublisher = Substitute.For<ICommandPublisher>();
+        
+        var localPlayer1 = new Player(Guid.NewGuid(), "LocalPlayer1") { Status = PlayerStatus.Joining };
+        var localPlayers = new List<IPlayer> { localPlayer1 };
+        
+        var clientGame = new ClientGame(
+            battleState,
+            localPlayers,
+            rulesProvider,
+            commandPublisher,
+            Substitute.For<IToHitCalculator>());
+
+        clientGame.HandleCommand(new JoinGameCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = localPlayer1.Id,
+            PlayerName = localPlayer1.Name,
+            Units = [],
+            Tint = "#ffffff"
+        });
+        
+        // Verify initial active player is localPlayer1
+        clientGame.ActivePlayer.ShouldNotBeNull();
+        clientGame.ActivePlayer.Id.ShouldBe(localPlayer1.Id);
+        
+        // Act - Change the status of localPlayer1 to Playing
+        clientGame.HandleCommand(new UpdatePlayerStatusCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = localPlayer1.Id,
+            PlayerStatus = PlayerStatus.Playing
+        });
+        
+        // Assert - localPlayer2 should now be the active player
+        clientGame.ActivePlayer.ShouldBeNull();
     }
 }
