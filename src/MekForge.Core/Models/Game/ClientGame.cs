@@ -52,8 +52,12 @@ public sealed class ClientGame : BaseGame
                     statusCommand.PlayerId == ActivePlayer.Id &&
                     statusCommand.PlayerStatus == PlayerStatus.Playing)
                 {
-                    // Set the next joining local player as active
-                    SetFirstJoiningLocalPlayerAsActive();
+                    // Find the first local player with Joining status
+                    // We need to check both that the player is in the LocalPlayers collection
+                    // and that their status is Joining in the Players collection
+                    ActivePlayer = Players
+                        .Where(p => p.Status == PlayerStatus.Joining)
+                        .FirstOrDefault(p => LocalPlayers.Any(lp => lp.Id == p.Id));
                 }
                 break;
             case ChangePhaseCommand changePhaseCommand:
@@ -82,21 +86,6 @@ public sealed class ClientGame : BaseGame
             case HeatUpdatedCommand heatUpdateCommand:
                 OnHeatUpdate(heatUpdateCommand);
                 break;
-        }
-    }
-    
-    private void SetFirstJoiningLocalPlayerAsActive()
-    {
-        // Find the first local player with Joining status
-        // We need to check both that the player is in the LocalPlayers collection
-        // and that their status is Joining in the Players collection
-        var nextPlayer = Players
-            .Where(p => p.Status == PlayerStatus.Joining)
-            .FirstOrDefault(p => LocalPlayers.Any(lp => lp.Id == p.Id));
-        
-        if (nextPlayer != null)
-        {
-            ActivePlayer = nextPlayer;
         }
     }
 

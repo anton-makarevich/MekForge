@@ -1255,4 +1255,47 @@ public class ClientGameTests
         clientGame.ActivePlayer.ShouldNotBeNull();
         clientGame.ActivePlayer.Id.ShouldBe(localPlayer2.Id);
     }
+    
+        [Fact]
+    public void HandleCommand_ShouldSetActivePlayerNull_WhenPlayerStatusChangesToPlayingAndOnlyOneLocalPlayer()
+    {
+        // Arrange
+        var battleState = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5, 5, new ClearTerrain()));
+        var rulesProvider = new ClassicBattletechRulesProvider();
+        var commandPublisher = Substitute.For<ICommandPublisher>();
+        
+        var localPlayer1 = new Player(Guid.NewGuid(), "LocalPlayer1") { Status = PlayerStatus.Joining };
+        var localPlayers = new List<IPlayer> { localPlayer1 };
+        
+        var clientGame = new ClientGame(
+            battleState,
+            localPlayers,
+            rulesProvider,
+            commandPublisher,
+            Substitute.For<IToHitCalculator>());
+
+        clientGame.HandleCommand(new JoinGameCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = localPlayer1.Id,
+            PlayerName = localPlayer1.Name,
+            Units = [],
+            Tint = "#ffffff"
+        });
+        
+        // Verify initial active player is localPlayer1
+        clientGame.ActivePlayer.ShouldNotBeNull();
+        clientGame.ActivePlayer.Id.ShouldBe(localPlayer1.Id);
+        
+        // Act - Change the status of localPlayer1 to Playing
+        clientGame.HandleCommand(new UpdatePlayerStatusCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = localPlayer1.Id,
+            PlayerStatus = PlayerStatus.Playing
+        });
+        
+        // Assert - localPlayer2 should now be the active player
+        clientGame.ActivePlayer.ShouldBeNull();
+    }
 }
