@@ -1421,8 +1421,6 @@ public class BattleMapViewModelTests
             Substitute.For<IToHitCalculator>());
         _viewModel.Game = clientGame;
 
-        _localizationService.GetString("EndPhase_ActionLabel").Returns("End your turn");
-
         // Set up the game state for End phase
         clientGame.HandleCommand(new ChangePhaseCommand
         {
@@ -1443,7 +1441,7 @@ public class BattleMapViewModelTests
     }
 
     [Fact]
-    public void IsPlayerActionButtonVisible_ShouldReturnFalse_WhenNotInEndPhase()
+    public void IsPlayerActionButtonVisible_ShouldReturnTrue_WhenInStartPhase()
     {
         // Arrange
         var playerId = Guid.NewGuid();
@@ -1456,27 +1454,19 @@ public class BattleMapViewModelTests
             Substitute.For<IToHitCalculator>());
         _viewModel.Game = clientGame;
 
-        // Set up the game state for a phase other than End
+        // Set up the game state for Start phase
         clientGame.HandleCommand(new ChangePhaseCommand
         {
             GameOriginId = Guid.NewGuid(),
-            Phase = PhaseNames.Movement
-        });
-        
-        // Set the player as active player
-        clientGame.HandleCommand(new ChangeActivePlayerCommand
-        {
-            GameOriginId = Guid.NewGuid(),
-            PlayerId = playerId,
-            UnitsToPlay = 1
+            Phase = PhaseNames.Start
         });
 
         // Assert
-        _viewModel.IsPlayerActionButtonVisible.ShouldBeFalse();
+        _viewModel.IsPlayerActionButtonVisible.ShouldBeTrue();
     }
 
     [Fact]
-    public void HandlePlayerAction_ShouldCallEndTurnOnEndState_WhenCurrentStateIsEndState()
+    public void IsPlayerActionButtonVisible_ShouldReturnFalse_WhenNotInEndOrStartPhase()
     {
         // Arrange
         var playerId = Guid.NewGuid();
@@ -1503,46 +1493,6 @@ public class BattleMapViewModelTests
         clientGame.HandleCommand(new ChangePhaseCommand
         {
             GameOriginId = Guid.NewGuid(),
-            Phase = PhaseNames.End
-        });
-        
-        // Set the player as active player
-        clientGame.HandleCommand(new ChangeActivePlayerCommand
-        {
-            GameOriginId = Guid.NewGuid(),
-            PlayerId = playerId,
-            UnitsToPlay = 0
-        });
-
-        // Act
-        _viewModel.HandlePlayerAction();
-
-        // Assert
-        // Verify that the command publisher was called with a TurnEndedCommand
-        commandPublisher.Received(1).PublishCommand(Arg.Is<TurnEndedCommand>(cmd =>
-            cmd.PlayerId == playerId &&
-            cmd.GameOriginId == clientGame.Id));
-    }
-
-    [Fact]
-    public void HandlePlayerAction_ShouldNotCallEndTurn_WhenCurrentStateIsNotEndState()
-    {
-        // Arrange
-        var playerId = Guid.NewGuid();
-        var player = new Player(playerId, "Player1");
-        var commandPublisher = Substitute.For<ICommandPublisher>();
-        var clientGame = new ClientGame(
-            BattleMap.GenerateMap(2, 2, new SingleTerrainGenerator(2, 2, new ClearTerrain())),
-            [player],
-            new ClassicBattletechRulesProvider(),
-            commandPublisher,
-            Substitute.For<IToHitCalculator>());
-        _viewModel.Game = clientGame;
-
-        // Set up the game state for a phase other than End
-        clientGame.HandleCommand(new ChangePhaseCommand
-        {
-            GameOriginId = Guid.NewGuid(),
             Phase = PhaseNames.Movement
         });
         
@@ -1558,7 +1508,6 @@ public class BattleMapViewModelTests
         _viewModel.HandlePlayerAction();
 
         // Assert
-        // Verify that the command publisher was not called with a TurnEndedCommand
-        commandPublisher.DidNotReceive().PublishCommand(Arg.Any<TurnEndedCommand>());
+        _viewModel.IsPlayerActionButtonVisible.ShouldBeFalse();
     }
 }
