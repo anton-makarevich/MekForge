@@ -27,7 +27,7 @@ public sealed class ClientGame : BaseGame
     {
         LocalPlayers = localPlayers;
         TurnPhase = PhaseNames.Start;
-        SetFirstJoiningLocalPlayerAsActive();
+        ActivePlayer = LocalPlayers.FirstOrDefault(p => p.Status == PlayerStatus.Joining);
     }
     
     public IReadOnlyList<IPlayer> LocalPlayers { get; }
@@ -88,7 +88,11 @@ public sealed class ClientGame : BaseGame
     private void SetFirstJoiningLocalPlayerAsActive()
     {
         // Find the first local player with Joining status
-        var nextPlayer = LocalPlayers.FirstOrDefault(p => p.Status == PlayerStatus.Joining);
+        // We need to check both that the player is in the LocalPlayers collection
+        // and that their status is Joining in the Players collection
+        var nextPlayer = Players
+            .Where(p => p.Status == PlayerStatus.Joining)
+            .FirstOrDefault(p => LocalPlayers.Any(lp => lp.Id == p.Id));
         
         if (nextPlayer != null)
         {
