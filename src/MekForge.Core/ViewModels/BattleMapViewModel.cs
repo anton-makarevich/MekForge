@@ -227,28 +227,28 @@ public class BattleMapViewModel : BaseViewModel
 
     private void UpdateGamePhase()
     {
-        if (Game is not ClientGame { ActivePlayer: not null } clientGame)
+        if (Game is not ClientGame clientGame)
         {
             TransitionToState(new IdleState());
             return;
         }
 
-        switch (TurnPhaseNames)
+        switch (TurnPhaseName)
         {
             case PhaseNames.Start:
                 TransitionToState(new StartState(this));
                 break;
                 
-            case PhaseNames.Deployment when clientGame.ActivePlayer.Units.Any(u => !u.IsDeployed):
+            case PhaseNames.Deployment when clientGame.ActivePlayer?.Units.Any(u => !u.IsDeployed) == true:
                 TransitionToState(new DeploymentState(this));
                 ShowUnitsToDeploy();
                 break;
             
-            case PhaseNames.Movement when clientGame.UnitsToPlayCurrentStep > 0:
+            case PhaseNames.Movement when clientGame.ActivePlayer is not null && clientGame.UnitsToPlayCurrentStep > 0:
                 TransitionToState(new MovementState(this));
                 break;
             
-            case PhaseNames.WeaponsAttack when clientGame.UnitsToPlayCurrentStep > 0:
+            case PhaseNames.WeaponsAttack when clientGame.ActivePlayer is not null && clientGame.UnitsToPlayCurrentStep > 0:
                 TransitionToState(new WeaponsAttackState(this));
                 break;
             
@@ -281,7 +281,7 @@ public class BattleMapViewModel : BaseViewModel
     public void NotifyStateChanged()
     {
         NotifyPropertyChanged(nameof(Turn));
-        NotifyPropertyChanged(nameof(TurnPhaseNames));
+        NotifyPropertyChanged(nameof(TurnPhaseName));
         NotifyPropertyChanged(nameof(ActivePlayerName));
         NotifyPropertyChanged(nameof(ActivePlayerTint));
         NotifyPropertyChanged(nameof(UserActionLabel));
@@ -318,7 +318,7 @@ public class BattleMapViewModel : BaseViewModel
 
     public int Turn => Game?.Turn ?? 0;
 
-    public PhaseNames TurnPhaseNames => Game?.TurnPhase ?? PhaseNames.Start;
+    public PhaseNames TurnPhaseName => Game?.TurnPhase ?? PhaseNames.Start;
     
     public string ActivePlayerName => Game?.ActivePlayer?.Name ?? string.Empty;
 

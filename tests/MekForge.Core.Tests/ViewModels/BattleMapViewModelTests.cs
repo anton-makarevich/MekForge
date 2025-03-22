@@ -52,7 +52,7 @@ public class BattleMapViewModelTests
         _game.Turn.Returns(1);
         _viewModel.Turn.ShouldBe(1);
         _game.TurnPhase.Returns(PhaseNames.Start);
-        _viewModel.TurnPhaseNames.ShouldBe(PhaseNames.Start);
+        _viewModel.TurnPhaseName.ShouldBe(PhaseNames.Start);
         _game.ActivePlayer.Returns(new Player(Guid.Empty, "Player1", "#FF0000"));
         _viewModel.ActivePlayerName.ShouldBe("Player1");
         _viewModel.ActivePlayerTint.ShouldBe("#FF0000");

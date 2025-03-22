@@ -58,7 +58,7 @@
                                  FontSize="10" 
                                  HorizontalAlignment="Center"
                                  Foreground="{Binding ActivePlayerTint, Converter={StaticResource ContrastingForegroundConverter}}"/>
-                        <TextBlock Text="{Binding TurnPhaseNames}" 
+                        <TextBlock Text="{Binding TurnPhaseName}" 
                                  FontSize="18" 
                                  FontWeight="Bold" 
                                  HorizontalAlignment="Center"
