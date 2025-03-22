@@ -21,10 +21,11 @@ public class StartState : IUiState
 
     public string ActionLabel => _localizationService.GetString("StartPhase_ActionLabel");
 
-    public bool IsActionRequired => IsLocalPlayer;
-
-    private bool IsLocalPlayer => _viewModel.Game is ClientGame clientGame &&
-                                 clientGame.LocalPlayers.Any();
+    public bool IsActionRequired => IsLocalPlayerActive;
+    
+                                 
+    private bool IsLocalPlayerActive => _viewModel.Game is ClientGame { ActivePlayer: not null } clientGame && 
+                                        clientGame.LocalPlayers.Any(p => p.Id == clientGame.ActivePlayer.Id);
 
     public void HandleUnitSelection(Unit? unit)
     {
@@ -42,18 +43,19 @@ public class StartState : IUiState
     }
 
     /// <summary>
-    /// Sets all local players as ready to play
+    /// Sets the active local player as ready to play
     /// </summary>
     public void ExecutePlayerAction()
     {
-        if (_viewModel.Game is not ClientGame clientGame) return;
-
-        foreach (var player in clientGame.LocalPlayers)
+        if (_viewModel.Game is not ClientGame clientGame || clientGame.ActivePlayer == null) return;
+        
+        // Only set the active player as ready if they are a local player
+        if (clientGame.LocalPlayers.Any(p => p.Id == clientGame.ActivePlayer.Id))
         {
             var readyCommand = new UpdatePlayerStatusCommand
             {
                 GameOriginId = clientGame.Id,
-                PlayerId = player.Id,
+                PlayerId = clientGame.ActivePlayer.Id,
                 PlayerStatus = PlayerStatus.Playing,
                 Timestamp = DateTime.UtcNow
             };
