@@ -1453,7 +1453,7 @@ public class BattleMapViewModelTests
         // Assert
         // Verify that the command publisher was called with a TurnEndedCommand
         // This is an indirect way to verify that EndState.EndTurn was called
-        var commandPublisher = (ICommandPublisher)clientGame.CommandPublisher;
+        var commandPublisher = clientGame.CommandPublisher;
         commandPublisher.Received(1).PublishCommand(Arg.Is<TurnEndedCommand>(cmd =>
             cmd.PlayerId == playerId &&
             cmd.GameOriginId == clientGame.Id));
@@ -1502,6 +1502,161 @@ public class BattleMapViewModelTests
         // Assert
         // Verify that the command publisher was not called with a TurnEndedCommand
         var commandPublisher = clientGame.CommandPublisher;
+        commandPublisher.DidNotReceive().PublishCommand(Arg.Any<TurnEndedCommand>());
+    }
+
+    [Fact]
+    public void IsPlayerActionButtonVisible_ShouldReturnTrue_WhenInEndPhaseWithActivePlayer()
+    {
+        // Arrange
+        var playerId = Guid.NewGuid();
+        var player = new Player(playerId, "Player1");
+        var clientGame = new ClientGame(
+            BattleMap.GenerateMap(2, 2, new SingleTerrainGenerator(2, 2, new ClearTerrain())),
+            [player],
+            new ClassicBattletechRulesProvider(),
+            Substitute.For<ICommandPublisher>(),
+            Substitute.For<IToHitCalculator>());
+        _viewModel.Game = clientGame;
+
+        _localizationService.GetString("EndPhase_ActionLabel").Returns("End your turn");
+
+        // Set up the game state for End phase
+        clientGame.HandleCommand(new ChangePhaseCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            Phase = PhaseNames.End
+        });
+        
+        // Set the player as active player
+        clientGame.HandleCommand(new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = playerId,
+            UnitsToPlay = 0
+        });
+
+        // Assert
+        _viewModel.IsPlayerActionButtonVisible.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void IsPlayerActionButtonVisible_ShouldReturnFalse_WhenNotInEndPhase()
+    {
+        // Arrange
+        var playerId = Guid.NewGuid();
+        var player = new Player(playerId, "Player1");
+        var clientGame = new ClientGame(
+            BattleMap.GenerateMap(2, 2, new SingleTerrainGenerator(2, 2, new ClearTerrain())),
+            [player],
+            new ClassicBattletechRulesProvider(),
+            Substitute.For<ICommandPublisher>(),
+            Substitute.For<IToHitCalculator>());
+        _viewModel.Game = clientGame;
+
+        // Set up the game state for a phase other than End
+        clientGame.HandleCommand(new ChangePhaseCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            Phase = PhaseNames.Movement
+        });
+        
+        // Set the player as active player
+        clientGame.HandleCommand(new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = playerId,
+            UnitsToPlay = 1
+        });
+
+        // Assert
+        _viewModel.IsPlayerActionButtonVisible.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void HandlePlayerAction_ShouldCallEndTurnOnEndState_WhenCurrentStateIsEndState()
+    {
+        // Arrange
+        var playerId = Guid.NewGuid();
+        var player = new Player(playerId, "Player1");
+        var commandPublisher = Substitute.For<ICommandPublisher>();
+        var clientGame = new ClientGame(
+            BattleMap.GenerateMap(2, 2, new SingleTerrainGenerator(2, 2, new ClearTerrain())),
+            [player],
+            new ClassicBattletechRulesProvider(),
+            commandPublisher,
+            Substitute.For<IToHitCalculator>());
+        _viewModel.Game = clientGame;
+
+        _localizationService.GetString("EndPhase_ActionLabel").Returns("End your turn");
+        clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerName = player.Name,
+            Units = [],
+            Tint = "#FF0000",
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = playerId
+        });
+        // Set up the game state for End phase
+        clientGame.HandleCommand(new ChangePhaseCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            Phase = PhaseNames.End
+        });
+        
+        // Set the player as active player
+        clientGame.HandleCommand(new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = playerId,
+            UnitsToPlay = 0
+        });
+
+        // Act
+        _viewModel.HandlePlayerAction();
+
+        // Assert
+        // Verify that the command publisher was called with a TurnEndedCommand
+        commandPublisher.Received(1).PublishCommand(Arg.Is<TurnEndedCommand>(cmd =>
+            cmd.PlayerId == playerId &&
+            cmd.GameOriginId == clientGame.Id));
+    }
+
+    [Fact]
+    public void HandlePlayerAction_ShouldNotCallEndTurn_WhenCurrentStateIsNotEndState()
+    {
+        // Arrange
+        var playerId = Guid.NewGuid();
+        var player = new Player(playerId, "Player1");
+        var commandPublisher = Substitute.For<ICommandPublisher>();
+        var clientGame = new ClientGame(
+            BattleMap.GenerateMap(2, 2, new SingleTerrainGenerator(2, 2, new ClearTerrain())),
+            [player],
+            new ClassicBattletechRulesProvider(),
+            commandPublisher,
+            Substitute.For<IToHitCalculator>());
+        _viewModel.Game = clientGame;
+
+        // Set up the game state for a phase other than End
+        clientGame.HandleCommand(new ChangePhaseCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            Phase = PhaseNames.Movement
+        });
+        
+        // Set the player as active player
+        clientGame.HandleCommand(new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = playerId,
+            UnitsToPlay = 1
+        });
+
+        // Act
+        _viewModel.HandlePlayerAction();
+
+        // Assert
+        // Verify that the command publisher was not called with a TurnEndedCommand
         commandPublisher.DidNotReceive().PublishCommand(Arg.Any<TurnEndedCommand>());
     }
 }
