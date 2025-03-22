@@ -89,9 +89,8 @@ public class ClientGame : BaseGame
         }
     }
     
-    public void SetPlayerReady(IPlayer player)
+    public void SetPlayerReady(UpdatePlayerStatusCommand readyCommand)
     {
-        var readyCommand = new UpdatePlayerStatusCommand() { PlayerId = player.Id, GameOriginId = Id, PlayerStatus = PlayerStatus.Playing };
         if (ValidateCommand(readyCommand))
         {
             CommandPublisher.PublishCommand(readyCommand);

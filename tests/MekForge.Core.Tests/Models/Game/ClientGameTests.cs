@@ -129,9 +129,13 @@ public class ClientGameTests
     {
         // Arrange
         var player = new Player(Guid.NewGuid(), "Player1");
-
+        var readyCommand = new UpdatePlayerStatusCommand
+        {
+            PlayerStatus = PlayerStatus.Playing,
+            PlayerId = player.Id
+        };
         // Act
-        _clientGame.SetPlayerReady(player);
+        _clientGame.SetPlayerReady(readyCommand);
 
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<UpdatePlayerStatusCommand>());
@@ -151,8 +155,15 @@ public class ClientGameTests
             Tint = "#FF0000"
         });
 
+        var readyCommand = new UpdatePlayerStatusCommand
+        {
+            PlayerStatus = PlayerStatus.Playing,
+            PlayerId = player.Id,
+            GameOriginId = _clientGame.Id 
+        };
+
         // Act
-        _clientGame.SetPlayerReady(player);
+        _clientGame.SetPlayerReady(readyCommand);
 
         // Assert
         _commandPublisher.Received(1).PublishCommand(Arg.Is<UpdatePlayerStatusCommand>(cmd => 

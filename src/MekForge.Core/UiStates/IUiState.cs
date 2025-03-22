@@ -11,4 +11,9 @@ public interface IUiState
     void HandleHexSelection(Hex hex);
     void HandleFacingSelection(HexDirection direction);
     IEnumerable<StateAction> GetAvailableActions() => new List<StateAction>();
+    
+    /// <summary>
+    /// Executes the primary player action for the current state
+    /// </summary>
+    void ExecutePlayerAction() { }
 }

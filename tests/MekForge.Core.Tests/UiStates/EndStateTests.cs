@@ -113,13 +113,13 @@ public class EndStateTests
     }
 
     [Fact]
-    public void EndTurn_SendsTurnEndedCommand_WhenActivePlayer()
+    public void ExecutePlayerAction_SendsTurnEndedCommand_WhenActivePlayer()
     {
         // Arrange
         SetActivePlayer();
         
         // Act
-        _sut.EndTurn();
+        _sut.ExecutePlayerAction();
 
         // Assert
         _commandPublisher.Received(1).PublishCommand(Arg.Is<TurnEndedCommand>(cmd =>
@@ -128,7 +128,7 @@ public class EndStateTests
     }
 
     [Fact]
-    public void EndTurn_DoesNotSendCommand_WhenNotActivePlayer()
+    public void ExecutePlayerAction_DoesNotSendCommand_WhenNotActivePlayer()
     {
         // Arrange
         var otherPlayerId = Guid.NewGuid();
@@ -140,20 +140,20 @@ public class EndStateTests
         });
 
         // Act
-        _sut.EndTurn();
+        _sut.ExecutePlayerAction();
 
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<TurnEndedCommand>());
     }
 
     [Fact]
-    public void EndTurn_DoesNotSendCommand_WhenGameIsNull()
+    public void ExecutePlayerAction_DoesNotSendCommand_WhenGameIsNull()
     {
         // Arrange
         _viewModel.Game = null;
 
         // Act
-        _sut.EndTurn();
+        _sut.ExecutePlayerAction();
 
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<TurnEndedCommand>());
