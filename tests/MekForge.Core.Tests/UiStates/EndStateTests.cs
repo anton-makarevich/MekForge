@@ -22,7 +22,7 @@ namespace Sanet.MekForge.Core.Tests.UiStates;
 
 public class EndStateTests
 {
-    private readonly EndState _state;
+    private readonly EndState _sut;
     private readonly ClientGame _game;
     private readonly Unit _unit1;
     private readonly Player _player;
@@ -66,21 +66,21 @@ public class EndStateTests
         _unit1 = _viewModel.Units.First();
     
         SetPhase(PhaseNames.End);
-        _state = new EndState(_viewModel);
+        _sut = new EndState(_viewModel);
     }
 
     [Fact]
     public void InitialState_HasEndTurnAction()
     {
         // Assert
-        _state.ActionLabel.ShouldBe("End your turn");
+        _sut.ActionLabel.ShouldBe("End your turn");
     }
 
     [Fact]
     public void IsActionRequired_ReturnsFalse_WhenNotActivePlayer()
     {
         // Assert
-        _state.IsActionRequired.ShouldBeFalse();
+        _sut.IsActionRequired.ShouldBeFalse();
     }
 
     [Fact]
@@ -92,7 +92,7 @@ public class EndStateTests
         var hex = new Hex(position.Coordinates);
 
         // Act
-        _state.HandleHexSelection(hex);
+        _sut.HandleHexSelection(hex);
 
         // Assert
         _viewModel.SelectedUnit.ShouldBe(_unit1);
@@ -106,7 +106,7 @@ public class EndStateTests
         var hex = new Hex(new HexCoordinates(2, 2));
 
         // Act
-        _state.HandleHexSelection(hex);
+        _sut.HandleHexSelection(hex);
 
         // Assert
         _viewModel.SelectedUnit.ShouldBeNull();
@@ -119,7 +119,7 @@ public class EndStateTests
         SetActivePlayer();
         
         // Act
-        _state.EndTurn();
+        _sut.EndTurn();
 
         // Assert
         _commandPublisher.Received(1).PublishCommand(Arg.Is<TurnEndedCommand>(cmd =>
@@ -140,7 +140,7 @@ public class EndStateTests
         });
 
         // Act
-        _state.EndTurn();
+        _sut.EndTurn();
 
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<TurnEndedCommand>());
@@ -153,7 +153,7 @@ public class EndStateTests
         _viewModel.Game = null;
 
         // Act
-        _state.EndTurn();
+        _sut.EndTurn();
 
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<TurnEndedCommand>());
