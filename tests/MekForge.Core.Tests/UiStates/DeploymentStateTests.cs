@@ -67,6 +67,13 @@ public class DeploymentStateTests
         _sut.ActionLabel.ShouldBe("Select Unit");
         _sut.IsActionRequired.ShouldBeTrue();
     }
+    
+    [Fact]
+    public void InitialState_CannotExecutePlayerAction()
+    {
+        // Assert
+        ((IUiState)_sut).CanExecutePlayerAction.ShouldBeFalse();
+    }
 
     private void SetActivePlayer(Player player, UnitData unitData)
     {

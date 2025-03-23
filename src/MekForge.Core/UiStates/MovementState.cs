@@ -138,7 +138,7 @@ public class MovementState : IUiState
         if (CurrentMovementStep != MovementStep.SelectingDirection) return;
         var path = _possibleDirections[direction]; 
         _builder.SetMovementPath(path);
-        
+        _viewModel.ShowDirectionSelector(path.Last().To.Coordinates, [direction]);
         _viewModel.ShowMovementPath(path);
         CurrentMovementStep = MovementStep.ConfirmMovement;
         _viewModel.NotifyStateChanged();
@@ -308,7 +308,17 @@ public class MovementState : IUiState
 
     public bool IsActionRequired => CurrentMovementStep != MovementStep.Completed;
     
+    public bool CanExecutePlayerAction => CurrentMovementStep == MovementStep.ConfirmMovement;
+    
     public MovementStep CurrentMovementStep { get; private set; } = MovementStep.SelectingUnit;
+
+    public void ExecutePlayerAction()
+    {
+        if (CurrentMovementStep == MovementStep.ConfirmMovement)
+        {
+            ConfirmMovement();
+        }
+    }
 
     public IEnumerable<StateAction> GetAvailableActions()
     {

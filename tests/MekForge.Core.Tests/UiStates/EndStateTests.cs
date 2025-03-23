@@ -75,6 +75,13 @@ public class EndStateTests
         // Assert
         _sut.ActionLabel.ShouldBe("End your turn");
     }
+    
+    [Fact]
+    public void InitialState_CanExecutePlayerAction()
+    {
+        // Assert
+        _sut.CanExecutePlayerAction.ShouldBeTrue();
+    }
 
     [Fact]
     public void HandleHexSelection_SelectsUnitAtHex()

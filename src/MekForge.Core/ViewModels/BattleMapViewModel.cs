@@ -229,7 +229,6 @@ public class BattleMapViewModel : BaseViewModel
     {
         if (Game is not ClientGame { ActivePlayer: not null } clientGame)
         {
-            TransitionToState(new IdleState());
             return;
         }
 
@@ -356,7 +355,7 @@ public class BattleMapViewModel : BaseViewModel
     public bool IsUserActionLabelVisible => CurrentState.IsActionRequired;
 
     public bool IsPlayerActionButtonVisible =>
-        Game?.TurnPhase is PhaseNames.End or PhaseNames.Start;
+        CurrentState.CanExecutePlayerAction;
 
     public void HandlePlayerAction()
     {

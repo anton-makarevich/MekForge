@@ -22,6 +22,8 @@ public class EndState : IUiState
 
     public bool IsActionRequired => IsActivePlayer;
 
+    public bool CanExecutePlayerAction => true;
+
     private bool IsActivePlayer => _viewModel.Game?.ActivePlayer != null && 
                                   _viewModel.Game is ClientGame clientGame &&
                                   clientGame.LocalPlayers.Any(p => p.Id == _viewModel.Game.ActivePlayer.Id);

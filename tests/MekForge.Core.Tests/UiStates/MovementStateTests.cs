@@ -86,6 +86,13 @@ public class MovementStateTests
         _sut.ActionLabel.ShouldBe("Select unit to move");
         _sut.IsActionRequired.ShouldBeTrue();
     }
+    
+    [Fact]
+    public void InitialState_CannotExecutePlayerAction()
+    {
+        // Assert
+        _sut.CanExecutePlayerAction.ShouldBeFalse();
+    }
 
     private void AddPlayerUnits()
     {
@@ -724,6 +731,37 @@ public class MovementStateTests
         
         // Act - Second selection confirms the movement
         _sut.HandleFacingSelection(HexDirection.Top);
+        
+        // Assert
+        _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
+        _sut.ActionLabel.ShouldBeEmpty();
+        _sut.IsActionRequired.ShouldBeFalse();
+        foreach (var hex in _viewModel.Game!.BattleMap.GetHexes())
+        {
+            hex.IsHighlighted.ShouldBeFalse();
+        }
+    }
+    
+    [Fact]
+    public void ExecutePlayerAction_CompletesMovement_WhenInConfirmMovementStep()
+    {
+        // Arrange
+        SetPhase(PhaseNames.Movement);
+        SetActivePlayer();
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var unit = _viewModel.Units.First();
+        unit.Deploy(position);
+        _sut.HandleUnitSelection(unit);
+        _sut.HandleMovementTypeSelection(MovementType.Walk);
+        
+        var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 2))!;
+        _sut.HandleHexSelection(targetHex);
+        _sut.CanExecutePlayerAction.ShouldBeFalse();
+        
+        // First selection transitions to ConfirmMovement
+        _sut.HandleFacingSelection(HexDirection.Top);
+        _sut.CanExecutePlayerAction.ShouldBeTrue();
+        _sut.ExecutePlayerAction();
         
         // Assert
         _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();

@@ -23,7 +23,8 @@ public class StartState : IUiState
 
     public bool IsActionRequired => IsLocalPlayerActive;
     
-                                 
+    public bool CanExecutePlayerAction => true;
+
     private bool IsLocalPlayerActive => _viewModel.Game is ClientGame { ActivePlayer: not null } clientGame && 
                                         clientGame.LocalPlayers.Any(p => p.Id == clientGame.ActivePlayer.Id);
 
