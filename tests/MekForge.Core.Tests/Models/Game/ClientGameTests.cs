@@ -1298,4 +1298,176 @@ public class ClientGameTests
         // Assert - localPlayer2 should now be the active player
         clientGame.ActivePlayer.ShouldBeNull();
     }
+    
+    [Fact]
+    public void HandleCommand_ShouldClearPlayersEndedTurnAndSetFirstLocalPlayerAsActive_WhenEnteringEndPhase()
+    {
+        // Arrange
+        var localPlayer1 = new Player(Guid.NewGuid(), "LocalPlayer1");
+        var localPlayer2 = new Player(Guid.NewGuid(), "LocalPlayer2");
+        
+        // Create a new client game with local players
+        var battleState = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5,5, new ClearTerrain()));
+        var commandPublisher = Substitute.For<ICommandPublisher>();
+        var rulesProvider = new ClassicBattletechRulesProvider();
+        var clientGame = new ClientGame(
+            battleState,
+            [localPlayer1, localPlayer2], 
+            rulesProvider, 
+            commandPublisher,
+            Substitute.For<IToHitCalculator>());
+        
+        // Add the local players to the game
+        clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = localPlayer1.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = localPlayer1.Name,
+            Units = [],
+            Tint = "#FF0000"
+        });
+        
+        clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = localPlayer2.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = localPlayer2.Name,
+            Units = [],
+            Tint = "#00FF00"
+        });
+        
+        // Simulate a player ending their turn (to verify it gets cleared)
+        clientGame.HandleCommand(new TurnEndedCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = localPlayer1.Id,
+            Timestamp = DateTime.UtcNow
+        });
+        
+        // Act - Change to End phase
+        clientGame.HandleCommand(new ChangePhaseCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            Phase = PhaseNames.End
+        });
+        
+        // Assert
+        clientGame.TurnPhase.ShouldBe(PhaseNames.End);
+        clientGame.ActivePlayer.ShouldNotBeNull();
+        clientGame.ActivePlayer!.Id.ShouldBe(localPlayer1.Id); // First local player should be active
+        
+        // Verify that player can end turn again (previous end turn state was cleared)
+        clientGame.HandleCommand(new TurnEndedCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = localPlayer1.Id,
+            Timestamp = DateTime.UtcNow
+        });
+        
+        // After first local player ends turn, second local player should become active
+        clientGame.ActivePlayer.ShouldNotBeNull();
+        clientGame.ActivePlayer!.Id.ShouldBe(localPlayer2.Id);
+    }
+    
+    [Fact]
+    public void HandleCommand_ShouldUpdateActivePlayer_WhenTurnEndedCommandIsReceivedInEndPhase()
+    {
+        // Arrange
+        var localPlayer1 = new Player(Guid.NewGuid(), "LocalPlayer1");
+        var localPlayer2 = new Player(Guid.NewGuid(), "LocalPlayer2");
+        var localPlayer3 = new Player(Guid.NewGuid(), "LocalPlayer3");
+        
+        // Create a new client game with local players
+        var battleState = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5,5, new ClearTerrain()));
+        var commandPublisher = Substitute.For<ICommandPublisher>();
+        var rulesProvider = new ClassicBattletechRulesProvider();
+        var clientGame = new ClientGame(
+            battleState,
+            [localPlayer1, localPlayer2, localPlayer3], 
+            rulesProvider, 
+            commandPublisher,
+            Substitute.For<IToHitCalculator>());
+        
+        // Add the local players to the game
+        clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = localPlayer1.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = localPlayer1.Name,
+            Units = [],
+            Tint = "#FF0000"
+        });
+        
+        clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = localPlayer2.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = localPlayer2.Name,
+            Units = [],
+            Tint = "#00FF00"
+        });
+        
+        clientGame.HandleCommand(new JoinGameCommand
+        {
+            PlayerId = localPlayer3.Id,
+            GameOriginId = Guid.NewGuid(),
+            PlayerName = localPlayer3.Name,
+            Units = [],
+            Tint = "#0000FF"
+        });
+        
+        // Set the game to End phase
+        clientGame.HandleCommand(new ChangePhaseCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            Phase = PhaseNames.End
+        });
+        
+        // Set first local player as active
+        clientGame.HandleCommand(new ChangeActivePlayerCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = localPlayer1.Id,
+            UnitsToPlay = 0
+        });
+        
+        // Verify initial state
+        clientGame.ActivePlayer.ShouldNotBeNull();
+        clientGame.ActivePlayer!.Id.ShouldBe(localPlayer1.Id);
+        
+        // Act - End turn for the first player
+        clientGame.HandleCommand(new TurnEndedCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = localPlayer1.Id,
+            Timestamp = DateTime.UtcNow
+        });
+        
+        // Assert - Second player should now be active
+        clientGame.ActivePlayer.ShouldNotBeNull();
+        clientGame.ActivePlayer!.Id.ShouldBe(localPlayer2.Id);
+        
+        // Act - End turn for the second player
+        clientGame.HandleCommand(new TurnEndedCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = localPlayer2.Id,
+            Timestamp = DateTime.UtcNow
+        });
+        
+        // Assert - Third player should now be active
+        clientGame.ActivePlayer.ShouldNotBeNull();
+        clientGame.ActivePlayer!.Id.ShouldBe(localPlayer3.Id);
+        
+        // Act - End turn for the third player
+        clientGame.HandleCommand(new TurnEndedCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            PlayerId = localPlayer3.Id,
+            Timestamp = DateTime.UtcNow
+        });
+        
+        // Assert - No more local players who haven't ended their turn, so ActivePlayer should be null
+        clientGame.ActivePlayer.ShouldBeNull();
+    }
 }
