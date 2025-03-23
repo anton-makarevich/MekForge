@@ -1,8 +1,12 @@
 using NSubstitute;
+using Sanet.MekForge.Core.Data.Game;
+using Sanet.MekForge.Core.Data.Map;
+using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Phases;
 using Sanet.MekForge.Core.Models.Game.Players;
+using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
 using Shouldly;
 
@@ -111,5 +115,75 @@ public class EndPhaseTests : GamePhaseTestsBase
         
         // Assert - No changes should occur
         CommandPublisher.DidNotReceive().PublishCommand(Arg.Any<ChangeActivePlayerCommand>());
+    }
+    
+    [Fact]
+    public void HandleCommand_ShouldBroadcastTurnEndedCommand_WhenPlayerEndsTurn()
+    {
+        // Arrange
+        _sut.Enter();
+        CommandPublisher.ClearReceivedCalls();
+        
+        var turnEndedCommand = new TurnEndedCommand
+        {
+            PlayerId = _player1Id,
+            Timestamp = DateTime.UtcNow
+        };
+        
+        // Act
+        _sut.HandleCommand(turnEndedCommand);
+        
+        // Assert
+        // Verify the command was broadcasted back to clients with the game ID
+        CommandPublisher.Received(1).PublishCommand(
+            Arg.Is<TurnEndedCommand>(cmd => 
+                cmd.PlayerId == _player1Id && 
+                cmd.GameOriginId == Game.Id));
+        
+        // Verify we didn't transition to the next phase yet (since not all players ended their turn)
+        MockPhaseManager.DidNotReceive().GetNextPhase(Arg.Is(PhaseNames.End), Arg.Any<ServerGame>());
+    }
+    
+    [Fact]
+    public void HandleCommand_ShouldCallOnTurnEnded_WhenPlayerEndsTurn()
+    {
+        // Arrange
+        _sut.Enter();
+        
+        // Add a unit to the player
+        var unit = Game.Players.First(p => p.Id == _player1Id).Units.First();
+        unit.Deploy(new HexPosition(new HexCoordinates(1,1), HexDirection.Bottom));
+        unit.Move(MovementType.Walk, [new PathSegmentData
+            {
+                From = new HexPositionData
+                {
+                    Coordinates = new HexCoordinateData(1,
+                        1),
+                    Facing = 3,
+                },
+                To =  new HexPositionData
+                {
+                    Coordinates = new HexCoordinateData(1,
+                        2),
+                    Facing = 3,
+                },
+                Cost = 1
+            }
+        ]);
+        
+        unit.MovementTypeUsed.ShouldBe(MovementType.Walk);
+        
+        var turnEndedCommand = new TurnEndedCommand
+        {
+            PlayerId = _player1Id,
+            Timestamp = DateTime.UtcNow
+        };
+        
+        // Act
+        _sut.HandleCommand(turnEndedCommand);
+        
+        // Assert
+        // Verify the unit's turn state was reset
+        unit.MovementTypeUsed.ShouldBeNull();
     }
 }
