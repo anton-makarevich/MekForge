@@ -138,7 +138,7 @@ public class MovementState : IUiState
         if (CurrentMovementStep != MovementStep.SelectingDirection) return;
         var path = _possibleDirections[direction]; 
         _builder.SetMovementPath(path);
-        
+        _viewModel.ShowDirectionSelector(path.Last().To.Coordinates, [direction]);
         _viewModel.ShowMovementPath(path);
         CurrentMovementStep = MovementStep.ConfirmMovement;
         _viewModel.NotifyStateChanged();
