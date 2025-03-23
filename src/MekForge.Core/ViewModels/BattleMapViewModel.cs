@@ -401,6 +401,7 @@ public class BattleMapViewModel : BaseViewModel
         DirectionSelectorPosition = position;
         AvailableDirections = availableDirections;
         IsDirectionSelectorVisible = true;
+        NotifyStateChanged();
     }
 
     public void HideDirectionSelector()
