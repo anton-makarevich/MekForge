@@ -86,7 +86,7 @@ public class FakeLocalizationServiceTests
     [InlineData("EndPhase_ActionLabel", "End your turn")]
     // Deployment actions
     [InlineData("Action_SelectUnitToDeploy", "Select Unit")]
-    [InlineData("SelectDeploymentHex", "Select Hex")]
+    [InlineData("Action_SelectDeploymentHex", "Select Hex")]
 
     // Default
     [InlineData("Key_Not_Found", "Key_Not_Found")]
