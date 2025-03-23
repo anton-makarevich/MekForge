@@ -1,4 +1,4 @@
-﻿namespace Sanet.MekForge.Core.UiStates;
+namespace Sanet.MekForge.Core.UiStates;
 
 public enum MovementStep
 {
@@ -6,5 +6,6 @@ public enum MovementStep
     SelectingMovementType,
     SelectingTargetHex,
     SelectingDirection,
+    ConfirmMovement,
     Completed
 }

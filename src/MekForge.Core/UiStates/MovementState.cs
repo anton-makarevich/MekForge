@@ -16,7 +16,7 @@ public class MovementState : IUiState
     private readonly List<HexCoordinates> _prohibitedHexes;
     private MovementType? _selectedMovementType;
     private int _movementPoints;
-    private Dictionary<HexDirection, List<PathSegment>> _possibleDirections =[];
+    private Dictionary<HexDirection, List<PathSegment>> _possibleDirections = [];
 
     public MovementState(BattleMapViewModel viewModel)
     {
@@ -131,15 +131,28 @@ public class MovementState : IUiState
 
     public void HandleFacingSelection(HexDirection direction)
     {
+        if (CurrentMovementStep == MovementStep.ConfirmMovement)
+        {
+            ConfirmMovement();
+        }
         if (CurrentMovementStep != MovementStep.SelectingDirection) return;
         var path = _possibleDirections[direction]; 
         _builder.SetMovementPath(path);
-        if (_viewModel.MovementPath != null && _viewModel.MovementPath.Last().To==path.Last().To)
-        {
-            CompleteMovement();
-            return;
-        }
+        
         _viewModel.ShowMovementPath(path);
+        CurrentMovementStep = MovementStep.ConfirmMovement;
+        _viewModel.NotifyStateChanged();
+    }
+
+    private void ConfirmMovement()
+    {
+        if (CurrentMovementStep != MovementStep.ConfirmMovement) return;
+        var direction = _viewModel.AvailableDirections?.FirstOrDefault();
+        if (direction == null) return; 
+        var path = _possibleDirections[direction.Value];
+        if (_viewModel.MovementPath == null || _viewModel.MovementPath.Last().To != path.Last().To) return;
+        
+        CompleteMovement();
     }
 
     private bool HandleUnitSelectionFromHex(Hex hex)
@@ -189,7 +202,7 @@ public class MovementState : IUiState
 
         CurrentMovementStep = MovementStep.SelectingDirection;
         
-        _possibleDirections = new Dictionary<HexDirection, List<PathSegment>>();
+        _possibleDirections = [];
         var availableDirections = Enum.GetValues<HexDirection>();
 
         if (_selectedMovementType == MovementType.Jump)
@@ -289,6 +302,7 @@ public class MovementState : IUiState
         MovementStep.SelectingMovementType => _viewModel.LocalizationService.GetString("Action_SelectMovementType"),
         MovementStep.SelectingTargetHex => _viewModel.LocalizationService.GetString("Action_SelectTargetHex"),
         MovementStep.SelectingDirection => _viewModel.LocalizationService.GetString("Action_SelectFacingDirection"),
+        MovementStep.ConfirmMovement => _viewModel.LocalizationService.GetString("Action_MoveUnit"),
         _ => string.Empty
     };
 

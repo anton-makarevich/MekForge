@@ -44,6 +44,7 @@ public class MovementStateTests
         localizationService.GetString("Action_SelectMovementType").Returns("Select movement type");
         localizationService.GetString("Action_SelectTargetHex").Returns("Select target hex");
         localizationService.GetString("Action_SelectFacingDirection").Returns("Select facing direction");
+        localizationService.GetString("Action_MoveUnit").Returns("Move Unit");
         localizationService.GetString("Action_StandStill").Returns("Stand Still");
         localizationService.GetString("Action_MovementPoints").Returns("{0} | MP: {1}");
         localizationService.GetString("MovementType_Walk").Returns("Walk");
@@ -368,35 +369,6 @@ public class MovementStateTests
     }
 
     [Fact]
-    public void HandleFacingSelection_CompletesMovement_WhenSelectedSecondTime()
-    {
-        // Arrange
-        SetPhase(PhaseNames.Movement);
-        SetActivePlayer();
-        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
-        var unit = _viewModel.Units.First();
-        unit.Deploy(position);
-        _sut.HandleUnitSelection(unit);
-        _sut.HandleMovementTypeSelection(MovementType.Walk);
-        
-        var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 2))!;
-        _sut.HandleHexSelection(targetHex);
-        
-        // Act
-        _sut.HandleFacingSelection(HexDirection.Top);
-        _sut.HandleFacingSelection(HexDirection.Top);
-        
-        // Assert
-        _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
-        _sut.ActionLabel.ShouldBeEmpty();
-        _sut.IsActionRequired.ShouldBeFalse();
-        foreach (var hex in _viewModel.Game!.BattleMap.GetHexes())
-        {
-            hex.IsHighlighted.ShouldBeFalse();
-        }
-    }
-
-    [Fact]
     public void HandleFacingSelection_DoesNothing_WhenNotInDirectionSelectionStep()
     {
         // Arrange
@@ -587,7 +559,7 @@ public class MovementStateTests
         _sut.HandleMovementTypeSelection(MovementType.Walk);
 
         // Assert
-        var reachableHexes = _viewModel.Game.BattleMap.GetHexes()
+        var reachableHexes = _viewModel.Game!.BattleMap.GetHexes()
             .Where(h => h.IsHighlighted)
             .Select(h => h.Coordinates)
             .ToList();
@@ -602,10 +574,10 @@ public class MovementStateTests
         _unit1.Deploy(position);
         _sut.HandleUnitSelection(_unit1);
         _sut.HandleMovementTypeSelection(MovementType.Walk);
-        var currentHex = _viewModel.Game.BattleMap.GetHex(position.Coordinates);
+        var currentHex = _viewModel.Game!.BattleMap.GetHex(position.Coordinates);
 
         // Act
-        _sut.HandleHexSelection(currentHex);
+        _sut.HandleHexSelection(currentHex!);
 
         // Assert
         _viewModel.IsDirectionSelectorVisible.ShouldBeTrue();
@@ -707,5 +679,59 @@ public class MovementStateTests
 
         // Assert
         _sut.CurrentMovementStep.ShouldBe(MovementStep.SelectingTargetHex);
+    }
+
+    [Fact]
+    public void HandleFacingSelection_TransitionsToConfirmMovement_AfterSelectingDirection()
+    {
+        // Arrange
+        SetPhase(PhaseNames.Movement);
+        SetActivePlayer();
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var unit = _viewModel.Units.First();
+        unit.Deploy(position);
+        _sut.HandleUnitSelection(unit);
+        _sut.HandleMovementTypeSelection(MovementType.Walk);
+        
+        var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 2))!;
+        _sut.HandleHexSelection(targetHex);
+        
+        // Act
+        _sut.HandleFacingSelection(HexDirection.Top);
+        
+        // Assert
+        _viewModel.MovementPath.ShouldNotBeNull();
+        _sut.ActionLabel.ShouldBe("Move Unit");
+    }
+
+    [Fact]
+    public void HandleFacingSelection_CompletesMovement_WhenInConfirmMovementStep()
+    {
+        // Arrange
+        SetPhase(PhaseNames.Movement);
+        SetActivePlayer();
+        var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        var unit = _viewModel.Units.First();
+        unit.Deploy(position);
+        _sut.HandleUnitSelection(unit);
+        _sut.HandleMovementTypeSelection(MovementType.Walk);
+        
+        var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 2))!;
+        _sut.HandleHexSelection(targetHex);
+        
+        // First selection transitions to ConfirmMovement
+        _sut.HandleFacingSelection(HexDirection.Top);
+        
+        // Act - Second selection confirms the movement
+        _sut.HandleFacingSelection(HexDirection.Top);
+        
+        // Assert
+        _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
+        _sut.ActionLabel.ShouldBeEmpty();
+        _sut.IsActionRequired.ShouldBeFalse();
+        foreach (var hex in _viewModel.Game!.BattleMap.GetHexes())
+        {
+            hex.IsHighlighted.ShouldBeFalse();
+        }
     }
 }
