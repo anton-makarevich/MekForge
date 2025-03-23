@@ -67,6 +67,7 @@ public class FakeLocalizationServiceTests
     [InlineData("Action_SelectMovementType", "Select movement type")]
     [InlineData("Action_SelectTargetHex", "Select target hex")]
     [InlineData("Action_SelectFacingDirection", "Select facing direction")]
+    [InlineData("Action_MoveUnit", "Move Unit")]
     [InlineData("Action_StandStill", "Stand Still")]
     [InlineData("Action_MovementPoints", "{0} | MP: {1}")]
     // Movement types
