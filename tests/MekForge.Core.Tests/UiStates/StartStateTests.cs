@@ -78,6 +78,13 @@ public class StartStateTests
         // Assert
         _sut.IsActionRequired.ShouldBeTrue();
     }
+    
+    [Fact]
+    public void InitialState_CanExecutePlayerAction()
+    {
+        // Assert
+        _sut.CanExecutePlayerAction.ShouldBeTrue();
+    }
 
     [Fact]
     public void IsActionRequired_ReturnsFalse_WhenActivePlayerIsNotLocal()
