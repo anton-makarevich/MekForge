@@ -17,6 +17,7 @@ public sealed class ClientGame : BaseGame
 {
     private readonly Subject<IGameCommand> _commandSubject = new();
     private readonly List<IGameCommand> _commandLog = [];
+    private readonly HashSet<Guid> _playersEndedTurn = [];
 
     public IObservable<IGameCommand> Commands => _commandSubject.AsObservable();
     public IReadOnlyList<IGameCommand> CommandLog => _commandLog;
@@ -36,9 +37,13 @@ public sealed class ClientGame : BaseGame
     {
         if (!ShouldHandleCommand(command)) return;
         
+        // Log the command
         _commandLog.Add(command);
+        
+        // Publish the command to subscribers
         _commandSubject.OnNext(command);
         
+        // Handle specific command types
         switch (command)
         {
             case JoinGameCommand joinCmd:
@@ -46,6 +51,7 @@ public sealed class ClientGame : BaseGame
                 break;
             case UpdatePlayerStatusCommand statusCommand:
                 OnPlayerStatusUpdated(statusCommand);
+                
                 // If we're in the Start phase and the player who just got updated was the active player
                 if (TurnPhase == PhaseNames.Start && 
                     ActivePlayer != null && 
@@ -60,8 +66,15 @@ public sealed class ClientGame : BaseGame
                         .FirstOrDefault(p => LocalPlayers.Any(lp => lp.Id == p.Id));
                 }
                 break;
-            case ChangePhaseCommand changePhaseCommand:
-                TurnPhase = changePhaseCommand.Phase;
+            case ChangePhaseCommand phaseCommand:
+                TurnPhase = phaseCommand.Phase;
+                
+                // When entering End phase, clear the players who ended turn and set first local player as active
+                if (phaseCommand.Phase == PhaseNames.End)
+                {
+                    _playersEndedTurn.Clear();
+                    ActivePlayer = LocalPlayers.FirstOrDefault();
+                }
                 break;
             case ChangeActivePlayerCommand changeActivePlayerCommand:
                 var player = Players.FirstOrDefault(p => p.Id == changeActivePlayerCommand.PlayerId);
@@ -85,6 +98,21 @@ public sealed class ClientGame : BaseGame
                 break;
             case HeatUpdatedCommand heatUpdateCommand:
                 OnHeatUpdate(heatUpdateCommand);
+                break;
+            case TurnEndedCommand turnEndedCommand:
+                // Record that this player has ended their turn
+                _playersEndedTurn.Add(turnEndedCommand.PlayerId);
+                
+                // If we're in the End phase and the player who just ended their turn was the active player
+                if (TurnPhase == PhaseNames.End && 
+                    ActivePlayer != null && 
+                    turnEndedCommand.PlayerId == ActivePlayer.Id)
+                {
+                    // Set the next local player who hasn't ended their turn as active
+                    ActivePlayer = Players
+                        .Where(p => _playersEndedTurn.Contains(p.Id) == false)
+                        .FirstOrDefault(p => LocalPlayers.Any(lp => lp.Id == p.Id));
+                }
                 break;
         }
     }
