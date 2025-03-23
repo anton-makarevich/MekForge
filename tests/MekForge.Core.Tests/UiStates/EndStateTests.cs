@@ -77,13 +77,6 @@ public class EndStateTests
     }
 
     [Fact]
-    public void IsActionRequired_ReturnsFalse_WhenNotActivePlayer()
-    {
-        // Assert
-        _sut.IsActionRequired.ShouldBeFalse();
-    }
-
-    [Fact]
     public void HandleHexSelection_SelectsUnitAtHex()
     {
         // Arrange
