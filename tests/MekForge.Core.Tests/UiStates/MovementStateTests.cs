@@ -86,6 +86,13 @@ public class MovementStateTests
         _sut.ActionLabel.ShouldBe("Select unit to move");
         _sut.IsActionRequired.ShouldBeTrue();
     }
+    
+    [Fact]
+    public void InitialState_CannotExecutePlayerAction()
+    {
+        // Assert
+        _sut.CanExecutePlayerAction.ShouldBeFalse();
+    }
 
     private void AddPlayerUnits()
     {
