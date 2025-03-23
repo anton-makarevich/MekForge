@@ -217,6 +217,22 @@ public abstract class BaseGame : IGame
         unit.ApplyHeat(heatUpdatedCommand.HeatData);
     }
     
+    /// <summary>
+    /// Handles a turn ended command by resetting the turn state for all units of the player
+    /// </summary>
+    /// <param name="turnEndedCommand">The turn ended command</param>
+    public void OnTurnEnded(TurnEndedCommand turnEndedCommand)
+    {
+        var player = _players.FirstOrDefault(p => p.Id == turnEndedCommand.PlayerId);
+        if (player == null) return;
+        
+        // Reset the turn state for all units of the player
+        foreach (var unit in player.Units)
+        {
+            unit.ResetTurnState();
+        }
+    }
+    
     public void OnPhysicalAttack(PhysicalAttackCommand attackCommand)
     {
         Console.WriteLine("physical attack");

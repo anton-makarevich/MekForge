@@ -100,6 +100,7 @@ public sealed class ClientGame : BaseGame
                 OnHeatUpdate(heatUpdateCommand);
                 break;
             case TurnEndedCommand turnEndedCommand:
+                OnTurnEnded(turnEndedCommand);
                 // Record that this player has ended their turn
                 _playersEndedTurn.Add(turnEndedCommand.PlayerId);
                 

@@ -9,7 +9,7 @@ public class EndPhase(ServerGame game) : GamePhase(game)
 
     public override void Enter()
     {
-        // Don't increment turn here - we'll do it when all players end their turns
+        // Clear the set of players who have ended their turn
         _playersEndedTurn.Clear();
     }
 
@@ -24,7 +24,13 @@ public class EndPhase(ServerGame game) : GamePhase(game)
         // Record that this player has ended their turn
         _playersEndedTurn.Add(turnEndedCommand.PlayerId);
         
-        // Check if all players have ended their turn
+        // Broadcast the command to all clients
+        var broadcastCommand = turnEndedCommand;
+        broadcastCommand.GameOriginId = Game.Id;
+        // Call the OnTurnEnded method on the BaseGame class
+        Game.OnTurnEnded(turnEndedCommand);
+        Game.CommandPublisher.PublishCommand(broadcastCommand);
+        
         if (HaveAllPlayersEndedTurn())
         {
             // All players have ended their turns, start a new turn
