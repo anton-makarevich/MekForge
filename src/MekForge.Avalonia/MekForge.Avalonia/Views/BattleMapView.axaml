@@ -254,15 +254,9 @@
                 IsVisible="{Binding IsPlayerActionButtonVisible}"
                 Background="{Binding ActivePlayerTint, Converter={StaticResource HexColorToBrushConverter}}"
                 Foreground="{Binding ActivePlayerTint, Converter={StaticResource ContrastingForegroundConverter}}">
-            <StackPanel Orientation="Horizontal" Spacing="10">
-                <TextBlock Text="{Binding UserActionLabel}" 
-                         FontSize="16" 
-                         FontWeight="Bold"/>
-                <TextBlock Text="&#xf04b;" 
-                         FontFamily="{StaticResource AwesomeFontSolid}" 
-                         FontSize="16" 
-                         VerticalAlignment="Center"/>
-            </StackPanel>
+            <TextBlock Text="{Binding UserActionLabel}" 
+                     FontSize="16" 
+                     FontWeight="Bold"/>
         </Button>
 
         <!-- Record Sheet Panel -->
