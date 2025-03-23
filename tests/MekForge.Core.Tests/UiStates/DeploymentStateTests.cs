@@ -54,6 +54,10 @@ public class DeploymentStateTests
         SetActivePlayer(player, unitData);
         _unit = _viewModel.Units.First();
         _sut = new DeploymentState(_viewModel);
+
+        localizationService.GetString("Action_SelectUnitToDeploy").Returns("Select Unit");
+        localizationService.GetString("Action_SelectDeploymentHex").Returns("Select Hex");
+        localizationService.GetString("Action_SelectFacingDirection").Returns("Select facing direction");
     }
 
     [Fact]
@@ -102,7 +106,7 @@ public class DeploymentStateTests
         _sut.HandleHexSelection(_hex1);
 
         // Assert
-        _sut.ActionLabel.ShouldBe("Select Direction");
+        _sut.ActionLabel.ShouldBe("Select facing direction");
     }
     
     [Fact]

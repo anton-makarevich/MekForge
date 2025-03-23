@@ -59,7 +59,11 @@ public class FakeLocalizationService: ILocalizationService
             // Secondary target modifiers
             "Attack_SecondaryTargetFrontArc" => "Secondary target (front arc): +{0}",
             "Attack_SecondaryTargetOtherArc" => "Secondary target (other arc): +{0}",
-            
+
+            // Deployment actions
+            "Action_SelectUnitToDeploy" => "Select Unit",
+            "Action_SelectDeploymentHex" => "Select Hex",
+
             // Weapon attack actions
             "Action_SelectUnitToFire" => "Select unit to fire weapons",
             "Action_SelectAction" => "Select action",

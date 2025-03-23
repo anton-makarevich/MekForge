@@ -39,6 +39,7 @@ public class BattleMapViewModelTests
         _localizationService.GetString("Action_SelectTarget").Returns("Select Target");
         _localizationService.GetString("Action_SelectUnitToFire").Returns("Select unit to fire weapons");
         _localizationService.GetString("Action_SelectUnitToMove").Returns("Select unit to move");
+        _localizationService.GetString("Action_SelectUnitToDeploy").Returns("Select Unit");
         
         _game = Substitute.For<IGame>();
         _viewModel.Game = _game;

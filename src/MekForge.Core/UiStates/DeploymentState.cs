@@ -2,6 +2,7 @@ using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Commands.Client.Builders;
 using Sanet.MekForge.Core.Models.Map;
 using Sanet.MekForge.Core.Models.Units;
+using Sanet.MekForge.Core.Services.Localization;
 using Sanet.MekForge.Core.ViewModels;
 
 namespace Sanet.MekForge.Core.UiStates;
@@ -10,6 +11,7 @@ public class DeploymentState : IUiState
 {
     private readonly BattleMapViewModel _viewModel;
     private readonly DeploymentCommandBuilder _builder;
+    private readonly ILocalizationService _localizationService;
     private Hex? _selectedHex;
     
     private enum SubState
@@ -25,6 +27,7 @@ public class DeploymentState : IUiState
     public DeploymentState(BattleMapViewModel viewModel)
     {
         _viewModel = viewModel;
+        _localizationService = viewModel.LocalizationService;
         if (_viewModel.Game == null)
         {
             throw new InvalidOperationException("Game is null"); 
@@ -113,9 +116,9 @@ public class DeploymentState : IUiState
                 return string.Empty;
             return _currentSubState switch
             {
-                SubState.SelectingUnit => "Select Unit",
-                SubState.SelectingHex => "Select Hex",
-                SubState.SelectingDirection => "Select Direction",
+                SubState.SelectingUnit => _localizationService.GetString("Action_SelectUnitToDeploy"),
+                SubState.SelectingHex => _localizationService.GetString("Action_SelectDeploymentHex"),
+                SubState.SelectingDirection => _localizationService.GetString("Action_SelectFacingDirection"),
                 _ => string.Empty
             };
         }

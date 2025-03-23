@@ -84,6 +84,10 @@ public class FakeLocalizationServiceTests
     [InlineData("StartPhase_ActionLabel", "Ready to play")]
     // End phase
     [InlineData("EndPhase_ActionLabel", "End your turn")]
+    // Deployment actions
+    [InlineData("Action_SelectUnitToDeploy", "Select Unit")]
+    [InlineData("Action_SelectDeploymentHex", "Select Hex")]
+
     // Default
     [InlineData("Key_Not_Found", "Key_Not_Found")]
     public void GetString_ReturnsExpectedString(string key, string expected)
