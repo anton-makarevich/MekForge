@@ -40,7 +40,7 @@ jobs:
           
       # For all builds (including main branch pushes and manual runs)
       - name: Upload APK as Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MekForge-Android
           path: src/MekForge.Avalonia/MekForge.Avalonia.Android/bin/Release/net9.0-android/*.apk
