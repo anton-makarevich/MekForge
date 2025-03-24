@@ -111,7 +111,7 @@ public class BattleMapViewModelTests
             _viewModel.UnitsToDeploy.ShouldBeEmpty();
         }
         _viewModel.AreUnitsToDeployVisible.ShouldBe(expectedVisible);
-        _viewModel.UserActionLabel.ShouldBe(actionLabel);
+        _viewModel.ActionInfoLabel.ShouldBe(actionLabel);
         _viewModel.IsUserActionLabelVisible.ShouldBe(expectedVisible);
     }
     
@@ -282,7 +282,7 @@ public class BattleMapViewModelTests
         });
         
         // Assert
-        _viewModel.UserActionLabel.ShouldBe("Select unit to move");
+        _viewModel.ActionInfoLabel.ShouldBe("Select unit to move");
         _viewModel.IsUserActionLabelVisible.ShouldBeTrue();
     }
 
@@ -321,7 +321,7 @@ public class BattleMapViewModelTests
         });
         
         // Assert
-        _viewModel.UserActionLabel.ShouldBe("Select unit to fire weapons");
+        _viewModel.ActionInfoLabel.ShouldBe("Select unit to fire weapons");
         _viewModel.IsUserActionLabelVisible.ShouldBeTrue();
     }
 
@@ -360,7 +360,7 @@ public class BattleMapViewModelTests
         });
         
         // Assert
-        _viewModel.UserActionLabel.ShouldBe("Wait");
+        _viewModel.ActionInfoLabel.ShouldBe("Wait");
         _viewModel.IsUserActionLabelVisible.ShouldBeFalse();
     }
 
@@ -1405,7 +1405,7 @@ public class BattleMapViewModelTests
 
         // Assert
         _viewModel.CurrentState.ShouldBeOfType<EndState>();
-        _viewModel.UserActionLabel.ShouldBe("End your turn");
+        _viewModel.ActionInfoLabel.ShouldBe("End your turn");
     }
 
     [Fact]

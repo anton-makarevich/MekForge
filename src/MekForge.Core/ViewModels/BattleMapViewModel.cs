@@ -283,12 +283,13 @@ public class BattleMapViewModel : BaseViewModel
         NotifyPropertyChanged(nameof(TurnPhaseName));
         NotifyPropertyChanged(nameof(ActivePlayerName));
         NotifyPropertyChanged(nameof(ActivePlayerTint));
-        NotifyPropertyChanged(nameof(UserActionLabel));
+        NotifyPropertyChanged(nameof(ActionInfoLabel));
         NotifyPropertyChanged(nameof(IsUserActionLabelVisible));
         NotifyPropertyChanged(nameof(AreUnitsToDeployVisible));
         NotifyPropertyChanged(nameof(WeaponSelectionItems));
         NotifyPropertyChanged(nameof(Attacker));
         NotifyPropertyChanged(nameof(IsPlayerActionButtonVisible));
+        NotifyPropertyChanged(nameof(PlayerActionLabel));
     }
 
     internal void HighlightHexes(List<HexCoordinates> coordinates, bool isHighlighted)
@@ -351,9 +352,11 @@ public class BattleMapViewModel : BaseViewModel
         SelectedUnit = null;
     }
 
-    public string UserActionLabel => CurrentState.ActionLabel;
+    public string ActionInfoLabel => CurrentState.ActionLabel;
     public bool IsUserActionLabelVisible => CurrentState.IsActionRequired;
 
+    public string PlayerActionLabel => CurrentState.PlayerActionLabel;
+    
     public bool IsPlayerActionButtonVisible =>
         CurrentState.CanExecutePlayerAction;
 

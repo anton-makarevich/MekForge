@@ -90,7 +90,7 @@
                     Background="{Binding ActivePlayerTint, Converter={StaticResource HexColorToBrushConverter}}" 
                     Padding="15,5"
                     IsVisible="{Binding IsUserActionLabelVisible}">
-                <TextBlock Text="{Binding UserActionLabel}" 
+                <TextBlock Text="{Binding ActionInfoLabel}" 
                          FontSize="16" 
                          FontWeight="Bold"
                          Foreground="{Binding ActivePlayerTint, Converter={StaticResource ContrastingForegroundConverter}}"
@@ -254,7 +254,7 @@
                 IsVisible="{Binding IsPlayerActionButtonVisible}"
                 Background="{Binding ActivePlayerTint, Converter={StaticResource HexColorToBrushConverter}}"
                 Foreground="{Binding ActivePlayerTint, Converter={StaticResource ContrastingForegroundConverter}}">
-            <TextBlock Text="{Binding UserActionLabel}" 
+            <TextBlock Text="{Binding PlayerActionLabel}" 
                      FontSize="16" 
                      FontWeight="Bold"/>
         </Button>

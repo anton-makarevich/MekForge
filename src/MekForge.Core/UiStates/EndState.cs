@@ -24,6 +24,8 @@ public class EndState : IUiState
 
     public bool CanExecutePlayerAction => true;
 
+    public string PlayerActionLabel => _localizationService.GetString("EndPhase_PlayerActionLabel");
+
     private bool IsActivePlayer => _viewModel.Game?.ActivePlayer != null && 
                                   _viewModel.Game is ClientGame clientGame &&
                                   clientGame.LocalPlayers.Any(p => p.Id == _viewModel.Game.ActivePlayer.Id);
