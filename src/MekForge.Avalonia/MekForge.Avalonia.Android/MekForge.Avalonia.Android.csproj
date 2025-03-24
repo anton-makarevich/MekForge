@@ -4,9 +4,10 @@
         <TargetFramework>net9.0-android</TargetFramework>
         <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
         <Nullable>enable</Nullable>
-        <ApplicationId>com.CompanyName.MekForge.Avalonia</ApplicationId>
-        <ApplicationVersion>1</ApplicationVersion>
-        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+        <ApplicationId>nl.sanetby.mekforge</ApplicationId>
+        <!-- Use version from Directory.Build.props -->
+        <ApplicationVersion>$([MSBuild]::ValueOrDefault($([System.Text.RegularExpressions.Regex]::Match($(Version), ^\d+\.\d+\.\d+).Value.Replace('.', '')), 0))</ApplicationVersion>
+        <ApplicationDisplayVersion>$(Version)</ApplicationDisplayVersion>
         <AndroidPackageFormat>apk</AndroidPackageFormat>
         <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
         <AssemblyName>Sanet.MekForge.Avalonia.Android</AssemblyName>
