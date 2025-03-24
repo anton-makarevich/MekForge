@@ -1,0 +1,12 @@
+1. Workspace structure:
+ src/MekForge.Core/        : Core game engine and logic
+ src/MekForge.Avalonia/    : UI implementation with AvaloniaUI v11
+ tests/                    : Unit tests
+
+2. Unit tests are run with xUnit, NSubstitute for mocking, Shouldly for assertions
+
+3. Do not modify code right away, help with brainstorming and suggestions first
+
+4. If you have any doubts - always ask, do not make assumptions
+
+5. Never modify any code that is not related to your current task, if you see any gaps - suggest to improve, but don't modify

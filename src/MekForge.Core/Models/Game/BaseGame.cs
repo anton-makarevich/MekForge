@@ -245,6 +245,7 @@ public abstract class BaseGame : IGame
             JoinGameCommand joinGameCommand => ValidateJoinCommand(joinGameCommand),
             UpdatePlayerStatusCommand playerStateCommand => ValidatePlayer(playerStateCommand),
             DeployUnitCommand deployUnitCommand => ValidateDeployCommand(deployUnitCommand),
+            TurnIncrementedCommand turnIncrementedCommand => ValidateTurnIncrementedCommand(turnIncrementedCommand),
             MoveUnitCommand => true,
             WeaponConfigurationCommand => true,
             WeaponAttackDeclarationCommand=> true,
@@ -274,6 +275,12 @@ public abstract class BaseGame : IGame
     private bool ValidateDeployCommand(DeployUnitCommand cmd)
     {
         return true; //unit != null && !unit.Position.HasValue;
+    }
+    
+    protected bool ValidateTurnIncrementedCommand(TurnIncrementedCommand command)
+    {
+        // Validate that the turn number is only incremented by 1
+        return command.TurnNumber == Turn + 1;
     }
 
     public abstract void HandleCommand(IGameCommand command);
