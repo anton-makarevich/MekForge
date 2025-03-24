@@ -33,6 +33,7 @@ public class StartStateTests
 
         // Mock localization service responses
         localizationService.GetString("StartPhase_ActionLabel").Returns("Ready to play");
+        localizationService.GetString("StartPhase_PlayerActionLabel").Returns("Ready to play");
         
         _viewModel = new BattleMapViewModel(imageService, localizationService);
         
@@ -194,5 +195,15 @@ public class StartStateTests
         
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<UpdatePlayerStatusCommand>());
+    }
+
+    [Fact]
+    public void PlayerActionLabel_ReturnsCorrectLabel()
+    {   
+        // Act
+        var result = _sut.PlayerActionLabel;
+        
+        // Assert
+        result.ShouldBe("Ready to play");
     }
 }
