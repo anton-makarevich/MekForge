@@ -66,6 +66,13 @@ public sealed class ClientGame : BaseGame
                         .FirstOrDefault(p => LocalPlayers.Any(lp => lp.Id == p.Id));
                 }
                 break;
+            case TurnIncrementedCommand turnIncrementedCommand:
+                // Use the validation method from BaseGame
+                if (ValidateTurnIncrementedCommand(turnIncrementedCommand))
+                {
+                    Turn = turnIncrementedCommand.TurnNumber;
+                }
+                break;
             case ChangePhaseCommand phaseCommand:
                 TurnPhase = phaseCommand.Phase;
                 

@@ -1470,4 +1470,40 @@ public class ClientGameTests
         // Assert - No more local players who haven't ended their turn, so ActivePlayer should be null
         clientGame.ActivePlayer.ShouldBeNull();
     }
+
+    [Fact]
+    public void HandleCommand_ShouldUpdateTurn_WhenTurnIncrementedCommandIsReceived()
+    {
+        // Arrange
+        var initialTurn = _clientGame.Turn;
+        var turnIncrementedCommand = new TurnIncrementedCommand
+        {
+            GameOriginId = Guid.NewGuid(), // Different from client game ID
+            TurnNumber = initialTurn + 1
+        };
+
+        // Act
+        _clientGame.HandleCommand(turnIncrementedCommand);
+
+        // Assert
+        _clientGame.Turn.ShouldBe(initialTurn + 1);
+    }
+
+    [Fact]
+    public void HandleCommand_ShouldNotUpdateTurn_WhenTurnIncrementedCommandHasInvalidTurnNumber()
+    {
+        // Arrange
+        var initialTurn = _clientGame.Turn;
+        var turnIncrementedCommand = new TurnIncrementedCommand
+        {
+            GameOriginId = Guid.NewGuid(), // Different from client game ID
+            TurnNumber = initialTurn + 2 // Skipping a turn, should be rejected
+        };
+
+        // Act
+        _clientGame.HandleCommand(turnIncrementedCommand);
+
+        // Assert
+        _clientGame.Turn.ShouldBe(initialTurn); // Turn should not change
+    }
 }
