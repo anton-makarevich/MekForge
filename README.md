@@ -60,6 +60,11 @@ MekForge/
 [![Deploy WASM to GitHub Pages](https://github.com/anton-makarevich/MekForge/actions/workflows/deploy-wasm.yml/badge.svg)](https://github.com/anton-makarevich/MekForge/actions/workflows/deploy-wasm.yml)
 [![Play in Browser](https://img.shields.io/badge/Play-in%20Browser-blue?logo=github)](https://anton-makarevich.github.io/MekForge/)
 
+- **Android Version**:
+
+[![Build Android APK](https://github.com/anton-makarevich/MekForge/actions/workflows/build-android.yml/badge.svg)](https://github.com/anton-makarevich/MekForge/actions/workflows/build-android.yml)
+[![Download Android APK](https://img.shields.io/badge/Download-Android%20APK-green?logo=android)](https://github.com/anton-makarevich/MekForge/actions/workflows/build-android.yml)
+
 ## Development Setup
 
 ### Prerequisites
