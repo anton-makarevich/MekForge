@@ -33,6 +33,16 @@ public class WeaponsAttackState : IUiState
 
     public bool IsActionRequired => true;
 
+    public bool CanExecutePlayerAction => CurrentStep == WeaponsAttackStep.ActionSelection || CurrentStep == WeaponsAttackStep.TargetSelection;
+
+    public void ExecutePlayerAction()
+    {
+        if (CurrentStep == WeaponsAttackStep.ActionSelection || CurrentStep == WeaponsAttackStep.TargetSelection)
+        {
+            ConfirmWeaponSelections();
+        }
+    }
+
     public WeaponsAttackState(BattleMapViewModel viewModel)
     {
         _game = viewModel.Game! as ClientGame ?? throw new InvalidOperationException("Game is not client game");
