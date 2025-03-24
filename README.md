@@ -65,6 +65,11 @@ MekForge/
 [![Build Android APK](https://github.com/anton-makarevich/MekForge/actions/workflows/build-android.yml/badge.svg)](https://github.com/anton-makarevich/MekForge/actions/workflows/build-android.yml)
 [![Download Android APK](https://img.shields.io/badge/Download-Android%20APK-green?logo=android)](https://github.com/anton-makarevich/MekForge/actions/workflows/build-android.yml)
 
+- **Windows Version**:
+
+[![Build Windows App](https://github.com/anton-makarevich/MekForge/actions/workflows/build-windows.yml/badge.svg)](https://github.com/anton-makarevich/MekForge/actions/workflows/build-windows.yml)
+[![Download Windows Installer](https://img.shields.io/badge/Download-Windows%20Installer-blue?logo=windows)](https://github.com/anton-makarevich/MekForge/actions/workflows/build-windows.yml)
+
 ## Development Setup
 
 ### Prerequisites
