@@ -1281,4 +1281,103 @@ public class WeaponsAttackStateTests
             cmd.WeaponTargets.Count == 0
         ));
     }
+
+    [Fact]
+    public void PlayerActionLabel_ReturnsSkipAttack_WhenInActionSelectionStep()
+    {
+        // Arrange 
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        var attackerPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        attacker.Deploy(attackerPosition);
+        _sut.HandleHexSelection(_game.BattleMap.GetHexes().First(h=>h.Coordinates==attackerPosition.Coordinates));
+        _sut.HandleUnitSelection(attacker);
+        
+        // Act
+        var result = _sut.PlayerActionLabel;
+        
+        // Assert
+        result.ShouldBe("Skip Attack");
+    }
+    
+    [Fact]
+    public void PlayerActionLabel_ReturnsDeclareAttack_WhenInTargetSelectionStepWithWeaponTargets()
+    {
+        // Arrange
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        var target = _viewModel.Units.First(u => u.Owner!.Id != _player.Id);
+        
+        // Place units next to each other
+        var attackerPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        attacker.Deploy(attackerPosition);
+        var targetPosition = new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom);
+        target.Deploy(targetPosition);
+        
+        _sut.HandleHexSelection(_game.BattleMap.GetHexes().First(h=>h.Coordinates==attackerPosition.Coordinates));
+        _sut.HandleUnitSelection(attacker);
+        var selectTargetAction = _sut.GetAvailableActions().First(a => a.Label == "Select Target");
+        selectTargetAction.OnExecute();
+        _sut.HandleHexSelection(_game.BattleMap.GetHexes().First(h=>h.Coordinates==targetPosition.Coordinates));
+        _sut.HandleUnitSelection(target);
+
+        var weapon = attacker.Parts
+            .SelectMany(p => p.GetComponents<Weapon>())
+            .First();
+        var weaponSelection = _sut.WeaponSelectionItems.First(ws => ws.Weapon == weapon);
+        weaponSelection.IsSelected = true;
+        
+        // Act
+        var result = _sut.PlayerActionLabel;
+        
+        // Assert
+        result.ShouldBe("Declare Attack");
+    }
+    
+    [Fact]
+    public void PlayerActionLabel_ReturnsSkipAttack_WhenInTargetSelectionStepWithoutWeaponTargets()
+    {
+        // Arrange
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        var target = _viewModel.Units.First(u => u.Owner!.Id != _player.Id);
+        
+        // Place units next to each other
+        var attackerPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        attacker.Deploy(attackerPosition);
+        var targetPosition = new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom);
+        target.Deploy(targetPosition);
+        
+        _sut.HandleHexSelection(_game.BattleMap.GetHexes().First(h=>h.Coordinates==attackerPosition.Coordinates));
+        _sut.HandleUnitSelection(attacker);
+        var selectTargetAction = _sut.GetAvailableActions().First(a => a.Label == "Select Target");
+        selectTargetAction.OnExecute();
+        _sut.HandleHexSelection(_game.BattleMap.GetHexes().First(h=>h.Coordinates==targetPosition.Coordinates));
+        _sut.HandleUnitSelection(target);
+        
+        // Act
+        var result = _sut.PlayerActionLabel;
+        
+        // Assert
+        result.ShouldBe("Skip Attack");
+    }
+    
+    [Fact]
+    public void PlayerActionLabel_ReturnsEmptyString_WhenInWeaponsConfigurationStep()
+    {
+        // Arrange
+        var attacker = _viewModel.Units.First(u => u.Owner!.Id == _player.Id);
+        
+        // Place unit
+        var attackerPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
+        attacker.Deploy(attackerPosition);
+        
+        _sut.HandleHexSelection(_game.BattleMap.GetHexes().First(h=>h.Coordinates==attackerPosition.Coordinates));
+        _sut.HandleUnitSelection(attacker);
+        var torsoRotationAction = _sut.GetAvailableActions().First(a => a.Label == "Turn Torso");
+        torsoRotationAction.OnExecute();
+        
+        // Act
+        var result = _sut.PlayerActionLabel;
+        
+        // Assert
+        result.ShouldBe(string.Empty);
+    }
 }

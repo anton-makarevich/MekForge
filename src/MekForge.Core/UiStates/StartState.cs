@@ -25,6 +25,8 @@ public class StartState : IUiState
     
     public bool CanExecutePlayerAction => true;
 
+    public string PlayerActionLabel => _localizationService.GetString("StartPhase_PlayerActionLabel");
+
     private bool IsLocalPlayerActive => _viewModel.Game is ClientGame { ActivePlayer: not null } clientGame && 
                                         clientGame.LocalPlayers.Any(p => p.Id == clientGame.ActivePlayer.Id);
 

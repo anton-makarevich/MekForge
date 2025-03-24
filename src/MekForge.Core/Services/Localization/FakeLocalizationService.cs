@@ -97,9 +97,11 @@ public class FakeLocalizationService: ILocalizationService
             
             // Start phase
             "StartPhase_ActionLabel" => "Ready to play",
+            "StartPhase_PlayerActionLabel" => "Ready",
             
             // End phase
             "EndPhase_ActionLabel" => "End your turn",
+            "EndPhase_PlayerActionLabel" => "End Turn",
             
             _ => key
         };

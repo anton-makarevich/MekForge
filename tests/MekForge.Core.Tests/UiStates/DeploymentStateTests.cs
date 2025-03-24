@@ -73,6 +73,7 @@ public class DeploymentStateTests
     {
         // Assert
         ((IUiState)_sut).CanExecutePlayerAction.ShouldBeFalse();
+        ((IUiState)_sut).PlayerActionLabel.ShouldBe("");
     }
 
     private void SetActivePlayer(Player player, UnitData unitData)

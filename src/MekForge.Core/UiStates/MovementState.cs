@@ -310,6 +310,9 @@ public class MovementState : IUiState
     
     public bool CanExecutePlayerAction => CurrentMovementStep == MovementStep.ConfirmMovement;
     
+    public string PlayerActionLabel => CurrentMovementStep == MovementStep.ConfirmMovement ? 
+        _viewModel.LocalizationService.GetString("Action_MoveUnit") : string.Empty;
+    
     public MovementStep CurrentMovementStep { get; private set; } = MovementStep.SelectingUnit;
 
     public void ExecutePlayerAction()

@@ -36,6 +36,7 @@ public class EndStateTests
         
         // Mock localization service responses
         localizationService.GetString("EndPhase_ActionLabel").Returns("End your turn");
+        localizationService.GetString("EndPhase_PlayerActionLabel").Returns("End your turn");
         
         _viewModel = new BattleMapViewModel(imageService, localizationService);
         var playerId = Guid.NewGuid();
@@ -157,6 +158,16 @@ public class EndStateTests
 
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<TurnEndedCommand>());
+    }
+    
+    [Fact]
+    public void PlayerActionLabel_ReturnsCorrectLabel()
+    {   
+        // Act
+        var result = _sut.PlayerActionLabel;
+        
+        // Assert
+        result.ShouldBe("End your turn");
     }
     
     private void SetActivePlayer()

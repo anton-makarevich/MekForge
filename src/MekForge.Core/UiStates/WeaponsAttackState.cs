@@ -33,6 +33,25 @@ public class WeaponsAttackState : IUiState
 
     public bool IsActionRequired => true;
 
+    public bool CanExecutePlayerAction => CurrentStep == WeaponsAttackStep.ActionSelection || CurrentStep == WeaponsAttackStep.TargetSelection;
+
+    public string PlayerActionLabel => CurrentStep switch
+    {
+        WeaponsAttackStep.ActionSelection => _viewModel.LocalizationService.GetString("Action_SkipAttack"),
+        WeaponsAttackStep.TargetSelection => _weaponTargets.Count > 0 
+            ? _viewModel.LocalizationService.GetString("Action_DeclareAttack") 
+            : _viewModel.LocalizationService.GetString("Action_SkipAttack"),
+        _ => string.Empty
+    };
+
+    public void ExecutePlayerAction()
+    {
+        if (CurrentStep == WeaponsAttackStep.ActionSelection || CurrentStep == WeaponsAttackStep.TargetSelection)
+        {
+            ConfirmWeaponSelections();
+        }
+    }
+
     public WeaponsAttackState(BattleMapViewModel viewModel)
     {
         _game = viewModel.Game! as ClientGame ?? throw new InvalidOperationException("Game is not client game");

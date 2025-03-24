@@ -83,8 +83,10 @@ public class FakeLocalizationServiceTests
     [InlineData("Command_HeatUpdated_Dissipation", "  - Heat dissipation from {0} heat sinks and {1} engine heat sinks: -{2} heat")]
     // Start phase
     [InlineData("StartPhase_ActionLabel", "Ready to play")]
+    [InlineData("StartPhase_PlayerActionLabel", "Ready")]
     // End phase
     [InlineData("EndPhase_ActionLabel", "End your turn")]
+    [InlineData("EndPhase_PlayerActionLabel", "End Turn")]
     // Deployment actions
     [InlineData("Action_SelectUnitToDeploy", "Select Unit")]
     [InlineData("Action_SelectDeploymentHex", "Select Hex")]

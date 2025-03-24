@@ -761,15 +761,30 @@ public class MovementStateTests
         // First selection transitions to ConfirmMovement
         _sut.HandleFacingSelection(HexDirection.Top);
         _sut.CanExecutePlayerAction.ShouldBeTrue();
+        _sut.PlayerActionLabel.ShouldBe("Move Unit");
         _sut.ExecutePlayerAction();
         
         // Assert
         _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
         _sut.ActionLabel.ShouldBeEmpty();
         _sut.IsActionRequired.ShouldBeFalse();
+        
         foreach (var hex in _viewModel.Game!.BattleMap.GetHexes())
         {
             hex.IsHighlighted.ShouldBeFalse();
         }
+    }
+    
+    [Fact]
+    public void PlayerActionLabel_ReturnsEmptyString_WhenNotInConfirmMovementStep()
+    {
+        // Arrange
+        _sut.HandleUnitSelection(_unit1);
+        
+        // Act
+        var result = _sut.PlayerActionLabel;
+        
+        // Assert
+        result.ShouldBe(string.Empty);
     }
 }

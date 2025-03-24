@@ -40,7 +40,7 @@ public class BattleMapViewModelTests
         _localizationService.GetString("Action_SelectUnitToFire").Returns("Select unit to fire weapons");
         _localizationService.GetString("Action_SelectUnitToMove").Returns("Select unit to move");
         _localizationService.GetString("Action_SelectUnitToDeploy").Returns("Select Unit");
-        
+        _localizationService.GetString("StartPhase_PlayerActionLabel").Returns("Ready to play");
         _game = Substitute.For<IGame>();
         _viewModel.Game = _game;
     }
@@ -111,7 +111,7 @@ public class BattleMapViewModelTests
             _viewModel.UnitsToDeploy.ShouldBeEmpty();
         }
         _viewModel.AreUnitsToDeployVisible.ShouldBe(expectedVisible);
-        _viewModel.UserActionLabel.ShouldBe(actionLabel);
+        _viewModel.ActionInfoLabel.ShouldBe(actionLabel);
         _viewModel.IsUserActionLabelVisible.ShouldBe(expectedVisible);
     }
     
@@ -282,7 +282,7 @@ public class BattleMapViewModelTests
         });
         
         // Assert
-        _viewModel.UserActionLabel.ShouldBe("Select unit to move");
+        _viewModel.ActionInfoLabel.ShouldBe("Select unit to move");
         _viewModel.IsUserActionLabelVisible.ShouldBeTrue();
     }
 
@@ -321,7 +321,7 @@ public class BattleMapViewModelTests
         });
         
         // Assert
-        _viewModel.UserActionLabel.ShouldBe("Select unit to fire weapons");
+        _viewModel.ActionInfoLabel.ShouldBe("Select unit to fire weapons");
         _viewModel.IsUserActionLabelVisible.ShouldBeTrue();
     }
 
@@ -360,7 +360,7 @@ public class BattleMapViewModelTests
         });
         
         // Assert
-        _viewModel.UserActionLabel.ShouldBe("Wait");
+        _viewModel.ActionInfoLabel.ShouldBe("Wait");
         _viewModel.IsUserActionLabelVisible.ShouldBeFalse();
     }
 
@@ -1405,7 +1405,7 @@ public class BattleMapViewModelTests
 
         // Assert
         _viewModel.CurrentState.ShouldBeOfType<EndState>();
-        _viewModel.UserActionLabel.ShouldBe("End your turn");
+        _viewModel.ActionInfoLabel.ShouldBe("End your turn");
     }
 
     [Fact]
@@ -1510,5 +1510,29 @@ public class BattleMapViewModelTests
 
         // Assert
         _viewModel.IsPlayerActionButtonVisible.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void PlayerActionLabel_ReturnsCurrentStatePlayerActionLabel()
+    {
+        // Arrange
+        var clientGame = new ClientGame(
+            BattleMap.GenerateMap(2, 2, new SingleTerrainGenerator(2, 2, new ClearTerrain())),
+            [new Player(Guid.NewGuid(), "Player1")],
+            new ClassicBattletechRulesProvider(),
+            Substitute.For<ICommandPublisher>(),
+            Substitute.For<IToHitCalculator>());
+        _viewModel.Game = clientGame;
+        clientGame!.HandleCommand(new ChangePhaseCommand
+        {
+            GameOriginId = Guid.NewGuid(),
+            Phase = PhaseNames.Start
+        });
+        
+        // Act
+        var result = _viewModel.PlayerActionLabel;
+        
+        // Assert - we expect Start state and its action label
+        result.ShouldBe("Ready to play");
     }
 }
