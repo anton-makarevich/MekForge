@@ -4,9 +4,9 @@
         <TargetFramework>net9.0-android</TargetFramework>
         <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
         <Nullable>enable</Nullable>
-        <ApplicationId>nl.sanet.mekforge</ApplicationId>
+        <ApplicationId>nl.sanetby.mekforge</ApplicationId>
         <!-- Use version from Directory.Build.props -->
-        <ApplicationVersion>$([System.Version]::Parse($(Version)).Major)$([System.Version]::Parse($(Version)).Minor)$([System.Version]::Parse($(Version)).Build)</ApplicationVersion>
+        <ApplicationVersion>$([MSBuild]::ValueOrDefault($([System.Text.RegularExpressions.Regex]::Match($(Version), ^\d+\.\d+\.\d+).Value.Replace('.', '')), 0))</ApplicationVersion>
         <ApplicationDisplayVersion>$(Version)</ApplicationDisplayVersion>
         <AndroidPackageFormat>apk</AndroidPackageFormat>
         <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
