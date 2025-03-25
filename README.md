@@ -75,6 +75,9 @@ MekForge/
 [![Build Linux App](https://github.com/anton-makarevich/MekForge/actions/workflows/build-linux.yml/badge.svg)](https://github.com/anton-makarevich/MekForge/actions/workflows/build-linux.yml)
 [![Download Linux AppImage](https://img.shields.io/badge/Download-Linux%20AppImage-orange?logo=linux)](https://github.com/anton-makarevich/MekForge/actions/workflows/build-linux.yml)
 
+> **Note:** macOS and iOS builds require code signing and have a more complex distribution process. While these platforms are supported by the codebase, automated builds are not available yet.
+> Users can build and deploy to Apple platforms from the source code.
+
 ## Development Setup
 
 ### Prerequisites
