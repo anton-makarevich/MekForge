@@ -15,6 +15,7 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
+OutputDir=..\..\installer-output
 OutputBaseFilename=MekForge-Setup-{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
