@@ -27,21 +27,16 @@ jobs:
           $xml = [xml](Get-Content Directory.Build.props)
           $version = $xml.Project.PropertyGroup.Version
           
-          # For Inno Setup, we need to handle the alpha/beta suffix
-          $versionMatch = [regex]::Match($version, '(\d+\.\d+\.\d+).*')
-          if ($versionMatch.Success) {
-            $numericVersion = $versionMatch.Groups[1].Value
-          } else {
-            $numericVersion = $version
-          }
-          
           echo "APP_VERSION=$version" >> $env:GITHUB_ENV
-          echo "APP_VERSION_NUMERIC=$numericVersion" >> $env:GITHUB_ENV
-          echo "Version extracted: $version (numeric: $numericVersion)"
+          echo "Version extracted: $version"
+
+      - name: Install Velopack CLI
+        run: |
+          dotnet tool install --global Velopack.Cli
+          vpk --version
 
       - name: Build Windows App
         run: |
-          dotnet tool install --global vpk
           cd src/MekForge.Avalonia/MekForge.Avalonia.Desktop
           dotnet publish -c Release -r win-x64 -o publish
           vpk pack --packId nl.sanetby.mekforge --packVersion ${{ env.APP_VERSION }} --packDir publish --mainExe MekForge.exe
@@ -52,7 +47,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: src/MekForge.Avalonia/MekForge.Avalonia.Desktop/*Setup.exe
+          files: src/MekForge.Avalonia/MekForge.Avalonia.Desktop/Releases/*Setup.exe
           draft: false
           prerelease: false
           generate_release_notes: true
@@ -62,5 +57,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: MekForge-Windows-Installer
-          path: src/MekForge.Avalonia/MekForge.Avalonia.Desktop/*Setup.exe
+          path: src/MekForge.Avalonia/MekForge.Avalonia.Desktop/Releases/*Setup.exe
           retention-days: 90  # Keep artifacts for 90 days
