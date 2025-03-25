@@ -1,0 +1,64 @@
+name: Build and Package Windows App
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'  # Run on version tags
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 9.x
+
+      - name: Extract version from Directory.Build.props
+        id: extract_version
+        shell: pwsh
+        run: |
+          $xml = [xml](Get-Content Directory.Build.props)
+          $version = $xml.Project.PropertyGroup.Version
+          echo "APP_VERSION=$version" >> $env:GITHUB_ENV
+          echo "Version extracted: $version"
+
+      - name: Build Windows App
+        run: |
+          dotnet publish src/MekForge.Avalonia/MekForge.Avalonia.Desktop/MekForge.Avalonia.Desktop.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -o publish/win-x64
+
+      - name: Download Inno Setup
+        run: |
+          Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile "is.exe"
+          Start-Process -FilePath "is.exe" -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-" -Wait
+
+      - name: Compile Installer
+        shell: pwsh
+        run: |
+          $env:PATH += ";C:\Program Files (x86)\Inno Setup 6"
+          iscc.exe /DMyAppVersion=$env:APP_VERSION /DMyAppSource="$env:GITHUB_WORKSPACE\publish\win-x64" "$env:GITHUB_WORKSPACE\installer\MekForge.iss" /Q
+
+      # For tagged releases only
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: output/MekForge-Setup-*.exe
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          
+      # For all builds (including main branch pushes and manual runs)
+      - name: Upload Installer as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MekForge-Windows-Installer
+          path: output/MekForge-Setup-*.exe
+          retention-days: 90  # Keep artifacts for 90 days

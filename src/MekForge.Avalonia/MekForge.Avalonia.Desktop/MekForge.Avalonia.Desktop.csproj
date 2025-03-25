@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <!--If you are willing to use Windows/MacOS native APIs you will need to create 3 projects.
@@ -6,8 +6,14 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-        <AssemblyName>Sanet.MekForge.Avalonia.Desktop</AssemblyName>
+        <AssemblyName>MekForge</AssemblyName>
         <RootNamespace>Sanet.MekForge.Avalonia.Desktop</RootNamespace>
+        <!-- Version information -->
+        <Product>MekForge</Product>
+        <FileVersion>$(Version)</FileVersion>
+        <AssemblyVersion>$(Version)</AssemblyVersion>
+        <InformationalVersion>$(Version)</InformationalVersion>
+        <ApplicationIcon>../MekForge.Avalonia/Assets/avalonia-logo.ico</ApplicationIcon>
     </PropertyGroup>
 
     <PropertyGroup>
