@@ -26,8 +26,18 @@ jobs:
         run: |
           $xml = [xml](Get-Content Directory.Build.props)
           $version = $xml.Project.PropertyGroup.Version
+          
+          # For Inno Setup, we need to handle the alpha/beta suffix
+          $versionMatch = [regex]::Match($version, '(\d+\.\d+\.\d+).*')
+          if ($versionMatch.Success) {
+            $numericVersion = $versionMatch.Groups[1].Value
+          } else {
+            $numericVersion = $version
+          }
+          
           echo "APP_VERSION=$version" >> $env:GITHUB_ENV
-          echo "Version extracted: $version"
+          echo "APP_VERSION_NUMERIC=$numericVersion" >> $env:GITHUB_ENV
+          echo "Version extracted: $version (numeric: $numericVersion)"
 
       - name: Build Windows App
         run: |

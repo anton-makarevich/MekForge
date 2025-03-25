@@ -10,8 +10,8 @@
         <RootNamespace>Sanet.MekForge.Avalonia.Desktop</RootNamespace>
         <!-- Version information -->
         <Product>MekForge</Product>
-        <FileVersion>$(Version)</FileVersion>
-        <AssemblyVersion>$(Version)</AssemblyVersion>
+        <FileVersion>$([System.Text.RegularExpressions.Regex]::Match($(Version), ^\d+\.\d+\.\d+).Value)</FileVersion>
+        <AssemblyVersion>$([System.Text.RegularExpressions.Regex]::Match($(Version), ^\d+\.\d+\.\d+).Value)</AssemblyVersion>
         <InformationalVersion>$(Version)</InformationalVersion>
         <ApplicationIcon>../MekForge.Avalonia/Assets/avalonia-logo.ico</ApplicationIcon>
     </PropertyGroup>
