@@ -70,6 +70,11 @@ MekForge/
 [![Build Windows App](https://github.com/anton-makarevich/MekForge/actions/workflows/build-windows.yml/badge.svg)](https://github.com/anton-makarevich/MekForge/actions/workflows/build-windows.yml)
 [![Download Windows Installer](https://img.shields.io/badge/Download-Windows%20Installer-blue?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAABE0lEQVR4nO3aMUrEYBDF8R/Y2W1hoa29CF7BwgvoEWw9gI2lF9ADWNraiTarWwhewcJKOytL/UTIQhrjsolk17w/pBnCzDd88xjICyGEZWUV2zjAMS7wgDeMLSAb2MUhTnGFJ3ygNDy9MMIO9nGCSzzi/ZfDlj4a+R6FLazXYufVKMx72PJXjaxgE3s4qg56g2d8VgVea+9PY701Mmo5ClNKn41cd1ik10ZKGpEbKRmtBqIR0YhopIloRDQiGmnivqVOxh3mKjPUCEvDpOW133WYq8xQ40eyR2SPyB5pIhoRjYhGmohGRCOikUF8xP43tkJbo+dlkYyeNi7sWi12tqjW2yDM0EHY013/MHA7V8YQBswXmfZIX4+AWlMAAAAASUVORK5CYII=)](https://github.com/anton-makarevich/MekForge/actions/workflows/build-windows.yml)
 
+- **Linux Version**:
+
+[![Build Linux App](https://github.com/anton-makarevich/MekForge/actions/workflows/build-linux.yml/badge.svg)](https://github.com/anton-makarevich/MekForge/actions/workflows/build-linux.yml)
+[![Download Linux AppImage](https://img.shields.io/badge/Download-Linux%20AppImage-orange?logo=linux)](https://github.com/anton-makarevich/MekForge/actions/workflows/build-linux.yml)
+
 ## Development Setup
 
 ### Prerequisites
