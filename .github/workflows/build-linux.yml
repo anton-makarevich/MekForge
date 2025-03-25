@@ -1,0 +1,58 @@
+name: Build and Package Linux App
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'  # Run on version tags
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 9.x
+
+      - name: Extract version from Directory.Build.props
+        id: extract_version
+        shell: bash
+        run: |
+          VERSION=$(grep -oP '(?<=<Version>).*(?=</Version>)' Directory.Build.props)
+          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Version extracted: $VERSION"
+
+      - name: Install Velopack CLI
+        run: |
+          dotnet tool install --global vpk
+
+      - name: Build Linux App
+        run: |
+          cd src/MekForge.Avalonia/MekForge.Avalonia.Desktop
+          dotnet publish -c Release -r linux-x64 -o publish
+          vpk pack --packId nl.sanetby.mekforge --packVersion ${{ env.APP_VERSION }} --packDir publish --icon ../MekForge.Avalonia/Assets/logo.png
+
+      # For tagged releases only
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: src/MekForge.Avalonia/MekForge.Avalonia.Desktop/Releases/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          
+      # For all builds (including main branch pushes and manual runs)
+      - name: Upload Installer as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MekForge-Linux-Installer
+          path: src/MekForge.Avalonia/MekForge.Avalonia.Desktop/Releases/*
+          retention-days: 90  # Keep artifacts for 90 days
