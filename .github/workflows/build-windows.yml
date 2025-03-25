@@ -33,7 +33,6 @@ jobs:
       - name: Install Velopack CLI
         run: |
           dotnet tool install --global vpk
-          vpk --version
 
       - name: Build Windows App
         run: |
