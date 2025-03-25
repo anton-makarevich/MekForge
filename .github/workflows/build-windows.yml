@@ -41,27 +41,10 @@ jobs:
 
       - name: Build Windows App
         run: |
-          dotnet publish src/MekForge.Avalonia/MekForge.Avalonia.Desktop/MekForge.Avalonia.Desktop.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -o publish/win-x64
-
-      - name: Download Inno Setup
-        run: |
-          Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile "is.exe"
-          Start-Process -FilePath "is.exe" -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-" -Wait
-
-      - name: Compile Installer
-        shell: pwsh
-        run: |
-          # Create installer output directory
-          New-Item -Path "$env:GITHUB_WORKSPACE\installer-output" -ItemType Directory -Force
-          
-          # Add Inno Setup to PATH
-          $env:PATH += ";C:\Program Files (x86)\Inno Setup 6"
-          
-          # Compile installer
-          iscc.exe /DMyAppVersion=$env:APP_VERSION /DMyAppSource="$env:GITHUB_WORKSPACE\publish\win-x64" "$env:GITHUB_WORKSPACE\installer\MekForge.iss" /Q
-          
-          # List files in output directory for debugging
-          Get-ChildItem -Path "$env:GITHUB_WORKSPACE\installer-output" -Recurse
+          dotnet tool install --global vpk
+          cd src/MekForge.Avalonia/MekForge.Avalonia.Desktop
+          dotnet publish -c Release -r win-x64 -o publish
+          vpk pack --packId nl.sanetby.mekforge --packVersion ${{ env.APP_VERSION }} --packDir publish --mainExe MekForge.exe
 
       # For tagged releases only
       - name: Create Release
@@ -69,7 +52,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: installer-output/MekForge-Setup-*.exe
+          files: src/MekForge.Avalonia/MekForge.Avalonia.Desktop/*Setup.exe
           draft: false
           prerelease: false
           generate_release_notes: true
@@ -79,5 +62,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: MekForge-Windows-Installer
-          path: installer-output/MekForge-Setup-*.exe
+          path: src/MekForge.Avalonia/MekForge.Avalonia.Desktop/*Setup.exe
           retention-days: 90  # Keep artifacts for 90 days
