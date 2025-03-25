@@ -10,8 +10,8 @@
         <RootNamespace>Sanet.MekForge.Avalonia.Desktop</RootNamespace>
         <!-- Version information -->
         <Product>MekForge</Product>
-        <FileVersion>$(Version)</FileVersion>
-        <AssemblyVersion>$(Version)</AssemblyVersion>
+        <FileVersion>$([System.Text.RegularExpressions.Regex]::Match($(Version), ^\d+\.\d+\.\d+).Value)</FileVersion>
+        <AssemblyVersion>$([System.Text.RegularExpressions.Regex]::Match($(Version), ^\d+\.\d+\.\d+).Value)</AssemblyVersion>
         <InformationalVersion>$(Version)</InformationalVersion>
         <ApplicationIcon>../MekForge.Avalonia/Assets/avalonia-logo.ico</ApplicationIcon>
     </PropertyGroup>
@@ -24,6 +24,7 @@
         <PackageReference Include="Avalonia.Desktop" Version="11.2.5" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.2.5" />
+        <PackageReference Include="Velopack" Version="0.0.1053" />
     </ItemGroup>
 
     <ItemGroup>
