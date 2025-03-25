@@ -36,7 +36,11 @@ jobs:
         run: |
           cd src/MekForge.Avalonia/MekForge.Avalonia.Desktop
           dotnet publish -c Release -r linux-x64 -o publish
-          vpk pack --packId nl.sanetby.mekforge --packVersion ${{ env.APP_VERSION }} --packDir publish --icon ../MekForge.Avalonia/Assets/logo.png
+          vpk pack --packId nl.sanetby.mekforge \
+                   --packVersion ${{ env.APP_VERSION }} \
+                   --packDir publish \
+                   --mainExe MekForge \
+                   --icon ../MekForge.Avalonia/Assets/logo.png
 
       # For tagged releases only
       - name: Create Release
