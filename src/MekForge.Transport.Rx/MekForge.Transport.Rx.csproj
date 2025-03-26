@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Sanet.MekForge.Transport.Rx</RootNamespace>
+    <AssemblyName>Sanet.MekForge.Transport.Rx</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Reactive" Version="6.0.0" />
+    <ProjectReference Include="..\MekForge.Transport\MekForge.Transport.csproj" />
+  </ItemGroup>
+
+</Project>
