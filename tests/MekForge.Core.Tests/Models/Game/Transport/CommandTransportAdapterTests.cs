@@ -1,4 +1,5 @@
 using NSubstitute;
+using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Transport;
@@ -80,7 +81,7 @@ public class CommandTransportAdapterTests
     }
 
     [Fact]
-    public void Initialize_WithUnknownCommandType_ShouldNotCallCallback()
+    public void Initialize_WithUnknownCommandType_ThrowsException()
     {
         // Arrange
         var message = new TransportMessage
@@ -96,16 +97,37 @@ public class CommandTransportAdapterTests
             .Do(x => {
                 subscribedCallback = x.Arg<Action<TransportMessage>>();
             });
-
-        var callbackInvoked = false;
         
-        // Act
-        _adapter.Initialize(_ => callbackInvoked = true);
+        // Act & Assert
+        _adapter.Initialize(_ => { });
         
         // Now trigger the callback manually
-        subscribedCallback!.Invoke(message);
+        Should.Throw<UnknownCommandTypeException>(() => subscribedCallback!.Invoke(message))
+            .CommandType.ShouldBe("UnknownCommand");
+    }
 
-        // Assert
-        callbackInvoked.ShouldBeFalse();
+    [Fact]
+    public void DeserializeCommand_WithInvalidJson_ThrowsException()
+    {
+        // Arrange
+        var message = new TransportMessage
+        {
+            MessageType = "TurnIncrementedCommand",
+            SourceId = Guid.NewGuid(),
+            Timestamp = DateTime.UtcNow,
+            Payload = "{ invalid json }"
+        };
+
+        Action<TransportMessage>? subscribedCallback = null;
+        _transportPublisher.When(x => x.Subscribe(Arg.Any<Action<TransportMessage>>()))
+            .Do(x => {
+                subscribedCallback = x.Arg<Action<TransportMessage>>();
+            });
+        
+        // Act & Assert
+        _adapter.Initialize(_ => { });
+        
+        // Now trigger the callback manually
+        Should.Throw<Exception>(() => subscribedCallback!.Invoke(message));
     }
 }

@@ -1,4 +1,5 @@
 using NSubstitute;
+using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Transport;
@@ -128,11 +129,10 @@ public class CommandPublisherTests
     }
 
     [Fact]
-    public void Subscribe_UnknownCommandType_DoesNotCallSubscribers()
+    public void Subscribe_UnknownCommandType_ThrowsException()
     {
         // Arrange
-        var subscriberCalled = false;
-        _publisher.Subscribe(_ => subscriberCalled = true);
+        _publisher.Subscribe(_ => { });
         
         var message = new TransportMessage
         {
@@ -142,11 +142,9 @@ public class CommandPublisherTests
             Payload = "{}"
         };
 
-        // Act
+        // Act & Assert - this should throw because unknown command types are critical errors
         _transportCallback.ShouldNotBeNull();
-        _transportCallback!(message);
-
-        // Assert
-        subscriberCalled.ShouldBeFalse();
+        Should.Throw<UnknownCommandTypeException>(() => _transportCallback!(message))
+            .CommandType.ShouldBe("UnknownCommand");
     }
 }

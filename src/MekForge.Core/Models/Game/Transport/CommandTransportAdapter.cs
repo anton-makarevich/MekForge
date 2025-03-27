@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
@@ -57,11 +58,10 @@ public class CommandTransportAdapter
     public void Initialize(Action<IGameCommand> onCommandReceived)
     {
         _transportPublisher.Subscribe(message => {
+            // Let the exception propagate for unknown command types
+            // This is a critical error that should be handled at a higher level
             var command = DeserializeCommand(message);
-            if (command != null)
-            {
-                onCommandReceived(command);
-            }
+            onCommandReceived(command);
         });
     }
     
@@ -79,13 +79,15 @@ public class CommandTransportAdapter
     /// Deserializes a TransportMessage payload to an IGameCommand
     /// </summary>
     /// <param name="message">The transport message to deserialize</param>
-    /// <returns>The deserialized command or null if deserialization fails</returns>
-    private IGameCommand? DeserializeCommand(TransportMessage message)
+    /// <returns>The deserialized command</returns>
+    /// <exception cref="UnknownCommandTypeException">Thrown when the command type is unknown</exception>
+    /// <exception cref="System.Text.Json.JsonException">Thrown when the JSON is invalid</exception>
+    private IGameCommand DeserializeCommand(TransportMessage message)
     {
         if (!_commandTypes.TryGetValue(message.MessageType, out var commandType))
         {
-            // Unknown command type
-            return null;
+            // Unknown command type - throw exception
+            throw new UnknownCommandTypeException(message.MessageType);
         }
         
         try
@@ -97,15 +99,15 @@ public class CommandTransportAdapter
             {
                 command.GameOriginId = message.SourceId;
                 // Note: Timestamp is init-only, so it might already be set from deserialization
+                return command;
             }
             
-            return command;
+            throw new InvalidOperationException($"Failed to deserialize command of type {message.MessageType}");
         }
-        catch (Exception ex)
+        catch (JsonException ex)
         {
-            // Log deserialization error
-            Console.WriteLine($"Error deserializing command: {ex.Message}");
-            return null;
+            // Rethrow JSON deserialization errors
+            throw new JsonException($"Error deserializing command of type {message.MessageType}: {ex.Message}", ex);
         }
     }
     
