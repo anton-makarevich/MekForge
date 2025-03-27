@@ -7,7 +7,7 @@ public record struct DiceRolledCommand : IGameCommand
     public required Guid PlayerId { get; init; }
     public required int Roll { get; init; }
     public Guid GameOriginId { get; set; }
-    public DateTime Timestamp { get; init; }
+    public DateTime Timestamp { get; set; }
 
     public string Format(ILocalizationService localizationService, IGame game)
     {

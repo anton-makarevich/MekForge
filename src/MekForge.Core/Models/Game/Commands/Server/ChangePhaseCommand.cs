@@ -7,7 +7,7 @@ public record struct ChangePhaseCommand : IGameCommand
 {
     public required PhaseNames Phase { get; init; }
     public Guid GameOriginId { get; set; }
-    public DateTime Timestamp { get; init; }
+    public DateTime Timestamp { get; set; }
 
     public string Format(ILocalizationService localizationService, IGame game)
     {

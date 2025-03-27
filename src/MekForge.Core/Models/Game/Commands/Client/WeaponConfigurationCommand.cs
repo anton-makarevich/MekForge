@@ -9,7 +9,7 @@ public record struct WeaponConfigurationCommand : IClientCommand
     public required WeaponConfiguration Configuration { get; set; }
 
     public Guid GameOriginId { get; set; }
-    public DateTime Timestamp { get; init; }
+    public DateTime Timestamp { get; set; }
 
     public string Format(ILocalizationService localizationService, IGame game)
     {

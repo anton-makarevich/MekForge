@@ -7,7 +7,7 @@ public record struct UpdatePlayerStatusCommand: IClientCommand
 {
     public required PlayerStatus PlayerStatus { get; init; }
     public Guid GameOriginId { get; set; }
-    public DateTime Timestamp { get; init; }
+    public DateTime Timestamp { get; set; }
 
     public string Format(ILocalizationService localizationService, IGame game)
     {

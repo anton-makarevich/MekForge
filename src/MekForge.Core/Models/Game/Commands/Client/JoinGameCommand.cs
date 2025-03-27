@@ -9,7 +9,7 @@ public record struct JoinGameCommand: IClientCommand
     public required List<UnitData> Units { get; init; }
     public required string Tint { get; init; }
     public Guid GameOriginId { get; set; }
-    public DateTime Timestamp { get; init; }
+    public DateTime Timestamp { get; set; }
 
     public string Format(ILocalizationService localizationService, IGame game)
     {

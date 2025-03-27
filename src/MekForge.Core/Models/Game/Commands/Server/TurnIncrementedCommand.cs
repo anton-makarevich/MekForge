@@ -5,7 +5,7 @@ namespace Sanet.MekForge.Core.Models.Game.Commands.Server;
 public record struct TurnIncrementedCommand : IGameCommand
 {
     public Guid GameOriginId { get; set; }
-    public DateTime Timestamp { get; init; }
+    public DateTime Timestamp { get; set; }
     public int TurnNumber { get; init; }
 
     public string Format(ILocalizationService localizationService, IGame game)
