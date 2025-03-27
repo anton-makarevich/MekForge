@@ -19,15 +19,4 @@ public class UnknownCommandTypeException : Exception
     {
         CommandType = commandType;
     }
-
-    /// <summary>
-    /// Creates a new instance of UnknownCommandTypeException with an inner exception
-    /// </summary>
-    /// <param name="commandType">The name of the unknown command type</param>
-    /// <param name="innerException">The inner exception</param>
-    public UnknownCommandTypeException(string commandType, Exception innerException)
-        : base($"Unknown command type: {commandType}", innerException)
-    {
-        CommandType = commandType;
-    }
 }
