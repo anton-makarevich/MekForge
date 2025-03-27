@@ -35,7 +35,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\MekForge.Core\MekForge.Core.csproj" />
-    <ProjectReference Include="..\..\src\MekForge.Transport\MekForge.Transport.csproj" />
   </ItemGroup>
 
   <ItemGroup>

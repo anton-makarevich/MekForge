@@ -1,10 +1,9 @@
 using NSubstitute;
 using Sanet.MekForge.Core.Models.Game.Commands;
+using Sanet.MekForge.Core.Models.Game.Commands.Server;
 using Sanet.MekForge.Core.Models.Game.Transport;
-using Sanet.MekForge.Core.Services.Localization;
-using Sanet.MekForge.Transport;
+using Sanet.Transport;
 using Shouldly;
-using Xunit;
 
 namespace Sanet.MekForge.Core.Tests.Models.Game.Transport;
 
@@ -23,7 +22,7 @@ public class CommandTransportAdapterTests
     public void PublishCommand_ConvertsToTransportMessage()
     {
         // Arrange
-        var command = new TestCommand
+        var command = new TurnIncrementedCommand
         {
             GameOriginId = Guid.NewGuid(),
             Timestamp = DateTime.UtcNow
@@ -39,7 +38,7 @@ public class CommandTransportAdapterTests
         // Assert
         _transportPublisher.Received(1).PublishMessage(Arg.Any<TransportMessage>());
         capturedMessage.ShouldNotBeNull();
-        capturedMessage!.CommandType.ShouldBe("TestCommand");
+        capturedMessage!.MessageType.ShouldBe("TurnIncrementedCommand");
         capturedMessage.SourceId.ShouldBe(command.GameOriginId);
         capturedMessage.Timestamp.ShouldBe(command.Timestamp);
         capturedMessage.Payload.ShouldNotBeNullOrEmpty();
@@ -53,27 +52,29 @@ public class CommandTransportAdapterTests
         var timestamp = DateTime.UtcNow;
         var message = new TransportMessage
         {
-            CommandType = "TestCommand",
+            MessageType = "TurnIncrementedCommand",
             SourceId = sourceId,
             Timestamp = timestamp,
             Payload = $"{{\"GameOriginId\":\"{sourceId}\",\"Timestamp\":\"{timestamp:o}\"}}"
         };
 
-        IGameCommand? receivedCommand = null;
-        _adapter.Initialize(cmd => receivedCommand = cmd);
-
-        // Act - simulate receiving a message from the transport
-        _transportPublisher.Subscribe(Arg.Any<Action<TransportMessage>>())
-            .Returns(x =>
-            {
-                var callback = x.Arg<Action<TransportMessage>>();
-                callback(message);
-                return null;
+        Action<TransportMessage>? subscribedCallback = null;
+        _transportPublisher.When(x => x.Subscribe(Arg.Any<Action<TransportMessage>>()))
+            .Do(x => {
+                subscribedCallback = x.Arg<Action<TransportMessage>>();
             });
+
+        IGameCommand? receivedCommand = null;
+        
+        // Act
+        _adapter.Initialize(cmd => receivedCommand = cmd);
+        
+        // Now trigger the callback manually
+        subscribedCallback!.Invoke(message);
 
         // Assert
         receivedCommand.ShouldNotBeNull();
-        receivedCommand.ShouldBeOfType<TestCommand>();
+        receivedCommand.ShouldBeOfType<TurnIncrementedCommand>();
         receivedCommand.GameOriginId.ShouldBe(sourceId);
         receivedCommand.Timestamp.ShouldBe(timestamp);
     }
@@ -84,23 +85,25 @@ public class CommandTransportAdapterTests
         // Arrange
         var message = new TransportMessage
         {
-            CommandType = "UnknownCommand",
+            MessageType = "UnknownCommand",
             SourceId = Guid.NewGuid(),
             Timestamp = DateTime.UtcNow,
             Payload = "{}"
         };
 
-        bool callbackInvoked = false;
-        _adapter.Initialize(_ => callbackInvoked = true);
-
-        // Act - simulate receiving a message from the transport
-        _transportPublisher.Subscribe(Arg.Any<Action<TransportMessage>>())
-            .Returns(x =>
-            {
-                var callback = x.Arg<Action<TransportMessage>>();
-                callback(message);
-                return null;
+        Action<TransportMessage>? subscribedCallback = null;
+        _transportPublisher.When(x => x.Subscribe(Arg.Any<Action<TransportMessage>>()))
+            .Do(x => {
+                subscribedCallback = x.Arg<Action<TransportMessage>>();
             });
+
+        var callbackInvoked = false;
+        
+        // Act
+        _adapter.Initialize(_ => callbackInvoked = true);
+        
+        // Now trigger the callback manually
+        subscribedCallback!.Invoke(message);
 
         // Assert
         callbackInvoked.ShouldBeFalse();

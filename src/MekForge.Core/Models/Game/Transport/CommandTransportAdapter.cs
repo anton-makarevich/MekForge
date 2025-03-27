@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
 using Sanet.MekForge.Core.Models.Game.Commands.Server;
-using Sanet.MekForge.Transport;
+using Sanet.Transport;
 
 namespace Sanet.MekForge.Core.Models.Game.Transport;
 
@@ -43,7 +41,7 @@ public class CommandTransportAdapter
     {
         var message = new TransportMessage
         {
-            CommandType = command.GetType().Name,
+            MessageType = command.GetType().Name,
             SourceId = command.GameOriginId,
             Payload = SerializeCommand(command),
             Timestamp = command.Timestamp
@@ -84,7 +82,7 @@ public class CommandTransportAdapter
     /// <returns>The deserialized command or null if deserialization fails</returns>
     private IGameCommand? DeserializeCommand(TransportMessage message)
     {
-        if (!_commandTypes.TryGetValue(message.CommandType, out var commandType))
+        if (!_commandTypes.TryGetValue(message.MessageType, out var commandType))
         {
             // Unknown command type
             return null;
@@ -121,39 +119,24 @@ public class CommandTransportAdapter
         // This could be auto-generated at build time if needed
         return new Dictionary<string, Type>
         {
-            // Client commands - add all your command types here
+            // Client commands
             { nameof(JoinGameCommand), typeof(JoinGameCommand) },
-            { nameof(SetPlayerReadyCommand), typeof(SetPlayerReadyCommand) },
+            { nameof(UpdatePlayerStatusCommand), typeof(UpdatePlayerStatusCommand) },
             { nameof(DeployUnitCommand), typeof(DeployUnitCommand) },
             { nameof(MoveUnitCommand), typeof(MoveUnitCommand) },
             { nameof(WeaponConfigurationCommand), typeof(WeaponConfigurationCommand) },
             { nameof(WeaponAttackDeclarationCommand), typeof(WeaponAttackDeclarationCommand) },
             { nameof(PhysicalAttackCommand), typeof(PhysicalAttackCommand) },
             { nameof(TurnEndedCommand), typeof(TurnEndedCommand) },
-            { nameof(UpdatePlayerStatusCommand), typeof(UpdatePlayerStatusCommand) },
+            { nameof(RollDiceCommand), typeof(RollDiceCommand) },
             
-            // Server commands - add all your command types here
-            { nameof(PlayerJoinedCommand), typeof(PlayerJoinedCommand) },
-            { nameof(PlayerStatusUpdatedCommand), typeof(PlayerStatusUpdatedCommand) },
-            { nameof(PhaseChangedCommand), typeof(PhaseChangedCommand) },
-            { nameof(UnitDeployedCommand), typeof(UnitDeployedCommand) },
-            { nameof(ActivePlayerChangedCommand), typeof(ActivePlayerChangedCommand) },
-            { nameof(UnitMovedCommand), typeof(UnitMovedCommand) },
+            // Server commands 
             { nameof(WeaponAttackResolutionCommand), typeof(WeaponAttackResolutionCommand) },
             { nameof(HeatUpdatedCommand), typeof(HeatUpdatedCommand) },
-            
-            // Test command for unit tests
-            { "TestCommand", typeof(TestCommand) }
+            { nameof(TurnIncrementedCommand), typeof(TurnIncrementedCommand) },
+            { nameof(DiceRolledCommand), typeof(DiceRolledCommand) },
+            { nameof(ChangePhaseCommand), typeof(ChangePhaseCommand) },
+            { nameof(ChangeActivePlayerCommand), typeof(ChangeActivePlayerCommand) },
         };
     }
-}
-
-/// <summary>
-/// Test command class for unit tests, mirrors the one in tests
-/// </summary>
-public class TestCommand : IGameCommand
-{
-    public Guid GameOriginId { get; set; }
-    public DateTime Timestamp { get; init; } = DateTime.UtcNow;
-    public string Format(ILocalizationService localizationService, IGame game) => "Test";
 }

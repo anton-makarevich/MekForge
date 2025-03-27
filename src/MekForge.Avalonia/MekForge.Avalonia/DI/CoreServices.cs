@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using Sanet.MekForge.Avalonia.Game.Transport;
 using Sanet.MekForge.Avalonia.Services;
 using Sanet.MekForge.Core.Models.Game;
 using Sanet.MekForge.Core.Models.Game.Combat;
@@ -18,7 +17,7 @@ public static class CoreServices
     {
         services.AddSingleton<IImageService, AvaloniaAssetImageService>();
         services.AddSingleton<ILocalizationService, FakeLocalizationService>();
-        services.AddSingleton<ICommandPublisher, RxCommandPublisher>();
+        services.AddSingleton<ICommandPublisher, CommandPublisher>();
         services.AddSingleton<IRulesProvider, ClassicBattletechRulesProvider>();
         services.AddSingleton<IDiceRoller, RandomDiceRoller>();
         services.AddSingleton<IToHitCalculator, ClassicToHitCalculator>();
