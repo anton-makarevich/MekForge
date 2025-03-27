@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using Sanet.MekForge.Core.Exceptions;
 using Sanet.MekForge.Core.Models.Game.Commands;
 using Sanet.MekForge.Core.Models.Game.Commands.Client;
@@ -15,7 +16,6 @@ public class CommandTransportAdapter
 {
     private readonly ITransportPublisher _transportPublisher;
     private readonly Dictionary<string, Type> _commandTypes;
-    private readonly JsonSerializerOptions _serializerOptions;
     
     /// <summary>
     /// Creates a new instance of the CommandTransportAdapter
@@ -25,13 +25,6 @@ public class CommandTransportAdapter
     {
         _transportPublisher = transportPublisher;
         _commandTypes = InitializeCommandTypeDictionary();
-        
-        _serializerOptions = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-            WriteIndented = false,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-        };
     }
     
     /// <summary>
@@ -72,7 +65,7 @@ public class CommandTransportAdapter
     /// <returns>JSON representation of the command</returns>
     private string SerializeCommand(IGameCommand command)
     {
-        return JsonSerializer.Serialize(command, command.GetType(), _serializerOptions);
+        return JsonSerializer.Serialize(command, command.GetType());
     }
     
     /// <summary>
@@ -82,6 +75,7 @@ public class CommandTransportAdapter
     /// <returns>The deserialized command</returns>
     /// <exception cref="UnknownCommandTypeException">Thrown when the command type is unknown</exception>
     /// <exception cref="System.Text.Json.JsonException">Thrown when the JSON is invalid</exception>
+    /// <exception cref="InvalidOperationException">Thrown when deserialization fails or produces an invalid command</exception>
     private IGameCommand DeserializeCommand(TransportMessage message)
     {
         if (!_commandTypes.TryGetValue(message.MessageType, out var commandType))
@@ -92,17 +86,12 @@ public class CommandTransportAdapter
         
         try
         {
-            var command = JsonSerializer.Deserialize(message.Payload, commandType, _serializerOptions) as IGameCommand;
-            
             // Ensure the game origin ID and timestamp are set correctly
-            if (command != null)
-            {
-                command.GameOriginId = message.SourceId;
-                // Note: Timestamp is init-only, so it might already be set from deserialization
-                return command;
-            }
-            
-            throw new InvalidOperationException($"Failed to deserialize command of type {message.MessageType}");
+            if (JsonSerializer.Deserialize(message.Payload, commandType) is not IGameCommand command)
+                throw new InvalidOperationException($"Failed to deserialize command of type {message.MessageType}");
+            command.GameOriginId = message.SourceId;
+            command.Timestamp = message.Timestamp;
+            return command;
         }
         catch (JsonException ex)
         {

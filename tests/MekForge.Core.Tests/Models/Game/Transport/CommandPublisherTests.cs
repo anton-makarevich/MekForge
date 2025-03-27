@@ -147,4 +147,23 @@ public class CommandPublisherTests
         Should.Throw<UnknownCommandTypeException>(() => _transportCallback!(message))
             .CommandType.ShouldBe("UnknownCommand");
     }
+
+    [Fact]
+    public void Subscribe_WithInvalidJson_ThrowsJsonException()
+    {
+        // Arrange
+        _publisher.Subscribe(_ => { });
+        
+        var message = new TransportMessage
+        {
+            MessageType = "TurnIncrementedCommand",
+            SourceId = Guid.NewGuid(),
+            Timestamp = DateTime.UtcNow,
+            Payload = "{ invalid json }"
+        };
+
+        // Act & Assert
+        _transportCallback.ShouldNotBeNull();
+        Should.Throw<System.Text.Json.JsonException>(() => _transportCallback!(message));
+    }
 }

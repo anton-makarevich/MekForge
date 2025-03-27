@@ -11,7 +11,7 @@ public record struct DeployUnitCommand : IClientCommand
     public required int Direction { get; init; }
 
     public Guid GameOriginId { get; set; }
-    public DateTime Timestamp { get; init; }
+    public DateTime Timestamp { get; set; }
 
     public string Format(ILocalizationService localizationService, IGame game)
     {
