@@ -9,28 +9,31 @@
     <UserControl.Resources>
         <converters:WeaponRangeConverter x:Key="WeaponRangeConverter"/>
     </UserControl.Resources>
-    <ScrollViewer>
-        <StackPanel>
+    <ScrollViewer Classes="gameScrollViewer">
+        <StackPanel Classes="verticalSpaced">
             <!-- Headers -->
             <Grid ColumnDefinitions="4*,2*,*,3*" Margin="5">
-                <TextBlock Grid.Column="0" Text="Weapon" FontWeight="Bold"/>
-                <TextBlock Grid.Column="1" Text="DMG" FontWeight="Bold" Margin="5,0"/>
-                <TextBlock Grid.Column="2" Text="HT" FontWeight="Bold" Margin="5,0"/>
-                <TextBlock Grid.Column="3" Text="Range" FontWeight="Bold" Margin="5,0"/>
+                <TextBlock Grid.Column="0" Text="Weapon" Classes="h3"/>
+                <TextBlock Grid.Column="1" Text="DMG" Classes="h3" Margin="5,0"/>
+                <TextBlock Grid.Column="2" Text="HT" Classes="h3" Margin="5,0"/>
+                <TextBlock Grid.Column="3" Text="Range" Classes="h3" Margin="5,0"/>
             </Grid>
             
             <ItemsControl Name="WeaponsList">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="weapons:Weapon">
-                        <Grid ColumnDefinitions="4*,2*,*,3*" Margin="5,2">
-                            <TextBlock Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="{Binding Damage}" Margin="5,0" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="2" Text="{Binding Heat}" Margin="5,0" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="3" 
-                                     Text="{Binding ., Converter={StaticResource WeaponRangeConverter}}" 
-                                     Margin="5,0" 
-                                     VerticalAlignment="Center"/>
-                        </Grid>
+                        <Border Classes="listItem" Margin="2">
+                            <Grid ColumnDefinitions="4*,2*,*,3*" Margin="5,2">
+                                <TextBlock Grid.Column="0" Text="{Binding Name}" Classes="body" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Damage}" Classes="body" Margin="5,0" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="{Binding Heat}" Classes="body" Margin="5,0" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="3" 
+                                        Text="{Binding ., Converter={StaticResource WeaponRangeConverter}}" 
+                                        Classes="body"
+                                        Margin="5,0" 
+                                        VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
