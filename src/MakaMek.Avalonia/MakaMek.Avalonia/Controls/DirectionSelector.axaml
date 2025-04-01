@@ -5,7 +5,7 @@
         <!-- Top button -->
         <Button x:Name="TopButton" Canvas.Left="59" Canvas.Top="0" Width="50" Height="50"
                 Click="TopButton_Click">
-            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="White"/>
+            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="{DynamicResource ForegroundBrush}"/>
         </Button>
         
         <!-- Top Right button -->
@@ -14,7 +14,7 @@
             <Button.RenderTransform>
                 <RotateTransform Angle="60" CenterX="0" CenterY="0"/>
             </Button.RenderTransform>
-            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="White"/>
+            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="{DynamicResource ForegroundBrush}"/>
         </Button>
         
         <!-- Bottom Right button -->
@@ -23,7 +23,7 @@
             <Button.RenderTransform>
                 <RotateTransform Angle="120" CenterX="0" CenterY="0"/>
             </Button.RenderTransform>
-            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="White"/>
+            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="{DynamicResource ForegroundBrush}"/>
         </Button>
         
         <!-- Bottom button -->
@@ -32,7 +32,7 @@
             <Button.RenderTransform>
                 <RotateTransform Angle="180" CenterX="0" CenterY="0"/>
             </Button.RenderTransform>
-            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="White"/>
+            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="{DynamicResource ForegroundBrush}"/>
         </Button>
         
         <!-- Bottom Left button -->
@@ -41,7 +41,7 @@
             <Button.RenderTransform>
                 <RotateTransform Angle="240" CenterX="0" CenterY="0"/>
             </Button.RenderTransform>
-            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="White"/>
+            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="{DynamicResource ForegroundBrush}"/>
         </Button>
         
         <!-- Top Left button -->
@@ -50,7 +50,7 @@
             <Button.RenderTransform>
                 <RotateTransform Angle="300" CenterX="0" CenterY="0"/>
             </Button.RenderTransform>
-            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="White"/>
+            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="{DynamicResource ForegroundBrush}"/>
         </Button>
     </Canvas>
 </UserControl>

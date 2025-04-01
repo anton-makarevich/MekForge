@@ -1,0 +1,66 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Primary Colors -->
+    <Color x:Key="PrimaryColor">#00AAAA</Color>
+    <Color x:Key="PrimaryLightColor">#33CCCC</Color>
+    <Color x:Key="PrimaryDarkColor">#007777</Color>
+    
+    <!-- Secondary Colors -->
+    <Color x:Key="SecondaryColor">#E65100</Color>
+    <Color x:Key="SecondaryLightColor">#FF8A65</Color>
+    <Color x:Key="SecondaryDarkColor">#BF360C</Color>
+    
+    <!-- Neutral Colors -->
+    <Color x:Key="BackgroundColor">#FFFFFF</Color>
+    <Color x:Key="SurfaceColor">#F5F5F5</Color>
+    <Color x:Key="TextColor">#333333</Color>
+    <Color x:Key="TextLightColor">#666666</Color>
+    <Color x:Key="BorderColor">#DDDDDD</Color>
+    
+    <!-- Semantic Colors -->
+    <Color x:Key="SuccessColor">#43A047</Color>
+    <Color x:Key="WarningColor">#FFB300</Color>
+    <Color x:Key="ErrorColor">#E53935</Color>
+    <Color x:Key="InfoColor">#1E88E5</Color>
+    
+    <!-- Game-Specific Colors -->
+    <Color x:Key="MechArmorColor">#64B5F6</Color>
+    <Color x:Key="MechStructureColor">#FFB74D</Color>
+    <Color x:Key="HeatColor">#F44336</Color>
+    
+    <!-- Overlay Colors -->
+    <Color x:Key="OverlayBackgroundColor">#333333</Color>
+    <Color x:Key="OverlayTransparentColor">#99333333</Color>
+    <Color x:Key="TargetingColor">#FF5252</Color>
+    <Color x:Key="MovementColor">#4FC3F7</Color>
+    
+    <!-- Brushes -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
+    <SolidColorBrush x:Key="PrimaryLightBrush" Color="{StaticResource PrimaryLightColor}"/>
+    <SolidColorBrush x:Key="PrimaryDarkBrush" Color="{StaticResource PrimaryDarkColor}"/>
+    
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}"/>
+    <SolidColorBrush x:Key="SecondaryLightBrush" Color="{StaticResource SecondaryLightColor}"/>
+    <SolidColorBrush x:Key="SecondaryDarkBrush" Color="{StaticResource SecondaryDarkColor}"/>
+    
+    <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}"/>
+    <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}"/>
+    <SolidColorBrush x:Key="ForegroundBrush" Color="{StaticResource TextColor}"/>
+    <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}"/>
+    <SolidColorBrush x:Key="TextLightBrush" Color="{StaticResource TextLightColor}"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
+    
+    <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
+    <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}"/>
+    <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}"/>
+    <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource InfoColor}"/>
+    
+    <SolidColorBrush x:Key="MechArmorBrush" Color="{StaticResource MechArmorColor}"/>
+    <SolidColorBrush x:Key="MechStructureBrush" Color="{StaticResource MechStructureColor}"/>
+    <SolidColorBrush x:Key="HeatBrush" Color="{StaticResource HeatColor}"/>
+    
+    <SolidColorBrush x:Key="OverlayBackgroundBrush" Color="{StaticResource OverlayBackgroundColor}"/>
+    <SolidColorBrush x:Key="OverlayTransparentBrush" Color="{StaticResource OverlayTransparentColor}"/>
+    <SolidColorBrush x:Key="TargetingBrush" Color="{StaticResource TargetingColor}"/>
+    <SolidColorBrush x:Key="MovementBrush" Color="{StaticResource MovementColor}"/>
+</ResourceDictionary>

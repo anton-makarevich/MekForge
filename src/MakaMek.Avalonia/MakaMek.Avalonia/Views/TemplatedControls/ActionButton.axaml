@@ -12,8 +12,9 @@
                         Width="40"
                         Height="40"
                         CornerRadius="20"
-                        Background="{TemplateBinding Background}">
-                    <PathIcon Data="{TemplateBinding IconData}"/>
+                        Classes="actionButton"
+                        Background="{TemplateBinding Background }">
+                    <PathIcon Data="{TemplateBinding IconData}" Foreground="White"/>
                 </Button>
             </ControlTemplate>
         </Setter>

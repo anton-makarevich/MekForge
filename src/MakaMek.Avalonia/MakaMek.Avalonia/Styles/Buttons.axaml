@@ -1,0 +1,109 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Primary Button -->
+    <Style Selector="Button.primary">
+        <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Padding" Value="20,10"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    
+    <Style Selector="Button.primary:pointerover">
+        <Setter Property="Background" Value="{DynamicResource PrimaryDarkBrush}"/>
+    </Style>
+    
+    <Style Selector="Button.primary:pressed">
+        <Setter Property="Background" Value="{DynamicResource PrimaryDarkBrush}"/>
+        <Setter Property="Opacity" Value="0.8"/>
+    </Style>
+    
+    <Style Selector="Button.primary:disabled">
+        <Setter Property="Opacity" Value="0.5"/>
+    </Style>
+    
+    <!-- Secondary Button -->
+    <Style Selector="Button.secondary">
+        <Setter Property="Background" Value="{DynamicResource SecondaryBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Padding" Value="20,10"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    
+    <Style Selector="Button.secondary:pointerover">
+        <Setter Property="Background" Value="{DynamicResource SecondaryDarkBrush}"/>
+    </Style>
+    
+    <Style Selector="Button.secondary:pressed">
+        <Setter Property="Background" Value="{DynamicResource SecondaryDarkBrush}"/>
+        <Setter Property="Opacity" Value="0.8"/>
+    </Style>
+    
+    <Style Selector="Button.secondary:disabled">
+        <Setter Property="Opacity" Value="0.5"/>
+    </Style>
+    
+    <!-- Outline Button -->
+    <Style Selector="Button.outline">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+        <Setter Property="Padding" Value="20,10"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    
+    <Style Selector="Button.outline:pointerover">
+        <Setter Property="Background" Value="{DynamicResource PrimaryLightBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    
+    <Style Selector="Button.outline:pressed">
+        <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    
+    <!-- Icon Button -->
+    <Style Selector="Button.icon">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Width" Value="40"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="CornerRadius" Value="20"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    
+    <Style Selector="Button.icon:pointerover">
+        <Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+    </Style>
+    
+    <Style Selector="Button.icon:pressed">
+        <Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
+    </Style>
+    
+    <!-- Action Button (Round with icon) -->
+    <Style Selector="Button.actionButton">
+        <Setter Property="Width" Value="40"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="CornerRadius" Value="20"/>
+        <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    
+    <Style Selector="Button.actionButton:pointerover">
+        <Setter Property="Background" Value="{DynamicResource PrimaryDarkBrush}"/>
+    </Style>
+    
+    <Style Selector="Button.actionButton:pressed">
+        <Setter Property="Background" Value="{DynamicResource PrimaryDarkBrush}"/>
+        <Setter Property="Opacity" Value="0.8"/>
+    </Style>
+</Styles>

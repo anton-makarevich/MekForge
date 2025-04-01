@@ -7,13 +7,18 @@
              RequestedThemeVariant="Light">
 
     <Application.Resources>
-        <di:ServiceCollection x:Key="ServiceCollection"/>
-        <FontFamily x:Key="AwesomeFontSolid">avares://Sanet.MakaMek.Avalonia/Assets/Fonts/#Font Awesome 6 Free Solid</FontFamily>
+        <ResourceDictionary>
+            <di:ServiceCollection x:Key="ServiceCollection"/>
+            <FontFamily x:Key="AwesomeFontSolid">avares://Sanet.MakaMek.Avalonia/Assets/Fonts/#Font Awesome 6 Free Solid</FontFamily>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://Sanet.MakaMek.Avalonia/Styles/Colors.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
              
     <Application.Styles>
         <FluentTheme />
-        <StyleInclude Source="Styles/MechStyles.axaml"/>
+        <StyleInclude Source="Styles/Theme.axaml"/>
         <StyleInclude Source="Views/TemplatedControls/GamePanel.axaml"/>
         <StyleInclude Source="Views/TemplatedControls/ActionButton.axaml"/>
     </Application.Styles>

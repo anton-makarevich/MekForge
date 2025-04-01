@@ -1,0 +1,79 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Card Panel -->
+    <Style Selector="Border.card">
+        <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="16"/>
+        <Setter Property="Margin" Value="8"/>
+        <Setter Property="BoxShadow" Value="0 2 4 0 #20000000"/>
+    </Style>
+    
+    <!-- Game Panel -->
+    <Style Selector="Border.gamePanel">
+        <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="MaxHeight" Value="400"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="VerticalAlignment" Value="Bottom"/>
+        <Setter Property="Margin" Value="10"/>
+    </Style>
+    
+    <!-- Game Panel Header -->
+    <Style Selector="Grid.gamePanelHeader">
+        <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+        <Setter Property="Height" Value="40"/>
+    </Style>
+    
+    <!-- Status Panel -->
+    <Style Selector="Grid.statusPanel">
+        <Setter Property="Background" Value="{DynamicResource OverlayTransparentBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Margin" Value="0,0,0,10"/>
+    </Style>
+    
+    <!-- Status Section -->
+    <Style Selector="Border.statusSection">
+        <Setter Property="Padding" Value="10,5"/>
+    </Style>
+    
+    <!-- Form Group -->
+    <Style Selector="StackPanel.formGroup">
+        <Setter Property="Spacing" Value="10"/>
+        <Setter Property="Margin" Value="0,0,0,16"/>
+    </Style>
+    
+    <!-- Horizontal Spacing -->
+    <Style Selector="StackPanel.horizontalSpaced">
+        <Setter Property="Orientation" Value="Horizontal"/>
+        <Setter Property="Spacing" Value="10"/>
+    </Style>
+    
+    <!-- Vertical Spacing -->
+    <Style Selector="StackPanel.verticalSpaced">
+        <Setter Property="Orientation" Value="Vertical"/>
+        <Setter Property="Spacing" Value="10"/>
+    </Style>
+    
+    <!-- Dialog Overlay -->
+    <Style Selector="Grid.dialogOverlay">
+        <Setter Property="Background" Value="#80000000"/>
+    </Style>
+    
+    <!-- Dialog Container -->
+    <Style Selector="Border.dialogContainer">
+        <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="MaxWidth" Value="500"/>
+        <Setter Property="MaxHeight" Value="600"/>
+        <Setter Property="Padding" Value="16"/>
+        <Setter Property="BoxShadow" Value="0 4 8 0 #40000000"/>
+    </Style>
+</Styles>

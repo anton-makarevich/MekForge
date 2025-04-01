@@ -6,38 +6,46 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Sanet.MakaMek.Avalonia.Views.NewGame.Fragments.PlayersFragment"
              x:DataType="viewModels:NewGameViewModel">
-    <StackPanel Spacing="20">
-        <TextBlock Text="Players" FontSize="24" HorizontalAlignment="Center"/>
+    <StackPanel Classes="verticalSpaced">
+        <TextBlock Text="Players" Classes="h1" HorizontalAlignment="Center"/>
         <ItemsControl ItemsSource="{Binding Players}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid ColumnDefinitions="2*,1*,2*">
-                        <TextBlock Text="{Binding Name}"/>
-                        <StackPanel Grid.Column="1">
-                            <ComboBox ItemsSource="{Binding AvailableUnits}"
-                                     SelectedItem="{Binding SelectedUnit, Mode=TwoWay}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Chassis}"/>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Button Content="Add Unit" Command="{Binding AddUnitCommand}" 
-                                    IsEnabled="{Binding CanAddUnit}"/>
-                        </StackPanel>
-                        <ItemsControl Grid.Column="2"
-                                    ItemsSource="{Binding Units}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Chassis}"/>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </Grid>
+                    <Border Classes="card" Margin="0,5">
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,*">
+                            
+                            <StackPanel Grid.Row="1" Grid.Column="0" Classes="verticalSpaced" Margin="10,5">
+                                <TextBlock Text="{Binding Name}" Classes="h3" Grid.ColumnSpan="3"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Available Units:" Classes="label" Margin="5"/>
+                                <ComboBox ItemsSource="{Binding AvailableUnits}"
+                                          SelectedItem="{Binding SelectedUnit, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Chassis}" Classes="body"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Button Content="Add Unit" Command="{Binding AddUnitCommand}" 
+                                        Classes="primary"
+                                        IsEnabled="{Binding CanAddUnit}"/>
+                            </StackPanel>
+                            <Border Grid.Row="1" Grid.Column="1" Classes="card" Background="{DynamicResource SurfaceBrush}">
+                                <ItemsControl ItemsSource="{Binding Units}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Chassis}" Classes="body" Margin="2"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Border>
+                        </Grid>
+                    </Border>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
         <Button Content="Add Player" Command="{Binding AddPlayerCommand}"
+                Classes="secondary"
+                HorizontalAlignment="Center"
                 IsEnabled="{Binding CanAddPlayer}"/>
     </StackPanel>
 </UserControl>
