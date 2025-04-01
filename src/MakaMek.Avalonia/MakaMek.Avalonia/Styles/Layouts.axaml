@@ -1,0 +1,55 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Container Margins -->
+    <Style Selector="Grid.pageContainer">
+        <Setter Property="Margin" Value="20"/>
+    </Style>
+    
+    <Style Selector="StackPanel.pageContainer">
+        <Setter Property="Margin" Value="20"/>
+    </Style>
+    
+    <Style Selector="DockPanel.pageContainer">
+        <Setter Property="Margin" Value="20"/>
+    </Style>
+    
+    <!-- Section Spacing -->
+    <Style Selector="StackPanel.section">
+        <Setter Property="Margin" Value="0,0,0,20"/>
+    </Style>
+    
+    <!-- Grid Spacing -->
+    <Style Selector="Grid.gridSpacing > :is(Control)">
+        <Setter Property="Margin" Value="10"/>
+    </Style>
+    
+    <!-- Centered Content -->
+    <Style Selector="Grid.centeredContent">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    
+    <Style Selector="StackPanel.centeredContent">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    
+    <!-- Bottom-Aligned Content -->
+    <Style Selector="Grid.bottomAligned">
+        <Setter Property="VerticalAlignment" Value="Bottom"/>
+    </Style>
+    
+    <Style Selector="StackPanel.bottomAligned">
+        <Setter Property="VerticalAlignment" Value="Bottom"/>
+    </Style>
+    
+    <!-- Right-Aligned Content -->
+    <Style Selector="Grid.rightAligned">
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+    </Style>
+    
+    <Style Selector="StackPanel.rightAligned">
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+    </Style>
+</Styles>

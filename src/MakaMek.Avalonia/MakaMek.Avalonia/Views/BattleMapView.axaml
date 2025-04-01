@@ -32,22 +32,24 @@
         
         <Grid x:Name="TurnStatus"
             VerticalAlignment="Top"
-            Background="#88CCCCCC"
+            Background="{DynamicResource OverlayTransparentBrush}"
+            Classes="statusPanel"
             Margin="0,0,0,10"
             ColumnDefinitions="*,Auto,Auto,Auto,*">
             
             <!-- Turn Info Section -->
             <Border Grid.Column="1" 
                     Background="{Binding ActivePlayerTint, Converter={StaticResource HexColorToBrushConverter}}" 
+                    Classes="statusSection"
                     Padding="10,5">
-                <StackPanel Orientation="Horizontal" Spacing="10">
+                <StackPanel Orientation="Horizontal" Classes="horizontalSpaced">
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                         <TextBlock Text="TURN" 
-                                 FontSize="10" 
+                                 Classes="turnInfoLabel"
                                  HorizontalAlignment="Center"
                                  Foreground="{Binding ActivePlayerTint, Converter={StaticResource ContrastingForegroundConverter}}"/>
                         <TextBlock Text="{Binding Turn}" 
-                                 FontSize="18" 
+                                 Classes="turnInfo"
                                  FontWeight="Bold" 
                                  HorizontalAlignment="Center"
                                  Foreground="{Binding ActivePlayerTint, Converter={StaticResource ContrastingForegroundConverter}}"/>
@@ -55,11 +57,11 @@
                     
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                         <TextBlock Text="PHASE" 
-                                 FontSize="10" 
+                                 Classes="turnInfoLabel"
                                  HorizontalAlignment="Center"
                                  Foreground="{Binding ActivePlayerTint, Converter={StaticResource ContrastingForegroundConverter}}"/>
                         <TextBlock Text="{Binding TurnPhaseName}" 
-                                 FontSize="18" 
+                                 Classes="turnInfo"
                                  FontWeight="Bold" 
                                  HorizontalAlignment="Center"
                                  Foreground="{Binding ActivePlayerTint, Converter={StaticResource ContrastingForegroundConverter}}"/>
@@ -70,15 +72,16 @@
             <!-- Active Player Section -->
             <Border Grid.Column="2" 
                     Background="{Binding ActivePlayerTint, Converter={StaticResource HexColorToBrushConverter}}" 
+                    Classes="statusSection"
                     Padding="10,5"
                     Margin="1,0,1,0">
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                     <TextBlock Text="ACTIVE PLAYER" 
-                             FontSize="10" 
+                             Classes="turnInfoLabel"
                              HorizontalAlignment="Center"
                              Foreground="{Binding ActivePlayerTint, Converter={StaticResource ContrastingForegroundConverter}}"/>
                     <TextBlock Text="{Binding ActivePlayerName}" 
-                             FontSize="18" 
+                             Classes="turnInfo"
                              FontWeight="Bold" 
                              HorizontalAlignment="Center"
                              Foreground="{Binding ActivePlayerTint, Converter={StaticResource ContrastingForegroundConverter}}"/>
@@ -88,10 +91,11 @@
             <!-- Player Action Section -->
             <Border Grid.Column="3" 
                     Background="{Binding ActivePlayerTint, Converter={StaticResource HexColorToBrushConverter}}" 
+                    Classes="statusSection"
                     Padding="15,5"
                     IsVisible="{Binding IsUserActionLabelVisible}">
                 <TextBlock Text="{Binding ActionInfoLabel}" 
-                         FontSize="16" 
+                         Classes="actionInfo"
                          FontWeight="Bold"
                          Foreground="{Binding ActivePlayerTint, Converter={StaticResource ContrastingForegroundConverter}}"
                          VerticalAlignment="Center"/>
@@ -99,18 +103,20 @@
         </Grid>
         
         <Grid x:Name="MechList"
-              Background="Aqua"
+              Background="{DynamicResource PrimaryBrush}"
               IsVisible="{Binding AreUnitsToDeployVisible}"
               Grid.RowDefinitions="Auto,*"
               HorizontalAlignment="Center"
-              VerticalAlignment="Center">
-            <Label Content="Select a Unit to deploy"/>
+              VerticalAlignment="Center"
+              Classes="card">
+            <Label Content="Select a Unit to deploy" Foreground="White"/>
             <ListBox Grid.Row="1"
+                Classes="gameList"
                 ItemsSource="{Binding UnitsToDeploy}"
                 SelectedItem="{Binding SelectedUnit}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Name}"/>
+                        <TextBlock Text="{Binding Name}" Classes="body"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
