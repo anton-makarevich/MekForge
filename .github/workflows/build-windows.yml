@@ -36,9 +36,9 @@ jobs:
 
       - name: Build Windows App
         run: |
-          cd src/MekForge.Avalonia/MekForge.Avalonia.Desktop
+          cd src/MakaMek.Avalonia/MakaMek.Avalonia.Desktop
           dotnet publish -c Release -r win-x64 -o publish
-          vpk pack --packId nl.sanetby.mekforge --packVersion ${{ env.APP_VERSION }} --packDir publish --mainExe MekForge.exe
+          vpk pack --packId nl.sanetby.mekforge --packVersion ${{ env.APP_VERSION }} --packDir publish --mainExe MakaMek.exe
 
       # For tagged releases only
       - name: Create Release
@@ -46,7 +46,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: src/MekForge.Avalonia/MekForge.Avalonia.Desktop/Releases/*Setup.exe
+          files: src/MakaMek.Avalonia/MakaMek.Avalonia.Desktop/Releases/*Setup.exe
           draft: false
           prerelease: false
           generate_release_notes: true
@@ -55,6 +55,6 @@ jobs:
       - name: Upload Installer as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MekForge-Windows-Installer
-          path: src/MekForge.Avalonia/MekForge.Avalonia.Desktop/Releases/*Setup.exe
+          name: MakaMek-Windows-Installer
+          path: src/MakaMek.Avalonia/MakaMek.Avalonia.Desktop/Releases/*Setup.exe
           retention-days: 90  # Keep artifacts for 90 days

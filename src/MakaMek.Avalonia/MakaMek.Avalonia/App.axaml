@@ -1,0 +1,20 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Sanet.MakaMek.Avalonia.App"
+             xmlns:local="using:Sanet.MakaMek.Avalonia"
+             xmlns:di="using:Microsoft.Extensions.DependencyInjection"
+             xmlns:converters="clr-namespace:Sanet.MakaMek.Avalonia.Converters"
+             RequestedThemeVariant="Light">
+
+    <Application.Resources>
+        <di:ServiceCollection x:Key="ServiceCollection"/>
+        <FontFamily x:Key="AwesomeFontSolid">avares://Sanet.MakaMek.Avalonia/Assets/Fonts/#Font Awesome 6 Free Solid</FontFamily>
+    </Application.Resources>
+             
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="Styles/MechStyles.axaml"/>
+        <StyleInclude Source="Views/TemplatedControls/GamePanel.axaml"/>
+        <StyleInclude Source="Views/TemplatedControls/ActionButton.axaml"/>
+    </Application.Styles>
+</Application>

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+    <PropertyGroup>
+        <TargetFramework>net9.0-browser</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <AssemblyName>Sanet.MakaMek.Avalonia.Browser</AssemblyName>
+        <RootNamespace>Sanet.MakaMek.Avalonia.Browser</RootNamespace>
+        <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia.Browser" Version="11.2.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\MakaMek.Avalonia\MakaMek.Avalonia.csproj"/>
+    </ItemGroup>
+</Project>
