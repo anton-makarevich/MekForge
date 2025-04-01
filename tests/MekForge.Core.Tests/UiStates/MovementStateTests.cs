@@ -32,7 +32,7 @@ public class MovementStateTests
     private readonly Unit _unit2;
     private readonly Player _player;
     private readonly Hex _hex1;
-    private readonly BattleMapViewModel _viewModel;
+    private readonly BattleMapViewModel _battleMapViewModel;
 
     public MovementStateTests()
     {
@@ -51,7 +51,7 @@ public class MovementStateTests
         localizationService.GetString("MovementType_Run").Returns("Run");
         localizationService.GetString("MovementType_Jump").Returns("Jump");
         
-        _viewModel = new BattleMapViewModel(imageService, localizationService);
+        _battleMapViewModel = new BattleMapViewModel(imageService, localizationService);
         var playerId = Guid.NewGuid();
         
         
@@ -73,10 +73,10 @@ public class MovementStateTests
             battleMap, [_player], rules,
             Substitute.For<ICommandPublisher>(), Substitute.For<IToHitCalculator>());
         
-        _viewModel.Game = _game;
+        _battleMapViewModel.Game = _game;
         AddPlayerUnits();
         SetActivePlayer();
-        _sut = new MovementState(_viewModel);
+        _sut = new MovementState(_battleMapViewModel);
     }
 
     [Fact]
@@ -189,9 +189,9 @@ public class MovementStateTests
         // Arrange
         SetPhase(PhaseNames.Movement);
         SetActivePlayer();
-        var state = _viewModel.CurrentState;
+        var state = _battleMapViewModel.CurrentState;
         var position = new HexPosition(new HexCoordinates(1, 1),HexDirection.Bottom);
-        var unit = _viewModel.Units.First();
+        var unit = _battleMapViewModel.Units.First();
         unit.Deploy(position);
         var hex = new Hex(position.Coordinates);
 
@@ -199,7 +199,7 @@ public class MovementStateTests
         state.HandleHexSelection(hex);
 
         // Assert
-        _viewModel.SelectedUnit.ShouldBe(unit);
+        _battleMapViewModel.SelectedUnit.ShouldBe(unit);
         state.ActionLabel.ShouldBe("Select movement type");
     }
 
@@ -209,18 +209,18 @@ public class MovementStateTests
         // Arrange
         SetPhase(PhaseNames.Movement);
         SetActivePlayer();
-        var state = _viewModel.CurrentState;
+        var state = _battleMapViewModel.CurrentState;
         var position = new HexPosition(new HexCoordinates(1, 1),HexDirection.Bottom);
-        var unit = _viewModel.Units.First();
+        var unit = _battleMapViewModel.Units.First();
         unit.Deploy(position);
         var hex = new Hex(position.Coordinates);
-        _viewModel.SelectedUnit = _unit2;
+        _battleMapViewModel.SelectedUnit = _unit2;
 
         // Act
         state.HandleHexSelection(hex);
 
         // Assert
-        _viewModel.SelectedUnit.ShouldBe(unit);
+        _battleMapViewModel.SelectedUnit.ShouldBe(unit);
         state.ActionLabel.ShouldBe("Select movement type");
     }
 
@@ -230,9 +230,9 @@ public class MovementStateTests
         // Arrange
         SetPhase(PhaseNames.Movement);
         SetActivePlayer();
-        var state = _viewModel.CurrentState;
+        var state = _battleMapViewModel.CurrentState;
         var position = new HexCoordinates(1, 1);
-        var unit = _viewModel.Units.Last();
+        var unit = _battleMapViewModel.Units.Last();
         unit.Deploy(new HexPosition(position,HexDirection.Bottom));
         var hex = new Hex(position);
 
@@ -240,7 +240,7 @@ public class MovementStateTests
         state.HandleHexSelection(hex);
 
         // Assert
-        _viewModel.SelectedUnit.ShouldBeNull();
+        _battleMapViewModel.SelectedUnit.ShouldBeNull();
     }
 
     [Fact]
@@ -265,9 +265,9 @@ public class MovementStateTests
     public void Constructor_ShouldThrow_IfGameNull()
     {
         // Arrange
-        _viewModel.Game=null;
+        _battleMapViewModel.Game=null;
         // Act & Assert
-        Should.Throw<InvalidOperationException>(() => new MovementState(_viewModel));
+        Should.Throw<InvalidOperationException>(() => new MovementState(_battleMapViewModel));
     }
 
     [Fact]
@@ -276,7 +276,7 @@ public class MovementStateTests
         // Arrange
         SetPhase(PhaseNames.WeaponsAttack);
         // Act & Assert
-        Should.Throw<InvalidOperationException>(() => new MovementState(_viewModel));
+        Should.Throw<InvalidOperationException>(() => new MovementState(_battleMapViewModel));
     }
 
     [Fact]
@@ -286,7 +286,7 @@ public class MovementStateTests
         SetPhase(PhaseNames.Movement);
         SetActivePlayer();
         var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
-        var unit = _viewModel.Units.First();
+        var unit = _battleMapViewModel.Units.First();
         unit.Deploy(position);
         _sut.HandleUnitSelection(unit);
         _sut.HandleMovementTypeSelection(MovementType.Walk);
@@ -297,11 +297,11 @@ public class MovementStateTests
         _sut.HandleHexSelection(targetHex);
         
         // Assert
-        _viewModel.IsDirectionSelectorVisible.ShouldBeTrue();
-        _viewModel.DirectionSelectorPosition.ShouldBe(targetHex.Coordinates);
-        _viewModel.AvailableDirections.ShouldNotBeEmpty();
+        _battleMapViewModel.IsDirectionSelectorVisible.ShouldBeTrue();
+        _battleMapViewModel.DirectionSelectorPosition.ShouldBe(targetHex.Coordinates);
+        _battleMapViewModel.AvailableDirections.ShouldNotBeEmpty();
         // All directions should be available for adjacent hex with clear terrain
-        _viewModel.AvailableDirections.ToList().Count.ShouldBe(6);
+        _battleMapViewModel.AvailableDirections.ToList().Count.ShouldBe(6);
     }
 
     [Fact]
@@ -311,9 +311,9 @@ public class MovementStateTests
         SetPhase(PhaseNames.Movement);
         SetActivePlayer();
         var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
-        var unit = _viewModel.Units.First();
+        var unit = _battleMapViewModel.Units.First();
         unit.Deploy(position);
-        _viewModel.SelectedUnit = unit;
+        _battleMapViewModel.SelectedUnit = unit;
         _sut.HandleMovementTypeSelection(MovementType.Walk);
         var targetHex = _game.BattleMap.GetHex(new HexCoordinates(1, 2))!;
         _sut.HandleHexSelection(targetHex);
@@ -322,7 +322,7 @@ public class MovementStateTests
         _sut.HandleHexSelection(new Hex(position.Coordinates));
         
         // Assert
-        foreach (var hex in _viewModel.Game!.BattleMap.GetHexes())
+        foreach (var hex in _battleMapViewModel.Game!.BattleMap.GetHexes())
         {
             hex.IsHighlighted.ShouldBeFalse();
         }
@@ -335,7 +335,7 @@ public class MovementStateTests
         SetPhase(PhaseNames.Movement);
         SetActivePlayer();
         var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
-        var unit = _viewModel.Units.First();
+        var unit = _battleMapViewModel.Units.First();
         unit.Deploy(position);
         _sut.HandleUnitSelection(unit);
         _sut.HandleMovementTypeSelection(MovementType.Walk);
@@ -347,8 +347,8 @@ public class MovementStateTests
         _sut.HandleHexSelection(unreachableHex);
         
         // Assert
-        _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
-        _viewModel.AvailableDirections.ShouldBeNull();
+        _battleMapViewModel.IsDirectionSelectorVisible.ShouldBeFalse();
+        _battleMapViewModel.AvailableDirections.ShouldBeNull();
     }
 
     [Fact]
@@ -358,7 +358,7 @@ public class MovementStateTests
         SetPhase(PhaseNames.Movement);
         SetActivePlayer();
         var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
-        var unit = _viewModel.Units.First();
+        var unit = _battleMapViewModel.Units.First();
         unit.Deploy(position);
         _sut.HandleUnitSelection(unit);
         _sut.HandleMovementTypeSelection(MovementType.Walk);
@@ -370,9 +370,9 @@ public class MovementStateTests
         _sut.HandleFacingSelection(HexDirection.Top);
         
         // Assert
-        _viewModel.MovementPath.ShouldNotBeNull();
-        _viewModel.MovementPath.Last().To.Coordinates.ShouldBe(targetHex.Coordinates);
-        _viewModel.MovementPath.Last().To.Facing.ShouldBe(HexDirection.Top);
+        _battleMapViewModel.MovementPath.ShouldNotBeNull();
+        _battleMapViewModel.MovementPath.Last().To.Coordinates.ShouldBe(targetHex.Coordinates);
+        _battleMapViewModel.MovementPath.Last().To.Facing.ShouldBe(HexDirection.Top);
     }
 
     [Fact]
@@ -437,8 +437,8 @@ public class MovementStateTests
         _sut.HandleHexSelection(targetHex);
 
         // Assert
-        _viewModel.IsDirectionSelectorVisible.ShouldBeTrue();
-        _viewModel.DirectionSelectorPosition.ShouldBe(targetHex.Coordinates);
+        _battleMapViewModel.IsDirectionSelectorVisible.ShouldBeTrue();
+        _battleMapViewModel.DirectionSelectorPosition.ShouldBe(targetHex.Coordinates);
     }
 
     [Fact]
@@ -457,7 +457,7 @@ public class MovementStateTests
 
         // Assert
         // Check that the path segments have correct facing directions
-        var path = _viewModel.MovementPath;
+        var path = _battleMapViewModel.MovementPath;
         path.ShouldNotBeNull();
         path[0].From.Facing.ShouldBe(HexDirection.Top); // Original facing
         path[0].To.Coordinates.ShouldBe(new HexCoordinates(1, 2)); // Target hex
@@ -471,7 +471,7 @@ public class MovementStateTests
     {
         // Arrange
         var startPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
-        var unit = _viewModel.Units.First();
+        var unit = _battleMapViewModel.Units.First();
         unit.Deploy(startPosition);
         var unitHex = _game.BattleMap.GetHex(unit.Position!.Coordinates)!;
         _sut.HandleHexSelection(unitHex);
@@ -484,8 +484,8 @@ public class MovementStateTests
         _sut.HandleHexSelection(unitHex);
         
         // Assert
-        _viewModel.MovementPath.ShouldBeNull();
-        foreach (var hex in _viewModel.Game!.BattleMap.GetHexes())
+        _battleMapViewModel.MovementPath.ShouldBeNull();
+        foreach (var hex in _battleMapViewModel.Game!.BattleMap.GetHexes())
         {
             hex.IsHighlighted.ShouldBeFalse();
         }
@@ -534,9 +534,9 @@ public class MovementStateTests
         _sut.HandleHexSelection(targetHex);
         
         // Assert
-        _viewModel.IsDirectionSelectorVisible.ShouldBeTrue("Should show direction selector");
-        _viewModel.DirectionSelectorPosition.ShouldBe(targetHex.Coordinates);
-        _viewModel.AvailableDirections!.ToList().Count.ShouldBe(6, "All directions should be available for jumping");
+        _battleMapViewModel.IsDirectionSelectorVisible.ShouldBeTrue("Should show direction selector");
+        _battleMapViewModel.DirectionSelectorPosition.ShouldBe(targetHex.Coordinates);
+        _battleMapViewModel.AvailableDirections!.ToList().Count.ShouldBe(6, "All directions should be available for jumping");
     }
 
     [Fact]
@@ -566,7 +566,7 @@ public class MovementStateTests
         _sut.HandleMovementTypeSelection(MovementType.Walk);
 
         // Assert
-        var reachableHexes = _viewModel.Game!.BattleMap.GetHexes()
+        var reachableHexes = _battleMapViewModel.Game!.BattleMap.GetHexes()
             .Where(h => h.IsHighlighted)
             .Select(h => h.Coordinates)
             .ToList();
@@ -581,36 +581,36 @@ public class MovementStateTests
         _unit1.Deploy(position);
         _sut.HandleUnitSelection(_unit1);
         _sut.HandleMovementTypeSelection(MovementType.Walk);
-        var currentHex = _viewModel.Game!.BattleMap.GetHex(position.Coordinates);
+        var currentHex = _battleMapViewModel.Game!.BattleMap.GetHex(position.Coordinates);
 
         // Act
         _sut.HandleHexSelection(currentHex!);
 
         // Assert
-        _viewModel.IsDirectionSelectorVisible.ShouldBeTrue();
-        _viewModel.DirectionSelectorPosition.ShouldBe(position.Coordinates);
+        _battleMapViewModel.IsDirectionSelectorVisible.ShouldBeTrue();
+        _battleMapViewModel.DirectionSelectorPosition.ShouldBe(position.Coordinates);
     }
 
     [Fact]
     public void HandleTargetHexSelection_ResetsSelection_WhenClickingOutsideReachableHexes()
     {
         // Arrange
-        var unit = _viewModel.Units.First();
+        var unit = _battleMapViewModel.Units.First();
         var startPosition = new HexPosition(new HexCoordinates(1, 2), HexDirection.Top);
         unit.Deploy(startPosition);
         var unitHex = _game.BattleMap.GetHex(unit.Position!.Coordinates)!;
         _sut.HandleHexSelection(unitHex);
         _sut.HandleUnitSelection(unit);
         _sut.HandleMovementTypeSelection(MovementType.Walk);
-        var unreachableHex = _viewModel.Game!.BattleMap.GetHex(new HexCoordinates(1, 11)); // Far away hex
+        var unreachableHex = _battleMapViewModel.Game!.BattleMap.GetHex(new HexCoordinates(1, 11)); // Far away hex
 
         // Act
         _sut.HandleHexSelection(unreachableHex!);
 
         // Assert
-        _viewModel.SelectedUnit.ShouldBeNull(); // Selection should be reset
+        _battleMapViewModel.SelectedUnit.ShouldBeNull(); // Selection should be reset
         _sut.CurrentMovementStep.ShouldBe(MovementStep.SelectingUnit); // Back to initial step
-        _viewModel.Game.BattleMap.GetHexes()
+        _battleMapViewModel.Game.BattleMap.GetHexes()
             .Any(h => h.IsHighlighted)
             .ShouldBeFalse(); // No highlighted hexes
     }
@@ -695,7 +695,7 @@ public class MovementStateTests
         SetPhase(PhaseNames.Movement);
         SetActivePlayer();
         var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
-        var unit = _viewModel.Units.First();
+        var unit = _battleMapViewModel.Units.First();
         unit.Deploy(position);
         _sut.HandleUnitSelection(unit);
         _sut.HandleMovementTypeSelection(MovementType.Walk);
@@ -707,7 +707,7 @@ public class MovementStateTests
         _sut.HandleFacingSelection(HexDirection.Top);
         
         // Assert
-        _viewModel.MovementPath.ShouldNotBeNull();
+        _battleMapViewModel.MovementPath.ShouldNotBeNull();
         _sut.ActionLabel.ShouldBe("Move Unit");
     }
 
@@ -718,7 +718,7 @@ public class MovementStateTests
         SetPhase(PhaseNames.Movement);
         SetActivePlayer();
         var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
-        var unit = _viewModel.Units.First();
+        var unit = _battleMapViewModel.Units.First();
         unit.Deploy(position);
         _sut.HandleUnitSelection(unit);
         _sut.HandleMovementTypeSelection(MovementType.Walk);
@@ -733,10 +733,10 @@ public class MovementStateTests
         _sut.HandleFacingSelection(HexDirection.Top);
         
         // Assert
-        _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
+        _battleMapViewModel.IsDirectionSelectorVisible.ShouldBeFalse();
         _sut.ActionLabel.ShouldBeEmpty();
         _sut.IsActionRequired.ShouldBeFalse();
-        foreach (var hex in _viewModel.Game!.BattleMap.GetHexes())
+        foreach (var hex in _battleMapViewModel.Game!.BattleMap.GetHexes())
         {
             hex.IsHighlighted.ShouldBeFalse();
         }
@@ -749,7 +749,7 @@ public class MovementStateTests
         SetPhase(PhaseNames.Movement);
         SetActivePlayer();
         var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
-        var unit = _viewModel.Units.First();
+        var unit = _battleMapViewModel.Units.First();
         unit.Deploy(position);
         _sut.HandleUnitSelection(unit);
         _sut.HandleMovementTypeSelection(MovementType.Walk);
@@ -765,11 +765,11 @@ public class MovementStateTests
         _sut.ExecutePlayerAction();
         
         // Assert
-        _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
+        _battleMapViewModel.IsDirectionSelectorVisible.ShouldBeFalse();
         _sut.ActionLabel.ShouldBeEmpty();
         _sut.IsActionRequired.ShouldBeFalse();
         
-        foreach (var hex in _viewModel.Game!.BattleMap.GetHexes())
+        foreach (var hex in _battleMapViewModel.Game!.BattleMap.GetHexes())
         {
             hex.IsHighlighted.ShouldBeFalse();
         }

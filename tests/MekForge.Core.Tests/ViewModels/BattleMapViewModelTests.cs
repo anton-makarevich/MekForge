@@ -27,14 +27,14 @@ namespace Sanet.MekForge.Core.Tests.ViewModels;
 
 public class BattleMapViewModelTests
 {
-    private readonly BattleMapViewModel _viewModel;
+    private readonly BattleMapViewModel _sut;
     private IGame _game;
     private readonly ILocalizationService _localizationService = Substitute.For<ILocalizationService>();
 
     public BattleMapViewModelTests()
     {
         var imageService = Substitute.For<IImageService>();
-        _viewModel = new BattleMapViewModel(imageService, _localizationService);
+        _sut = new BattleMapViewModel(imageService, _localizationService);
         
         _localizationService.GetString("Action_SelectTarget").Returns("Select Target");
         _localizationService.GetString("Action_SelectUnitToFire").Returns("Select unit to fire weapons");
@@ -42,7 +42,7 @@ public class BattleMapViewModelTests
         _localizationService.GetString("Action_SelectUnitToDeploy").Returns("Select Unit");
         _localizationService.GetString("StartPhase_PlayerActionLabel").Returns("Ready to play");
         _game = Substitute.For<IGame>();
-        _viewModel.Game = _game;
+        _sut.Game = _game;
     }
 
     [Fact]
@@ -51,12 +51,12 @@ public class BattleMapViewModelTests
 
         // Act and Assert
         _game.Turn.Returns(1);
-        _viewModel.Turn.ShouldBe(1);
+        _sut.Turn.ShouldBe(1);
         _game.TurnPhase.Returns(PhaseNames.Start);
-        _viewModel.TurnPhaseName.ShouldBe(PhaseNames.Start);
+        _sut.TurnPhaseName.ShouldBe(PhaseNames.Start);
         _game.ActivePlayer.Returns(new Player(Guid.Empty, "Player1", "#FF0000"));
-        _viewModel.ActivePlayerName.ShouldBe("Player1");
-        _viewModel.ActivePlayerTint.ShouldBe("#FF0000");
+        _sut.ActivePlayerName.ShouldBe("Player1");
+        _sut.ActivePlayerTint.ShouldBe("#FF0000");
     }
 
     [Theory]
@@ -77,7 +77,7 @@ public class BattleMapViewModelTests
             [player], new ClassicBattletechRulesProvider(),
             Substitute.For<ICommandPublisher>(),
             Substitute.For<IToHitCalculator>());
-        _viewModel.Game = _game;
+        _sut.Game = _game;
 
         ((ClientGame)_game).HandleCommand(new ChangePhaseCommand()
         {
@@ -104,15 +104,15 @@ public class BattleMapViewModelTests
         // Assert
         if (expectedVisible)
         {
-            _viewModel.UnitsToDeploy.ShouldHaveSingleItem();
+            _sut.UnitsToDeploy.ShouldHaveSingleItem();
         }
         else
         {
-            _viewModel.UnitsToDeploy.ShouldBeEmpty();
+            _sut.UnitsToDeploy.ShouldBeEmpty();
         }
-        _viewModel.AreUnitsToDeployVisible.ShouldBe(expectedVisible);
-        _viewModel.ActionInfoLabel.ShouldBe(actionLabel);
-        _viewModel.IsUserActionLabelVisible.ShouldBe(expectedVisible);
+        _sut.AreUnitsToDeployVisible.ShouldBe(expectedVisible);
+        _sut.ActionInfoLabel.ShouldBe(actionLabel);
+        _sut.IsUserActionLabelVisible.ShouldBe(expectedVisible);
     }
     
     [Fact]
@@ -134,7 +134,7 @@ public class BattleMapViewModelTests
         _game.Players.Returns(new List<Player> { player1, player2 });
 
         // Act
-        var units = _viewModel.Units.ToList();
+        var units = _sut.Units.ToList();
 
         // Assert
         units.Count.ShouldBe(3);
@@ -146,7 +146,7 @@ public class BattleMapViewModelTests
     public void CommandLog_ShouldBeEmpty_WhenGameIsNotClientGame()
     {
         // Assert
-        _viewModel.CommandLog.ShouldBeEmpty();
+        _sut.CommandLog.ShouldBeEmpty();
     }
 
     [Fact]
@@ -161,7 +161,7 @@ public class BattleMapViewModelTests
             new ClassicBattletechRulesProvider(),
             Substitute.For<ICommandPublisher>(),
             Substitute.For<IToHitCalculator>());
-        _viewModel.Game = clientGame;
+        _sut.Game = clientGame;
 
         var joinCommand = new JoinGameCommand
         {
@@ -176,8 +176,8 @@ public class BattleMapViewModelTests
         clientGame.HandleCommand(joinCommand);
 
         // Assert
-        _viewModel.CommandLog.Count.ShouldBe(1);
-        _viewModel.CommandLog.First().ShouldBeEquivalentTo(joinCommand.Format(_localizationService, clientGame));
+        _sut.CommandLog.Count.ShouldBe(1);
+        _sut.CommandLog.First().ShouldBeEquivalentTo(joinCommand.Format(_localizationService, clientGame));
     }
 
     [Fact]
@@ -192,7 +192,7 @@ public class BattleMapViewModelTests
             new ClassicBattletechRulesProvider(),
             Substitute.For<ICommandPublisher>(),
             Substitute.For<IToHitCalculator>());
-        _viewModel.Game = clientGame;
+        _sut.Game = clientGame;
 
         var joinCommand = new JoinGameCommand
         {
@@ -214,16 +214,16 @@ public class BattleMapViewModelTests
         clientGame.HandleCommand(phaseCommand);
 
         // Assert
-        _viewModel.CommandLog.Count.ShouldBe(2);
-        _viewModel.CommandLog.First().ShouldBeEquivalentTo(joinCommand.Format(_localizationService,clientGame));
-        _viewModel.CommandLog.Last().ShouldBeEquivalentTo(phaseCommand.Format(_localizationService,clientGame));
+        _sut.CommandLog.Count.ShouldBe(2);
+        _sut.CommandLog.First().ShouldBeEquivalentTo(joinCommand.Format(_localizationService,clientGame));
+        _sut.CommandLog.Last().ShouldBeEquivalentTo(phaseCommand.Format(_localizationService,clientGame));
     }
 
     [Fact]
     public void IsCommandLogExpanded_ShouldBeFalse_ByDefault()
     {
         // Assert
-        _viewModel.IsCommandLogExpanded.ShouldBeFalse();
+        _sut.IsCommandLogExpanded.ShouldBeFalse();
     }
 
     [Fact]
@@ -231,19 +231,19 @@ public class BattleMapViewModelTests
     {
         // Arrange
         var propertyChangedEvents = new List<string>();
-        _viewModel.PropertyChanged += (_, e) => propertyChangedEvents.Add(e.PropertyName ?? string.Empty);
+        _sut.PropertyChanged += (_, e) => propertyChangedEvents.Add(e.PropertyName ?? string.Empty);
 
         // Act & Assert - First toggle
-        _viewModel.ToggleCommandLog();
-        _viewModel.IsCommandLogExpanded.ShouldBeTrue();
+        _sut.ToggleCommandLog();
+        _sut.IsCommandLogExpanded.ShouldBeTrue();
         propertyChangedEvents.ShouldContain(nameof(BattleMapViewModel.IsCommandLogExpanded));
 
         // Clear events for second test
         propertyChangedEvents.Clear();
 
         // Act & Assert - Second toggle
-        _viewModel.ToggleCommandLog();
-        _viewModel.IsCommandLogExpanded.ShouldBeFalse();
+        _sut.ToggleCommandLog();
+        _sut.IsCommandLogExpanded.ShouldBeFalse();
         propertyChangedEvents.ShouldContain(nameof(BattleMapViewModel.IsCommandLogExpanded));
     }
 
@@ -257,7 +257,7 @@ public class BattleMapViewModelTests
             [player], new ClassicBattletechRulesProvider(),
             Substitute.For<ICommandPublisher>(),
             Substitute.For<IToHitCalculator>());
-        _viewModel.Game = _game;
+        _sut.Game = _game;
 
         ((ClientGame)_game).HandleCommand(new ChangePhaseCommand()
         {
@@ -282,8 +282,8 @@ public class BattleMapViewModelTests
         });
         
         // Assert
-        _viewModel.ActionInfoLabel.ShouldBe("Select unit to move");
-        _viewModel.IsUserActionLabelVisible.ShouldBeTrue();
+        _sut.ActionInfoLabel.ShouldBe("Select unit to move");
+        _sut.IsUserActionLabelVisible.ShouldBeTrue();
     }
 
     [Fact]
@@ -296,7 +296,7 @@ public class BattleMapViewModelTests
             [player], new ClassicBattletechRulesProvider(),
             Substitute.For<ICommandPublisher>(),
             Substitute.For<IToHitCalculator>());
-        _viewModel.Game = _game;
+        _sut.Game = _game;
         ((ClientGame)_game).HandleCommand(new JoinGameCommand()
         {
             PlayerId = player.Id,
@@ -321,8 +321,8 @@ public class BattleMapViewModelTests
         });
         
         // Assert
-        _viewModel.ActionInfoLabel.ShouldBe("Select unit to fire weapons");
-        _viewModel.IsUserActionLabelVisible.ShouldBeTrue();
+        _sut.ActionInfoLabel.ShouldBe("Select unit to fire weapons");
+        _sut.IsUserActionLabelVisible.ShouldBeTrue();
     }
 
     [Fact]
@@ -335,7 +335,7 @@ public class BattleMapViewModelTests
             [player], new ClassicBattletechRulesProvider(),
             Substitute.For<ICommandPublisher>(),
             Substitute.For<IToHitCalculator>());
-        _viewModel.Game = _game;
+        _sut.Game = _game;
 
         ((ClientGame)_game).HandleCommand(new ChangePhaseCommand()
         {
@@ -360,8 +360,8 @@ public class BattleMapViewModelTests
         });
         
         // Assert
-        _viewModel.ActionInfoLabel.ShouldBe("Wait");
-        _viewModel.IsUserActionLabelVisible.ShouldBeFalse();
+        _sut.ActionInfoLabel.ShouldBe("Wait");
+        _sut.IsUserActionLabelVisible.ShouldBeFalse();
     }
 
     [Fact]
@@ -372,12 +372,12 @@ public class BattleMapViewModelTests
         var directions = new[] { HexDirection.Top, HexDirection.Bottom };
 
         // Act
-        _viewModel.ShowDirectionSelector(position, directions);
+        _sut.ShowDirectionSelector(position, directions);
 
         // Assert
-        _viewModel.DirectionSelectorPosition.ShouldBe(position);
-        _viewModel.IsDirectionSelectorVisible.ShouldBeTrue();
-        _viewModel.AvailableDirections.ShouldBeEquivalentTo(directions);
+        _sut.DirectionSelectorPosition.ShouldBe(position);
+        _sut.IsDirectionSelectorVisible.ShouldBeTrue();
+        _sut.AvailableDirections.ShouldBeEquivalentTo(directions);
     }
 
     [Fact]
@@ -386,36 +386,36 @@ public class BattleMapViewModelTests
         // Arrange
         var position = new HexCoordinates(1, 1);
         var directions = new[] { HexDirection.Top, HexDirection.Bottom };
-        _viewModel.ShowDirectionSelector(position, directions);
+        _sut.ShowDirectionSelector(position, directions);
 
         // Act
-        _viewModel.HideDirectionSelector();
+        _sut.HideDirectionSelector();
 
         // Assert
-        _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
-        _viewModel.AvailableDirections.ShouldBeNull();
+        _sut.IsDirectionSelectorVisible.ShouldBeFalse();
+        _sut.AvailableDirections.ShouldBeNull();
     }
 
     [Fact]
     public void IsRecordSheetButtonVisible_NoSelectedUnit_ReturnsFalse()
     {
         // Arrange
-        _viewModel.SelectedUnit = null;
-        _viewModel.IsRecordSheetExpanded = false;
+        _sut.SelectedUnit = null;
+        _sut.IsRecordSheetExpanded = false;
 
         // Act & Assert
-        _viewModel.IsRecordSheetButtonVisible.ShouldBeFalse();
+        _sut.IsRecordSheetButtonVisible.ShouldBeFalse();
     }
     
     [Fact]
     public void IsRecordSheetPanelVisible_NoSelectedUnit_ReturnsFalse()
     {
         // Arrange
-        _viewModel.SelectedUnit = null;
-        _viewModel.IsRecordSheetExpanded = false;
+        _sut.SelectedUnit = null;
+        _sut.IsRecordSheetExpanded = false;
 
         // Act & Assert
-        _viewModel.IsRecordSheetPanelVisible.ShouldBeFalse();
+        _sut.IsRecordSheetPanelVisible.ShouldBeFalse();
     }
 
     [Fact]
@@ -423,11 +423,11 @@ public class BattleMapViewModelTests
     {
         // Arrange
         var unit = new Mech("Mech", "MK1",20,6,[]);
-        _viewModel.SelectedUnit = unit;
-        _viewModel.IsRecordSheetExpanded = true;
+        _sut.SelectedUnit = unit;
+        _sut.IsRecordSheetExpanded = true;
 
         // Act & Assert
-        _viewModel.IsRecordSheetButtonVisible.ShouldBeFalse();
+        _sut.IsRecordSheetButtonVisible.ShouldBeFalse();
     }
 
     [Fact]
@@ -435,11 +435,11 @@ public class BattleMapViewModelTests
     {
         // Arrange
         var unit = new Mech("Mech", "MK1",20,6,[]);
-        _viewModel.SelectedUnit = unit;
-        _viewModel.IsRecordSheetExpanded = false;
+        _sut.SelectedUnit = unit;
+        _sut.IsRecordSheetExpanded = false;
 
         // Act & Assert
-        _viewModel.IsRecordSheetButtonVisible.ShouldBeTrue();
+        _sut.IsRecordSheetButtonVisible.ShouldBeTrue();
     }
     
     [Fact]
@@ -447,11 +447,11 @@ public class BattleMapViewModelTests
     {
         // Arrange
         var unit = new Mech("Mech", "MK1",20,6,[]);
-        _viewModel.SelectedUnit = unit;
-        _viewModel.IsRecordSheetExpanded = true;
+        _sut.SelectedUnit = unit;
+        _sut.IsRecordSheetExpanded = true;
 
         // Act & Assert
-        _viewModel.IsRecordSheetPanelVisible.ShouldBeTrue();
+        _sut.IsRecordSheetPanelVisible.ShouldBeTrue();
     }
 
     [Fact]
@@ -459,30 +459,30 @@ public class BattleMapViewModelTests
     {
         // Arrange
         var unit = new Mech("Mech", "MK1",20,6,[]);
-        _viewModel.SelectedUnit = unit;
-        _viewModel.IsRecordSheetExpanded = false;
+        _sut.SelectedUnit = unit;
+        _sut.IsRecordSheetExpanded = false;
 
         // Act & Assert
-        _viewModel.IsRecordSheetPanelVisible.ShouldBeFalse();
+        _sut.IsRecordSheetPanelVisible.ShouldBeFalse();
     }
 
     [Fact]
     public void ToggleRecordSheet_TogglesIsRecordSheetExpanded()
     {
         // Arrange
-        _viewModel.IsRecordSheetExpanded = false;
+        _sut.IsRecordSheetExpanded = false;
 
         // Act
-        _viewModel.ToggleRecordSheet();
+        _sut.ToggleRecordSheet();
 
         // Assert
-        _viewModel.IsRecordSheetExpanded.ShouldBeTrue();
+        _sut.IsRecordSheetExpanded.ShouldBeTrue();
 
         // Act again
-        _viewModel.ToggleRecordSheet();
+        _sut.ToggleRecordSheet();
 
         // Assert
-        _viewModel.IsRecordSheetExpanded.ShouldBeFalse();
+        _sut.IsRecordSheetExpanded.ShouldBeFalse();
     }
 
     [Fact]
@@ -498,12 +498,12 @@ public class BattleMapViewModelTests
         };
 
         // Act
-        _viewModel.ShowMovementPath(path);
+        _sut.ShowMovementPath(path);
 
         // Assert
-        _viewModel.MovementPath.ShouldNotBeNull();
-        _viewModel.MovementPath[0].From.ShouldBe(path[0].From);
-        _viewModel.MovementPath[0].To.ShouldBe(path[0].To);
+        _sut.MovementPath.ShouldNotBeNull();
+        _sut.MovementPath[0].From.ShouldBe(path[0].From);
+        _sut.MovementPath[0].To.ShouldBe(path[0].To);
     }
 
     [Fact]
@@ -517,13 +517,13 @@ public class BattleMapViewModelTests
                 new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom),
                 1)
         };
-        _viewModel.ShowMovementPath(path);
+        _sut.ShowMovementPath(path);
 
         // Act
-        _viewModel.ShowMovementPath([]);
+        _sut.ShowMovementPath([]);
 
         // Assert
-        _viewModel.MovementPath.ShouldBeNull();
+        _sut.MovementPath.ShouldBeNull();
     }
 
     [Fact]
@@ -538,14 +538,14 @@ public class BattleMapViewModelTests
                 1)
         };
         var propertyChanged = false;
-        _viewModel.PropertyChanged += (_, e) =>
+        _sut.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(BattleMapViewModel.MovementPath))
                 propertyChanged = true;
         };
 
         // Act
-        _viewModel.ShowMovementPath(path);
+        _sut.ShowMovementPath(path);
 
         // Assert
         propertyChanged.ShouldBeTrue();
@@ -562,19 +562,19 @@ public class BattleMapViewModelTests
                 new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom),
                 1)
         };
-        _viewModel.ShowMovementPath(path);
+        _sut.ShowMovementPath(path);
         var propertyChanged = false;
-        _viewModel.PropertyChanged += (_, e) =>
+        _sut.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(BattleMapViewModel.MovementPath))
                 propertyChanged = true;
         };
 
         // Act
-        _viewModel.HideMovementPath();
+        _sut.HideMovementPath();
 
         // Assert
-        _viewModel.MovementPath.ShouldBeNull();
+        _sut.MovementPath.ShouldBeNull();
         propertyChanged.ShouldBeTrue();
     }
 
@@ -585,7 +585,7 @@ public class BattleMapViewModelTests
         _game.TurnPhase.Returns(PhaseNames.Movement);
         
         // Act
-        var items = _viewModel.WeaponSelectionItems;
+        var items = _sut.WeaponSelectionItems;
 
         // Assert
         items.ShouldBeEmpty();
@@ -605,7 +605,7 @@ public class BattleMapViewModelTests
             battleMap, [player], rules,
             Substitute.For<ICommandPublisher>(), Substitute.For<IToHitCalculator>());
         
-        _viewModel.Game = game;
+        _sut.Game = game;
         game.HandleCommand(new JoinGameCommand
         {
             PlayerName = "Player1",
@@ -635,14 +635,14 @@ public class BattleMapViewModelTests
 
         // Place unit
         var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
-        var unit = _viewModel.Units.First();
+        var unit = _sut.Units.First();
         unit.Deploy(position);
         
         // Select unit
-        _viewModel.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==position.Coordinates));
+        _sut.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==position.Coordinates));
 
         // Act
-        var items = _viewModel.WeaponSelectionItems.ToList();
+        var items = _sut.WeaponSelectionItems.ToList();
 
         // Assert
         items.ShouldNotBeEmpty();
@@ -656,7 +656,7 @@ public class BattleMapViewModelTests
         _game.TurnPhase.Returns(PhaseNames.Movement);
         
         // Act & Assert
-        _viewModel.IsWeaponSelectionVisible.ShouldBeFalse();
+        _sut.IsWeaponSelectionVisible.ShouldBeFalse();
     }
 
     [Fact]
@@ -673,7 +673,7 @@ public class BattleMapViewModelTests
             battleMap, [player], rules,
             Substitute.For<ICommandPublisher>(), Substitute.For<IToHitCalculator>());
         
-        _viewModel.Game = game;
+        _sut.Game = game;
         game.HandleCommand(new JoinGameCommand
         {
             PlayerName = "Player1",
@@ -702,14 +702,14 @@ public class BattleMapViewModelTests
 
         // Place unit
         var position = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
-        var unit = _viewModel.Units.First();
+        var unit = _sut.Units.First();
         unit.Deploy(position);
         
         // Select unit
-        _viewModel.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==position.Coordinates));
+        _sut.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==position.Coordinates));
         
         // Act & Assert
-        _viewModel.IsWeaponSelectionVisible.ShouldBeFalse();
+        _sut.IsWeaponSelectionVisible.ShouldBeFalse();
     }
 
     [Fact]
@@ -727,7 +727,7 @@ public class BattleMapViewModelTests
             battleMap, [player1, player2], rules,
             Substitute.For<ICommandPublisher>(), Substitute.For<IToHitCalculator>());
         
-        _viewModel.Game = game;
+        _sut.Game = game;
         game.HandleCommand(new JoinGameCommand
         {
             PlayerName = "Player1",
@@ -771,23 +771,23 @@ public class BattleMapViewModelTests
 
         // Place units
         var attackerPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
-        var attacker = _viewModel.Units.First(u => u.Owner!.Id == player1.Id);
+        var attacker = _sut.Units.First(u => u.Owner!.Id == player1.Id);
         attacker.Deploy(attackerPosition);
         
         var targetPosition = new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom);
-        var target = _viewModel.Units.First(u => u.Owner!.Id == player2.Id);
+        var target = _sut.Units.First(u => u.Owner!.Id == player2.Id);
         target.Deploy(targetPosition);
         
         // Select attacker
-        _viewModel.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==attackerPosition.Coordinates));
+        _sut.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==attackerPosition.Coordinates));
         
         // Select target
-        var selectTargetAction = _viewModel.CurrentState.GetAvailableActions().First(a => a.Label == "Select Target");
+        var selectTargetAction = _sut.CurrentState.GetAvailableActions().First(a => a.Label == "Select Target");
         selectTargetAction.OnExecute();
-        _viewModel.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==targetPosition.Coordinates));
+        _sut.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==targetPosition.Coordinates));
         
         // Act & Assert
-        _viewModel.IsWeaponSelectionVisible.ShouldBeTrue();
+        _sut.IsWeaponSelectionVisible.ShouldBeTrue();
     }
 
     [Fact]
@@ -805,7 +805,7 @@ public class BattleMapViewModelTests
             battleMap, [player1, player2], rules,
             Substitute.For<ICommandPublisher>(), Substitute.For<IToHitCalculator>());
         
-        _viewModel.Game = game;
+        _sut.Game = game;
         game.HandleCommand(new JoinGameCommand
         {
             PlayerName = "Player1",
@@ -849,40 +849,40 @@ public class BattleMapViewModelTests
 
         // Place units
         var attackerPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
-        var attacker = _viewModel.Units.First(u => u.Owner!.Id == player1.Id);
+        var attacker = _sut.Units.First(u => u.Owner!.Id == player1.Id);
         attacker.Deploy(attackerPosition);
         
         var targetPosition = new HexPosition(new HexCoordinates(1, 2), HexDirection.Bottom);
-        var target = _viewModel.Units.First(u => u.Owner!.Id == player2.Id);
+        var target = _sut.Units.First(u => u.Owner!.Id == player2.Id);
         target.Deploy(targetPosition);
         
         // Select attacker
-        _viewModel.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==attackerPosition.Coordinates));
+        _sut.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==attackerPosition.Coordinates));
         
         // Select target
-        var selectTargetAction = _viewModel.CurrentState.GetAvailableActions().First(a => a.Label == "Select Target");
+        var selectTargetAction = _sut.CurrentState.GetAvailableActions().First(a => a.Label == "Select Target");
         selectTargetAction.OnExecute();
-        _viewModel.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==targetPosition.Coordinates));
+        _sut.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==targetPosition.Coordinates));
         
         // Act & Assert - Initially visible
-        _viewModel.IsWeaponSelectionVisible.ShouldBeTrue();
+        _sut.IsWeaponSelectionVisible.ShouldBeTrue();
 
         // Act & Assert - Can be closed
-        _viewModel.CloseWeaponSelectionCommand();
-        _viewModel.IsWeaponSelectionVisible.ShouldBeFalse();
+        _sut.CloseWeaponSelectionCommand();
+        _sut.IsWeaponSelectionVisible.ShouldBeFalse();
 
         // Act & Assert - Can be reopened
-        _viewModel.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==targetPosition.Coordinates));
-        _viewModel.IsWeaponSelectionVisible.ShouldBeTrue();
+        _sut.HandleHexSelection(game.BattleMap.GetHexes().First(h=>h.Coordinates==targetPosition.Coordinates));
+        _sut.IsWeaponSelectionVisible.ShouldBeTrue();
 
         // Act & Assert - Stays closed when changing phase
-        _viewModel.IsWeaponSelectionVisible = false;
+        _sut.IsWeaponSelectionVisible = false;
         game.HandleCommand(new ChangePhaseCommand
         {
             GameOriginId = Guid.NewGuid(),
             Phase = PhaseNames.Movement
         });
-        _viewModel.IsWeaponSelectionVisible.ShouldBeFalse();
+        _sut.IsWeaponSelectionVisible.ShouldBeFalse();
     }
 
     [Fact]
@@ -899,7 +899,7 @@ public class BattleMapViewModelTests
             battleMap, [player1], rules,
             Substitute.For<ICommandPublisher>(), Substitute.For<IToHitCalculator>());
 
-        _viewModel.Game = game;
+        _sut.Game = game;
         game.HandleCommand(new JoinGameCommand
         {
             PlayerName = "Player1",
@@ -928,15 +928,15 @@ public class BattleMapViewModelTests
 
         // Place units
         var attackerPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Bottom);
-        var attacker = _viewModel.Units.First(u => u.Owner!.Id == player1.Id);
+        var attacker = _sut.Units.First(u => u.Owner!.Id == player1.Id);
         attacker.Deploy(attackerPosition);
 
         // Act Select attacker
-        _viewModel.HandleHexSelection(game.BattleMap.GetHexes()
+        _sut.HandleHexSelection(game.BattleMap.GetHexes()
             .First(h => h.Coordinates == attackerPosition.Coordinates));
         
         // Assert
-        _viewModel.Attacker.ShouldBe(attacker);
+        _sut.Attacker.ShouldBe(attacker);
     }
     
     [Fact]
@@ -953,7 +953,7 @@ public class BattleMapViewModelTests
             battleMap, [player1], rules,
             Substitute.For<ICommandPublisher>(), Substitute.For<IToHitCalculator>());
 
-        _viewModel.Game = game;
+        _sut.Game = game;
         game.HandleCommand(new JoinGameCommand
         {
             PlayerName = "Player1",
@@ -970,7 +970,7 @@ public class BattleMapViewModelTests
         });
         
         // Assert
-        _viewModel.Attacker.ShouldBeNull();
+        _sut.Attacker.ShouldBeNull();
     }
 
     [Fact]
@@ -992,7 +992,7 @@ public class BattleMapViewModelTests
             Substitute.For<ICommandPublisher>(),
             Substitute.For<IToHitCalculator>());
         
-        _viewModel.Game = game;
+        _sut.Game = game;
         game.HandleCommand(new JoinGameCommand
         {
             PlayerName = "Player1",
@@ -1026,8 +1026,8 @@ public class BattleMapViewModelTests
         // Deploy units to positions
         var attackerPosition = new HexPosition(new HexCoordinates(2, 2), HexDirection.Top);
         var targetPosition = new HexPosition(new HexCoordinates(1, 1), HexDirection.Top);
-        var attacker = _viewModel.Units.First(u => u.Owner!.Id == playerId);
-        var target = _viewModel.Units.First(u => u.Owner!.Id == targetPlayerId);
+        var attacker = _sut.Units.First(u => u.Owner!.Id == playerId);
+        var target = _sut.Units.First(u => u.Owner!.Id == targetPlayerId);
         attacker.Deploy(attackerPosition);
         target.Deploy(targetPosition);
         
@@ -1060,10 +1060,10 @@ public class BattleMapViewModelTests
         game.HandleCommand(weaponAttackCommand);
         
         // Assert
-        _viewModel.WeaponAttacks.ShouldNotBeNull();
-        _viewModel.WeaponAttacks.Count.ShouldBe(1);
+        _sut.WeaponAttacks.ShouldNotBeNull();
+        _sut.WeaponAttacks.Count.ShouldBe(1);
         
-        var attack = _viewModel.WeaponAttacks.First();
+        var attack = _sut.WeaponAttacks.First();
         attack.From.ShouldBe(attackerPosition.Coordinates);
         attack.To.ShouldBe(targetPosition.Coordinates);
         attack.Weapon.ShouldBe(weapon);
@@ -1091,7 +1091,7 @@ public class BattleMapViewModelTests
             Substitute.For<ICommandPublisher>(),
             Substitute.For<IToHitCalculator>());
         
-        _viewModel.Game = game;
+        _sut.Game = game;
         
         // Add units to the game via commands
         game.HandleCommand(new JoinGameCommand
@@ -1147,10 +1147,10 @@ public class BattleMapViewModelTests
         var targetPosition = new HexPosition(new HexCoordinates(1, 0), HexDirection.Top);
         
         // Get the units from the game
-        var attackers = _viewModel.Units.Where(u => u.Owner!.Id == playerId).ToList();
+        var attackers = _sut.Units.Where(u => u.Owner!.Id == playerId).ToList();
         var attacker1 = attackers[0];
         var attacker2 = attackers[1];
-        var target = _viewModel.Units.First(u => u.Owner!.Id == targetPlayerId);
+        var target = _sut.Units.First(u => u.Owner!.Id == targetPlayerId);
         
         // Deploy the units
         attacker1.Deploy(attacker1Position);
@@ -1208,17 +1208,17 @@ public class BattleMapViewModelTests
         game.HandleCommand(weaponAttackCommand2);
         
         // Assert
-        _viewModel.WeaponAttacks.ShouldNotBeNull();
-        _viewModel.WeaponAttacks.Count.ShouldBe(2);
+        _sut.WeaponAttacks.ShouldNotBeNull();
+        _sut.WeaponAttacks.Count.ShouldBe(2);
         
-        var attack1 = _viewModel.WeaponAttacks[0];
+        var attack1 = _sut.WeaponAttacks[0];
         attack1.From.ShouldBe(attacker1Position.Coordinates);
         attack1.To.ShouldBe(targetPosition.Coordinates);
         attack1.Weapon.ShouldBe(weapon1);
         attack1.AttackerTint.ShouldBe(player.Tint);
         attack1.LineOffset.ShouldBe(5);
         
-        var attack2 = _viewModel.WeaponAttacks[1];
+        var attack2 = _sut.WeaponAttacks[1];
         attack2.From.ShouldBe(attacker2Position.Coordinates);
         attack2.To.ShouldBe(targetPosition.Coordinates);
         attack2.Weapon.ShouldBe(weapon2);
@@ -1246,7 +1246,7 @@ public class BattleMapViewModelTests
             Substitute.For<ICommandPublisher>(),
             Substitute.For<IToHitCalculator>());
         
-        _viewModel.Game = game;
+        _sut.Game = game;
         
         // Add units to the game via commands
         game.HandleCommand(new JoinGameCommand
@@ -1287,8 +1287,8 @@ public class BattleMapViewModelTests
         var targetPosition = new HexPosition(new HexCoordinates(1, 0), HexDirection.Top);
         
         // Get the units from the game
-        var attacker = _viewModel.Units.First(u => u.Owner!.Id == playerId);
-        var target = _viewModel.Units.First(u => u.Owner!.Id == targetPlayerId);
+        var attacker = _sut.Units.First(u => u.Owner!.Id == playerId);
+        var target = _sut.Units.First(u => u.Owner!.Id == targetPlayerId);
         
         // Deploy the units
         attacker.Deploy(attackerPosition);
@@ -1336,8 +1336,8 @@ public class BattleMapViewModelTests
         game.HandleCommand(weaponAttackCommand);
         
         // Verify both attacks are present
-        _viewModel.WeaponAttacks.ShouldNotBeNull();
-        _viewModel.WeaponAttacks.Count.ShouldBe(2);
+        _sut.WeaponAttacks.ShouldNotBeNull();
+        _sut.WeaponAttacks.Count.ShouldBe(2);
         
         // Create a resolution command for the first weapon
         var resolutionCommand = new WeaponAttackResolutionCommand
@@ -1357,10 +1357,10 @@ public class BattleMapViewModelTests
         game.HandleCommand(resolutionCommand);
         
         // Assert
-        _viewModel.WeaponAttacks.Count.ShouldBe(1); // Only one attack should remain
+        _sut.WeaponAttacks.Count.ShouldBe(1); // Only one attack should remain
         
         // The remaining attack should be for weapon2
-        var remainingAttack = _viewModel.WeaponAttacks.First();
+        var remainingAttack = _sut.WeaponAttacks.First();
         remainingAttack.Weapon.ShouldBe(weapon2);
         remainingAttack.TargetId.ShouldBe(target.Id);
     }
@@ -1377,7 +1377,7 @@ public class BattleMapViewModelTests
             new ClassicBattletechRulesProvider(),
             Substitute.For<ICommandPublisher>(),
             Substitute.For<IToHitCalculator>());
-        _viewModel.Game = clientGame;
+        _sut.Game = clientGame;
 
         _localizationService.GetString("EndPhase_ActionLabel").Returns("End your turn");
         clientGame.HandleCommand(new JoinGameCommand
@@ -1404,8 +1404,8 @@ public class BattleMapViewModelTests
         });
 
         // Assert
-        _viewModel.CurrentState.ShouldBeOfType<EndState>();
-        _viewModel.ActionInfoLabel.ShouldBe("End your turn");
+        _sut.CurrentState.ShouldBeOfType<EndState>();
+        _sut.ActionInfoLabel.ShouldBe("End your turn");
     }
 
     [Fact]
@@ -1420,7 +1420,7 @@ public class BattleMapViewModelTests
             new ClassicBattletechRulesProvider(),
             Substitute.For<ICommandPublisher>(),
             Substitute.For<IToHitCalculator>());
-        _viewModel.Game = clientGame;
+        _sut.Game = clientGame;
 
         // Set up the game state for End phase
         clientGame.HandleCommand(new ChangePhaseCommand
@@ -1438,7 +1438,7 @@ public class BattleMapViewModelTests
         });
 
         // Assert
-        _viewModel.IsPlayerActionButtonVisible.ShouldBeTrue();
+        _sut.IsPlayerActionButtonVisible.ShouldBeTrue();
     }
 
     [Fact]
@@ -1453,7 +1453,7 @@ public class BattleMapViewModelTests
             new ClassicBattletechRulesProvider(),
             Substitute.For<ICommandPublisher>(),
             Substitute.For<IToHitCalculator>());
-        _viewModel.Game = clientGame;
+        _sut.Game = clientGame;
 
         // Set up the game state for Start phase
         clientGame.HandleCommand(new ChangePhaseCommand
@@ -1463,7 +1463,7 @@ public class BattleMapViewModelTests
         });
 
         // Assert
-        _viewModel.IsPlayerActionButtonVisible.ShouldBeTrue();
+        _sut.IsPlayerActionButtonVisible.ShouldBeTrue();
     }
 
     [Fact]
@@ -1479,7 +1479,7 @@ public class BattleMapViewModelTests
             new ClassicBattletechRulesProvider(),
             commandPublisher,
             Substitute.For<IToHitCalculator>());
-        _viewModel.Game = clientGame;
+        _sut.Game = clientGame;
 
         _localizationService.GetString("EndPhase_ActionLabel").Returns("End your turn");
         clientGame.HandleCommand(new JoinGameCommand
@@ -1506,10 +1506,10 @@ public class BattleMapViewModelTests
         });
 
         // Act
-        _viewModel.HandlePlayerAction();
+        _sut.HandlePlayerAction();
 
         // Assert
-        _viewModel.IsPlayerActionButtonVisible.ShouldBeFalse();
+        _sut.IsPlayerActionButtonVisible.ShouldBeFalse();
     }
 
     [Fact]
@@ -1522,7 +1522,7 @@ public class BattleMapViewModelTests
             new ClassicBattletechRulesProvider(),
             Substitute.For<ICommandPublisher>(),
             Substitute.For<IToHitCalculator>());
-        _viewModel.Game = clientGame;
+        _sut.Game = clientGame;
         clientGame!.HandleCommand(new ChangePhaseCommand
         {
             GameOriginId = Guid.NewGuid(),
@@ -1530,7 +1530,7 @@ public class BattleMapViewModelTests
         });
         
         // Act
-        var result = _viewModel.PlayerActionLabel;
+        var result = _sut.PlayerActionLabel;
         
         // Assert - we expect Start state and its action label
         result.ShouldBe("Ready to play");

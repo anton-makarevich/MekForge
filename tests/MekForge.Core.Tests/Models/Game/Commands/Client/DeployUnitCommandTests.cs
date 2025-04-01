@@ -18,24 +18,21 @@ public class DeployUnitCommandTests
     private readonly IGame _game = Substitute.For<IGame>();
     private readonly Guid _gameId = Guid.NewGuid();
     private readonly Player _player1 = new Player(Guid.NewGuid(), "Player 1");
-    private readonly Unit _unit;
     private readonly HexCoordinates _position = new(4, 5);
+    private readonly DeployUnitCommand _sut;
 
     public DeployUnitCommandTests()
     {
         _game.Players.Returns([_player1]);
         var unitData = MechFactoryTests.CreateDummyMechData();
-        _unit = new MechFactory(new ClassicBattletechRulesProvider()).Create(unitData);
-        _player1.AddUnit(_unit);
-    }
-
-    private DeployUnitCommand CreateCommand()
-    {
-        return new DeployUnitCommand
+        Unit unit = new MechFactory(new ClassicBattletechRulesProvider()).Create(unitData);
+        _player1.AddUnit(unit);
+        
+        _sut = new DeployUnitCommand
         {
             GameOriginId = _gameId,
             PlayerId = _player1.Id,
-            UnitId = _unit.Id,
+            UnitId = unit.Id,
             Position = _position.ToData(),
             Direction = (int)HexDirection.TopRight
         };
@@ -45,11 +42,10 @@ public class DeployUnitCommandTests
     public void Format_ShouldFormatCorrectly()
     {
         // Arrange
-        var command = CreateCommand();
         _localizationService.GetString("Command_DeployUnit").Returns("formatted deploy command");
 
         // Act
-        var result = command.Format(_localizationService, _game);
+        var result = _sut.Format(_localizationService, _game);
 
         // Assert
         result.ShouldBe("formatted deploy command");
@@ -60,7 +56,7 @@ public class DeployUnitCommandTests
     public void Format_ShouldReturnEmpty_WhenPlayerNotFound()
     {
         // Arrange
-        var command = CreateCommand() with { PlayerId = Guid.NewGuid() };
+        var command = _sut with { PlayerId = Guid.NewGuid() };
 
         // Act
         var result = command.Format(_localizationService, _game);
@@ -73,7 +69,7 @@ public class DeployUnitCommandTests
     public void Format_ShouldReturnEmpty_WhenUnitNotFound()
     {
         // Arrange
-        var command = CreateCommand() with { UnitId = Guid.NewGuid() };
+        var command = _sut with { UnitId = Guid.NewGuid() };
 
         // Act
         var result = command.Format(_localizationService, _game);
