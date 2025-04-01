@@ -23,7 +23,7 @@ public class StartStateTests
     private readonly StartState _sut;
     private readonly ClientGame _game;
     private readonly Player _localPlayer1;
-    private readonly BattleMapViewModel _viewModel;
+    private readonly BattleMapViewModel _battleMapViewModel;
     private readonly ICommandPublisher _commandPublisher;
 
     public StartStateTests()
@@ -35,7 +35,7 @@ public class StartStateTests
         localizationService.GetString("StartPhase_ActionLabel").Returns("Ready to play");
         localizationService.GetString("StartPhase_PlayerActionLabel").Returns("Ready to play");
         
-        _viewModel = new BattleMapViewModel(imageService, localizationService);
+        _battleMapViewModel = new BattleMapViewModel(imageService, localizationService);
         
         var rules = new ClassicBattletechRulesProvider();
         
@@ -52,7 +52,7 @@ public class StartStateTests
             _commandPublisher, 
             Substitute.For<IToHitCalculator>());
         
-        _viewModel.Game = _game;
+        _battleMapViewModel.Game = _game;
         
         // Set the phase to Start
         _game.HandleCommand(new ChangePhaseCommand
@@ -61,7 +61,7 @@ public class StartStateTests
             Phase = PhaseNames.Start
         });
         
-        _sut = new StartState(_viewModel);
+        _sut = new StartState(_battleMapViewModel);
     }
 
     [Fact]
@@ -170,7 +170,7 @@ public class StartStateTests
     public void ExecutePlayerAction_ShouldNotPublishCommand_WhenGameIsNull()
     {
         // Arrange
-        _viewModel.Game = null;
+        _battleMapViewModel.Game = null;
         
         // Act
         _sut.ExecutePlayerAction();

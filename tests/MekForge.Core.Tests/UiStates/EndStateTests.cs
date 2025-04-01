@@ -26,7 +26,7 @@ public class EndStateTests
     private readonly ClientGame _game;
     private readonly Unit _unit1;
     private readonly Player _player;
-    private readonly BattleMapViewModel _viewModel;
+    private readonly BattleMapViewModel _battleMapViewModel;
     private readonly ICommandPublisher _commandPublisher;
 
     public EndStateTests()
@@ -38,7 +38,7 @@ public class EndStateTests
         localizationService.GetString("EndPhase_ActionLabel").Returns("End your turn");
         localizationService.GetString("EndPhase_PlayerActionLabel").Returns("End your turn");
         
-        _viewModel = new BattleMapViewModel(imageService, localizationService);
+        _battleMapViewModel = new BattleMapViewModel(imageService, localizationService);
         var playerId = Guid.NewGuid();
         
         var rules = new ClassicBattletechRulesProvider();
@@ -54,7 +54,7 @@ public class EndStateTests
             _commandPublisher, 
             Substitute.For<IToHitCalculator>());
         
-        _viewModel.Game = _game;
+        _battleMapViewModel.Game = _game;
         
         _game.HandleCommand(new JoinGameCommand
         {
@@ -64,10 +64,10 @@ public class EndStateTests
             GameOriginId = Guid.NewGuid(),
             PlayerId = _player.Id
         });
-        _unit1 = _viewModel.Units.First();
+        _unit1 = _battleMapViewModel.Units.First();
     
         SetPhase(PhaseNames.End);
-        _sut = new EndState(_viewModel);
+        _sut = new EndState(_battleMapViewModel);
     }
 
     [Fact]
@@ -96,21 +96,21 @@ public class EndStateTests
         _sut.HandleHexSelection(hex);
 
         // Assert
-        _viewModel.SelectedUnit.ShouldBe(_unit1);
+        _battleMapViewModel.SelectedUnit.ShouldBe(_unit1);
     }
 
     [Fact]
     public void HandleHexSelection_DeselectsUnit_WhenNoUnitAtHex()
     {
         // Arrange
-        _viewModel.SelectedUnit = _unit1;
+        _battleMapViewModel.SelectedUnit = _unit1;
         var hex = new Hex(new HexCoordinates(2, 2));
 
         // Act
         _sut.HandleHexSelection(hex);
 
         // Assert
-        _viewModel.SelectedUnit.ShouldBeNull();
+        _battleMapViewModel.SelectedUnit.ShouldBeNull();
     }
 
     [Fact]
@@ -151,7 +151,7 @@ public class EndStateTests
     public void ExecutePlayerAction_DoesNotSendCommand_WhenGameIsNull()
     {
         // Arrange
-        _viewModel.Game = null;
+        _battleMapViewModel.Game = null;
 
         // Act
         _sut.ExecutePlayerAction();

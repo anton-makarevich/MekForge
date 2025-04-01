@@ -20,7 +20,7 @@ namespace Sanet.MekForge.Core.Tests.Models.Game;
 
 public class ServerGameTests
 {
-    private readonly ServerGame _serverGame;
+    private readonly ServerGame _sut;
     private readonly ICommandPublisher _commandPublisher;
     public ServerGameTests()
     {
@@ -41,7 +41,7 @@ public class ServerGameTests
             { PartLocation.LeftLeg, 8 },
             { PartLocation.RightLeg, 8 }
         });
-        _serverGame = new ServerGame(battleMap, rulesProvider, _commandPublisher, diceRoller,
+        _sut = new ServerGame(battleMap, rulesProvider, _commandPublisher, diceRoller,
             Substitute.For<IToHitCalculator>());
     }
 
@@ -49,16 +49,16 @@ public class ServerGameTests
     public void IncrementTurn_ShouldPublishTurnIncrementedCommand_WhenCalled()
     {
         // Arrange
-        var initialTurn = _serverGame.Turn;
+        var initialTurn = _sut.Turn;
 
         // Act
-        _serverGame.IncrementTurn();
+        _sut.IncrementTurn();
 
         // Assert
-        _serverGame.Turn.ShouldBe(initialTurn + 1);
+        _sut.Turn.ShouldBe(initialTurn + 1);
         _commandPublisher.Received(1).PublishCommand(Arg.Is<TurnIncrementedCommand>(cmd => 
             cmd.TurnNumber == initialTurn + 1 &&
-            cmd.GameOriginId == _serverGame.Id
+            cmd.GameOriginId == _sut.Id
         ));
     }
 
@@ -76,10 +76,10 @@ public class ServerGameTests
         };
 
         // Act
-        _serverGame.HandleCommand(joinCommand);
+        _sut.HandleCommand(joinCommand);
 
         // Assert
-        _serverGame.Players.Count.ShouldBe(1);
+        _sut.Players.Count.ShouldBe(1);
     }
 
     [Fact]
@@ -91,16 +91,16 @@ public class ServerGameTests
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
             Units = [],
-            GameOriginId = _serverGame.Id, // Set to this game's ID
+            GameOriginId = _sut.Id, // Set to this game's ID
             Tint = "#FF0000"
         };
 
         // Act
-        _serverGame.HandleCommand(command);
+        _sut.HandleCommand(command);
 
         // Assert
         // Verify that no players were added since the command was from this game instance
-        _serverGame.Players.ShouldBeEmpty();
+        _sut.Players.ShouldBeEmpty();
     }
     
     [Fact]
@@ -108,7 +108,7 @@ public class ServerGameTests
     {
         // Arrange
         var playerId = Guid.NewGuid();
-        _serverGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = playerId,
             GameOriginId = Guid.NewGuid(),
@@ -125,10 +125,10 @@ public class ServerGameTests
         };
 
         // Act
-        _serverGame.HandleCommand(statusCommand);
+        _sut.HandleCommand(statusCommand);
 
         // Assert
-        var updatedPlayer = _serverGame.Players.FirstOrDefault(p => p.Id == playerId);
+        var updatedPlayer = _sut.Players.FirstOrDefault(p => p.Id == playerId);
         updatedPlayer.ShouldNotBeNull();
         updatedPlayer.Status.ShouldBe(PlayerStatus.Playing);
     }
@@ -138,7 +138,7 @@ public class ServerGameTests
     {
         // Arrange
         var playerId = Guid.NewGuid();
-        _serverGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = playerId,
             GameOriginId = Guid.NewGuid(),
@@ -146,7 +146,7 @@ public class ServerGameTests
             Units=[],
             Tint = "#FF0000"
         });
-        _serverGame.HandleCommand(new UpdatePlayerStatusCommand
+        _sut.HandleCommand(new UpdatePlayerStatusCommand
         {
             PlayerId = playerId,
             GameOriginId = Guid.NewGuid(),
@@ -154,10 +154,10 @@ public class ServerGameTests
         });
 
         // Assert
-        _serverGame.TurnPhase.ShouldBe(PhaseNames.Deployment);
+        _sut.TurnPhase.ShouldBe(PhaseNames.Deployment);
         _commandPublisher.Received(1).PublishCommand(Arg.Is<ChangePhaseCommand>(cmd => 
             cmd.Phase == PhaseNames.Deployment &&
-            cmd.GameOriginId == _serverGame.Id
+            cmd.GameOriginId == _sut.Id
         ));
     }
     
@@ -168,7 +168,7 @@ public class ServerGameTests
         var playerId1 = Guid.NewGuid();
         var playerId2 = Guid.NewGuid();
     
-        _serverGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = playerId1,
             PlayerName = "Player1",
@@ -177,7 +177,7 @@ public class ServerGameTests
             Tint = "#FF0000"
         });
 
-        _serverGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = playerId2,
             PlayerName = "Player2",
@@ -186,14 +186,14 @@ public class ServerGameTests
             Tint = "#FF0000"
         });
 
-        _serverGame.HandleCommand(new UpdatePlayerStatusCommand
+        _sut.HandleCommand(new UpdatePlayerStatusCommand
         {
             PlayerId = playerId1,
             GameOriginId = Guid.NewGuid(),
             PlayerStatus = PlayerStatus.Playing
         });
 
-        _serverGame.HandleCommand(new UpdatePlayerStatusCommand
+        _sut.HandleCommand(new UpdatePlayerStatusCommand
         {
             PlayerId = playerId2,
             GameOriginId = Guid.NewGuid(),
@@ -201,22 +201,22 @@ public class ServerGameTests
         });
         
         // Assert
-        _serverGame.ActivePlayer.ShouldNotBeNull();
+        _sut.ActivePlayer.ShouldNotBeNull();
         var expectedIds = new List<Guid> { playerId1, playerId2 };
-        expectedIds.ShouldContain(_serverGame.ActivePlayer.Id);
+        expectedIds.ShouldContain(_sut.ActivePlayer.Id);
     }
     
     [Fact]
     public void DeployUnit_ShouldDeployUnitAndSetNextPhase_WhenCalled()
     {
         // Arrange
-        _serverGame.IsAutoRoll = false;
+        _sut.IsAutoRoll = false;
         var playerId = Guid.NewGuid();
         var unitId = Guid.NewGuid();
         var unitData = MechFactoryIntegrationTests.LoadMechFromMtfFile("Resources/Mechs/LCT-1V.mtf");
         unitData.Id = unitId;
     
-        _serverGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = playerId,
             PlayerName = "Player1",
@@ -225,7 +225,7 @@ public class ServerGameTests
             Tint = "#FF0000"
         });
     
-        _serverGame.HandleCommand(new UpdatePlayerStatusCommand
+        _sut.HandleCommand(new UpdatePlayerStatusCommand
         {
             PlayerId = playerId,
             GameOriginId = Guid.NewGuid(),
@@ -233,7 +233,7 @@ public class ServerGameTests
         });
     
         // Act
-        _serverGame.HandleCommand(new DeployUnitCommand
+        _sut.HandleCommand(new DeployUnitCommand
         {
             PlayerId = playerId,
             UnitId = unitId,
@@ -243,8 +243,8 @@ public class ServerGameTests
         });
     
         // Assert
-        _serverGame.Players.All(p=>p.Units.All(u=>u.IsDeployed)).ShouldBeTrue();
-        _serverGame.TurnPhase.ShouldBe(PhaseNames.Initiative);
+        _sut.Players.All(p=>p.Units.All(u=>u.IsDeployed)).ShouldBeTrue();
+        _sut.TurnPhase.ShouldBe(PhaseNames.Initiative);
     }
     
     [Fact]
@@ -252,9 +252,9 @@ public class ServerGameTests
     {
         // Arrange
         // Act
-        _serverGame.IncrementTurn();
+        _sut.IncrementTurn();
     
         // Assert
-        _serverGame.Turn.ShouldBe(2);
+        _sut.Turn.ShouldBe(2);
     }
 }

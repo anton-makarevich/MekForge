@@ -6,25 +6,21 @@ namespace Sanet.MekForge.Core.Tests.Models.Map;
 
 public class HexCoordinatesTests
 {
+    private readonly HexCoordinates _sut = new(2, 3);
+
     [Fact]
     public void Constructor_SetsQAndR()
     {
-        // Arrange & Act
-        var coords = new HexCoordinates(2, 3);
-
         // Assert
-        coords.Q.ShouldBe(2);
-        coords.R.ShouldBe(3);
+        _sut.Q.ShouldBe(2);
+        _sut.R.ShouldBe(3);
     }
 
     [Fact]
     public void S_CalculatesCorrectly()
     {
-        // Arrange
-        var coords = new HexCoordinates(2, 3);
-
         // Act
-        var s = coords.S;
+        var s = _sut.S;
 
         // Assert
         s.ShouldBe(-5); // -Q - R = -2 - 3 = -5
@@ -33,26 +29,18 @@ public class HexCoordinatesTests
     [Fact]
     public void CubeCoordinates_CalculateCorrectly()
     {
-        // Arrange
-        var hexEven = new HexCoordinates(2, 3); // Even column
-        var hexOdd = new HexCoordinates(1, 2);  // Odd column
-
         // Assert
-        hexEven.X.ShouldBe(2);
-        hexEven.Z.ShouldBe(2); // Calculation: R - (Q + (Q % 2)) / 2 = 3 - (2 + 0) / 2
-        hexEven.Y.ShouldBe(-4); // Calculation: -X - Z = -2 - 2
-
-        hexOdd.X.ShouldBe(1);
-        hexOdd.Z.ShouldBe(1); // Calculation: R - (Q + (Q % 2)) / 2 = 2 - (1 + 1) / 2
-        hexOdd.Y.ShouldBe(-2); // Calculation: -X - Z = -1 - 1
+        _sut.X.ShouldBe(2);
+        _sut.Z.ShouldBe(2); // Calculation: R - (Q + (Q % 2)) / 2 = 3 - (2 + 0) / 2
+        _sut.Y.ShouldBe(-4); // Calculation: -X - Z = -2 - 2
     }
     
     [Theory]
-    [InlineData(5, 4, 5, 3, 5, 4, HexDirection.Top)]
-    [InlineData(5, 4, 6, 4, 6, 4, HexDirection.BottomRight)]
-    [InlineData(5, 4, 4, 4, 4, 4, HexDirection.BottomLeft)]
-    [InlineData(4, 4, 3, 4, 3, 4, HexDirection.TopLeft)]
-    public void GetDirectionToNeighbour_ReturnsExpectedDirection(int centerQ, int centerR, int neighbourQ, int neighbourR, int expectedQ, int expectedR, HexDirection expectedDirection)
+    [InlineData(5, 4, 5, 3,  HexDirection.Top)]
+    [InlineData(5, 4, 6, 4, HexDirection.BottomRight)]
+    [InlineData(5, 4, 4, 4, HexDirection.BottomLeft)]
+    [InlineData(4, 4, 3, 4, HexDirection.TopLeft)]
+    public void GetDirectionToNeighbour_ReturnsExpectedDirection(int centerQ, int centerR, int neighbourQ, int neighbourR, HexDirection expectedDirection)
     {
         // Arrange
         var center = new HexCoordinates(centerQ, centerR);

@@ -6,7 +6,6 @@ using Sanet.MekForge.Core.Models.Map.Terrains;
 using Sanet.MekForge.Core.Models.Units;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons;
 using Sanet.MekForge.Core.Models.Units.Components.Weapons.Energy;
-using Sanet.MekForge.Core.Tests.Data;
 using Sanet.MekForge.Core.Tests.Data.Community;
 using Sanet.MekForge.Core.Utils;
 using Sanet.MekForge.Core.Utils.Generators;
@@ -18,16 +17,16 @@ namespace Sanet.MekForge.Core.Tests.Models.Game.Combat;
 public class ClassicToHitCalculatorTests
 {
     private readonly IRulesProvider _rules;
-    private readonly ClassicToHitCalculator _calculator;
-    private Unit _attacker;
-    private Unit _target;
+    private readonly ClassicToHitCalculator _sut;
+    private Unit? _attacker;
+    private Unit? _target;
     private readonly Weapon _weapon;
     private readonly MechFactory _mechFactory;
 
     public ClassicToHitCalculatorTests()
     {
         _rules = Substitute.For<IRulesProvider>();
-        _calculator = new ClassicToHitCalculator(_rules);
+        _sut = new ClassicToHitCalculator(_rules);
 
         // Setup rules for structure values (needed for MechFactory)
         _rules.GetStructureValues(20).Returns(new Dictionary<PartLocation, int>
@@ -80,7 +79,7 @@ public class ClassicToHitCalculatorTests
         var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new HeavyWoodsTerrain()));
 
         // Act
-        var result = _calculator.GetToHitNumber(_attacker, _target, _weapon, map);
+        var result = _sut.GetToHitNumber(_attacker!, _target!, _weapon, map);
 
         // Assert
         result.ShouldBe(ToHitBreakdown.ImpossibleRoll);
@@ -97,7 +96,7 @@ public class ClassicToHitCalculatorTests
         _rules.GetRangeModifier(WeaponRange.OutOfRange,Arg.Any<int>(), Arg.Any<int>()).Returns(ToHitBreakdown.ImpossibleRoll);
 
         // Act
-        var result = _calculator.GetToHitNumber(_attacker, _target, _weapon, map);
+        var result = _sut.GetToHitNumber(_attacker!, _target!, _weapon, map);
 
         // Assert
         result.ShouldBe(ToHitBreakdown.ImpossibleRoll+4);
@@ -114,7 +113,7 @@ public class ClassicToHitCalculatorTests
         _rules.GetTerrainToHitModifier("LightWoods").Returns(1);
 
         // Act
-        var result = _calculator.GetToHitNumber(_attacker, _target, _weapon, map);
+        var result = _sut.GetToHitNumber(_attacker!, _target!, _weapon, map);
 
         // Assert
         // Base gunnery (4) + Attacker movement (0) + Target movement (0) + Terrain (0) = 4
@@ -131,7 +130,7 @@ public class ClassicToHitCalculatorTests
         var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new HeavyWoodsTerrain()));
 
         // Act
-        var result = _calculator.GetModifierBreakdown(_attacker, _target, _weapon, map);
+        var result = _sut.GetModifierBreakdown(_attacker!, _target!, _weapon, map);
 
         // Assert
         result.HasLineOfSight.ShouldBeFalse();
@@ -149,7 +148,7 @@ public class ClassicToHitCalculatorTests
         _rules.GetTerrainToHitModifier("LightWoods").Returns(1);
 
         // Act
-        var result = _calculator.GetModifierBreakdown(_attacker, _target, _weapon, map);
+        var result = _sut.GetModifierBreakdown(_attacker!, _target!, _weapon, map);
 
         // Assert
         result.HasLineOfSight.ShouldBeTrue();
@@ -175,7 +174,7 @@ public class ClassicToHitCalculatorTests
         _rules.GetTerrainToHitModifier("LightWoods").Returns(1);
 
         // Act
-        var result = _calculator.GetModifierBreakdown(_attacker, _target, _weapon, map);
+        var result = _sut.GetModifierBreakdown(_attacker!, _target!, _weapon, map);
 
         // Assert
         result.HasLineOfSight.ShouldBeTrue();
@@ -201,7 +200,7 @@ public class ClassicToHitCalculatorTests
         _rules.GetHeatModifier(0).Returns(2);
 
         // Act
-        var result = _calculator.GetModifierBreakdown(_attacker, _target, _weapon, map);
+        var result = _sut.GetModifierBreakdown(_attacker!, _target!, _weapon, map);
 
         // Assert
         result.OtherModifiers.Count.ShouldBe(1);
@@ -221,7 +220,7 @@ public class ClassicToHitCalculatorTests
         var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new ClearTerrain()));
 
         // Act & Assert
-        Should.Throw<Exception>(() => _calculator.GetToHitNumber(attacker, _target, _weapon, map));
+        Should.Throw<Exception>(() => _sut.GetToHitNumber(attacker, _target!, _weapon, map));
     }
 
     [Fact]
@@ -238,7 +237,7 @@ public class ClassicToHitCalculatorTests
         _rules.GetSecondaryTargetModifier(true).Returns(expectedModifier);
 
         // Act
-        var breakdown = _calculator.GetModifierBreakdown(_attacker, _target, _weapon, map, false);
+        var breakdown = _sut.GetModifierBreakdown(_attacker!, _target!, _weapon, map, false);
 
         // Assert
         var secondaryTargetModifier = breakdown.AllModifiers.FirstOrDefault(m => m is SecondaryTargetModifier);
@@ -263,7 +262,7 @@ public class ClassicToHitCalculatorTests
         _rules.GetSecondaryTargetModifier(false).Returns(expectedModifier);
 
         // Act
-        var breakdown = _calculator.GetModifierBreakdown(_attacker, _target, _weapon, map, false);
+        var breakdown = _sut.GetModifierBreakdown(_attacker!, _target!, _weapon, map, false);
 
         // Assert
         var secondaryTargetModifier = breakdown.AllModifiers.FirstOrDefault(m => m is SecondaryTargetModifier);
@@ -284,13 +283,13 @@ public class ClassicToHitCalculatorTests
         var map = BattleMap.GenerateMap(10, 10, new SingleTerrainGenerator(10, 10, new ClearTerrain()));
 
         // Act
-        var breakdown = _calculator.GetModifierBreakdown(_attacker, _target, _weapon, map);
+        var breakdown = _sut.GetModifierBreakdown(_attacker!, _target!, _weapon, map);
 
         // Assert
         var secondaryTargetModifier = breakdown.AllModifiers.FirstOrDefault(m => m is SecondaryTargetModifier);
         secondaryTargetModifier.ShouldBeNull();
         
         // Verify the total doesn't include a secondary target modifier
-        breakdown.Total.ShouldBe(4); // Just the base gunnery skil-
+        breakdown.Total.ShouldBe(4); // Just the base gunnery skill
     }
 }

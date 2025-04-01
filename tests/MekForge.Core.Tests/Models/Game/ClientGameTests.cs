@@ -23,7 +23,7 @@ namespace Sanet.MekForge.Core.Tests.Models.Game;
 
 public class ClientGameTests
 {
-    private readonly ClientGame _clientGame;
+    private readonly ClientGame _sut;
     private readonly ICommandPublisher _commandPublisher;
 
     public ClientGameTests()
@@ -31,7 +31,7 @@ public class ClientGameTests
         var battleState = BattleMap.GenerateMap(5, 5, new SingleTerrainGenerator(5,5, new ClearTerrain()));
         _commandPublisher = Substitute.For<ICommandPublisher>();
         var rulesProvider = new ClassicBattletechRulesProvider();
-        _clientGame = new ClientGame(battleState,[], rulesProvider, _commandPublisher,
+        _sut = new ClientGame(battleState,[], rulesProvider, _commandPublisher,
             Substitute.For<IToHitCalculator>());
     }
 
@@ -49,11 +49,11 @@ public class ClientGameTests
         };
 
         // Act
-        _clientGame.HandleCommand(joinCommand);
+        _sut.HandleCommand(joinCommand);
 
         // Assert
-        _clientGame.Players.Count.ShouldBe(1);
-        _clientGame.Players[0].Name.ShouldBe(joinCommand.PlayerName);
+        _sut.Players.Count.ShouldBe(1);
+        _sut.Players[0].Name.ShouldBe(joinCommand.PlayerName);
     }
     
     [Fact]
@@ -65,16 +65,16 @@ public class ClientGameTests
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
             Units = [],
-            GameOriginId = _clientGame.Id, // Set to this game's ID
+            GameOriginId = _sut.Id, // Set to this game's ID
             Tint = "#FF0000"
         };
 
         // Act
-        _clientGame.HandleCommand(command);
+        _sut.HandleCommand(command);
 
         // Assert
         // Verify that no players were added since the command was from this game instance
-        _clientGame.Players.ShouldBeEmpty();
+        _sut.Players.ShouldBeEmpty();
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public class ClientGameTests
         var player = new Player(Guid.NewGuid(), "Player1");
 
         // Act
-        _clientGame.JoinGameWithUnits(player, units);
+        _sut.JoinGameWithUnits(player, units);
 
         // Assert
         _commandPublisher.Received(1).PublishCommand(Arg.Is<JoinGameCommand>(cmd =>
@@ -100,7 +100,7 @@ public class ClientGameTests
         // Arrange
         var playerId = Guid.NewGuid();
         var player = new Player(playerId, "Player1");
-        _clientGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
@@ -116,10 +116,10 @@ public class ClientGameTests
         };
 
         // Act
-        _clientGame.HandleCommand(statusCommand);
+        _sut.HandleCommand(statusCommand);
 
         // Assert
-        var updatedPlayer = _clientGame.Players.FirstOrDefault(p => p.Id == playerId);
+        var updatedPlayer = _sut.Players.FirstOrDefault(p => p.Id == playerId);
         updatedPlayer.ShouldNotBeNull();
         updatedPlayer.Status.ShouldBe(PlayerStatus.Playing);
     }
@@ -135,7 +135,7 @@ public class ClientGameTests
             PlayerId = player.Id
         };
         // Act
-        _clientGame.SetPlayerReady(readyCommand);
+        _sut.SetPlayerReady(readyCommand);
 
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<UpdatePlayerStatusCommand>());
@@ -146,7 +146,7 @@ public class ClientGameTests
     {
         // Arrange
         var player = new Player(Guid.NewGuid(), "Player1");
-        _clientGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
@@ -159,17 +159,17 @@ public class ClientGameTests
         {
             PlayerStatus = PlayerStatus.Playing,
             PlayerId = player.Id,
-            GameOriginId = _clientGame.Id 
+            GameOriginId = _sut.Id 
         };
 
         // Act
-        _clientGame.SetPlayerReady(readyCommand);
+        _sut.SetPlayerReady(readyCommand);
 
         // Assert
         _commandPublisher.Received(1).PublishCommand(Arg.Is<UpdatePlayerStatusCommand>(cmd => 
             cmd.PlayerId == player.Id && 
             cmd.PlayerStatus == PlayerStatus.Playing &&
-            cmd.GameOriginId == _clientGame.Id
+            cmd.GameOriginId == _sut.Id
         ));
     }
 
@@ -184,10 +184,10 @@ public class ClientGameTests
         };
         
         // Act
-        _clientGame.HandleCommand(command);
+        _sut.HandleCommand(command);
         
         // Assert
-        _clientGame.TurnPhase.ShouldBe(PhaseNames.End);
+        _sut.TurnPhase.ShouldBe(PhaseNames.End);
     }
     
     [Fact]
@@ -195,7 +195,7 @@ public class ClientGameTests
     {
         // Arrange
         var player = new Player(Guid.NewGuid(), "Player1");
-        _clientGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
@@ -203,7 +203,7 @@ public class ClientGameTests
             Units = [],
             Tint = "#FF0000"
         });
-        var actualPlayer = _clientGame.Players.FirstOrDefault(p => p.Id == player.Id);
+        var actualPlayer = _sut.Players.FirstOrDefault(p => p.Id == player.Id);
         var command = new ChangeActivePlayerCommand
         {
             GameOriginId = Guid.NewGuid(),
@@ -212,10 +212,10 @@ public class ClientGameTests
         };
         
         // Act
-        _clientGame.HandleCommand(command);
+        _sut.HandleCommand(command);
         
         // Assert
-        _clientGame.ActivePlayer.ShouldBe(actualPlayer);
+        _sut.ActivePlayer.ShouldBe(actualPlayer);
         actualPlayer!.Name.ShouldBe(player.Name);
         actualPlayer.Id.ShouldBe(player.Id);
     }
@@ -234,11 +234,11 @@ public class ClientGameTests
         };
 
         // Act
-        _clientGame.HandleCommand(joinCommand);
+        _sut.HandleCommand(joinCommand);
 
         // Assert
-        _clientGame.CommandLog.Count.ShouldBe(1);
-        _clientGame.CommandLog[0].ShouldBeEquivalentTo(joinCommand);
+        _sut.CommandLog.Count.ShouldBe(1);
+        _sut.CommandLog[0].ShouldBeEquivalentTo(joinCommand);
     }
 
     [Fact]
@@ -250,15 +250,15 @@ public class ClientGameTests
             PlayerId = Guid.NewGuid(),
             PlayerName = "Player1",
             Units = [],
-            GameOriginId = _clientGame.Id,
+            GameOriginId = _sut.Id,
             Tint = "#FF0000"
         };
 
         // Act
-        _clientGame.HandleCommand(command);
+        _sut.HandleCommand(command);
 
         // Assert
-        _clientGame.CommandLog.ShouldBeEmpty();
+        _sut.CommandLog.ShouldBeEmpty();
     }
 
     [Fact]
@@ -274,10 +274,10 @@ public class ClientGameTests
             Tint = "#FF0000"
         };
         var receivedCommands = new List<IGameCommand>();
-        using var subscription = _clientGame.Commands.Subscribe(cmd => receivedCommands.Add(cmd));
+        using var subscription = _sut.Commands.Subscribe(cmd => receivedCommands.Add(cmd));
 
         // Act
-        _clientGame.HandleCommand(joinCommand);
+        _sut.HandleCommand(joinCommand);
 
         // Assert
         receivedCommands.Count.ShouldBe(1);
@@ -291,7 +291,7 @@ public class ClientGameTests
         var player = new Player(Guid.NewGuid(), "Player1");
         var unitData = MechFactoryTests.CreateDummyMechData();
         unitData.Id= Guid.NewGuid();
-        _clientGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
@@ -299,7 +299,7 @@ public class ClientGameTests
             Units = [unitData],
             Tint = "#FF0000"
         });
-        _clientGame.HandleCommand(new ChangeActivePlayerCommand
+        _sut.HandleCommand(new ChangeActivePlayerCommand
         {
             GameOriginId = Guid.NewGuid(),
             PlayerId = player.Id,
@@ -308,7 +308,7 @@ public class ClientGameTests
 
         var deployCommand = new DeployUnitCommand
         {
-            GameOriginId = _clientGame.Id,
+            GameOriginId = _sut.Id,
             PlayerId = player.Id,
             Position = new  HexCoordinateData(1, 1), 
             Direction = 0,
@@ -316,13 +316,13 @@ public class ClientGameTests
         };
 
         // Act
-        _clientGame.DeployUnit(deployCommand);
+        _sut.DeployUnit(deployCommand);
 
         // Assert
         _commandPublisher.Received(1).PublishCommand(Arg.Is<DeployUnitCommand>(cmd =>
             cmd.PlayerId == player.Id &&
             cmd.Position == deployCommand.Position &&
-            cmd.GameOriginId == _clientGame.Id));
+            cmd.GameOriginId == _sut.Id));
     }
 
     [Fact]
@@ -331,7 +331,7 @@ public class ClientGameTests
         // Arrange
         var deployCommand = new DeployUnitCommand
         {
-            GameOriginId = _clientGame.Id,
+            GameOriginId = _sut.Id,
             PlayerId = Guid.NewGuid(),
             Position = new HexCoordinateData(1,1),
             Direction = 0,
@@ -339,7 +339,7 @@ public class ClientGameTests
         };
     
         // Act
-        _clientGame.DeployUnit(deployCommand);
+        _sut.DeployUnit(deployCommand);
     
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<DeployUnitCommand>());
@@ -352,7 +352,7 @@ public class ClientGameTests
         var player = new Player(Guid.NewGuid(), "Player1");
         var unitData = MechFactoryTests.CreateDummyMechData();
         unitData.Id = Guid.NewGuid();
-        _clientGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
@@ -360,7 +360,7 @@ public class ClientGameTests
             Units = [unitData],
             Tint = "#FF0000"
         });
-        _clientGame.HandleCommand(new ChangeActivePlayerCommand
+        _sut.HandleCommand(new ChangeActivePlayerCommand
         {
             GameOriginId = Guid.NewGuid(),
             PlayerId = player.Id,
@@ -369,7 +369,7 @@ public class ClientGameTests
     
         var moveCommand = new MoveUnitCommand
         {
-            GameOriginId = _clientGame.Id,
+            GameOriginId = _sut.Id,
             PlayerId = player.Id,
             MovementType = MovementType.Walk,
             UnitId = unitData.Id.Value,
@@ -377,13 +377,13 @@ public class ClientGameTests
         };
     
         // Act
-        _clientGame.MoveUnit(moveCommand);
-    
+        _sut.MoveUnit(moveCommand);
+
         // Assert
         _commandPublisher.Received(1).PublishCommand(Arg.Is<MoveUnitCommand>(cmd =>
             cmd.PlayerId == player.Id &&
             cmd.MovementType == moveCommand.MovementType &&
-            cmd.GameOriginId == _clientGame.Id));
+            cmd.GameOriginId == _sut.Id));
     }
     
     [Fact]
@@ -392,7 +392,7 @@ public class ClientGameTests
         // Arrange
         var moveCommand = new MoveUnitCommand
         {
-            GameOriginId = _clientGame.Id,
+            GameOriginId = _sut.Id,
             PlayerId = Guid.NewGuid(),
             MovementType = MovementType.Walk,
             UnitId = Guid.NewGuid(),
@@ -400,7 +400,7 @@ public class ClientGameTests
         };
     
         // Act
-        _clientGame.MoveUnit(moveCommand);
+        _sut.MoveUnit(moveCommand);
     
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<MoveUnitCommand>());
@@ -413,7 +413,7 @@ public class ClientGameTests
         var player = new Player(Guid.NewGuid(), "Player1");
         var unitData = MechFactoryTests.CreateDummyMechData();
         unitData.Id = Guid.NewGuid();
-        _clientGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
@@ -432,10 +432,10 @@ public class ClientGameTests
         };
 
         // Act
-        _clientGame.HandleCommand(deployCommand);
+        _sut.HandleCommand(deployCommand);
 
         // Assert
-        var deployedUnit = _clientGame.Players.First().Units.First();
+        var deployedUnit = _sut.Players.First().Units.First();
         deployedUnit.IsDeployed.ShouldBeTrue();
         deployedUnit.Position!.Coordinates.Q.ShouldBe(1);
         deployedUnit.Position.Coordinates.R.ShouldBe(1);
@@ -449,7 +449,7 @@ public class ClientGameTests
         var player = new Player(Guid.NewGuid(), "Player1");
         var unitData = MechFactoryTests.CreateDummyMechData();
         unitData.Id = Guid.NewGuid();
-        _clientGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
@@ -466,9 +466,9 @@ public class ClientGameTests
             Direction = 0,
             UnitId = unitData.Id.Value
         };
-        _clientGame.HandleCommand(firstDeployCommand);
+        _sut.HandleCommand(firstDeployCommand);
 
-        var initialPosition = _clientGame.Players.First().Units.First().Position;
+        var initialPosition = _sut.Players.First().Units.First().Position;
 
         var secondDeployCommand = new DeployUnitCommand
         {
@@ -480,10 +480,10 @@ public class ClientGameTests
         };
 
         // Act
-        _clientGame.HandleCommand(secondDeployCommand);
+        _sut.HandleCommand(secondDeployCommand);
 
         // Assert
-        var unit = _clientGame.Players.First().Units.First();
+        var unit = _sut.Players.First().Units.First();
         unit.Position.ShouldBe(initialPosition);
     }
 
@@ -494,7 +494,7 @@ public class ClientGameTests
         var player = new Player(Guid.NewGuid(), "Player1");
         var unitData = MechFactoryTests.CreateDummyMechData();
         unitData.Id = Guid.NewGuid();
-        _clientGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
@@ -512,7 +512,7 @@ public class ClientGameTests
             Direction = 0,
             UnitId = unitData.Id.Value
         };
-        _clientGame.HandleCommand(deployCommand);
+        _sut.HandleCommand(deployCommand);
 
         var moveCommand = new MoveUnitCommand
         {
@@ -524,10 +524,10 @@ public class ClientGameTests
         };
 
         // Act
-        _clientGame.HandleCommand(moveCommand);
+        _sut.HandleCommand(moveCommand);
 
         // Assert
-        var movedUnit = _clientGame.Players[0].Units[0];
+        var movedUnit = _sut.Players[0].Units[0];
         movedUnit.Position!.Coordinates.Q.ShouldBe(2);
         movedUnit.Position.Coordinates.R.ShouldBe(2);
         movedUnit.Position.Facing.ShouldBe(HexDirection.Top);
@@ -538,7 +538,7 @@ public class ClientGameTests
     {
         // Arrange
         var player = new Player(Guid.NewGuid(), "Player1");
-        _clientGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
@@ -557,7 +557,7 @@ public class ClientGameTests
         };
 
         // Act & Assert
-        Should.NotThrow(() => _clientGame.HandleCommand(moveCommand));
+        Should.NotThrow(() => _sut.HandleCommand(moveCommand));
     }
 
     [Fact]
@@ -567,7 +567,7 @@ public class ClientGameTests
         var player = new Player(Guid.NewGuid(), "Player1");
         var unitData = MechFactoryTests.CreateDummyMechData();
         unitData.Id = Guid.NewGuid();
-        _clientGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
@@ -576,7 +576,7 @@ public class ClientGameTests
             Tint = "#FF0000"
         });
 
-        _clientGame.HandleCommand(new ChangeActivePlayerCommand
+        _sut.HandleCommand(new ChangeActivePlayerCommand
         {
             GameOriginId = Guid.NewGuid(),
             PlayerId = player.Id,
@@ -596,7 +596,7 @@ public class ClientGameTests
         };
 
         // Act
-        _clientGame.ConfigureUnitWeapons(command);
+        _sut.ConfigureUnitWeapons(command);
 
         // Assert
         _commandPublisher.Received(1).PublishCommand(command);
@@ -619,7 +619,7 @@ public class ClientGameTests
         };
 
         // Act
-        _clientGame.ConfigureUnitWeapons(command);
+        _sut.ConfigureUnitWeapons(command);
 
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(command);
@@ -632,7 +632,7 @@ public class ClientGameTests
         var player = new Player(Guid.NewGuid(), "Player1");
         var unitData = MechFactoryTests.CreateDummyMechData();
         unitData.Id = Guid.NewGuid();
-        _clientGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
@@ -650,7 +650,7 @@ public class ClientGameTests
             Direction = 0,
             UnitId = unitData.Id.Value
         };
-        _clientGame.HandleCommand(deployCommand);
+        _sut.HandleCommand(deployCommand);
 
         var configCommand = new WeaponConfigurationCommand
         {
@@ -665,10 +665,10 @@ public class ClientGameTests
         };
 
         // Act
-        _clientGame.HandleCommand(configCommand);
+        _sut.HandleCommand(configCommand);
 
         // Assert
-        var unit = _clientGame.Players[0].Units[0];
+        var unit = _sut.Players[0].Units[0];
         (unit as Mech)!.TorsoDirection.ShouldBe(HexDirection.TopRight);
     }
 
@@ -679,7 +679,7 @@ public class ClientGameTests
         var player = new Player(Guid.NewGuid(), "Player1");
         var unitData = MechFactoryTests.CreateDummyMechData();
         unitData.Id = Guid.NewGuid();
-        _clientGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = player.Id,
             GameOriginId = Guid.NewGuid(),
@@ -688,7 +688,7 @@ public class ClientGameTests
             Tint = "#FF0000"
         });
 
-        _clientGame.HandleCommand(new ChangeActivePlayerCommand
+        _sut.HandleCommand(new ChangeActivePlayerCommand
         {
             GameOriginId = Guid.NewGuid(),
             PlayerId = player.Id,
@@ -698,7 +698,7 @@ public class ClientGameTests
         var targetPlayer = new Player(Guid.NewGuid(), "Player2");
         var targetUnitData = MechFactoryTests.CreateDummyMechData();
         targetUnitData.Id = Guid.NewGuid();
-        _clientGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = targetPlayer.Id,
             GameOriginId = Guid.NewGuid(),
@@ -709,7 +709,7 @@ public class ClientGameTests
 
         var command = new WeaponAttackDeclarationCommand
         {
-            GameOriginId = _clientGame.Id,
+            GameOriginId = _sut.Id,
             PlayerId = player.Id,
             AttackerId = unitData.Id.Value,
             WeaponTargets =
@@ -729,7 +729,7 @@ public class ClientGameTests
         };
 
         // Act
-        _clientGame.DeclareWeaponAttack(command);
+        _sut.DeclareWeaponAttack(command);
 
         // Assert
         _commandPublisher.Received(1).PublishCommand(command);
@@ -761,7 +761,7 @@ public class ClientGameTests
         };
 
         // Act
-        _clientGame.DeclareWeaponAttack(command);
+        _sut.DeclareWeaponAttack(command);
 
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<WeaponAttackDeclarationCommand>());
@@ -774,7 +774,7 @@ public class ClientGameTests
         var attackerPlayer = new Player(Guid.NewGuid(), "Attacker");
         var attackerUnitData = MechFactoryTests.CreateDummyMechData();
         attackerUnitData.Id = Guid.NewGuid();
-        _clientGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = attackerPlayer.Id,
             GameOriginId = Guid.NewGuid(),
@@ -792,13 +792,13 @@ public class ClientGameTests
             Direction = 0,
             UnitId = attackerUnitData.Id.Value
         };
-        _clientGame.HandleCommand(deployCommand);
+        _sut.HandleCommand(deployCommand);
 
         // Add a target player and unit
         var targetPlayer = new Player(Guid.NewGuid(), "Target");
         var targetUnitData = MechFactoryTests.CreateDummyMechData();
         targetUnitData.Id = Guid.NewGuid();
-        _clientGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = targetPlayer.Id,
             GameOriginId = Guid.NewGuid(),
@@ -816,7 +816,7 @@ public class ClientGameTests
             Direction = 0,
             UnitId = targetUnitData.Id.Value
         };
-        _clientGame.HandleCommand(deployTargetCommand);
+        _sut.HandleCommand(deployTargetCommand);
 
         // Create weapon attack declaration command
         var weaponAttackCommand = new WeaponAttackDeclarationCommand
@@ -841,10 +841,10 @@ public class ClientGameTests
         };
 
         // Act
-        _clientGame.HandleCommand(weaponAttackCommand);
+        _sut.HandleCommand(weaponAttackCommand);
 
         // Assert
-        var attackerUnit = _clientGame.Players.First(p => p.Id == attackerPlayer.Id).Units.First();
+        var attackerUnit = _sut.Players.First(p => p.Id == attackerPlayer.Id).Units.First();
         
         // Verify that the unit has declared a weapon attack
         attackerUnit.HasDeclaredWeaponAttack.ShouldBeTrue();
@@ -866,8 +866,8 @@ public class ClientGameTests
             Units = [targetUnitData],
             Tint = "#00FF00"
         };
-        _clientGame.HandleCommand(targetJoinCommand);
-        var targetPlayer = _clientGame.Players.First(p => p.Id == targetPlayerId);
+        _sut.HandleCommand(targetJoinCommand);
+        var targetPlayer = _sut.Players.First(p => p.Id == targetPlayerId);
         var targetMech = targetPlayer.Units.First() as Mech;
         targetMech!.Deploy(new HexPosition(new HexCoordinates(1, 2), HexDirection.Top));
         
@@ -906,7 +906,7 @@ public class ClientGameTests
         var initialLeftArmArmor = leftArmPart.CurrentArmor;
 
         // Act
-        _clientGame.HandleCommand(attackResolutionCommand);
+        _sut.HandleCommand(attackResolutionCommand);
 
         // Assert
         // Verify that armor was reduced by the damage amount
@@ -930,10 +930,10 @@ public class ClientGameTests
             Units = [unitData],
             Tint = "#FF0000"
         };
-        _clientGame.HandleCommand(joinCommand);
+        _sut.HandleCommand(joinCommand);
         
         // Get the unit and check initial heat
-        var unit = _clientGame.Players.First(p => p.Id == playerId).Units.First();
+        var unit = _sut.Players.First(p => p.Id == playerId).Units.First();
         var initialHeat = unit.CurrentHeat;
         
         // Create heat data
@@ -975,7 +975,7 @@ public class ClientGameTests
         };
         
         // Act
-        _clientGame.HandleCommand(heatUpdateCommand);
+        _sut.HandleCommand(heatUpdateCommand);
         
         // Assert
         unit.CurrentHeat.ShouldBe(5); //0+25-20
@@ -997,10 +997,10 @@ public class ClientGameTests
             Units = [unitData],
             Tint = "#FF0000"
         };
-        _clientGame.HandleCommand(joinCommand);
+        _sut.HandleCommand(joinCommand);
         
         // Get the unit and check initial heat
-        var unit = _clientGame.Players.First(p => p.Id == playerId).Units.First();
+        var unit = _sut.Players.First(p => p.Id == playerId).Units.First();
         var initialHeat = unit.CurrentHeat;
         
         // Create heat data
@@ -1042,7 +1042,7 @@ public class ClientGameTests
         };
         
         // Act
-        _clientGame.HandleCommand(heatUpdateCommand);
+        _sut.HandleCommand(heatUpdateCommand);
         
         // Assert
         unit.CurrentHeat.ShouldBe(initialHeat);
@@ -1064,10 +1064,10 @@ public class ClientGameTests
             Units = [unitData],
             Tint = "#FF0000"
         };
-        _clientGame.HandleCommand(joinCommand);
+        _sut.HandleCommand(joinCommand);
         
         // Get the unit and check initial heat
-        var unit = _clientGame.Players.First(p => p.Id == playerId).Units.First();
+        var unit = _sut.Players.First(p => p.Id == playerId).Units.First();
         var initialHeat = unit.CurrentHeat;
         
         // Create heat data
@@ -1109,8 +1109,8 @@ public class ClientGameTests
         };
         
         // Act
-        _clientGame.HandleCommand(heatUpdateCommand);
-        _clientGame.HandleCommand(heatUpdateCommand);
+        _sut.HandleCommand(heatUpdateCommand);
+        _sut.HandleCommand(heatUpdateCommand);
         
         // Assert
         unit.CurrentHeat.ShouldBe(5); //0+25-20
@@ -1123,7 +1123,7 @@ public class ClientGameTests
         var playerId = Guid.NewGuid();
         var unitData = MechFactoryTests.CreateDummyMechData();
         unitData.Id = Guid.NewGuid();
-        _clientGame.HandleCommand(new JoinGameCommand
+        _sut.HandleCommand(new JoinGameCommand
         {
             PlayerId = playerId,
             GameOriginId = Guid.NewGuid(),
@@ -1131,12 +1131,12 @@ public class ClientGameTests
             Units = [unitData],
             Tint = "#FF0000"
         });
-        _clientGame.HandleCommand(new ChangePhaseCommand
+        _sut.HandleCommand(new ChangePhaseCommand
         {
             GameOriginId = Guid.NewGuid(),
             Phase = PhaseNames.End
         });
-        _clientGame.HandleCommand(new ChangeActivePlayerCommand
+        _sut.HandleCommand(new ChangeActivePlayerCommand
         {
             GameOriginId = Guid.NewGuid(),
             PlayerId = playerId,
@@ -1146,18 +1146,18 @@ public class ClientGameTests
 
         var turnEndedCommand = new TurnEndedCommand
         {
-            GameOriginId = _clientGame.Id,
+            GameOriginId = _sut.Id,
             PlayerId = playerId,
             Timestamp = DateTime.UtcNow
         };
 
         // Act
-        _clientGame.EndTurn(turnEndedCommand);
+        _sut.EndTurn(turnEndedCommand);
 
         // Assert
         _commandPublisher.Received(1).PublishCommand(Arg.Is<TurnEndedCommand>(cmd =>
             cmd.PlayerId == playerId &&
-            cmd.GameOriginId == _clientGame.Id));
+            cmd.GameOriginId == _sut.Id));
     }
 
     [Fact]
@@ -1166,13 +1166,13 @@ public class ClientGameTests
         // Arrange
         var turnEndedCommand = new TurnEndedCommand
         {
-            GameOriginId = _clientGame.Id,
+            GameOriginId = _sut.Id,
             PlayerId = Guid.NewGuid(),
             Timestamp = DateTime.UtcNow
         };
 
         // Act
-        _clientGame.EndTurn(turnEndedCommand);
+        _sut.EndTurn(turnEndedCommand);
 
         // Assert
         _commandPublisher.DidNotReceive().PublishCommand(Arg.Any<TurnEndedCommand>());
@@ -1475,7 +1475,7 @@ public class ClientGameTests
     public void HandleCommand_ShouldUpdateTurn_WhenTurnIncrementedCommandIsReceived()
     {
         // Arrange
-        var initialTurn = _clientGame.Turn;
+        var initialTurn = _sut.Turn;
         var turnIncrementedCommand = new TurnIncrementedCommand
         {
             GameOriginId = Guid.NewGuid(), // Different from client game ID
@@ -1483,17 +1483,17 @@ public class ClientGameTests
         };
 
         // Act
-        _clientGame.HandleCommand(turnIncrementedCommand);
+        _sut.HandleCommand(turnIncrementedCommand);
 
         // Assert
-        _clientGame.Turn.ShouldBe(initialTurn + 1);
+        _sut.Turn.ShouldBe(initialTurn + 1);
     }
 
     [Fact]
     public void HandleCommand_ShouldNotUpdateTurn_WhenTurnIncrementedCommandHasInvalidTurnNumber()
     {
         // Arrange
-        var initialTurn = _clientGame.Turn;
+        var initialTurn = _sut.Turn;
         var turnIncrementedCommand = new TurnIncrementedCommand
         {
             GameOriginId = Guid.NewGuid(), // Different from client game ID
@@ -1501,9 +1501,9 @@ public class ClientGameTests
         };
 
         // Act
-        _clientGame.HandleCommand(turnIncrementedCommand);
+        _sut.HandleCommand(turnIncrementedCommand);
 
         // Assert
-        _clientGame.Turn.ShouldBe(initialTurn); // Turn should not change
+        _sut.Turn.ShouldBe(initialTurn); // Turn should not change
     }
 }

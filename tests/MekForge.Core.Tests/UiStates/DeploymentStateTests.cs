@@ -27,14 +27,14 @@ public class DeploymentStateTests
     private readonly Unit _unit;
     private readonly Hex _hex1;
     private readonly Hex _hex2;
-    private readonly BattleMapViewModel _viewModel;
+    private readonly BattleMapViewModel _battleMapViewModel;
 
     public DeploymentStateTests()
     {
         var imageService = Substitute.For<IImageService>();
         var localizationService = Substitute.For<ILocalizationService>();
         
-        _viewModel = new BattleMapViewModel(imageService, localizationService);
+        _battleMapViewModel = new BattleMapViewModel(imageService, localizationService);
 
         var rules = new ClassicBattletechRulesProvider();
         var unitData = MechFactoryTests.CreateDummyMechData();
@@ -50,10 +50,10 @@ public class DeploymentStateTests
             Substitute.For<ICommandPublisher>(),
             Substitute.For<IToHitCalculator>());
         
-        _viewModel.Game = _game;
+        _battleMapViewModel.Game = _game;
         SetActivePlayer(player, unitData);
-        _unit = _viewModel.Units.First();
-        _sut = new DeploymentState(_viewModel);
+        _unit = _battleMapViewModel.Units.First();
+        _sut = new DeploymentState(_battleMapViewModel);
 
         localizationService.GetString("Action_SelectUnitToDeploy").Returns("Select Unit");
         localizationService.GetString("Action_SelectDeploymentHex").Returns("Select Hex");
@@ -121,9 +121,9 @@ public class DeploymentStateTests
     public void Constructor_ShouldThrow_IfGameNull()
     {
         // Arrange
-        _viewModel.Game=null;
+        _battleMapViewModel.Game=null;
         // Act & Assert
-        Should.Throw<InvalidOperationException>(() => new DeploymentState(_viewModel));
+        Should.Throw<InvalidOperationException>(() => new DeploymentState(_battleMapViewModel));
     }
     
     [Fact]
@@ -136,7 +136,7 @@ public class DeploymentStateTests
             Phase = PhaseNames.WeaponsAttack,
         });
         // Act & Assert
-        Should.Throw<InvalidOperationException>(() => new DeploymentState(_viewModel));
+        Should.Throw<InvalidOperationException>(() => new DeploymentState(_battleMapViewModel));
     }
 
     [Fact]
@@ -149,9 +149,9 @@ public class DeploymentStateTests
         _sut.HandleHexSelection(_hex1);
 
         // Assert
-        _viewModel.DirectionSelectorPosition.ShouldBe(_hex1.Coordinates);
-        _viewModel.IsDirectionSelectorVisible.ShouldBeTrue();
-        _viewModel.AvailableDirections!.ToList().Count.ShouldBe(6);
+        _battleMapViewModel.DirectionSelectorPosition.ShouldBe(_hex1.Coordinates);
+        _battleMapViewModel.IsDirectionSelectorVisible.ShouldBeTrue();
+        _battleMapViewModel.AvailableDirections!.ToList().Count.ShouldBe(6);
     }
     
     [Fact]
@@ -165,7 +165,7 @@ public class DeploymentStateTests
         _sut.HandleHexSelection(_hex2);
 
         // Assert
-        _viewModel.DirectionSelectorPosition.ShouldBe(_hex2.Coordinates);
+        _battleMapViewModel.DirectionSelectorPosition.ShouldBe(_hex2.Coordinates);
     }
     
     [Fact]
@@ -180,7 +180,7 @@ public class DeploymentStateTests
     
         // Assert
         _sut.ActionLabel.ShouldBe("");
-        _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
+        _battleMapViewModel.IsDirectionSelectorVisible.ShouldBeFalse();
     }
 
     [Fact]
@@ -194,7 +194,7 @@ public class DeploymentStateTests
         _sut.HandleFacingSelection(HexDirection.Top);
 
         // Assert
-        _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
+        _battleMapViewModel.IsDirectionSelectorVisible.ShouldBeFalse();
     }
 
     [Fact]
@@ -209,13 +209,13 @@ public class DeploymentStateTests
         
         // Try to deploy second unit to the same hex
         var secondUnit = new MechFactory(new ClassicBattletechRulesProvider()).Create(MechFactoryTests.CreateDummyMechData());
-        _sut = new DeploymentState(_viewModel);
+        _sut = new DeploymentState(_battleMapViewModel);
         _sut.HandleUnitSelection(secondUnit);
         
         // Act
         _sut.HandleHexSelection(_hex1);
 
         // Assert
-        _viewModel.IsDirectionSelectorVisible.ShouldBeFalse();
+        _battleMapViewModel.IsDirectionSelectorVisible.ShouldBeFalse();
     }
 }
