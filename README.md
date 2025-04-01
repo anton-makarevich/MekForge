@@ -6,7 +6,7 @@ A cross-platform implementation of tactical turn-based mech combat game, inspire
 
 MakaMek is an open-source tactical combat game featuring giant walking war machines. The game focuses on strategic combat, unit customization, and both single-player and multiplayer experiences.
 
-![MakaMek](docs/screenshots/win/150325.png)
+![MakaMek](docs/screenshots/win/010425.png)
 
 ## Features
 ### Implemented
