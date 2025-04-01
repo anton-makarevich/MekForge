@@ -1,4 +1,4 @@
-name: MekForge Core Library
+name: MakaMek Core Library
 on:
   push:
     branches:
@@ -22,10 +22,10 @@ jobs:
           dotnet-version: 9.x
 
       - name: Run Core tests
-        run: dotnet test tests/MekForge.Core.Tests/MekForge.Core.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute=GeneratedCodeAttribute /p:Include=[Sanet.MekForge.Core]*
+        run: dotnet test tests/MakaMek.Core.Tests/MakaMek.Core.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute=GeneratedCodeAttribute /p:Include=[Sanet.MakaMek.Core]*
 
       - name: Upload Core tests results
-        run: bash <(curl -s https://codecov.io/bash) -f "tests/MekForge.Core.Tests/coverage.opencover.xml" -t ${{ secrets.CODECOV_TOKEN }}
+        run: bash <(curl -s https://codecov.io/bash) -f "tests/MakaMek.Core.Tests/coverage.opencover.xml" -t ${{ secrets.CODECOV_TOKEN }}
   
   publish-nuget:
     runs-on: ubuntu-latest
@@ -41,7 +41,7 @@ jobs:
 
       - name: Create nuget packages
         run: |
-          dotnet pack src/MekForge.Core/MekForge.Core.csproj --configuration Release --output ${{ env.NuGetDirectory }}
+          dotnet pack src/MakaMek.Core/MakaMek.Core.csproj --configuration Release --output ${{ env.NuGetDirectory }}
 
       - name: Publish NuGet package
         run: |

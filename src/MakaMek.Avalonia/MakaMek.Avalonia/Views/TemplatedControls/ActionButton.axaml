@@ -1,0 +1,21 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:Sanet.MakaMek.Avalonia.Views.TemplatedControls">
+    <Design.PreviewWith>
+        <controls:ActionButton />
+    </Design.PreviewWith>
+
+    <Style Selector="controls|ActionButton">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Button Command="{TemplateBinding Command}"
+                        Width="40"
+                        Height="40"
+                        CornerRadius="20"
+                        Background="{TemplateBinding Background}">
+                    <PathIcon Data="{TemplateBinding IconData}"/>
+                </Button>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>

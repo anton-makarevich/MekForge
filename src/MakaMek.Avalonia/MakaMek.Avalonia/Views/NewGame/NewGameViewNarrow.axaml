@@ -1,0 +1,26 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Sanet.MakaMek.Core.ViewModels;assembly=Sanet.MakaMek.Core"
+             xmlns:fragments1="clr-namespace:Sanet.MakaMek.Avalonia.Views.NewGame.Fragments"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="800"
+             x:Class="Sanet.MakaMek.Avalonia.Views.NewGame.NewGameViewNarrow"
+             x:DataType="viewModels:NewGameViewModel">
+    <DockPanel Margin="20">
+        <Button DockPanel.Dock="Bottom"
+                Command="{Binding StartGameCommand}"
+                Content="Start Game"
+                IsEnabled="{Binding CanStartGame}"
+                HorizontalAlignment="Center"
+                Padding="20,10"
+                Margin="0,10,0,0"/>
+        
+        <ScrollViewer>
+            <StackPanel Spacing="20">
+                <fragments1:MapConfigFragment/>
+                <fragments1:PlayersFragment/>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>

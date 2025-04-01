@@ -1,4 +1,4 @@
-name: MekForge Avalonia Library
+name: MakaMek Avalonia Library
 on:
   push:
     branches:
@@ -22,17 +22,17 @@ jobs:
           dotnet-version: 9.x
 
       - name: Run Avalonia tests
-        run: dotnet test tests/MekForge.Avalonia.Tests/MekForge.Avalonia.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute=GeneratedCodeAttribute "/p:Include=\"[Sanet.MekForge.Avalonia]Sanet.MekForge.Avalonia.Converters*,[Sanet.MekForge.Avalonia]Sanet.MekForge.Avalonia.Game*\""
+        run: dotnet test tests/MakaMek.Avalonia.Tests/MakaMek.Avalonia.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute=GeneratedCodeAttribute "/p:Include=\"[Sanet.MakaMek.Avalonia]Sanet.MakaMek.Avalonia.Converters*,[Sanet.MakaMek.Avalonia]Sanet.MakaMek.Avalonia.Game*\""
 
       - name: Upload coverage report as artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: tests/MekForge.Avalonia.Tests/coverage.opencover.xml
+          path: tests/MakaMek.Avalonia.Tests/coverage.opencover.xml
           if-no-files-found: error
 
       - name: Upload Avalonia tests results
-        run: bash <(curl -s https://codecov.io/bash) -f "tests/MekForge.Avalonia.Tests/coverage.opencover.xml" -t ${{ secrets.CODECOV_TOKEN }}
+        run: bash <(curl -s https://codecov.io/bash) -f "tests/MakaMek.Avalonia.Tests/coverage.opencover.xml" -t ${{ secrets.CODECOV_TOKEN }}
   
   publish-nuget:
     runs-on: ubuntu-latest
@@ -48,7 +48,7 @@ jobs:
 
       - name: Create nuget packages
         run: |
-          dotnet pack src/MekForge.Avalonia/MekForge.Avalonia/MekForge.Avalonia.csproj --configuration Release --output ${{ env.NuGetDirectory }}
+          dotnet pack src/MakaMek.Avalonia/MakaMek.Avalonia/MakaMek.Avalonia.csproj --configuration Release --output ${{ env.NuGetDirectory }}
 
       - name: Publish NuGet package
         run: |

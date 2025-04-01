@@ -1,0 +1,56 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Sanet.MakaMek.Avalonia.Controls.DirectionSelector">
+    <Canvas x:Name="ButtonsContainer">
+        <!-- Top button -->
+        <Button x:Name="TopButton" Canvas.Left="59" Canvas.Top="0" Width="50" Height="50"
+                Click="TopButton_Click">
+            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="White"/>
+        </Button>
+        
+        <!-- Top Right button -->
+        <Button x:Name="TopRightButton" Canvas.Left="109" Canvas.Top="29" Width="50" Height="50"
+                Click="TopRightButton_OnClick">
+            <Button.RenderTransform>
+                <RotateTransform Angle="60" CenterX="0" CenterY="0"/>
+            </Button.RenderTransform>
+            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="White"/>
+        </Button>
+        
+        <!-- Bottom Right button -->
+        <Button x:Name="BottomRightButton" Canvas.Left="109" Canvas.Top="85" Width="50" Height="50"
+                Click="BottomRightButton_OnClick">
+            <Button.RenderTransform>
+                <RotateTransform Angle="120" CenterX="0" CenterY="0"/>
+            </Button.RenderTransform>
+            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="White"/>
+        </Button>
+        
+        <!-- Bottom button -->
+        <Button x:Name="BottomButton" Canvas.Left="59" Canvas.Top="113" Width="50" Height="50"
+                Click="BottomButton_OnClick">
+            <Button.RenderTransform>
+                <RotateTransform Angle="180" CenterX="0" CenterY="0"/>
+            </Button.RenderTransform>
+            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="White"/>
+        </Button>
+        
+        <!-- Bottom Left button -->
+        <Button x:Name="BottomLeftButton" Canvas.Left="10" Canvas.Top="85" Width="50" Height="50"
+                Click="BottomLeftButton_OnClick">
+            <Button.RenderTransform>
+                <RotateTransform Angle="240" CenterX="0" CenterY="0"/>
+            </Button.RenderTransform>
+            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="White"/>
+        </Button>
+        
+        <!-- Top Left button -->
+        <Button x:Name="TopLeftButton" Canvas.Left="10" Canvas.Top="29" Width="50" Height="50"
+                Click="TopLeftButton_OnClick">
+            <Button.RenderTransform>
+                <RotateTransform Angle="300" CenterX="0" CenterY="0"/>
+            </Button.RenderTransform>
+            <Path Data="M 15,0 L 0,30 L 30,30 Z" Fill="White"/>
+        </Button>
+    </Canvas>
+</UserControl>

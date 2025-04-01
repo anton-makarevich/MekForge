@@ -1,6 +1,6 @@
 1. Workspace structure:
- src/MekForge.Core/        : Core game engine and logic
- src/MekForge.Avalonia/    : UI implementation with AvaloniaUI v11
+ src/MakaMek.Core/        : Core game engine and logic
+ src/MakaMek.Avalonia/    : UI implementation with AvaloniaUI v11
  tests/                    : Unit tests
 
 2. Unit tests are run with xUnit, NSubstitute for mocking, Shouldly for assertions
