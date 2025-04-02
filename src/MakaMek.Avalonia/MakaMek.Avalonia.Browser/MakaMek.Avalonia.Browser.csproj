@@ -8,6 +8,16 @@
         <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <PublishTrimmed>true</PublishTrimmed>
+        <TrimMode>partial</TrimMode>
+        <TrimmerDefaultAction>link</TrimmerDefaultAction>
+    </PropertyGroup>
+    <ItemGroup>
+        <!-- Preserve the entire command model namespace -->
+        <TrimmerRootAssembly Include="MakaMek.Core" />
+        <TrimmerRootDescriptor Include="TrimmerRoots.xml" />
+    </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Avalonia.Browser" Version="11.2.6" />
     </ItemGroup>
