@@ -15,7 +15,7 @@
     </PropertyGroup>
     <ItemGroup>
         <!-- Preserve the entire command model namespace -->
-        <TrimmerRootAssembly Include="MakaMek.Core" />
+        <TrimmerRootAssembly Include="Sanet.MakaMek.Core" />
         <TrimmerRootDescriptor Include="TrimmerRoots.xml" />
     </ItemGroup>
     <ItemGroup>
