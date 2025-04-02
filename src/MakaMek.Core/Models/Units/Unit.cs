@@ -201,7 +201,7 @@ public abstract class Unit
     /// <summary>
     /// Resets the turn state for the unit
     /// </summary>
-    public void ResetTurnState()
+    public virtual void ResetTurnState()
     {
         ResetMovement();
         HasAppliedHeat = false;

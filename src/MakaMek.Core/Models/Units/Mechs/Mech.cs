@@ -136,4 +136,18 @@ public class Mech : Unit
             }
         }
     }
+    
+    /// <summary>
+    /// Resets the turn state for the mech, including torso rotation
+    /// </summary>
+    public override void ResetTurnState()
+    {
+        base.ResetTurnState();
+        
+        // Reset torso rotation
+        foreach (var torso in _parts.OfType<Torso>())
+        {
+            torso.ResetRotation();
+        }
+    }
 }
