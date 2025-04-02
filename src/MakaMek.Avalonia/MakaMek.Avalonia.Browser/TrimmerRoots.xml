@@ -1,0 +1,5 @@
+﻿<linker>
+    <assembly fullname="MakaMek.Core" preserve="all"/>
+    <assembly fullname="System.Text.Json" preserve="all" />
+    <assembly fullname="System.Reactive" preserve="all" />
+</linker>

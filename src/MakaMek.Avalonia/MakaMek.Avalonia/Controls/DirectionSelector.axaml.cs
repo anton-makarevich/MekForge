@@ -13,7 +13,7 @@ namespace Sanet.MakaMek.Avalonia.Controls
     public partial class DirectionSelector : UserControl
     {
         public DirectionSelector()
-        {
+        { 
             InitializeComponent();
             IsHitTestVisible = false;
             Width = HexCoordinates.HexWidth*1.65;
