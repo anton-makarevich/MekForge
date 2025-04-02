@@ -544,6 +544,34 @@ public class MechTests
         pilot.Gunnery.ShouldBe(MechWarrior.DefaultGunnery);
         pilot.Piloting.ShouldBe(MechWarrior.DefaultPiloting);
     }
+    
+    [Fact]
+    public void ResetTurnState_ShouldResetTorsoRotation()
+    {
+        // Arrange
+        var parts = CreateBasicPartsData();
+        var torsos = parts.OfType<Torso>().ToList();
+        var mech = new Mech("Test", "TST-1A", 50, 4, parts);
+        mech.Deploy(new HexPosition(new HexCoordinates(1, 1), HexDirection.BottomRight));
+        
+        // Rotate torsos to a different direction
+        mech.RotateTorso(HexDirection.Bottom);
+        
+        // Verify torsos are rotated
+        foreach (var torso in torsos)
+        {
+            torso.Facing.ShouldBe(HexDirection.Bottom, "Torso should be rotated before reset");
+        }
+        
+        // Act
+        mech.ResetTurnState();
+        
+        // Assert
+        foreach (var torso in torsos)
+        {
+            torso.Facing.ShouldBe(HexDirection.BottomRight, "Torso should be reset to match unit facing");
+        }
+    }
 }
 
 // Helper extension for testing protected methods
