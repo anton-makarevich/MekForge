@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <resources>
 
   <style name="MyTheme">
@@ -17,5 +17,8 @@
   <style name="MyTheme.Main"
          parent ="MyTheme.NoActionBar">
     <item name="android:windowIsTranslucent">true</item>
+    <item name="android:windowTranslucentStatus">true</item>
+    <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    <item name="android:statusBarColor">@android:color/transparent</item>
   </style>
 </resources>
