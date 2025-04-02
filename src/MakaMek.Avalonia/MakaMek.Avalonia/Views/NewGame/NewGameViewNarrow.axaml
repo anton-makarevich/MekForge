@@ -19,6 +19,7 @@
         <ScrollViewer Classes="gameScrollViewer">
             <StackPanel Classes="verticalSpaced">
                 <fragments1:MapConfigFragment/>
+                <fragments1:NetworkFragment/>
                 <fragments1:PlayersFragment/>
             </StackPanel>
         </ScrollViewer>

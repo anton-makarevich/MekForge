@@ -19,8 +19,15 @@ public static class CoreServices
     {
         services.AddSingleton<IImageService, AvaloniaAssetImageService>();
         services.AddSingleton<ILocalizationService, FakeLocalizationService>();
-        services.AddSingleton<CommandTransportAdapter, CommandTransportAdapter>();
-        services.AddSingleton<ITransportPublisher, RxTransportPublisher>();
+        
+        // Register RxTransportPublisher for local players
+        services.AddSingleton<RxTransportPublisher>();
+        services.AddSingleton<ITransportPublisher>(sp => sp.GetRequiredService<RxTransportPublisher>());
+        
+        // Register CommandTransportAdapter with the RxTransportPublisher
+        services.AddSingleton<CommandTransportAdapter>(sp => 
+            new CommandTransportAdapter(sp.GetRequiredService<RxTransportPublisher>()));
+            
         services.AddSingleton<ICommandPublisher, CommandPublisher>();
         services.AddSingleton<IRulesProvider, ClassicBattletechRulesProvider>();
         services.AddSingleton<IDiceRoller, RandomDiceRoller>();

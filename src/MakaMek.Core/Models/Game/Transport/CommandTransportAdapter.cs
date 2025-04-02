@@ -1,6 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 using Sanet.MakaMek.Core.Exceptions;
 using Sanet.MakaMek.Core.Models.Game.Commands;
 using Sanet.MakaMek.Core.Models.Game.Commands.Client;
@@ -14,21 +12,58 @@ namespace Sanet.MakaMek.Core.Models.Game.Transport;
 /// </summary>
 public class CommandTransportAdapter
 {
-    private readonly ITransportPublisher _transportPublisher;
+    private readonly List<ITransportPublisher> _transportPublishers = new();
     private readonly Dictionary<string, Type> _commandTypes;
+    private Action<IGameCommand>? _onCommandReceived;
     
     /// <summary>
-    /// Creates a new instance of the CommandTransportAdapter
+    /// Creates a new instance of the CommandTransportAdapter with a single publisher
     /// </summary>
     /// <param name="transportPublisher">The transport publisher to use</param>
     public CommandTransportAdapter(ITransportPublisher transportPublisher)
     {
-        _transportPublisher = transportPublisher;
+        _transportPublishers.Add(transportPublisher);
         _commandTypes = InitializeCommandTypeDictionary();
     }
     
     /// <summary>
-    /// Converts an IGameCommand to a TransportMessage and publishes it
+    /// Creates a new instance of the CommandTransportAdapter with multiple publishers
+    /// </summary>
+    /// <param name="transportPublishers">The transport publishers to use</param>
+    public CommandTransportAdapter(IEnumerable<ITransportPublisher> transportPublishers)
+    {
+        _transportPublishers.AddRange(transportPublishers);
+        _commandTypes = InitializeCommandTypeDictionary();
+    }
+    
+    /// <summary>
+    /// Adds a transport publisher to the adapter
+    /// </summary>
+    /// <param name="transportPublisher">The transport publisher to add</param>
+    public void AddTransportPublisher(ITransportPublisher transportPublisher)
+    {
+        _transportPublishers.Add(transportPublisher);
+        
+        // Initialize the new publisher with our command handler if we have one
+        if (_onCommandReceived != null)
+        {
+            transportPublisher.Subscribe(message => {
+                try
+                {
+                    var command = DeserializeCommand(message);
+                    _onCommandReceived(command);
+                }
+                catch (Exception ex)
+                {
+                    // Log error but don't crash
+                    Console.WriteLine($"Error processing message: {ex.Message}");
+                }
+            });
+        }
+    }
+    
+    /// <summary>
+    /// Converts an IGameCommand to a TransportMessage and publishes it to all publishers
     /// </summary>
     /// <param name="command">The command to publish</param>
     public void PublishCommand(IGameCommand command)
@@ -41,7 +76,11 @@ public class CommandTransportAdapter
             Timestamp = command.Timestamp
         };
         
-        _transportPublisher.PublishMessage(message);
+        // Publish to all transport publishers
+        foreach (var publisher in _transportPublishers)
+        {
+            publisher.PublishMessage(message);
+        }
     }
     
     /// <summary>
@@ -50,12 +89,24 @@ public class CommandTransportAdapter
     /// <param name="onCommandReceived">Callback for received commands</param>
     public void Initialize(Action<IGameCommand> onCommandReceived)
     {
-        _transportPublisher.Subscribe(message => {
-            // Let the exception propagate for unknown command types
-            // This is a critical error that should be handled at a higher level
-            var command = DeserializeCommand(message);
-            onCommandReceived(command);
-        });
+        _onCommandReceived = onCommandReceived;
+        
+        // Subscribe to all publishers
+        foreach (var publisher in _transportPublishers)
+        {
+            publisher.Subscribe(message => {
+                try
+                {
+                    var command = DeserializeCommand(message);
+                    onCommandReceived(command);
+                }
+                catch (Exception ex)
+                {
+                    // Log error but don't crash
+                    Console.WriteLine($"Error processing message: {ex.Message}");
+                }
+            });
+        }
     }
     
     /// <summary>
