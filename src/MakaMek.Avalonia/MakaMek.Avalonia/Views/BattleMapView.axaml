@@ -34,7 +34,7 @@
             VerticalAlignment="Top"
             Background="{DynamicResource OverlayTransparentBrush}"
             Classes="statusPanel"
-            Margin="0,0,0,10"
+            Margin="{OnPlatform '0,0,0,0', Android='0,30,0,0'}"
             ColumnDefinitions="*,Auto,Auto,Auto,*">
             
             <!-- Turn Info Section -->

@@ -1,5 +1,7 @@
-﻿using Android.App;
+using Android.App;
 using Android.Content.PM;
+using Android.OS;
+using Android.Views;
 using Avalonia;
 using Avalonia.Android;
 using Sanet.MakaMek.Avalonia.Android.DependencyInjection;
@@ -20,5 +22,17 @@ public class MainActivity : AvaloniaMainActivity<App>
         return base.CustomizeAppBuilder(builder)
             .UseDependencyInjection(services=>services.RegisterAndroidServices())
             .WithInterFont();
+    }
+
+    protected override void OnCreate(Bundle? savedInstanceState)
+    {
+        base.OnCreate(savedInstanceState);
+        
+        // Make the status bar transparent and ensure content can go behind it
+        if (Window != null)
+        {
+            // Set the status bar to be semi-transparent
+            Window.AddFlags(WindowManagerFlags.Fullscreen);
+        }
     }
 }
