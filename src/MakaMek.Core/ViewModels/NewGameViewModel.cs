@@ -21,7 +21,7 @@ public class NewGameViewModel : BaseViewModel
     private int _mapHeight = 17;
     private int _forestCoverage = 20;
     private int _lightWoodsPercentage = 30;
-    private bool _isLanServerRunning;
+    private bool _enableLan;
     private string? _serverIpAddress;
 
     private readonly ObservableCollection<PlayerViewModel> _players= [];
@@ -81,16 +81,30 @@ public class NewGameViewModel : BaseViewModel
 
     public bool CanStartGame => Players.Count > 0 && Players.All(p => p.Units.Count > 0);
     
-    public bool IsLanServerRunning
+    public bool EnableLan
     {
-        get => _isLanServerRunning;
-        private set => SetProperty(ref _isLanServerRunning, value);
+        get => _enableLan;
+        set
+        {
+            var changed = _enableLan != value;
+            SetProperty(ref _enableLan, value);
+            if (changed && value)
+            {
+                // When LAN is enabled, get the server address
+                UpdateServerAddress();
+            }
+        }
     }
     
     public string? ServerIpAddress
     {
         get => _serverIpAddress;
         private set => SetProperty(ref _serverIpAddress, value);
+    }
+    
+    private void UpdateServerAddress()
+    {
+        ServerIpAddress = _gameManager.GetLanServerAddress();
     }
 
 
@@ -107,7 +121,8 @@ public class NewGameViewModel : BaseViewModel
         var hexDataList = map.GetHexes().Select(hex => hex.ToData()).ToList();
         var localBattleMap = BattleMap.CreateFromData(hexDataList);
         
-        _gameManager.StartServer(localBattleMap);
+        // Start the server with LAN enabled if requested
+        _gameManager.StartServer(localBattleMap, EnableLan);
         
         var localGame = new ClientGame(
             localBattleMap,
@@ -125,39 +140,6 @@ public class NewGameViewModel : BaseViewModel
         
         await NavigationService.NavigateToViewModelAsync(battleMapViewModel);
     });
-    
-    public ICommand StartLanServerCommand => new AsyncCommand(StartLanServer);
-    
-    private async Task StartLanServer()
-    {
-        if (IsLanServerRunning)
-            return;
-            
-        // Generate map if needed
-        BattleMap? localBattleMap = null;
-        
-        if (!CanStartGame)
-        {
-            // We need at least one player with units to start the server
-            return;
-        }
-        
-        // Generate the map
-        var map = ForestCoverage == 0
-            ? BattleMap.GenerateMap(MapWidth, MapHeight, new SingleTerrainGenerator(
-                MapWidth, MapHeight, new ClearTerrain()))
-            : BattleMap.GenerateMap(MapWidth, MapHeight, new ForestPatchesGenerator(
-                MapWidth, MapHeight,
-                forestCoverage: ForestCoverage / 100.0,
-                lightWoodsProbability: LightWoodsPercentage / 100.0));
-        
-        var hexDataList = map.GetHexes().Select(hex => hex.ToData()).ToList();
-        localBattleMap = BattleMap.CreateFromData(hexDataList);
-        
-        // Start LAN server
-        ServerIpAddress = await _gameManager.StartLanServer(localBattleMap);
-        IsLanServerRunning = _gameManager.IsLanServerRunning;
-    }
 
     public void InitializeUnits(List<UnitData> units)
     {

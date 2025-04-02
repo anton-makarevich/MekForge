@@ -22,11 +22,15 @@ public static class CoreServices
         
         // Register RxTransportPublisher for local players
         services.AddSingleton<RxTransportPublisher>();
-        services.AddSingleton<ITransportPublisher>(sp => sp.GetRequiredService<RxTransportPublisher>());
         
-        // Register CommandTransportAdapter with the RxTransportPublisher
+        // Register SignalRHostService for LAN players
+        services.AddSingleton<SignalRHostService>();
+        
+        // Register CommandTransportAdapter with both publishers
         services.AddSingleton<CommandTransportAdapter>(sp => 
-            new CommandTransportAdapter(sp.GetRequiredService<RxTransportPublisher>()));
+            new CommandTransportAdapter(
+                sp.GetRequiredService<RxTransportPublisher>(),
+                sp.GetRequiredService<SignalRHostService>().Publisher));
             
         services.AddSingleton<ICommandPublisher, CommandPublisher>();
         services.AddSingleton<IRulesProvider, ClassicBattletechRulesProvider>();

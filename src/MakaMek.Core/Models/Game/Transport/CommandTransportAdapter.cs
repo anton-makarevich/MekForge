@@ -17,49 +17,17 @@ public class CommandTransportAdapter
     private Action<IGameCommand>? _onCommandReceived;
     
     /// <summary>
-    /// Creates a new instance of the CommandTransportAdapter with a single publisher
-    /// </summary>
-    /// <param name="transportPublisher">The transport publisher to use</param>
-    public CommandTransportAdapter(ITransportPublisher transportPublisher)
-    {
-        _transportPublishers.Add(transportPublisher);
-        _commandTypes = InitializeCommandTypeDictionary();
-    }
-    
-    /// <summary>
     /// Creates a new instance of the CommandTransportAdapter with multiple publishers
     /// </summary>
     /// <param name="transportPublishers">The transport publishers to use</param>
-    public CommandTransportAdapter(IEnumerable<ITransportPublisher> transportPublishers)
+    public CommandTransportAdapter(params ITransportPublisher[] transportPublishers)
     {
-        _transportPublishers.AddRange(transportPublishers);
-        _commandTypes = InitializeCommandTypeDictionary();
-    }
-    
-    /// <summary>
-    /// Adds a transport publisher to the adapter
-    /// </summary>
-    /// <param name="transportPublisher">The transport publisher to add</param>
-    public void AddTransportPublisher(ITransportPublisher transportPublisher)
-    {
-        _transportPublishers.Add(transportPublisher);
-        
-        // Initialize the new publisher with our command handler if we have one
-        if (_onCommandReceived != null)
+        foreach (var publisher in transportPublishers)
         {
-            transportPublisher.Subscribe(message => {
-                try
-                {
-                    var command = DeserializeCommand(message);
-                    _onCommandReceived(command);
-                }
-                catch (Exception ex)
-                {
-                    // Log error but don't crash
-                    Console.WriteLine($"Error processing message: {ex.Message}");
-                }
-            });
+            if (publisher != null)
+                _transportPublishers.Add(publisher);
         }
+        _commandTypes = InitializeCommandTypeDictionary();
     }
     
     /// <summary>

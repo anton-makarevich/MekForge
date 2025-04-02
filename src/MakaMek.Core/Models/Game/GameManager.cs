@@ -18,43 +18,42 @@ public class GameManager : IGameManager
     private bool _isDisposed;
 
     public GameManager(IRulesProvider rulesProvider, ICommandPublisher commandPublisher, IDiceRoller diceRoller,
-        IToHitCalculator toHitCalculator, CommandTransportAdapter transportAdapter)
+        IToHitCalculator toHitCalculator, CommandTransportAdapter transportAdapter, SignalRHostService signalRHostService)
     {
         _rulesProvider = rulesProvider;
         _commandPublisher = commandPublisher;
         _diceRoller = diceRoller;
         _toHitCalculator = toHitCalculator;
         _transportAdapter = transportAdapter;
+        _signalRHostService = signalRHostService;
     }
 
-    public void StartServer(BattleMap battleMap)
+    public void StartServer(BattleMap battleMap, bool enableLan = false)
     {
-        _serverGame = new ServerGame(battleMap, _rulesProvider, _commandPublisher, _diceRoller, _toHitCalculator);
-        // Start server in background
-        _ = Task.Run(() => _serverGame.Start());
-    }
-    
-    public async Task<string?> StartLanServer(BattleMap battleMap)
-    {
-        // Create and start SignalR host if not already running
-        if (_signalRHostService == null)
+        // Start the SignalR host if LAN is enabled and not already running
+        if (enableLan && !IsLanServerRunning)
         {
-            _signalRHostService = new SignalRHostService();
-            await _signalRHostService.Start(2439); // Use the specified port
-            
-            // Add the SignalR publisher to the existing transport adapter
-            _transportAdapter.AddTransportPublisher(_signalRHostService.Publisher);
+            _ = _signalRHostService?.Start(2439);
         }
         
-        // Start the server game if not already started
+        // Start the game server if not already running
         if (_serverGame == null)
         {
             _serverGame = new ServerGame(battleMap, _rulesProvider, _commandPublisher, _diceRoller, _toHitCalculator);
+            // Start server in background
             _ = Task.Run(() => _serverGame.Start());
         }
+    }
+    
+    public string? GetLanServerAddress()
+    {
+        // Start the SignalR host if not already running
+        if (!IsLanServerRunning)
+        {
+            _ = _signalRHostService?.Start(2439);
+        }
         
-        // Return the IP address for display
-        return _signalRHostService.ServerIpAddress;
+        return _signalRHostService?.ServerIpAddress;
     }
     
     public bool IsLanServerRunning => _signalRHostService?.IsRunning ?? false;
