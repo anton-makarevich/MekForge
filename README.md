@@ -1,10 +1,10 @@
 # MakaMek
 
-A cross-platform implementation of tactical turn-based mech combat game, inspired by MegaMek. Built with .NET 9 and AvaloniaUI.
+A cross-platform implementation of turn-based tabletop tactics BattleTech, built with .NET 9 and AvaloniaUI.
 
-## Overview (Planned)
+## Overview
 
-MakaMek is an open-source tactical combat game featuring giant walking war machines. The game focuses on strategic combat, unit customization, and both single-player and multiplayer experiences.
+MakaMek is an open-source tactical combat game featuring giant walking war machines. The game is inspired by another computer implementation of BattleTech called MegaMek but focusing on simplicity and accessibility for all the players. We try to keep gameplay as simple as possible and focus on mobile-first and web-first user experience.
 
 ![MakaMek](docs/screenshots/win/010425.png)
 
@@ -12,8 +12,7 @@ MakaMek is an open-source tactical combat game featuring giant walking war machi
 ### Implemented
 - Hex map generator with the simplest terrain types (clear, light and heavy wood) (MegaMek assets)
 - [Client-Server app architecture](https://github.com/anton-makarevich/MakaMek/wiki/Game-(Protocol)-High-Level-Architecture) with RX communication for local play 
-- Units deployment and movement, including path finding for all the basic movement types
-- Weapon attack declaration and resolution (no crits yet)
+- Complete Turn flow implementation with all major phases including initiative, movement, attack declaration and resolution, heat and end phase
 - Cross-platform support (Windows, Linux, macOS, Web, Android, iOS)
 - Test UI built with AvaloniaUI
 - Importing mechs defined in MTF format 
@@ -43,37 +42,15 @@ MakaMek/
 
 ### Project Status
 
-[![codecov](https://codecov.io/github/anton-makarevich/MakaMek/graph/badge.svg?token=SAQTXWFA21)](https://codecov.io/github/anton-makarevich/MakaMek)
-
-- **MakaMek.Core**:
-
-[![build](https://github.com/anton-makarevich/MakaMek/actions/workflows/core.yml/badge.svg)](https://github.com/anton-makarevich/MakaMek/actions/workflows/core.yml)
-![NuGet Version](https://img.shields.io/nuget/vpre/Sanet.MakaMek.Core?logo=nuget)
-
-- **MakaMek.Avalonia**:
-
-[![build](https://github.com/anton-makarevich/MakaMek/actions/workflows/avalonia.yml/badge.svg)](https://github.com/anton-makarevich/MakaMek/actions/workflows/avalonia.yml)
-![NuGet Version](https://img.shields.io/nuget/vpre/Sanet.MakaMek.Avalonia?logo=nuget)
-
-- **Web Version (WASM)**:
-
-[![Deploy WASM to GitHub Pages](https://github.com/anton-makarevich/MakaMek/actions/workflows/deploy-wasm.yml/badge.svg)](https://github.com/anton-makarevich/MakaMek/actions/workflows/deploy-wasm.yml)
-[![Play in Browser](https://img.shields.io/badge/Play-in%20Browser-blue?logo=github)](https://anton-makarevich.github.io/MakaMek/)
-
-- **Android Version**:
-
-[![Build Android APK](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-android.yml/badge.svg)](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-android.yml)
-[![Download Android APK](https://img.shields.io/badge/Download-Android%20APK-green?logo=android)](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-android.yml)
-
-- **Windows Version**:
-
-[![Build Windows App](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-windows.yml/badge.svg)](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-windows.yml)
-[![Download Windows Installer](https://img.shields.io/badge/Download-Windows%20Installer-blue?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAABE0lEQVR4nO3aMUrEYBDF8R/Y2W1hoa29CF7BwgvoEWw9gI2lF9ADWNraiTarWwhewcJKOytL/UTIQhrjsolk17w/pBnCzDd88xjICyGEZWUV2zjAMS7wgDeMLSAb2MUhTnGFJ3ygNDy9MMIO9nGCSzzi/ZfDlj4a+R6FLazXYufVKMx72PJXjaxgE3s4qg56g2d8VgVea+9PY701Mmo5ClNKn41cd1ik10ZKGpEbKRmtBqIR0YhopIloRDQiGmnivqVOxh3mKjPUCEvDpOW133WYq8xQ40eyR2SPyB5pIhoRjYhGmohGRCOikUF8xP43tkJbo+dlkYyeNi7sWi12tqjW2yDM0EHY013/MHA7V8YQBswXmfZIX4+AWlMAAAAASUVORK5CYII=)](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-windows.yml)
-
-- **Linux Version**:
-
-[![Build Linux App](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-linux.yml/badge.svg)](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-linux.yml)
-[![Download Linux AppImage](https://img.shields.io/badge/Download-Linux%20AppImage-orange?logo=linux)](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-linux.yml)
+| Component | Build | Package/Download |
+|-----------|-------|----------------|
+| **General** | [![codecov](https://codecov.io/github/anton-makarevich/MakaMek/graph/badge.svg?token=SAQTXWFA21)](https://codecov.io/github/anton-makarevich/MakaMek) | |
+| **MakaMek.Core** | [![build](https://github.com/anton-makarevich/MakaMek/actions/workflows/core.yml/badge.svg)](https://github.com/anton-makarevich/MakaMek/actions/workflows/core.yml) | [![NuGet Version](https://img.shields.io/nuget/vpre/Sanet.MakaMek.Core?logo=nuget)](https://www.nuget.org/packages/Sanet.MakaMek.Core) |
+| **MakaMek.Avalonia** | [![build](https://github.com/anton-makarevich/MakaMek/actions/workflows/avalonia.yml/badge.svg)](https://github.com/anton-makarevich/MakaMek/actions/workflows/avalonia.yml) | [![NuGet Version](https://img.shields.io/nuget/vpre/Sanet.MakaMek.Avalonia?logo=nuget)](https://www.nuget.org/packages/Sanet.MakaMek.Avalonia) |
+| **Web Version (WASM)** | [![Deploy WASM to GitHub Pages](https://github.com/anton-makarevich/MakaMek/actions/workflows/deploy-wasm.yml/badge.svg)](https://github.com/anton-makarevich/MakaMek/actions/workflows/deploy-wasm.yml) | [![Play in Browser](https://img.shields.io/badge/Play-in%20Browser-blue?logo=github)](https://anton-makarevich.github.io/MakaMek/) |
+| **Android Version** | [![Build Android APK](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-android.yml/badge.svg)](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-android.yml) | [![Download Android APK](https://img.shields.io/badge/Download-Android%20APK-green?logo=android)](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-android.yml) |
+| **Windows Version** | [![Build Windows App](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-windows.yml/badge.svg)](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-windows.yml) | [![Download Windows Installer](https://img.shields.io/badge/Download-Windows%20Installer-blue?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAABE0lEQVR4nO3aMUrEYBDF8R/Y2W1hoa29CF7BwgvoEWw9gI2lF9ADWNraiTarWwhewcJKOytL/UTIQhrjsolk17w/pBnCzDd88xjICyGEZWUV2zjAMS7wgDeMLSAb2MUhTnGFJ3ygNDy9MMIO9nGCSzzi/ZfDlj4a+R6FLazXYufVKMx72PJXjaxgE3s4qg56g2d8VgVea+9PY701Mmo5ClNKn41cd1ik10ZKGpEbKRmtBqIR0YhopIloRDQiGmnivqVOxh3mKjPUCEvDpOW133WYq8xQ40eyR2SPyB5pIhoRjYhGmohGRCOikUF8xP43tkJbo+dlkYyeNi7sWi12tqjW2yDM0EHY013/MHA7V8YQBswXmfZIX4+AWlMAAAAASUVORK5CYII=)](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-windows.yml) |
+| **Linux Version** | [![Build Linux App](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-linux.yml/badge.svg)](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-linux.yml) | [![Download Linux AppImage](https://img.shields.io/badge/Download-Linux%20AppImage-orange?logo=linux)](https://github.com/anton-makarevich/MakaMek/actions/workflows/build-linux.yml) |
 
 > **Note:** macOS and iOS builds require code signing and have a more complex distribution process. While these platforms are supported by the codebase, automated builds are not available yet.
 > Users can build and deploy to Apple platforms from the source code.
@@ -106,6 +83,10 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 - Inspired by MegaMek (https://megamek.org/)
 - Thanks to the BattleTech community for their continued passion.
+
+## Name Origin
+
+The name MakaMek contains references to MegaMek, but also to my surname and the very first battlemech ever created - the Mackie.
 
 ## Disclaimer
 
