@@ -12,7 +12,7 @@ namespace Sanet.MakaMek.Core.Services.Transport;
 /// </summary>
 public class CommandTransportAdapter
 {
-    private readonly List<ITransportPublisher> _transportPublishers = new();
+    internal readonly List<ITransportPublisher> TransportPublishers = new();
     private readonly Dictionary<string, Type> _commandTypes;
     private Action<IGameCommand>? _onCommandReceived;
     
@@ -24,8 +24,7 @@ public class CommandTransportAdapter
     {
         foreach (var publisher in transportPublishers)
         {
-            if (publisher != null)
-                _transportPublishers.Add(publisher);
+            TransportPublishers.Add(publisher);
         }
         _commandTypes = InitializeCommandTypeDictionary();
     }
@@ -36,9 +35,9 @@ public class CommandTransportAdapter
     /// <param name="publisher">The publisher to add</param>
     public void AddPublisher(ITransportPublisher? publisher)
     {
-        if (publisher != null && !_transportPublishers.Contains(publisher))
+        if (publisher != null && !TransportPublishers.Contains(publisher))
         {
-            _transportPublishers.Add(publisher);
+            TransportPublishers.Add(publisher);
             
             // If Initialize has already been called, subscribe the new publisher immediately
             if (_onCommandReceived != null)
@@ -63,7 +62,7 @@ public class CommandTransportAdapter
         };
         
         // Publish to all transport publishers
-        foreach (var publisher in _transportPublishers)
+        foreach (var publisher in TransportPublishers)
         {
             publisher.PublishMessage(message);
         }
@@ -78,7 +77,7 @@ public class CommandTransportAdapter
         _onCommandReceived = onCommandReceived;
         
         // Subscribe to all publishers
-        foreach (var publisher in _transportPublishers)
+        foreach (var publisher in TransportPublishers)
         {
             SubscribePublisher(publisher, onCommandReceived);
         }

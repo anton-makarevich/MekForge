@@ -53,6 +53,8 @@ public class GameManagerTests : IDisposable
 
         // Assert
         _networkHostService.Received(1).Start(2439);
+        _transportAdapter.TransportPublishers.Count.ShouldBe(2); // Initial mock + network publisher
+        _transportAdapter.TransportPublishers.ShouldContain(networkPublisher);
     }
     
     [Fact]
@@ -67,6 +69,7 @@ public class GameManagerTests : IDisposable
 
         // Assert
         _networkHostService.Received(1).Start(2439);
+        _transportAdapter.TransportPublishers.Count.ShouldBe(1); // Only the initial mock publisher
     }
 
     [Fact]
@@ -80,6 +83,7 @@ public class GameManagerTests : IDisposable
 
         // Assert
         _networkHostService.DidNotReceive().Start(Arg.Any<int>());
+        _transportAdapter.TransportPublishers.Count.ShouldBe(1); // Only initial mock publisher
     }
 
     [Fact]
@@ -93,6 +97,7 @@ public class GameManagerTests : IDisposable
 
         // Assert
         _networkHostService.DidNotReceive().Start(Arg.Any<int>());
+        _transportAdapter.TransportPublishers.Count.ShouldBe(1);
     }
 
     [Fact]
@@ -167,6 +172,27 @@ public class GameManagerTests : IDisposable
 
         // Act & Assert
         sutWithNullHost.CanStartLanServer.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void StartServer_CalledMultipleTimes_StartsServerAndNetworkHostOnlyOnce()
+    {
+        // Arrange
+        var networkPublisher = Substitute.For<ITransportPublisher>();
+        _networkHostService.IsRunning.Returns(false); // Start as not running
+        _networkHostService.Publisher.Returns(networkPublisher);
+        
+        // Act
+        _sut.StartServer(_battleMap, enableLan: true); // First call, enable LAN
+        _networkHostService.IsRunning.Returns(true);  // Simulate network host is now running
+        _sut.StartServer(_battleMap, enableLan: true); // Second call
+
+        // Assert
+        _networkHostService.Received(1).Start(2439); // Should only be called once
+        _transportAdapter.TransportPublishers.Count.ShouldBe(2); // Publisher should only be added once
+        _transportAdapter.TransportPublishers.ShouldContain(networkPublisher);
+        // We can't easily verify ServerGame creation/start count directly, 
+        // but ensuring network host isn't started again implies the check worked.
     }
 
     [Fact]
