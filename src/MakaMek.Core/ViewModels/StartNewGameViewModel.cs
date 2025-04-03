@@ -5,9 +5,9 @@ using Sanet.MakaMek.Core.Data.Units;
 using Sanet.MakaMek.Core.Models.Game;
 using Sanet.MakaMek.Core.Models.Game.Combat;
 using Sanet.MakaMek.Core.Models.Game.Players;
-using Sanet.MakaMek.Core.Models.Game.Transport;
 using Sanet.MakaMek.Core.Models.Map;
 using Sanet.MakaMek.Core.Models.Map.Terrains;
+using Sanet.MakaMek.Core.Services.Transport;
 using Sanet.MakaMek.Core.Utils.Generators;
 using Sanet.MakaMek.Core.Utils.TechRules;
 using Sanet.MakaMek.Core.ViewModels.Wrappers;
@@ -15,16 +15,18 @@ using Sanet.MVVM.Core.ViewModels;
 
 namespace Sanet.MakaMek.Core.ViewModels;
 
-public class NewGameViewModel : BaseViewModel
+public class StartNewGameViewModel : BaseViewModel
 {
     private int _mapWidth = 15;
     private int _mapHeight = 17;
     private int _forestCoverage = 20;
     private int _lightWoodsPercentage = 30;
+    private bool _enableLan;
+    private string? _serverUrl;
 
     private readonly ObservableCollection<PlayerViewModel> _players= [];
 
-    public NewGameViewModel(IGameManager gameManager, IRulesProvider rulesProvider, ICommandPublisher commandPublisher,
+    public StartNewGameViewModel(IGameManager gameManager, IRulesProvider rulesProvider, ICommandPublisher commandPublisher,
         IToHitCalculator toHitCalculator)
     {
         _gameManager = gameManager;
@@ -39,7 +41,6 @@ public class NewGameViewModel : BaseViewModel
     public string LightWoodsLabel => "Light Woods Percentage";
 
     private IEnumerable<UnitData> _availableUnits=[];
-
 
     private readonly IGameManager _gameManager;
     private readonly IRulesProvider _rulesProvider;
@@ -78,6 +79,56 @@ public class NewGameViewModel : BaseViewModel
     public bool IsLightWoodsEnabled => _forestCoverage>0;
 
     public bool CanStartGame => Players.Count > 0 && Players.All(p => p.Units.Count > 0);
+    
+    public bool EnableLan
+    {
+        get => _enableLan;
+        set
+        {
+            var oldValue = _enableLan;
+            SetProperty(ref _enableLan, value);
+            
+            // If value changed to true, update server URL
+            if (oldValue != value && value)
+            {
+                // When LAN is enabled, get the server URL
+                UpdateServerUrl();
+            }
+        }
+    }
+
+    private string? ServerUrl
+    {
+        get => _serverUrl;
+        set
+        {
+            SetProperty(ref _serverUrl, value);
+            NotifyPropertyChanged(nameof(ServerIpAddress));
+        } 
+    }
+    
+    /// <summary>
+    /// Gets a formatted server address for display (host:port)
+    /// </summary>
+    public string? ServerIpAddress
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(ServerUrl))
+                return null;
+                
+            // Extract host from the URL
+            var uri = new Uri(ServerUrl);
+            return $"{uri.Host}";
+        }
+    }
+    
+    public bool CanStartLanServer => _gameManager.CanStartLanServer;
+    
+    private void UpdateServerUrl()
+    {
+        ServerUrl = _gameManager.GetLanServerAddress();
+    }
 
 
     public ICommand StartGameCommand => new AsyncCommand(async () =>
@@ -93,7 +144,8 @@ public class NewGameViewModel : BaseViewModel
         var hexDataList = map.GetHexes().Select(hex => hex.ToData()).ToList();
         var localBattleMap = BattleMap.CreateFromData(hexDataList);
         
-        _gameManager.StartServer(localBattleMap);
+        // Start the server with LAN enabled if requested
+        _gameManager.StartServer(localBattleMap, EnableLan);
         
         var localGame = new ClientGame(
             localBattleMap,

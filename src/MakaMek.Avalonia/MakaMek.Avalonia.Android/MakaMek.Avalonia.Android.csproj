@@ -4,7 +4,7 @@
         <TargetFramework>net9.0-android</TargetFramework>
         <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
         <Nullable>enable</Nullable>
-        <ApplicationId>nl.sanetby.mekforge</ApplicationId>
+        <ApplicationId>nl.sanetby.makamek</ApplicationId>
         <!-- Use version from Directory.Build.props -->
         <ApplicationVersion>$([MSBuild]::ValueOrDefault($([System.Text.RegularExpressions.Regex]::Match($(Version), ^\d+\.\d+\.\d+).Value.Replace('.', '')), 0))</ApplicationVersion>
         <ApplicationDisplayVersion>$(Version)</ApplicationDisplayVersion>

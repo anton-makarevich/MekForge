@@ -5,8 +5,8 @@ using Sanet.MakaMek.Core.Models.Game.Commands.Server;
 using Sanet.MakaMek.Core.Models.Game.Dice;
 using Sanet.MakaMek.Core.Models.Game.Phases;
 using Sanet.MakaMek.Core.Models.Game.Players;
-using Sanet.MakaMek.Core.Models.Game.Transport;
 using Sanet.MakaMek.Core.Models.Map;
+using Sanet.MakaMek.Core.Services.Transport;
 using Sanet.MakaMek.Core.Utils.TechRules;
 
 namespace Sanet.MakaMek.Core.Models.Game;

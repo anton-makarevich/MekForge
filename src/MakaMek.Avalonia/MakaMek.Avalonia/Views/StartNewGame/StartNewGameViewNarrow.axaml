@@ -1,0 +1,45 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Sanet.MakaMek.Core.ViewModels;assembly=Sanet.MakaMek.Core"
+             xmlns:fragments="clr-namespace:Sanet.MakaMek.Avalonia.Views.NewGame.Fragments"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="800"
+             x:Class="Sanet.MakaMek.Avalonia.Views.StartNewGame.StartNewGameViewNarrow"
+             x:DataType="viewModels:StartNewGameViewModel">
+    <DockPanel Classes="pageContainer">
+        <Button DockPanel.Dock="Bottom"
+                Command="{Binding StartGameCommand}"
+                Content="Start Game"
+                Classes="primary"
+                IsEnabled="{Binding CanStartGame}"
+                HorizontalAlignment="Center"
+                Margin="0,10,0,0"/>
+        
+        <TextBlock Text="New Game" 
+                   Classes="h1" 
+                   HorizontalAlignment="Center"
+                   DockPanel.Dock="Top"
+                   Margin="0,0,0,10"/>
+        
+        <TabControl>
+            <TabItem Header="Map">
+                <ScrollViewer Classes="gameScrollViewer">
+                    <fragments:MapConfigFragment/>
+                </ScrollViewer>
+            </TabItem>
+            
+            <TabItem Header="Network" IsVisible="{Binding CanStartLanServer}">
+                <ScrollViewer Classes="gameScrollViewer">
+                    <fragments:NetworkFragment/>
+                </ScrollViewer>
+            </TabItem>
+            
+            <TabItem Header="Players">
+                <ScrollViewer Classes="gameScrollViewer">
+                    <fragments:PlayersFragment/>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</UserControl>

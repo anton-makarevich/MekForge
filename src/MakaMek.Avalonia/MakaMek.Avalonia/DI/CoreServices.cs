@@ -3,12 +3,11 @@ using Sanet.MakaMek.Avalonia.Services;
 using Sanet.MakaMek.Core.Models.Game;
 using Sanet.MakaMek.Core.Models.Game.Combat;
 using Sanet.MakaMek.Core.Models.Game.Dice;
-using Sanet.MakaMek.Core.Models.Game.Transport;
 using Sanet.MakaMek.Core.Services;
 using Sanet.MakaMek.Core.Services.Localization;
+using Sanet.MakaMek.Core.Services.Transport;
 using Sanet.MakaMek.Core.Utils.TechRules;
 using Sanet.MakaMek.Core.ViewModels;
-using Sanet.Transport;
 using Sanet.Transport.Rx;
 
 namespace Sanet.MakaMek.Avalonia.DI;
@@ -19,8 +18,15 @@ public static class CoreServices
     {
         services.AddSingleton<IImageService, AvaloniaAssetImageService>();
         services.AddSingleton<ILocalizationService, FakeLocalizationService>();
-        services.AddSingleton<CommandTransportAdapter, CommandTransportAdapter>();
-        services.AddSingleton<ITransportPublisher, RxTransportPublisher>();
+        
+        // Register RxTransportPublisher for local players
+        services.AddSingleton<RxTransportPublisher>();
+
+        // Register CommandTransportAdapter with just the RxTransportPublisher initially
+        // The network publisher will be added dynamically when needed
+        services.AddSingleton<CommandTransportAdapter>(sp => 
+            new CommandTransportAdapter(sp.GetRequiredService<RxTransportPublisher>()));
+            
         services.AddSingleton<ICommandPublisher, CommandPublisher>();
         services.AddSingleton<IRulesProvider, ClassicBattletechRulesProvider>();
         services.AddSingleton<IDiceRoller, RandomDiceRoller>();
@@ -29,7 +35,7 @@ public static class CoreServices
     }
     public static void RegisterViewModels(this IServiceCollection services)
     {
-        services.AddTransient<NewGameViewModel, NewGameViewModel>();
+        services.AddTransient<StartNewGameViewModel, StartNewGameViewModel>();
         services.AddTransient<BattleMapViewModel, BattleMapViewModel>();
     }
 }

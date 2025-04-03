@@ -1,34 +1,54 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 using Sanet.MakaMek.Core.Exceptions;
 using Sanet.MakaMek.Core.Models.Game.Commands;
 using Sanet.MakaMek.Core.Models.Game.Commands.Client;
 using Sanet.MakaMek.Core.Models.Game.Commands.Server;
 using Sanet.Transport;
 
-namespace Sanet.MakaMek.Core.Models.Game.Transport;
+namespace Sanet.MakaMek.Core.Services.Transport;
 
 /// <summary>
 /// Adapter that bridges between game commands and transport messages
 /// </summary>
 public class CommandTransportAdapter
 {
-    private readonly ITransportPublisher _transportPublisher;
+    internal readonly List<ITransportPublisher> TransportPublishers = new();
     private readonly Dictionary<string, Type> _commandTypes;
+    private Action<IGameCommand>? _onCommandReceived;
     
     /// <summary>
-    /// Creates a new instance of the CommandTransportAdapter
+    /// Creates a new instance of the CommandTransportAdapter with multiple publishers
     /// </summary>
-    /// <param name="transportPublisher">The transport publisher to use</param>
-    public CommandTransportAdapter(ITransportPublisher transportPublisher)
+    /// <param name="transportPublishers">The transport publishers to use</param>
+    public CommandTransportAdapter(params ITransportPublisher[] transportPublishers)
     {
-        _transportPublisher = transportPublisher;
+        foreach (var publisher in transportPublishers)
+        {
+            TransportPublishers.Add(publisher);
+        }
         _commandTypes = InitializeCommandTypeDictionary();
     }
     
     /// <summary>
-    /// Converts an IGameCommand to a TransportMessage and publishes it
+    /// Adds a transport publisher to the adapter
+    /// </summary>
+    /// <param name="publisher">The publisher to add</param>
+    public void AddPublisher(ITransportPublisher? publisher)
+    {
+        if (publisher != null && !TransportPublishers.Contains(publisher))
+        {
+            TransportPublishers.Add(publisher);
+            
+            // If Initialize has already been called, subscribe the new publisher immediately
+            if (_onCommandReceived != null)
+            {
+                SubscribePublisher(publisher, _onCommandReceived);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Converts an IGameCommand to a TransportMessage and publishes it to all publishers
     /// </summary>
     /// <param name="command">The command to publish</param>
     public void PublishCommand(IGameCommand command)
@@ -41,7 +61,11 @@ public class CommandTransportAdapter
             Timestamp = command.Timestamp
         };
         
-        _transportPublisher.PublishMessage(message);
+        // Publish to all transport publishers
+        foreach (var publisher in TransportPublishers)
+        {
+            publisher.PublishMessage(message);
+        }
     }
     
     /// <summary>
@@ -50,12 +74,13 @@ public class CommandTransportAdapter
     /// <param name="onCommandReceived">Callback for received commands</param>
     public void Initialize(Action<IGameCommand> onCommandReceived)
     {
-        _transportPublisher.Subscribe(message => {
-            // Let the exception propagate for unknown command types
-            // This is a critical error that should be handled at a higher level
-            var command = DeserializeCommand(message);
-            onCommandReceived(command);
-        });
+        _onCommandReceived = onCommandReceived;
+        
+        // Subscribe to all publishers
+        foreach (var publisher in TransportPublishers)
+        {
+            SubscribePublisher(publisher, onCommandReceived);
+        }
     }
     
     /// <summary>
@@ -76,7 +101,7 @@ public class CommandTransportAdapter
     /// <exception cref="UnknownCommandTypeException">Thrown when the command type is unknown</exception>
     /// <exception cref="System.Text.Json.JsonException">Thrown when the JSON is invalid</exception>
     /// <exception cref="InvalidOperationException">Thrown when deserialization fails or produces an invalid command</exception>
-    private IGameCommand DeserializeCommand(TransportMessage message)
+    internal IGameCommand DeserializeCommand(TransportMessage message)
     {
         if (!_commandTypes.TryGetValue(message.MessageType, out var commandType))
         {
@@ -129,5 +154,23 @@ public class CommandTransportAdapter
             { nameof(ChangePhaseCommand), typeof(ChangePhaseCommand) },
             { nameof(ChangeActivePlayerCommand), typeof(ChangeActivePlayerCommand) },
         };
+    }
+    
+    // Helper method to encapsulate the subscription logic including error handling
+    private void SubscribePublisher(ITransportPublisher publisher, Action<IGameCommand> onCommandReceived)
+    {
+        publisher.Subscribe(message => {
+            try
+            {
+                var command = DeserializeCommand(message);
+                onCommandReceived(command);
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't crash the transport subscription
+                Console.WriteLine($"Error processing received message: {ex.Message}");
+                // Depending on logging strategy, might want a more robust logger here in the future
+            }
+        });
     }
 }

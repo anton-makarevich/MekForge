@@ -5,12 +5,11 @@ using Sanet.MakaMek.Core.Data.Units;
 using Sanet.MakaMek.Core.Models.Game;
 using Sanet.MakaMek.Core.Models.Game.Combat;
 using Sanet.MakaMek.Core.Models.Game.Commands.Client;
-using Sanet.MakaMek.Core.Models.Game.Transport;
 using Sanet.MakaMek.Core.Models.Map;
 using Sanet.MakaMek.Core.Models.Map.Terrains;
 using Sanet.MakaMek.Core.Services;
 using Sanet.MakaMek.Core.Services.Localization;
-using Sanet.MakaMek.Core.Tests.Data;
+using Sanet.MakaMek.Core.Services.Transport;
 using Sanet.MakaMek.Core.Tests.Data.Community;
 using Sanet.MakaMek.Core.Utils.TechRules;
 using Sanet.MakaMek.Core.ViewModels;
@@ -18,15 +17,15 @@ using Sanet.MVVM.Core.Services;
 
 namespace Sanet.MakaMek.Core.Tests.ViewModels;
 
-public class NewGameViewModelTests
+public class StartNewGameViewModelTests
 {
-    private readonly NewGameViewModel _sut;
+    private readonly StartNewGameViewModel _sut;
     private readonly INavigationService _navigationService;
     private readonly BattleMapViewModel _battleMapViewModel;
     private readonly IGameManager _gameManager;
     private readonly ICommandPublisher? _commandPublisher;
 
-    public NewGameViewModelTests()
+    public StartNewGameViewModelTests()
     {
         _navigationService = Substitute.For<INavigationService>();
         var localizationService = Substitute.For<ILocalizationService>();
@@ -40,7 +39,7 @@ public class NewGameViewModelTests
         
         _commandPublisher = Substitute.For<ICommandPublisher>();
 
-        _sut = new NewGameViewModel(_gameManager,rulesProvider,_commandPublisher,
+        _sut = new StartNewGameViewModel(_gameManager,rulesProvider,_commandPublisher,
             Substitute.For<IToHitCalculator>());
         _sut.SetNavigationService(_navigationService);
     }
@@ -53,6 +52,8 @@ public class NewGameViewModelTests
         _sut.ForestCoverage.ShouldBe(20);
         _sut.LightWoodsPercentage.ShouldBe(30);
         _sut.IsLightWoodsEnabled.ShouldBeTrue();
+        _sut.EnableLan.ShouldBeFalse(); // Verify default LAN state
+        _sut.ServerIpAddress.ShouldBeNull(); // Verify default Server IP Address
     }
 
     [Theory]
@@ -221,5 +222,74 @@ public class NewGameViewModelTests
     
         // Assert
         result.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void EnableLan_Setter_WhenTrue_UpdatesServerUrlAndNotifies()
+    {
+        // Arrange
+        var testUrl = "http://192.168.1.100:5000";
+        _gameManager.GetLanServerAddress().Returns(testUrl);
+        var notifiedProperties = new List<string>();
+        _sut.PropertyChanged += (_, args) => notifiedProperties.Add(args.PropertyName!);
+
+        // Act
+        _sut.EnableLan = true;
+
+        // Assert
+        _gameManager.Received(1).GetLanServerAddress();
+        _sut.ServerIpAddress.ShouldBe("192.168.1.100"); 
+        notifiedProperties.ShouldContain(nameof(_sut.EnableLan));
+        notifiedProperties.ShouldContain(nameof(_sut.ServerIpAddress));
+    }
+
+    [Fact]
+    public void EnableLan_Setter_WhenFalse_DoesNotUpdateServerUrl()
+    {
+        // Arrange
+        _sut.EnableLan = true; // Set to true first
+        _gameManager.ClearReceivedCalls();
+
+        // Act
+        _sut.EnableLan = false;
+
+        // Assert
+        _gameManager.DidNotReceive().GetLanServerAddress();
+    }
+    
+    [Fact]
+    public void CanStartLanServer_Getter_ReturnsValueFromGameManager()
+    {
+        // Arrange
+        _gameManager.CanStartLanServer.Returns(true);
+        
+        // Act & Assert
+        _sut.CanStartLanServer.ShouldBeTrue();
+        
+        // Arrange
+        _gameManager.CanStartLanServer.Returns(false);
+        
+        // Act & Assert
+        _sut.CanStartLanServer.ShouldBeFalse();
+    }
+    
+    [Fact]
+    public async Task StartGameCommand_WhenLanEnabled_StartsServerWithLanFlag()
+    {
+        // Arrange
+        _sut.EnableLan = true;
+        // Need players with units to enable StartGameCommand
+        var units = new List<UnitData> { MechFactoryTests.CreateDummyMechData() };
+        _sut.InitializeUnits(units);
+        _sut.AddPlayerCommand.Execute(null);
+        _sut.Players.First().SelectedUnit = units.First();
+        _sut.Players.First().AddUnitCommand.Execute(null);
+        
+        // Act
+        await ((IAsyncCommand)_sut.StartGameCommand).ExecuteAsync();
+        
+        // Assert
+        _gameManager.Received(1).StartServer(Arg.Any<BattleMap>(), true); // Verify EnableLan flag is true
+        await _navigationService.Received(1).NavigateToViewModelAsync(_battleMapViewModel);
     }
 }
