@@ -103,7 +103,7 @@ public class CommandTransportAdapterTests
         // Assert
         _mockPublisher1.Received(1).PublishMessage(Arg.Any<TransportMessage>()); // Original publisher receives
         newPublisher.Received(1).PublishMessage(Arg.Any<TransportMessage>()); // New publisher also receives
-        //newPublisher.Received(1).Subscribe(Arg.Any<Action<TransportMessage>>()); // New publisher was subscribed during Initialize/Add
+        newPublisher.Received(1).Subscribe(Arg.Any<Action<TransportMessage>>()); // New publisher was subscribed during Initialize/Add
     }
 
     [Fact]
