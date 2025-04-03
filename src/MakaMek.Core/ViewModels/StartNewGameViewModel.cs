@@ -100,7 +100,11 @@ public class StartNewGameViewModel : BaseViewModel
     private string? ServerUrl
     {
         get => _serverUrl;
-        set => SetProperty(ref _serverUrl, value);
+        set
+        {
+            SetProperty(ref _serverUrl, value);
+            NotifyPropertyChanged(nameof(ServerIpAddress));
+        } 
     }
     
     /// <summary>
