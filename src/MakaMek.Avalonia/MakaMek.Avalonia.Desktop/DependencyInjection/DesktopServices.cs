@@ -1,4 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using Sanet.MakaMek.Avalonia.Desktop.Services;
+using Sanet.MakaMek.Core.Models.Game.Transport;
 
 namespace Sanet.MakaMek.Avalonia.Desktop.DependencyInjection;
 
@@ -6,6 +8,7 @@ public static class DesktopServices
 {
     public static void RegisterDesktopServices(this IServiceCollection services)
     {
-        // Desktop-specific services will be registered here
+        // Register the SignalR host service for desktop platforms
+        services.AddSingleton<INetworkHostService, SignalRHostService>();
     }
 }

@@ -1,8 +1,13 @@
+using Sanet.MakaMek.Core.Models.Game.Transport;
 using Sanet.Transport;
+using System.Threading.Tasks;
 using Sanet.Transport.SignalR.Infrastructure;
 
-namespace Sanet.MakaMek.Core.Models.Game.Transport;
+namespace Sanet.MakaMek.Avalonia.Desktop.Services;
 
+/// <summary>
+/// Implementation of INetworkHostService using SignalR for desktop platforms
+/// </summary>
 /// <summary>
 /// Service that manages a SignalR host for LAN multiplayer
 /// </summary>

@@ -8,7 +8,6 @@ using Sanet.MakaMek.Core.Services;
 using Sanet.MakaMek.Core.Services.Localization;
 using Sanet.MakaMek.Core.Utils.TechRules;
 using Sanet.MakaMek.Core.ViewModels;
-using Sanet.Transport;
 using Sanet.Transport.Rx;
 
 namespace Sanet.MakaMek.Avalonia.DI;
@@ -22,11 +21,7 @@ public static class CoreServices
         
         // Register RxTransportPublisher for local players
         services.AddSingleton<RxTransportPublisher>();
-        
-        // Register SignalRHostService for LAN players
-        services.AddSingleton<SignalRHostService>();
-        services.AddSingleton<INetworkHostService>(sp => sp.GetRequiredService<SignalRHostService>());
-        
+
         // Register CommandTransportAdapter with just the RxTransportPublisher initially
         // The network publisher will be added dynamically when needed
         services.AddSingleton<CommandTransportAdapter>(sp => 
