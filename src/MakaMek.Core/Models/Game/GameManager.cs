@@ -14,26 +14,32 @@ public class GameManager : IGameManager
     private readonly IToHitCalculator _toHitCalculator;
     private readonly CommandTransportAdapter _transportAdapter;
     private ServerGame? _serverGame;
-    private SignalRHostService? _signalRHostService;
+    private readonly INetworkHostService? _networkHostService;
     private bool _isDisposed;
 
     public GameManager(IRulesProvider rulesProvider, ICommandPublisher commandPublisher, IDiceRoller diceRoller,
-        IToHitCalculator toHitCalculator, CommandTransportAdapter transportAdapter, SignalRHostService signalRHostService)
+        IToHitCalculator toHitCalculator, CommandTransportAdapter transportAdapter, INetworkHostService networkHostService)
     {
         _rulesProvider = rulesProvider;
         _commandPublisher = commandPublisher;
         _diceRoller = diceRoller;
         _toHitCalculator = toHitCalculator;
         _transportAdapter = transportAdapter;
-        _signalRHostService = signalRHostService;
+        _networkHostService = networkHostService;
     }
 
     public void StartServer(BattleMap battleMap, bool enableLan = false)
     {
-        // Start the SignalR host if LAN is enabled and not already running
+        // Start the network host if LAN is enabled and not already running
         if (enableLan && !IsLanServerRunning)
         {
-            _ = _signalRHostService?.Start(2439);
+            _ = _networkHostService?.Start(2439);
+            
+            // Add the network publisher to the transport adapter when it's available
+            if (_networkHostService?.Publisher != null)
+            {
+                _transportAdapter.AddPublisher(_networkHostService.Publisher);
+            }
         }
         
         // Start the game server if not already running
@@ -47,22 +53,22 @@ public class GameManager : IGameManager
     
     public string? GetLanServerAddress()
     {
-        // Start the SignalR host if not already running
+        // Start the network host if not already running
         if (!IsLanServerRunning)
         {
-            _ = _signalRHostService?.Start(2439);
+            return null;
         }
         
-        return _signalRHostService?.ServerIpAddress;
+        return _networkHostService?.HubUrl;
     }
     
-    public bool IsLanServerRunning => _signalRHostService?.IsRunning ?? false;
+    public bool IsLanServerRunning => _networkHostService?.IsRunning ?? false;
     
     public void Dispose()
     {
         if (_isDisposed) return;
         _isDisposed = true;
         
-        _signalRHostService?.Dispose();
+        _networkHostService?.Dispose();
     }
 }

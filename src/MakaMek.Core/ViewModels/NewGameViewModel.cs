@@ -22,7 +22,7 @@ public class NewGameViewModel : BaseViewModel
     private int _forestCoverage = 20;
     private int _lightWoodsPercentage = 30;
     private bool _enableLan;
-    private string? _serverIpAddress;
+    private string? _serverUrl;
 
     private readonly ObservableCollection<PlayerViewModel> _players= [];
 
@@ -86,25 +86,43 @@ public class NewGameViewModel : BaseViewModel
         get => _enableLan;
         set
         {
-            var changed = _enableLan != value;
+            bool oldValue = _enableLan;
             SetProperty(ref _enableLan, value);
-            if (changed && value)
+            
+            // If value changed to true, update server URL
+            if (oldValue != value && value)
             {
-                // When LAN is enabled, get the server address
-                UpdateServerAddress();
+                // When LAN is enabled, get the server URL
+                UpdateServerUrl();
             }
         }
     }
-    
-    public string? ServerIpAddress
+
+    private string? ServerUrl
     {
-        get => _serverIpAddress;
-        private set => SetProperty(ref _serverIpAddress, value);
+        get => _serverUrl;
+        set => SetProperty(ref _serverUrl, value);
     }
     
-    private void UpdateServerAddress()
+    /// <summary>
+    /// Gets a formatted server address for display (host:port)
+    /// </summary>
+    public string? ServerIpAddress
     {
-        ServerIpAddress = _gameManager.GetLanServerAddress();
+        get
+        {
+            if (string.IsNullOrEmpty(ServerUrl))
+                return null;
+                
+            // Extract host from the URL
+            var uri = new Uri(ServerUrl);
+            return $"{uri.Host}";
+        }
+    }
+    
+    private void UpdateServerUrl()
+    {
+        ServerUrl = _gameManager.GetLanServerAddress();
     }
 
 

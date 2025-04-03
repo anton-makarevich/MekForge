@@ -25,12 +25,12 @@ public static class CoreServices
         
         // Register SignalRHostService for LAN players
         services.AddSingleton<SignalRHostService>();
+        services.AddSingleton<INetworkHostService>(sp => sp.GetRequiredService<SignalRHostService>());
         
-        // Register CommandTransportAdapter with both publishers
+        // Register CommandTransportAdapter with just the RxTransportPublisher initially
+        // The network publisher will be added dynamically when needed
         services.AddSingleton<CommandTransportAdapter>(sp => 
-            new CommandTransportAdapter(
-                sp.GetRequiredService<RxTransportPublisher>(),
-                sp.GetRequiredService<SignalRHostService>().Publisher));
+            new CommandTransportAdapter(sp.GetRequiredService<RxTransportPublisher>()));
             
         services.AddSingleton<ICommandPublisher, CommandPublisher>();
         services.AddSingleton<IRulesProvider, ClassicBattletechRulesProvider>();

@@ -31,6 +31,18 @@ public class CommandTransportAdapter
     }
     
     /// <summary>
+    /// Adds a transport publisher to the adapter
+    /// </summary>
+    /// <param name="publisher">The publisher to add</param>
+    public void AddPublisher(ITransportPublisher? publisher)
+    {
+        if (publisher != null && !_transportPublishers.Contains(publisher))
+        {
+            _transportPublishers.Add(publisher);
+        }
+    }
+    
+    /// <summary>
     /// Converts an IGameCommand to a TransportMessage and publishes it to all publishers
     /// </summary>
     /// <param name="command">The command to publish</param>

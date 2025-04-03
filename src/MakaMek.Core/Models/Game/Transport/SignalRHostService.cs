@@ -6,7 +6,7 @@ namespace Sanet.MakaMek.Core.Models.Game.Transport;
 /// <summary>
 /// Service that manages a SignalR host for LAN multiplayer
 /// </summary>
-public class SignalRHostService : IDisposable
+public class SignalRHostService : INetworkHostService
 {
     private SignalRHostManager? _hostManager;
     private bool _isDisposed;
@@ -14,13 +14,12 @@ public class SignalRHostService : IDisposable
     /// <summary>
     /// Gets the transport publisher associated with this host
     /// </summary>
-    public ITransportPublisher Publisher => _hostManager?.Publisher ?? 
-        throw new InvalidOperationException("Host has not been started");
+    public ITransportPublisher? Publisher => _hostManager?.Publisher;
     
     /// <summary>
-    /// Gets the server IP address and port for clients to connect to
+    /// Gets the full hub URL for clients to connect to
     /// </summary>
-    public string? ServerIpAddress { get; private set; }
+    public string? HubUrl => _hostManager?.HubUrl;
     
     /// <summary>
     /// Starts the SignalR host on the specified port
@@ -35,16 +34,28 @@ public class SignalRHostService : IDisposable
         _hostManager = new SignalRHostManager(port);
         await _hostManager.Start();
         
-        // Extract the IP address from the hub URL
-        var hubUrl = _hostManager.HubUrl;
-        var uri = new Uri(hubUrl);
-        ServerIpAddress = $"{uri.Host}:{uri.Port}";
+        // No need to extract IP address anymore, we'll use the full hub URL
     }
     
     /// <summary>
     /// Gets a value indicating whether the host is running
     /// </summary>
     public bool IsRunning => _hostManager != null;
+    
+    /// <summary>
+    /// Stops the SignalR host if it is running
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation</returns>
+    public Task Stop()
+    {
+        if (_hostManager != null)
+        {
+            _hostManager.Dispose();
+            _hostManager = null;
+        }
+        
+        return Task.CompletedTask;
+    }
     
     /// <summary>
     /// Disposes the host service and stops the SignalR host
