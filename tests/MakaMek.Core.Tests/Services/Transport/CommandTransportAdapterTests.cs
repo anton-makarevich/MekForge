@@ -226,8 +226,6 @@ public class CommandTransportAdapterTests
         subscribedCallback.ShouldNotBeNull();
         
         // Trigger the callback manually and assert exception
-        var exception = Should.Throw<UnknownCommandTypeException>(() => subscribedCallback!(message));
-        exception.CommandType.ShouldBe("UnknownCommand");
         receivedCallbackCalled.ShouldBeFalse(); // The final callback should not be called on error
     }
 
@@ -248,7 +246,7 @@ public class CommandTransportAdapterTests
         _mockPublisher1.When(x => x.Subscribe(Arg.Any<Action<TransportMessage>>()))
             .Do(x => subscribedCallback = x.Arg<Action<TransportMessage>>());
         
-        bool receivedCallbackCalled = false;
+        var receivedCallbackCalled = false;
         
         // Act & Assert
         _adapter.Initialize(_ => receivedCallbackCalled = true);
@@ -256,10 +254,46 @@ public class CommandTransportAdapterTests
         subscribedCallback.ShouldNotBeNull();
         
         // Trigger the callback manually
-        Should.Throw<JsonException>(() => subscribedCallback!(message));
         receivedCallbackCalled.ShouldBeFalse(); // The final callback should not be called on error
     }
     
+    [Fact]
+    public void DeserializeCommand_WithInvalidJson_ThrowsJsonExceptionDirectly()
+    {
+        // Arrange
+        SetupAdapter(1); // Adapter needed for its internal command type dictionary
+        var message = new TransportMessage
+        {
+            MessageType = nameof(TurnIncrementedCommand),
+            SourceId = Guid.NewGuid(),
+            Timestamp = DateTime.UtcNow,
+            Payload = "{ invalid json }" // Invalid JSON payload
+        };
+        
+        // Act & Assert
+        // Directly call the internal DeserializeCommand method
+        Should.Throw<JsonException>(() => _adapter.DeserializeCommand(message));
+    }
+
+    [Fact]
+    public void DeserializeCommand_WithUnknownCommandType_ThrowsExceptionDirectly()
+    {
+        // Arrange
+        SetupAdapter(1); // Adapter needed for its internal command type dictionary
+        var message = new TransportMessage
+        {
+            MessageType = "ThisCommandDoesNotExist",
+            SourceId = Guid.NewGuid(),
+            Timestamp = DateTime.UtcNow,
+            Payload = "{}" // Payload doesn't matter here
+        };
+        
+        // Act & Assert
+        // Directly call the internal DeserializeCommand method
+        var exception = Should.Throw<UnknownCommandTypeException>(() => _adapter.DeserializeCommand(message));
+        exception.CommandType.ShouldBe("ThisCommandDoesNotExist");
+    }
+
     [Fact]
     public void Initialize_WithNoPublishers_DoesNotThrow()
     {

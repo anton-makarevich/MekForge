@@ -39,6 +39,12 @@ public class CommandTransportAdapter
         if (publisher != null && !_transportPublishers.Contains(publisher))
         {
             _transportPublishers.Add(publisher);
+            
+            // If Initialize has already been called, subscribe the new publisher immediately
+            if (_onCommandReceived != null)
+            {
+                SubscribePublisher(publisher, _onCommandReceived);
+            }
         }
     }
     
@@ -74,18 +80,7 @@ public class CommandTransportAdapter
         // Subscribe to all publishers
         foreach (var publisher in _transportPublishers)
         {
-            publisher.Subscribe(message => {
-                try
-                {
-                    var command = DeserializeCommand(message);
-                    onCommandReceived(command);
-                }
-                catch (Exception ex)
-                {
-                    // Log error but don't crash
-                    Console.WriteLine($"Error processing message: {ex.Message}");
-                }
-            });
+            SubscribePublisher(publisher, onCommandReceived);
         }
     }
     
@@ -107,7 +102,7 @@ public class CommandTransportAdapter
     /// <exception cref="UnknownCommandTypeException">Thrown when the command type is unknown</exception>
     /// <exception cref="System.Text.Json.JsonException">Thrown when the JSON is invalid</exception>
     /// <exception cref="InvalidOperationException">Thrown when deserialization fails or produces an invalid command</exception>
-    private IGameCommand DeserializeCommand(TransportMessage message)
+    internal IGameCommand DeserializeCommand(TransportMessage message)
     {
         if (!_commandTypes.TryGetValue(message.MessageType, out var commandType))
         {
@@ -160,5 +155,23 @@ public class CommandTransportAdapter
             { nameof(ChangePhaseCommand), typeof(ChangePhaseCommand) },
             { nameof(ChangeActivePlayerCommand), typeof(ChangeActivePlayerCommand) },
         };
+    }
+    
+    // Helper method to encapsulate the subscription logic including error handling
+    private void SubscribePublisher(ITransportPublisher publisher, Action<IGameCommand> onCommandReceived)
+    {
+        publisher.Subscribe(message => {
+            try
+            {
+                var command = DeserializeCommand(message);
+                onCommandReceived(command);
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't crash the transport subscription
+                Console.WriteLine($"Error processing received message: {ex.Message}");
+                // Depending on logging strategy, might want a more robust logger here in the future
+            }
+        });
     }
 }
