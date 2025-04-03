@@ -5,6 +5,8 @@ using Sanet.MakaMek.Core.Models.Game.Dice;
 using Sanet.MakaMek.Core.Models.Map;
 using Sanet.MakaMek.Core.Services.Transport;
 using Sanet.MakaMek.Core.Utils.TechRules;
+using Sanet.MakaMek.Core.Utils.Generators;
+using Sanet.MakaMek.Core.Models.Map.Terrains;
 using Sanet.Transport;
 using Shouldly;
 
@@ -31,7 +33,8 @@ public class GameManagerTests : IDisposable
         var initialPublisher = Substitute.For<ITransportPublisher>(); 
         _transportAdapter = new CommandTransportAdapter([initialPublisher]);
         _networkHostService = Substitute.For<INetworkHostService>();
-        _battleMap = Substitute.For<BattleMap>();
+        _battleMap = BattleMap.GenerateMap(5, 5,
+            new SingleTerrainGenerator(5,5, new ClearTerrain())); // Use real BattleMap
 
         _sut = new GameManager(_rulesProvider, _commandPublisher, _diceRoller,
             _toHitCalculator, _transportAdapter, _networkHostService);
@@ -200,6 +203,6 @@ public class GameManagerTests : IDisposable
 
     public void Dispose()
     {
-        _sut?.Dispose();
+        _sut.Dispose();
     }
 }
