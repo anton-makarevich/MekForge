@@ -7,25 +7,23 @@
              x:DataType="viewModels:NewGameViewModel"
              x:Class="Sanet.MakaMek.Avalonia.Views.NewGame.Fragments.NetworkFragment">
     
-    <Border Background="#20FFFFFF" CornerRadius="8" Padding="16" Margin="8">
-        <StackPanel Spacing="8">
-            <TextBlock Text="Network" FontWeight="Bold" FontSize="18" Margin="0,0,0,8"/>
-            
+    <StackPanel Classes="verticalSpaced">
+        <TextBlock Text="Network Settings" Classes="h2" HorizontalAlignment="Center"/>
+        
+        <StackPanel Classes="formGroup">
+            <TextBlock Text="Multiplayer" Classes="label"/>
             <CheckBox Content="Enable LAN Multiplayer" 
-                     IsChecked="{Binding EnableLan}" 
-                     Margin="0,4"/>
-            
-            <StackPanel IsVisible="{Binding EnableLan}" Spacing="4">
-                <TextBlock Text="Server IP Address:"/>
-                <SelectableTextBlock Text="{Binding ServerIpAddress}" 
-                                    Padding="8,4" 
-                                    Background="#30FFFFFF" 
-                                    />
-                <TextBlock Text="Share this address with other players to connect" 
-                           FontStyle="Italic" 
-                           Opacity="0.7"
-                           Margin="0,4,0,0"/>
-            </StackPanel>
+                     IsChecked="{Binding EnableLan}"/>
         </StackPanel>
-    </Border>
+        
+        <StackPanel Classes="formGroup" IsVisible="{Binding EnableLan}">
+            <TextBlock Text="Server Address" Classes="label"/>
+            <Border Classes="card" Background="{DynamicResource OverlayTransparentBrush}" Padding="8,4" Margin="0">
+                <SelectableTextBlock Text="{Binding ServerIpAddress}"/>
+            </Border>
+            <TextBlock Text="Share this address with other players to connect" 
+                       Classes="bodySmall"
+                       FontStyle="Italic"/>
+        </StackPanel>
+    </StackPanel>
 </UserControl>
