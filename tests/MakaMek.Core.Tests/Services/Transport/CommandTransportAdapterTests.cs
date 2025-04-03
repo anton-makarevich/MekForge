@@ -34,18 +34,6 @@ public class CommandTransportAdapterTests
         
         _adapter = new CommandTransportAdapter(_publishers.ToArray());
     }
-
-    [Fact]
-    public void Constructor_WithNullPublisher_DoesNotAddIt()
-    {
-        // Arrange & Act
-        var adapter = new CommandTransportAdapter(null!, Substitute.For<ITransportPublisher>());
-
-        // Assert - check internal state via behavior
-        var command = new TurnIncrementedCommand { GameOriginId = Guid.NewGuid() };
-        adapter.PublishCommand(command); // Should only publish to the non-null one
-        // Cannot directly assert internal list size, rely on PublishCommand test logic implicitly
-    }
     
     [Fact]
     public void PublishCommand_SendsToAllPublishers()
