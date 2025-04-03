@@ -42,7 +42,6 @@ public class StartNewGameViewModel : BaseViewModel
 
     private IEnumerable<UnitData> _availableUnits=[];
 
-
     private readonly IGameManager _gameManager;
     private readonly IRulesProvider _rulesProvider;
     private readonly ICommandPublisher _commandPublisher;
@@ -86,7 +85,7 @@ public class StartNewGameViewModel : BaseViewModel
         get => _enableLan;
         set
         {
-            bool oldValue = _enableLan;
+            var oldValue = _enableLan;
             SetProperty(ref _enableLan, value);
             
             // If value changed to true, update server URL
@@ -119,6 +118,8 @@ public class StartNewGameViewModel : BaseViewModel
             return $"{uri.Host}";
         }
     }
+    
+    public bool CanStartLanServer => _gameManager.CanStartLanServer;
     
     private void UpdateServerUrl()
     {

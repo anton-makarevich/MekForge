@@ -63,7 +63,8 @@ public class GameManager : IGameManager
     }
     
     public bool IsLanServerRunning => _networkHostService?.IsRunning ?? false;
-    
+    public bool CanStartLanServer => _networkHostService?.CanStart?? false;
+
     public void Dispose()
     {
         if (_isDisposed) return;

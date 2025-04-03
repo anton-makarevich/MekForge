@@ -7,7 +7,7 @@
              x:Class="Sanet.MakaMek.Avalonia.Views.NewGame.Fragments.PlayersFragment"
              x:DataType="viewModels:StartNewGameViewModel">
     <StackPanel Classes="verticalSpaced">
-        <TextBlock Text="Players" Classes="h1" HorizontalAlignment="Center"/>
+        <TextBlock Text="Players" Classes="h2" HorizontalAlignment="Center"/>
         <ItemsControl ItemsSource="{Binding Players}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>

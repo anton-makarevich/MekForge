@@ -29,7 +29,7 @@
                 </ScrollViewer>
             </TabItem>
             
-            <TabItem Header="Network">
+            <TabItem Header="Network" IsVisible="{Binding CanStartLanServer}">
                 <ScrollViewer Classes="gameScrollViewer">
                     <fragments:NetworkFragment/>
                 </ScrollViewer>

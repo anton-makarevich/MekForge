@@ -7,7 +7,7 @@
              x:Class="Sanet.MakaMek.Avalonia.Views.NewGame.Fragments.MapConfigFragment"
              x:DataType="viewModels:StartNewGameViewModel">
     <StackPanel Classes="verticalSpaced">
-        <TextBlock Text="New Game" Classes="h1" HorizontalAlignment="Center"/>
+        <TextBlock Text="Map Settings" Classes="h2" HorizontalAlignment="Center"/>
         
         <StackPanel Classes="formGroup">
             <TextBlock Text="{Binding MapWidthLabel}" Classes="label"/>

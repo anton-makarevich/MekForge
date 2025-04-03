@@ -21,4 +21,9 @@ public interface IGameManager : IDisposable
     /// Gets a value indicating whether the LAN server is running
     /// </summary>
     bool IsLanServerRunning { get; }
+    
+    /// <summary>
+    /// Gets a value indicating whether the LAN server can be started
+    /// </summary>
+    bool CanStartLanServer { get; }
 }
