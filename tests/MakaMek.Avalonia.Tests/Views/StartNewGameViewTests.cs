@@ -1,21 +1,22 @@
 using NSubstitute;
 using Sanet.MakaMek.Avalonia.Views.NewGame;
+using Sanet.MakaMek.Avalonia.Views.StartNewGame;
 using Sanet.MakaMek.Core.Models.Game;
 using Sanet.MakaMek.Core.Models.Game.Combat;
-using Sanet.MakaMek.Core.Models.Game.Transport;
+using Sanet.MakaMek.Core.Services.Transport;
 using Sanet.MakaMek.Core.Utils.TechRules;
 using Sanet.MakaMek.Core.ViewModels;
 using Shouldly;
 
 namespace MakaMek.Avalonia.Tests.Views
 {
-    public class NewGameViewTests
+    public class StartNewGameViewTests
     {
         [Fact]
         public void NewGameView_WhenCreated_ShouldInitializeCorrectly()
         {
             // Arrange & Act
-            var view = new NewGameViewNarrow();
+            var view = new StartNewGameViewNarrow();
 
             // Assert
             view.ShouldNotBeNull();
@@ -25,8 +26,8 @@ namespace MakaMek.Avalonia.Tests.Views
         public void NewGameView_WhenViewModelSet_ShouldBindCorrectly()
         {
             // Arrange
-            var view = new NewGameViewNarrow();
-            var viewModel = new NewGameViewModel(Substitute.For<IGameManager>(), 
+            var view = new StartNewGameViewNarrow();
+            var viewModel = new StartNewGameViewModel(Substitute.For<IGameManager>(), 
                 Substitute.For<IRulesProvider>(),
                 Substitute.For<ICommandPublisher>(), Substitute.For<IToHitCalculator>());
 

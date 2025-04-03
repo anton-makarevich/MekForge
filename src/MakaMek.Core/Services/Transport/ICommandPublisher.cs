@@ -1,6 +1,6 @@
 using Sanet.MakaMek.Core.Models.Game.Commands;
 
-namespace Sanet.MakaMek.Core.Models.Game.Transport;
+namespace Sanet.MakaMek.Core.Services.Transport;
 
 public interface ICommandPublisher
 {

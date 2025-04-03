@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Sanet.MakaMek.Avalonia.DI;
 using Sanet.MakaMek.Avalonia.Views;
 using Sanet.MakaMek.Avalonia.Views.NewGame;
+using Sanet.MakaMek.Avalonia.Views.StartNewGame;
 using Sanet.MakaMek.Core.ViewModels;
 using Sanet.MVVM.Core.Services;
 using Sanet.MVVM.Navigation.Avalonia.Services;
@@ -34,21 +35,21 @@ public partial class App : Application
         var serviceProvider = services.BuildServiceProvider();
         INavigationService navigationService;
 
-        NewGameViewModel? viewModel;
+        StartNewGameViewModel? viewModel;
         switch (ApplicationLifetime)
         {
             case IClassicDesktopStyleApplicationLifetime desktop:
                 navigationService = new NavigationService(desktop, serviceProvider);
                 RegisterViews(navigationService);
-                viewModel = navigationService.GetViewModel<NewGameViewModel>();
+                viewModel = navigationService.GetViewModel<StartNewGameViewModel>();
                 desktop.MainWindow = new MainWindow
                 {
                     Content = IsMobile()
-                    ? new NewGameViewNarrow()
+                    ? new StartNewGameViewNarrow()
                     {
                         ViewModel = viewModel
                     }
-                    : new NewGameViewWide
+                    : new StartNewGameViewWide
                     {
                         ViewModel = viewModel
                     }
@@ -60,13 +61,13 @@ public partial class App : Application
                 navigationService =
                     new SingleViewNavigationService(singleViewPlatform, mainViewWrapper, serviceProvider);
                 RegisterViews(navigationService);
-                viewModel = navigationService.GetViewModel<NewGameViewModel>();
+                viewModel = navigationService.GetViewModel<StartNewGameViewModel>();
                 mainViewWrapper.Content = IsMobile()
-                    ? new NewGameViewNarrow
+                    ? new StartNewGameViewNarrow
                     {
                         ViewModel = viewModel
                     }
-                    : new NewGameViewWide
+                    : new StartNewGameViewWide
                     {
 
                         ViewModel = viewModel
@@ -81,11 +82,11 @@ public partial class App : Application
     {
         if (IsMobile())
         {
-            navigationService.RegisterViews(typeof(NewGameViewNarrow), typeof(NewGameViewModel));
+            navigationService.RegisterViews(typeof(StartNewGameViewNarrow), typeof(StartNewGameViewModel));
         }
         else
         {
-            navigationService.RegisterViews(typeof(NewGameViewWide), typeof(NewGameViewModel));
+            navigationService.RegisterViews(typeof(StartNewGameViewWide), typeof(StartNewGameViewModel));
         }
         
         navigationService.RegisterViews(typeof(BattleMapView), typeof(BattleMapViewModel));

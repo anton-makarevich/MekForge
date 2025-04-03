@@ -5,9 +5,9 @@ using Sanet.MakaMek.Core.Data.Units;
 using Sanet.MakaMek.Core.Models.Game;
 using Sanet.MakaMek.Core.Models.Game.Combat;
 using Sanet.MakaMek.Core.Models.Game.Players;
-using Sanet.MakaMek.Core.Models.Game.Transport;
 using Sanet.MakaMek.Core.Models.Map;
 using Sanet.MakaMek.Core.Models.Map.Terrains;
+using Sanet.MakaMek.Core.Services.Transport;
 using Sanet.MakaMek.Core.Utils.Generators;
 using Sanet.MakaMek.Core.Utils.TechRules;
 using Sanet.MakaMek.Core.ViewModels.Wrappers;
@@ -15,7 +15,7 @@ using Sanet.MVVM.Core.ViewModels;
 
 namespace Sanet.MakaMek.Core.ViewModels;
 
-public class NewGameViewModel : BaseViewModel
+public class StartNewGameViewModel : BaseViewModel
 {
     private int _mapWidth = 15;
     private int _mapHeight = 17;
@@ -26,7 +26,7 @@ public class NewGameViewModel : BaseViewModel
 
     private readonly ObservableCollection<PlayerViewModel> _players= [];
 
-    public NewGameViewModel(IGameManager gameManager, IRulesProvider rulesProvider, ICommandPublisher commandPublisher,
+    public StartNewGameViewModel(IGameManager gameManager, IRulesProvider rulesProvider, ICommandPublisher commandPublisher,
         IToHitCalculator toHitCalculator)
     {
         _gameManager = gameManager;

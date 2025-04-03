@@ -3,9 +3,9 @@ using Sanet.MakaMek.Avalonia.Services;
 using Sanet.MakaMek.Core.Models.Game;
 using Sanet.MakaMek.Core.Models.Game.Combat;
 using Sanet.MakaMek.Core.Models.Game.Dice;
-using Sanet.MakaMek.Core.Models.Game.Transport;
 using Sanet.MakaMek.Core.Services;
 using Sanet.MakaMek.Core.Services.Localization;
+using Sanet.MakaMek.Core.Services.Transport;
 using Sanet.MakaMek.Core.Utils.TechRules;
 using Sanet.MakaMek.Core.ViewModels;
 using Sanet.Transport.Rx;
@@ -35,7 +35,7 @@ public static class CoreServices
     }
     public static void RegisterViewModels(this IServiceCollection services)
     {
-        services.AddTransient<NewGameViewModel, NewGameViewModel>();
+        services.AddTransient<StartNewGameViewModel, StartNewGameViewModel>();
         services.AddTransient<BattleMapViewModel, BattleMapViewModel>();
     }
 }

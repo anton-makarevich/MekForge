@@ -1,8 +1,6 @@
-using System;
-using System.Collections.Generic;
 using Sanet.MakaMek.Core.Models.Game.Commands;
 
-namespace Sanet.MakaMek.Core.Models.Game.Transport;
+namespace Sanet.MakaMek.Core.Services.Transport;
 
 /// <summary>
 /// Implementation of ICommandPublisher that uses a CommandTransportAdapter

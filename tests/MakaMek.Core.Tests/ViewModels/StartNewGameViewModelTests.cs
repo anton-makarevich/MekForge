@@ -5,11 +5,11 @@ using Sanet.MakaMek.Core.Data.Units;
 using Sanet.MakaMek.Core.Models.Game;
 using Sanet.MakaMek.Core.Models.Game.Combat;
 using Sanet.MakaMek.Core.Models.Game.Commands.Client;
-using Sanet.MakaMek.Core.Models.Game.Transport;
 using Sanet.MakaMek.Core.Models.Map;
 using Sanet.MakaMek.Core.Models.Map.Terrains;
 using Sanet.MakaMek.Core.Services;
 using Sanet.MakaMek.Core.Services.Localization;
+using Sanet.MakaMek.Core.Services.Transport;
 using Sanet.MakaMek.Core.Tests.Data;
 using Sanet.MakaMek.Core.Tests.Data.Community;
 using Sanet.MakaMek.Core.Utils.TechRules;
@@ -18,15 +18,15 @@ using Sanet.MVVM.Core.Services;
 
 namespace Sanet.MakaMek.Core.Tests.ViewModels;
 
-public class NewGameViewModelTests
+public class StartNewGameViewModelTests
 {
-    private readonly NewGameViewModel _sut;
+    private readonly StartNewGameViewModel _sut;
     private readonly INavigationService _navigationService;
     private readonly BattleMapViewModel _battleMapViewModel;
     private readonly IGameManager _gameManager;
     private readonly ICommandPublisher? _commandPublisher;
 
-    public NewGameViewModelTests()
+    public StartNewGameViewModelTests()
     {
         _navigationService = Substitute.For<INavigationService>();
         var localizationService = Substitute.For<ILocalizationService>();
@@ -40,7 +40,7 @@ public class NewGameViewModelTests
         
         _commandPublisher = Substitute.For<ICommandPublisher>();
 
-        _sut = new NewGameViewModel(_gameManager,rulesProvider,_commandPublisher,
+        _sut = new StartNewGameViewModel(_gameManager,rulesProvider,_commandPublisher,
             Substitute.For<IToHitCalculator>());
         _sut.SetNavigationService(_navigationService);
     }

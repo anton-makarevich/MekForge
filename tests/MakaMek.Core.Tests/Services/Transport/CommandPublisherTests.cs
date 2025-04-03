@@ -2,11 +2,11 @@ using NSubstitute;
 using Sanet.MakaMek.Core.Exceptions;
 using Sanet.MakaMek.Core.Models.Game.Commands;
 using Sanet.MakaMek.Core.Models.Game.Commands.Server;
-using Sanet.MakaMek.Core.Models.Game.Transport;
+using Sanet.MakaMek.Core.Services.Transport;
 using Sanet.Transport;
 using Shouldly;
 
-namespace Sanet.MakaMek.Core.Tests.Models.Game.Transport;
+namespace Sanet.MakaMek.Core.Tests.Services.Transport;
 
 public class CommandPublisherTests
 {

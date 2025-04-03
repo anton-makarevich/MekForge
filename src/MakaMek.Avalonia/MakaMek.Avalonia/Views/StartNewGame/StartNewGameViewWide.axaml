@@ -5,8 +5,8 @@
              xmlns:viewModels="clr-namespace:Sanet.MakaMek.Core.ViewModels;assembly=Sanet.MakaMek.Core"
              xmlns:fragments1="clr-namespace:Sanet.MakaMek.Avalonia.Views.NewGame.Fragments"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Sanet.MakaMek.Avalonia.Views.NewGame.NewGameViewWide"
-             x:DataType="viewModels:NewGameViewModel">
+             x:Class="Sanet.MakaMek.Avalonia.Views.StartNewGame.StartNewGameViewWide"
+             x:DataType="viewModels:StartNewGameViewModel">
     <DockPanel Classes="pageContainer">
         <Button DockPanel.Dock="Bottom"
                 Command="{Binding StartGameCommand}"

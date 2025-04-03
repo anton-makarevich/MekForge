@@ -1,6 +1,6 @@
 using Sanet.Transport;
 
-namespace Sanet.MakaMek.Core.Models.Game.Transport;
+namespace Sanet.MakaMek.Core.Services.Transport;
 
 /// <summary>
 /// Dummy implementation of INetworkHostService for platforms that don't support SignalR hosting
@@ -39,7 +39,9 @@ public class DummyNetworkHostService : INetworkHostService
         // No-op implementation
         return Task.CompletedTask;
     }
-    
+
+    public bool CanStart => false;
+
     /// <summary>
     /// No-op implementation
     /// </summary>

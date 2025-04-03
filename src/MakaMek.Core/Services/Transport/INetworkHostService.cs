@@ -1,6 +1,6 @@
 using Sanet.Transport;
 
-namespace Sanet.MakaMek.Core.Models.Game.Transport;
+namespace Sanet.MakaMek.Core.Services.Transport;
 
 /// <summary>
 /// Interface for services that manage network hosts for multiplayer
@@ -34,4 +34,9 @@ public interface INetworkHostService : IDisposable
     /// </summary>
     /// <returns>A task representing the asynchronous operation</returns>
     Task Stop();
+    
+    /// <summary>
+    /// Gets a value indicating whether the host can be started
+    /// </summary>
+    bool CanStart { get; }
 }

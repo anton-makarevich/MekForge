@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Sanet.MakaMek.Core.Models.Game.Transport;
+using Sanet.MakaMek.Core.Services.Transport;
 
 namespace Sanet.MakaMek.Avalonia.Android.DependencyInjection;
 

@@ -5,7 +5,7 @@ using Sanet.MakaMek.Core.Models.Game.Commands.Client;
 using Sanet.MakaMek.Core.Models.Game.Commands.Server;
 using Sanet.Transport;
 
-namespace Sanet.MakaMek.Core.Models.Game.Transport;
+namespace Sanet.MakaMek.Core.Services.Transport;
 
 /// <summary>
 /// Adapter that bridges between game commands and transport messages

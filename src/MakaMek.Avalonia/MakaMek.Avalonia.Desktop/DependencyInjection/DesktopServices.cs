@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Sanet.MakaMek.Avalonia.Desktop.Services;
-using Sanet.MakaMek.Core.Models.Game.Transport;
+using Sanet.MakaMek.Core.Services.Transport;
 
 namespace Sanet.MakaMek.Avalonia.Desktop.DependencyInjection;
 

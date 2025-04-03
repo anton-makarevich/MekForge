@@ -1,6 +1,6 @@
-using Sanet.MakaMek.Core.Models.Game.Transport;
 using Sanet.Transport;
 using System.Threading.Tasks;
+using Sanet.MakaMek.Core.Services.Transport;
 using Sanet.Transport.SignalR.Infrastructure;
 
 namespace Sanet.MakaMek.Avalonia.Desktop.Services;
@@ -53,15 +53,15 @@ public class SignalRHostService : INetworkHostService
     /// <returns>A task representing the asynchronous operation</returns>
     public Task Stop()
     {
-        if (_hostManager != null)
-        {
-            _hostManager.Dispose();
-            _hostManager = null;
-        }
-        
+        if (_hostManager == null) return Task.CompletedTask;
+        _hostManager.Dispose();
+        _hostManager = null;
+
         return Task.CompletedTask;
     }
-    
+
+    public bool CanStart => true;
+
     /// <summary>
     /// Disposes the host service and stops the SignalR host
     /// </summary>

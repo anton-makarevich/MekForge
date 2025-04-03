@@ -7,9 +7,9 @@ using Sanet.MakaMek.Core.Data.Units;
 using Sanet.MakaMek.Core.ViewModels;
 using Sanet.MVVM.Views.Avalonia;
 
-namespace Sanet.MakaMek.Avalonia.Views.NewGame;
+namespace Sanet.MakaMek.Avalonia.Views.StartNewGame;
 
-public abstract class NewGameView : BaseView<NewGameViewModel>
+public abstract class StartNewGameView : BaseView<StartNewGameViewModel>
 {
     private async Task LoadUnits()
     {

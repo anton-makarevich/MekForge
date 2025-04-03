@@ -1,7 +1,6 @@
 using Sanet.MakaMek.Core.Models.Game.Commands;
 using Sanet.MakaMek.Core.Models.Game.Commands.Client;
 using Sanet.MakaMek.Core.Models.Game.Commands.Server;
-using Sanet.MakaMek.Core.Models.Game.Transport;
 using Sanet.MakaMek.Core.Models.Map;
 using Sanet.MakaMek.Core.Utils.TechRules;
 using System.Reactive.Subjects;
@@ -10,6 +9,7 @@ using Sanet.MakaMek.Core.Data.Units;
 using Sanet.MakaMek.Core.Models.Game.Combat;
 using Sanet.MakaMek.Core.Models.Game.Players;
 using Sanet.MakaMek.Core.Models.Game.Phases;
+using Sanet.MakaMek.Core.Services.Transport;
 
 namespace Sanet.MakaMek.Core.Models.Game;
 
