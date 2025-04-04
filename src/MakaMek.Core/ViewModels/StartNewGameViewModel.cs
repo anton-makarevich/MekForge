@@ -12,9 +12,9 @@ using Sanet.MakaMek.Core.Utils.Generators;
 using Sanet.MakaMek.Core.Utils.TechRules;
 using Sanet.MakaMek.Core.ViewModels.Wrappers;
 using Sanet.MVVM.Core.ViewModels;
-using Sanet.MakaMek.Core.Models.Game.Commands.Client; // Added for JoinGameCommand
+using Sanet.MakaMek.Core.Models.Game.Commands.Client;
 using Sanet.MakaMek.Core.Models.Game.Commands;
-using Sanet.MakaMek.Core.Services; // Added for IGameCommand
+using Sanet.MakaMek.Core.Services; 
 
 namespace Sanet.MakaMek.Core.ViewModels;
 
@@ -39,7 +39,7 @@ public class StartNewGameViewModel : BaseViewModel
         IRulesProvider rulesProvider, 
         ICommandPublisher commandPublisher,
         IToHitCalculator toHitCalculator,
-        IDispatcherService dispatcherService) // Added dependency
+        IDispatcherService dispatcherService) 
     {
         _gameManager = gameManager;
         _rulesProvider = rulesProvider;
@@ -66,15 +66,28 @@ public class StartNewGameViewModel : BaseViewModel
             {
                 // Handle player joining (potentially echo of local or a remote player)
                 case JoinGameCommand joinCmd:
-                    // Avoid adding the player if they already exist in the ViewModel's list
-                    if (_players.All(p => p.Player.Id != joinCmd.PlayerId))
+                    var existingPlayerVm = _players.FirstOrDefault(p => p.Player.Id == joinCmd.PlayerId);
+                    if (existingPlayerVm != null)
                     {
-                        var newPlayer = new Player(joinCmd.PlayerId, joinCmd.PlayerName, joinCmd.Tint);
-                        // Create ViewModel wrapper, units will be empty initially for remote players
-                        // TODO Join command has a list of units that should be added to the list. 
-                        var playerVm = new PlayerViewModel(newPlayer, _availableUnits, 
+                        // Player exists - likely the echo for a local player who just clicked Join
+                        if (existingPlayerVm.IsLocalPlayer)
+                        {
+                            //TODO: mar as joined
+                        }
+                        // Else: Remote player sending join again? Ignore or log warning.
+                    }
+                    else
+                    {   // Player doesn't exist - must be a remote player joining
+                        var remotePlayer = new Player(joinCmd.PlayerId, joinCmd.PlayerName, joinCmd.Tint);
+                        var remotePlayerVm = new PlayerViewModel(
+                            remotePlayer, 
+                            isLocalPlayer: false, // Mark as remote
+                            [], 
+                            null, // No join action needed for remote
                             () => NotifyPropertyChanged(nameof(CanStartGame))); 
-                        _players.Add(playerVm);
+                        
+                        remotePlayerVm.AddUnits(joinCmd.Units); // Add units received from command
+                        _players.Add(remotePlayerVm);
                         NotifyPropertyChanged(nameof(CanAddPlayer));
                         NotifyPropertyChanged(nameof(CanStartGame));
                     }
@@ -92,8 +105,6 @@ public class StartNewGameViewModel : BaseViewModel
                         NotifyPropertyChanged(nameof(CanStartGame)); // Re-evaluate if game can start
                     }
                     break;
-                    
-                // Add handlers for other relevant server->client commands if needed
             }
         });
     }
@@ -202,18 +213,44 @@ public class StartNewGameViewModel : BaseViewModel
 
     public ICommand AddPlayerCommand => new AsyncCommand(AddPlayer);
 
+    // Method to be passed to local PlayerViewModel instances
+    private void PublishJoinCommand(PlayerViewModel playerVm)
+    {
+        if (!playerVm.IsLocalPlayer) return; // Should only be called for local players
+        
+        var joinCommand = new JoinGameCommand
+        {
+            PlayerId = playerVm.Player.Id,
+            PlayerName = playerVm.Player.Name,
+            Tint = playerVm.Player.Tint,
+            Units = playerVm.Units.ToList() // Send currently selected units
+            // GameOriginId is handled by CommandPublisher infrastructure
+        };
+        _commandPublisher.PublishCommand(joinCommand); // Changed Publish to PublishCommand
+    }
+    
     private Task AddPlayer()
     {
         if (!CanAddPlayer) return Task.CompletedTask; 
+ 
+        // 1. Create Local Player Object
         var newPlayer = new Player(Guid.NewGuid(), $"Player {_players.Count + 1}", GetNextTilt());
+        
+        // 2. Create Local ViewModel Wrapper
         var playerViewModel = new PlayerViewModel(
             newPlayer,
+            isLocalPlayer: true, // Mark as local
             _availableUnits,
-            () => { NotifyPropertyChanged(nameof(CanStartGame));});
+            PublishJoinCommand, // Pass the action to publish the Join command
+            () => NotifyPropertyChanged(nameof(CanStartGame)));
+        
+        // 3. Add to Local UI Collection
         _players.Add(playerViewModel);
         NotifyPropertyChanged(nameof(CanAddPlayer));
-        NotifyPropertyChanged(nameof(CanStartGame));
-
+        NotifyPropertyChanged(nameof(CanStartGame)); // CanStartGame might be false until units are added
+ 
+        // 4. DO NOT publish Join command here anymore. PlayerViewModel's Join button will trigger PublishJoinCommand.
+ 
         return Task.CompletedTask;
     }
 
