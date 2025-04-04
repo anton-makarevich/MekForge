@@ -18,7 +18,7 @@ public class GameManager : IGameManager
     private bool _isDisposed;
 
     public GameManager(IRulesProvider rulesProvider, ICommandPublisher commandPublisher, IDiceRoller diceRoller,
-        IToHitCalculator toHitCalculator, CommandTransportAdapter transportAdapter, INetworkHostService networkHostService)
+        IToHitCalculator toHitCalculator, CommandTransportAdapter transportAdapter, INetworkHostService? networkHostService = null)
     {
         _rulesProvider = rulesProvider;
         _commandPublisher = commandPublisher;
@@ -28,32 +28,37 @@ public class GameManager : IGameManager
         _networkHostService = networkHostService;
     }
 
-    public void StartServer(BattleMap battleMap, bool enableLan = false)
+    public async Task InitializeLobby()
     {
-        // Start the network host if LAN is enabled and not already running
-        if (enableLan && !IsLanServerRunning)
+        // Start the network host if supported and not already running
+        if (CanStartLanServer && !IsLanServerRunning && _networkHostService != null)
         {
-            _ = _networkHostService?.Start(2439);
+            await _networkHostService.Start(2439);
             
-            // Add the network publisher to the transport adapter when it's available
-            if (_networkHostService?.Publisher != null)
+            // Add the network publisher to the transport adapter if successfully started
+            if (_networkHostService.IsRunning && _networkHostService.Publisher != null)
             {
                 _transportAdapter.AddPublisher(_networkHostService.Publisher);
             }
         }
         
-        // Start the game server if not already running
+        // Create the game server instance if not already created
         if (_serverGame == null)
         {
-            _serverGame = new ServerGame(battleMap, _rulesProvider, _commandPublisher, _diceRoller, _toHitCalculator);
-            // Start server in background
+            _serverGame = new ServerGame(_rulesProvider, _commandPublisher, _diceRoller, _toHitCalculator);
+            // Start server listening loop in background
             _ = Task.Run(() => _serverGame.Start());
         }
     }
-    
+
+    public void SetBattleMap(BattleMap battleMap)
+    {
+        _serverGame?.SetBattleMap(battleMap);
+    }
+
     public string? GetLanServerAddress()
     {
-        // Start the network host if not already running
+        // Return address only if the host service is actually running
         if (!IsLanServerRunning)
         {
             return null;
@@ -63,13 +68,18 @@ public class GameManager : IGameManager
     }
     
     public bool IsLanServerRunning => _networkHostService?.IsRunning ?? false;
-    public bool CanStartLanServer => _networkHostService?.CanStart?? false;
+    public bool CanStartLanServer => _networkHostService?.CanStart ?? false;
 
     public void Dispose()
     {
         if (_isDisposed) return;
         _isDisposed = true;
         
+        // Dispose server game if it exists
+        _serverGame?.Dispose();
+        _serverGame = null;
+        
+        // Dispose network host
         _networkHostService?.Dispose();
     }
 }
