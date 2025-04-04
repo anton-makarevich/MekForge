@@ -57,14 +57,11 @@ public class PlayerViewModel : BindableBase
         return Task.CompletedTask;
     }
     
-    public bool CanAddUnit()
-    {
-        return IsLocalPlayer && SelectedUnit != null;
-    }
+    public bool CanAddUnit => IsLocalPlayer && SelectedUnit != null;
 
     private Task AddUnit()
     {
-        if (!CanAddUnit()) return Task.CompletedTask;
+        if (!CanAddUnit) return Task.CompletedTask;
         
         var unit = SelectedUnit!.Value; 
         unit.Id = Guid.NewGuid(); 
@@ -85,10 +82,12 @@ public class PlayerViewModel : BindableBase
             Units.Add(unitToAdd);
         }
         _onUnitChanged?.Invoke();
+        NotifyPropertyChanged(nameof(CanJoin));
     }
     
     public bool CanSelectUnits => IsLocalPlayer; 
     public bool ShowAddUnitControls => IsLocalPlayer; 
     public bool ShowUnitListReadOnly => !IsLocalPlayer; 
-    public bool ShowJoinButton => IsLocalPlayer; 
+    public bool ShowJoinButton => IsLocalPlayer;
+    public bool CanJoin => Units.Count > 0;
 }
