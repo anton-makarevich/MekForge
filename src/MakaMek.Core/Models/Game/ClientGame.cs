@@ -22,9 +22,9 @@ public sealed class ClientGame : BaseGame
     public IObservable<IGameCommand> Commands => _commandSubject.AsObservable();
     public IReadOnlyList<IGameCommand> CommandLog => _commandLog;
     
-    public ClientGame(BattleMap battleMap, IReadOnlyList<IPlayer> localPlayers,
+    public ClientGame(IReadOnlyList<IPlayer> localPlayers,
         IRulesProvider rulesProvider, ICommandPublisher commandPublisher, IToHitCalculator toHitCalculator)
-        : base(battleMap, rulesProvider, commandPublisher, toHitCalculator)
+        : base(rulesProvider, commandPublisher, toHitCalculator)
     {
         LocalPlayers = localPlayers;
         TurnPhase = PhaseNames.Start;

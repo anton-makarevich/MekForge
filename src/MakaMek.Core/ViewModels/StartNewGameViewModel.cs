@@ -13,7 +13,8 @@ using Sanet.MakaMek.Core.Utils.TechRules;
 using Sanet.MakaMek.Core.ViewModels.Wrappers;
 using Sanet.MVVM.Core.ViewModels;
 using Sanet.MakaMek.Core.Models.Game.Commands.Client; // Added for JoinGameCommand
-using Sanet.MakaMek.Core.Models.Game.Commands; // Added for IGameCommand
+using Sanet.MakaMek.Core.Models.Game.Commands;
+using Sanet.MakaMek.Core.Services; // Added for IGameCommand
 
 namespace Sanet.MakaMek.Core.ViewModels;
 
@@ -47,7 +48,7 @@ public class StartNewGameViewModel : BaseViewModel
         _dispatcherService = dispatcherService; // Store service
     }
 
-    private async Task InitializeLobbyAndSubscribe()
+    public async Task InitializeLobbyAndSubscribe()
     {
         await _gameManager.InitializeLobby();
         _commandPublisher.Subscribe(HandleServerCommand);
@@ -66,7 +67,7 @@ public class StartNewGameViewModel : BaseViewModel
                 // Handle player joining (potentially echo of local or a remote player)
                 case JoinGameCommand joinCmd:
                     // Avoid adding the player if they already exist in the ViewModel's list
-                    if (!_players.Any(p => p.Player.Id == joinCmd.PlayerId))
+                    if (_players.All(p => p.Player.Id != joinCmd.PlayerId))
                     {
                         var newPlayer = new Player(joinCmd.PlayerId, joinCmd.PlayerName, joinCmd.Tint);
                         // Create ViewModel wrapper, units will be empty initially for remote players
@@ -138,7 +139,7 @@ public class StartNewGameViewModel : BaseViewModel
     /// <summary>
     /// Gets the server address if LAN is running
     /// </summary>
-    public string? ServerIpAddress
+    public string ServerIpAddress
     {
         get
         {
@@ -179,10 +180,10 @@ public class StartNewGameViewModel : BaseViewModel
 
         // 3. Host Client for local player(s) 
         var localGame = new ClientGame(
-            localBattleMap,
             Players.Select(vm=>vm.Player).ToList(),
             _rulesProvider,
             _commandPublisher, _toHitCalculator);
+        localGame.SetBattleMap(localBattleMap);
 
         var battleMapViewModel = NavigationService.GetViewModel<BattleMapViewModel>();
         battleMapViewModel.Game = localGame;
@@ -231,8 +232,9 @@ public class StartNewGameViewModel : BaseViewModel
     
     public bool CanAddPlayer => _players.Count < 4; // Limit to 4 players for now
 
-    public void Dispose()
+    public override void DetachHandlers()
     {
+        base.DetachHandlers();
         // Dispose game manager if this ViewModel owns it (depends on DI lifetime)
         _gameManager.Dispose(); 
         GC.SuppressFinalize(this);

@@ -32,6 +32,7 @@ public static class CoreServices
         services.AddSingleton<IDiceRoller, RandomDiceRoller>();
         services.AddSingleton<IToHitCalculator, ClassicToHitCalculator>();
         services.AddSingleton<IGameManager, GameManager>();
+        services.AddSingleton<IDispatcherService, AvaloniaDispatcherService>();
     }
     public static void RegisterViewModels(this IServiceCollection services)
     {
